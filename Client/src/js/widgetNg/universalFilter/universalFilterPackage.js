@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -95,6 +95,8 @@
         this._identifyNode(targetSelector.getDataProvider().getData(), targetSelector.xPath);
       }.bind(this), targetSelector.xPath);
 
+      var actionHandler = (this.options.actionHandler && this.options.actionHandler.contextMenuActionHandler) ? this.options.actionHandler : new bcdui.widgetNg.universalFilter.ActionHandler();
+
       // create a descrete data provider
       this.targetDataProvider = new bcdui.core.DataProviderWithXPathNodes({
         xPath : this.options.targetModelXPath
@@ -157,7 +159,8 @@
           targetHtmlElement : this.element,
           tableMode : false,
           refreshMenuModel : true,
-          inputModel : new bcdui.core.SimpleModel({ url: bcdui.config.libPath + "js/widgetNg/universalFilter/contextMenu.xml"})
+          inputModel : new bcdui.core.SimpleModel({ url: bcdui.config.libPath + "js/widgetNg/universalFilter/contextMenu.xml"}),
+          actionHandler: actionHandler.contextMenuActionHandler
         });
         
         var _getAnchorElement = function(targetElement){ // helper for getting an anchor element for UI, usually it is the element rendering f:Expression
@@ -299,7 +302,13 @@
           uiElement.show();
         }.bind(null, !!args.targetNodeId, uiElement);
         createUiRenderer.execute();
-        createUiRenderer.onReady(revealUi);
+        createUiRenderer.onReady(function() {
+          jQuery(self.createUiElement).find(".closeContainer").off("click");
+          jQuery(self.createUiElement).find(".closeContainer").on("click", function(event) {
+            jQuery(event.target).trigger('bcdui:universalFilter:closeCreateUi');
+          });
+          revealUi();
+        });
       })
       // trigger by create-ui
       .on("bcdui:universalFilter:closeCreateUi", function(event){
@@ -657,5 +666,13 @@ bcdui.widgetNg.universalFilter = Object.assign(bcdui.widgetNg.universalFilter,
    */
   init: function(htmlElement){
     jQuery(htmlElement).bcduiUniversalFilterNg();
+  },
+
+  triggerAdd: function() {
+    jQuery(this).trigger('bcdui:universalFilter:add');
+  },
+
+  triggerCreateMultiValueInput: function() {
+    jQuery(this).trigger('bcdui:universalFilter:createMultiValueInput')
   }
 });

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -263,7 +263,8 @@ bcdui.widget.menu.Menu = class
       this.element.onmouseout = function() {
         if (menuItem.root.openDelayTimer) window.clearTimeout(menuItem.root.openDelayTimer);
         if (menuItem.root.closeDelayTimer) window.clearTimeout(menuItem.root.closeDelayTimer);
-        eval(menuItem.root.name)["closingMenuItem"] = menuItem;
+        const o = bcdui.util._getJsObjectFromString(menuItem.root.name);
+        o["closingMenuItem"] = menuItem;
         menuItem.root.closeDelayTimer = window.setTimeout(menuItem.root.name + ".closingMenuItem.subMenu._close()", menuItem.root.closeDelayTime);
       }
     }

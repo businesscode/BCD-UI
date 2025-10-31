@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -188,7 +188,8 @@
             </xsl:variable>
 
             <xsl:text>&#10;&#10;    </xsl:text><xsl:comment>bcdOnLoad attribute with js implementation call</xsl:comment><xsl:text></xsl:text>
-            <xsl:text>&#10;    </xsl:text><xsla:attribute name="bcdOnLoad"><xsl:value-of select="concat(substring(@implementationPackage, 1, number($x)),@name,'.init(this);')"/></xsla:attribute>
+            <xsl:text>&#10;    </xsl:text><xsla:attribute name="bcdInit"><xsl:value-of select="concat(substring(@implementationPackage, 1, number($x)),@name,'.init')"/></xsla:attribute>
+            <xsl:text>&#10;    </xsl:text><xsla:attribute name="bcdOnLoad">bcdui.util._bcdInit</xsla:attribute>
             <xsl:text>&#10;    </xsl:text><xsla:value-of select="*[false()]"/>
           <xsl:text>&#10;&#10;  </xsl:text></xsla:element>
           <xsl:text>&#10;  </xsl:text><xsl:comment>htmlElement container end</xsl:comment><xsl:text>&#10;&#10;</xsl:text>
@@ -467,15 +468,16 @@
               <xsl:if test="@name='optionsModelXPath'"><xsl:attribute name="bcdOptionsModelId">{$optionsModelId}</xsl:attribute></xsl:if>
             </xsl:if>
           </xsl:for-each>
-          <xsl:attribute name="bcdOnLoad">
+          <xsl:attribute name="bcdInit">
             <xsl:variable name="x">
               <xsl:call-template name="lastIndexOf">
                 <xsl:with-param name="s" select="@implementationPackage"/>
                 <xsl:with-param name="c" select="'.'"/>
               </xsl:call-template>
             </xsl:variable>
-            <xsl:value-of select="concat(substring(@implementationPackage, 1, number($x)),@name,'.init(this);')"/>
+            <xsl:value-of select="concat(substring(@implementationPackage, 1, number($x)),@name,'.init')"/>
           </xsl:attribute>
+          <xsl:attribute name="bcdOnLoad">bcdui.util._bcdInit</xsl:attribute>
           <xsl:text>&#10;    </xsl:text>
           <xsla:value-of select="*[false()]"/>
           <xsl:for-each select="Api/Param[@xapiAttribute!='']">

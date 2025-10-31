@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -76,7 +76,7 @@
       <label>Name:</label>
       <xsl:call-template name="inputField">
         <xsl:with-param name="targetModelXPath" select="concat($tempTargetModelXPath, '/@caption')"/>
-        <xsl:with-param name="onBlur">bcdui.component.userCalcEditor._onNameUpdate(('<xsl:value-of select="$id"/>'), ('formulaEditor_<xsl:value-of select="$id"/>'), this)</xsl:with-param>
+        <xsl:with-param name="onBlur">bcdui.component.userCalcEditor._onNameUpdate('<xsl:value-of select="$id"/>', 'formulaEditor_<xsl:value-of select="$id"/>', this)</xsl:with-param>
         <xsl:with-param name="mandatory" select="true()"/>
       </xsl:call-template>
     </div>
@@ -126,13 +126,13 @@
       <div class="col-sm-auto">
         <xsl:call-template name="buttonNg">
           <xsl:with-param name="caption">Ok</xsl:with-param>
-          <xsl:with-param name="onClickAction">bcdui.component.userCalcEditor._save();</xsl:with-param>
+          <xsl:with-param name="onClickAction">bcdui.component.userCalcEditor._save</xsl:with-param>
         </xsl:call-template>
       </div>
       <div class="col-sm-auto">
         <xsl:call-template name="buttonNg">
           <xsl:with-param name="caption">Cancel</xsl:with-param>
-          <xsl:with-param name="onClickAction">bcdui.component.userCalcEditor._cancel();</xsl:with-param>
+          <xsl:with-param name="onClickAction">bcdui.component.userCalcEditor._cancel</xsl:with-param>
         </xsl:call-template>
       </div>
     </div>

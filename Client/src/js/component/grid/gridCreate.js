@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -195,6 +195,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   * @param {integer}                 [args.paginationSize=20]                               - Set pagination page size (and enable pagination)
   * @param {boolean}                 [args.paginationAllPages=false]                        - Set pagination show all option (and enable pagination)
   * @param {chainDef}                [args.requestPostChain]                                - The definition of the transformation chain
+  * @param {Object|string}           [args.actionHandler]                                   - Instance (or name) of an action handler class. Requires contextMenuActionHandler property. Default is an instance of bcdui.component.grid.ActionHandler.
   */
   constructor(args) {
     var id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("grid");
@@ -204,6 +205,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     var paginationSize = "" + (args.paginationSize || "");
     var paginationAllPages = "" + (args.paginationAllPages || "");
     var config = args.config;
+    var actionHandler = (args.actionHandler && args.actionHandler.contextMenuActionHandler) ? args.actionHandler : new bcdui.component.grid.ActionHandler();
+
     if (! config)
       config = args.inputModel ? (args.inputModel.config || new bcdui.core.StaticModel("<grid:GridConfiguration/>")) : new bcdui.core.SimpleModel( { url: "gridConfiguration.xml" } );
 
@@ -269,6 +272,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     var bcdPreInit = args ? args.bcdPreInit : null;
     super({
         id: id,
+        actionHandler: actionHandler,
         inputModel: gridModelHolder,
         targetHtml: targetHtml,
         parameters: { paramModel: enhancedConfiguration },
@@ -279,6 +283,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         }
       }
     );
+    this.actionHandler = actionHandler;
     this.columnFiltersCustomFilter = args.columnFiltersCustomFilter;
     this.pager = pager;
     this.defaultButtons = args.defaultButtons !== false;
@@ -2898,10 +2903,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
   if (this.defaultButtons) {
       if (this.allowNewRows) 
-        buttonCell.append("<bcd-buttonNg class='gridAction' caption='"+bcdui.i18n.TAG+"bcd_Grid_RowAdd' onClickAction='bcdui.factory.objectRegistry.getObject(\""+this.id+"\").actionAddRow();'></bcd-buttonNg>");
-      buttonCell.append("<bcd-buttonNg class='gridAction' caption='"+bcdui.i18n.TAG + (this.isReadOnly ? "bcd_Edit_Reload" : "bcd_Edit_ResetAll") + "' onClickAction='bcdui.factory.objectRegistry.getObject(\""+this.id+"\").actionReset();'></bcd-buttonNg>");
+        buttonCell.append("<bcd-buttonNg bcdActionId='addRow' class='gridAction' caption='"+bcdui.i18n.TAG+"bcd_Grid_RowAdd' onClickAction='bcdui.component.grid.gridButtonAction'></bcd-buttonNg>");
+      buttonCell.append("<bcd-buttonNg bcdActionId='resetGrid' class='gridAction' caption='"+bcdui.i18n.TAG + (this.isReadOnly ? "bcd_Edit_Reload" : "bcd_Edit_ResetAll") + "' onClickAction='bcdui.component.grid.gridButtonAction'></bcd-buttonNg>");
       if (! this.isReadOnly)
-        buttonCell.append("<bcd-buttonNg class='gridAction' caption='"+bcdui.i18n.TAG+"bcd_Edit_Save'     onClickAction='bcdui.factory.objectRegistry.getObject(\""+this.id+"\").actionSave();'></bcd-buttonNg>");
+        buttonCell.append("<bcd-buttonNg bcdActionId='saveGrid' class='gridAction' caption='"+bcdui.i18n.TAG+"bcd_Edit_Save' onClickAction='bcdui.component.grid.gridButtonAction'></bcd-buttonNg>");
     }
     jQuery("#"+this.targetHtml).append(table);
 
@@ -3234,7 +3239,13 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           , rowsSelected:  new bcdui.core.ConstantDataProvider({id: this.id + "_rowsSelected", name: "rowsSelected", value: ""})
           }
         });
-        bcdui.widget.createContextMenu({ targetRendererId: this.id, refreshMenuModel: true, tableMode: true, inputModel: this.contextMenu });
+        bcdui.widget.createContextMenu({
+          targetRendererId: this.id
+        , refreshMenuModel: true
+        , tableMode: true
+        , inputModel: this.contextMenu
+        , actionHandler: this.actionHandler.contextMenuActionHandler
+        });
       }
 
       // context menu actions
@@ -3735,6 +3746,36 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   }
 }
 
+bcdui.component.grid = Object.assign(bcdui.component.grid,
+/** @lends bcdui.component.grid */
+{
+  gridButtonAction() {
+    const htmlElement = this;
+    const gridRendererId = jQuery(htmlElement).closest("*[bcdRendererId]").attr("bcdRendererId") || "";
+
+    if (gridRendererId != "" && bcdui.factory.objectRegistry.getObject(gridRendererId)) {
+      const renderer = bcdui.factory.objectRegistry.getObject(gridRendererId);
+
+      let actionHandler = jQuery("#" + renderer.targetHtml).data("actionHandler");
+      actionHandler = (actionHandler && actionHandler.buttonActionHandler) ? actionHandler.buttonActionHandler : new bcdui.component.grid.ButtonMenuAction(); 
+
+      // collect all html attributes from bcdActionId element
+      const bcdActionIdElement = jQuery(htmlElement).closest("*[bcdActionId]").get(0);
+      const htmlAttr = {};
+      if (bcdActionIdElement)
+        Array.from(bcdActionIdElement.attributes).forEach(function(a) { htmlAttr[a.nodeName] = a.nodeValue; });
+  
+      // add some well knowns
+      const wellKnown = {
+        htmlElement: htmlElement
+      , bcdRendererId: gridRendererId
+      }
+      actionHandler.click(Object.assign(wellKnown, htmlAttr));
+    }
+  }
+});
+
+
 
 /************************
  * Glue-ware for declarative environments, not to be used directly
@@ -3810,6 +3851,7 @@ bcdui.component = Object.assign(bcdui.component,
    * @param {integer}                 [args.paginationSize=20]                               - Set pagination page size (and enable pagination)
    * @param {boolean}                 [args.paginationAllPages=false]                        - Set pagination show all option (and enable pagination)
    * @param {chainDef}                [args.requestPostChain]                                - The definition of the transformation chain
+   * @param {Object|string}           [args.actionHandler]                                   - Instance (or name) of an action handler class. Requires contextMenuActionHandler property. Default is an instance of bcdui.component.cube.configurator.ActionHandler.
    * @param {boolean}                 [args.topMode=false]                                   - Add/save/restore buttons appear at the top, pagination at bottom, insert row at top
    * @param {function}                [args.isReadOnlyCell]                                  - Custom check function if a given cell is read only or not. Function gets gridModel, wrsHeaderMeta, rowId, colId and value as input and returns true if the cell becomes readonly
    * @param {boolean}                 [args.forceAddAtBottom=false]                          - Always add a new row at the bottom, no matter if topMode or pagination
@@ -3843,6 +3885,7 @@ bcdui.component = Object.assign(bcdui.component,
         columnFilters:        args.columnFilters,
         maxHeight:            args.maxHeight,
         isReadOnly:           args.isReadOnly,
+        actionHandler:        args.actionHandler,
         topMode:              args.topMode,
         isReadOnlyCell:       args.isReadOnlyCell,
         forceAddAtBottom:     args.forceAddAtBottom,

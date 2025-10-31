@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -47,40 +47,29 @@
   Root template
  -->
 <xsl:template match="/*">
-  <table class="bcdReport" controllerVariableName="{$bcdControllerVariableName}">
-    <xsl:attribute name="bcdOnLoad">
-      <xsl:if test="$isExpandCollapseCells">bcdui.component.cube.expandCollapse._init(this);</xsl:if>
-      <xsl:if test="$inlineChart">
-        bcdui.component.cube.inlineChart._init({
-          targetHtml: this
-        , cubeId: '<xsl:value-of select="$bcdControllerVariableName"/>'
-        , chartType1: '<xsl:value-of select="$inlineChartType1"/>'
-        , chartType2: '<xsl:value-of select="$inlineChartType2"/>'
-        , minMaxRow: <xsl:value-of select="$inlineChartMinMaxRow"/>
-        });
-      </xsl:if>
-      <xsl:if test="$stickyEnabled">
-         const self = this;
-         setTimeout(function() { bcdui.widget.stickyTable({
-          targetHtml: self
-        , width: '<xsl:value-of select="$stickyWidth"/>'
-        , height: '<xsl:value-of select="$stickyHeight"/>'
-        , bcdDimension: <xsl:value-of select="$stickyDims"/>
-        , header: <xsl:value-of select="$stickyHeader"/>
-        , footer: <xsl:value-of select="$stickyFooter"/>
-        , nFirstCols: <xsl:value-of select="$stickyFirstCols"/>
-        , nFirstRows: <xsl:value-of select="$stickyFirstRows"/>
-        , nLastCols: <xsl:value-of select="$stickyLastCols"/>
-        , nLastRows: <xsl:value-of select="$stickyLastRows"/>
-        , disableMaxWH: <xsl:value-of select="$stickyDisableMaxWH"/>
-        }); });
-      </xsl:if>
-      <xsl:choose>
-        <xsl:when test="not($isCreateHeaderFilters) and $isCreateFixHeader">bcdui.widget._enableFixedTableHeader(this, '<xsl:value-of select="$bcdControllerVariableName"/>', true);</xsl:when>
-        <xsl:when test="$isCreateHeaderFilters and $isCreateFixHeader">bcdui.widget._enableFixedTableHeader(this, '<xsl:value-of select="$bcdControllerVariableName"/>', true, true);</xsl:when>
-        <xsl:when test="$isCreateHeaderFilters and not($isCreateFixHeader)">bcdui.widget.createFilterTableHeader({renderer: '<xsl:value-of select="$bcdControllerVariableName"/>'});</xsl:when>
-      </xsl:choose>
-    </xsl:attribute>
+  <table class="bcdReport" controllerVariableName="{$bcdControllerVariableName}"
+    isExpandCollapseCells="{$isExpandCollapseCells}"
+    inlineChart="{$isExpandCollapseCells}"
+    stickyEnabled="{$stickyEnabled}"
+    isCreateHeaderFilters="{$isCreateHeaderFilters}"
+    isCreateFixHeader="{$isCreateFixHeader}"
+    inlineChartType1="{$inlineChartType1}"
+    inlineChartType2="{$inlineChartType2}"
+    inlineChartMinMaxRow="{$inlineChartMinMaxRow}"
+    stickyWidth="{$stickyWidth}"
+    stickyHeight="{$stickyHeight}"
+    stickyDims="{$stickyDims}"
+    stickyHeader="{$stickyHeader}"
+    stickyFooter="{$stickyFooter}"
+    stickyFirstCols="{$stickyFirstCols}"
+    stickyFirstRows="{$stickyFirstRows}"
+    stickyLastCols="{$stickyLastCols}"
+    stickyLastRows="{$stickyLastRows}"
+    stickyDisableMaxWH="{$stickyDisableMaxWH}"
+  >
+    <xsl:attribute name="bcdInit">bcdui.widget.effects.htmlBuilderOnLoad</xsl:attribute>
+    <xsl:attribute name="bcdOnLoad">bcdui.util._bcdInit</xsl:attribute>
+
     <xsl:apply-templates select="wrs:Header/wrs:Columns"/>
     <xsl:apply-templates select="wrs:Data"/>
   </table>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -131,8 +131,8 @@
             "onClickAction:&amp;#160;bcdui.core.lifecycle.applyAction" or "onClickAction:&amp;#160;function(){&amp;#160;alert("Hello");&amp;#160;}".
             The context of the function is set to the element this widget it attached to.
             To provide a context and parameters to the called function use bind: "onClickAction:&amp;#160;myFunc.bind(&amp;#160;ctx,&amp;#160;param1&amp;#160;, param2&amp;#160;)".
-            In case of declarative environments, like HTML5 Custom Element &amp;lt;bcd-buttongNg&amp;gt;, it is a string with executable javascript code
-            "onClickAction=&amp;#160;'bcdui.core.lifecycle.applyAction();'".
+            In case of declarative environments, like HTML5 Custom Element &amp;lt;bcd-buttongNg&amp;gt;, it is a string with a function name
+            "onClickAction=&amp;#160;'bcdui.core.lifecycle.applyAction'".
           </Doc>
         </Param>
         <Param name="stayPressed" type="boolean" required="false">
@@ -1173,6 +1173,11 @@ the data that is actually placed in XML.
           <Doc>
             xPath expression relative to 'bRefOptionsModelXpath' providing values for options to display, if this is defined,
             values referenced by bRefOptionsModelXpath are treated as captions.
+          </Doc>
+        </Param>
+        <Param name="actionHandler" type="string">
+          <Doc>
+            Instance (or name) of an action handler class. Requires contextMenuActionHandler property. Default is an instance of bcdui.widgetNg.universalFilter.ActionHandler.
           </Doc>
         </Param>
       </Api>

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -260,7 +260,7 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
       var onBlur = htmlElement.getAttribute("bcdOnBlur");
       if (onBlur) {
         bcdui._migPjs._$(htmlElement).on("blur", function() {
-          eval(onBlur);
+          bcdui.util._executeJsFunctionFromString(onBlur, htmlElement);
         }.bind(htmlElement));
       }
     }
@@ -315,7 +315,7 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
         }
         var onFocus = htmlElement.getAttribute("bcdOnFocus");
         if (onFocus) {
-          eval(onFocus);
+          bcdui.util._executeJsFunctionFromString(onFocus, htmlElement);
         }
       }, 50);
     }
@@ -485,30 +485,17 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
     },
 
   /**
-   * Helper to convert callback code-strings to functions
-   * @private
-   */
-  _getAttributeAsJSFunction: function(/* HTMLElement */ htmlElement, /* String */ attributeName)
-    {
-      var code = htmlElement.getAttribute(attributeName);
-      if (! code ) return null;
-      return function() {
-        eval(code);
-      }
-    },
-
-  /**
    * Add custom onSomething handlers
    * @private
    */
   _createBCDEventPublishers: function(/* HTMLElement */ htmlElement)
     {
-      var onEscKey = this._getAttributeAsJSFunction(htmlElement, "bcdOnEscKey");
-      var onEnterKey = this._getAttributeAsJSFunction(htmlElement, "bcdOnEnterKey");
-      var onTabKey = this._getAttributeAsJSFunction(htmlElement, "bcdOnTabKey");
-      if (onEnterKey != null || onTabKey != null || onEscKey != null) {
+      var onEscKey = jQuery(htmlElement).attr("bcdOnEscKey") || "";
+      var onEnterKey = jQuery(htmlElement).attr("bcdOnEnterKey") || "";
+      var onTabKey = jQuery(htmlElement).attr("bcdOnTabKey") || "";
+      if (onEnterKey != "" || onTabKey != "" || onEscKey != "") {
         bcdui._migPjs._$(htmlElement).on("keydown", function(evt) {
-          if (evt.keyCode == bcdui.util.Event.KEY_TAB && onTabKey != null ) {
+          if (evt.keyCode == bcdui.util.Event.KEY_TAB && onTabKey != "" ) {
             /*
              * In case of TAB and RETURN we want to save the value, no matter what the
              * following key handler does (e.g. leaving the cell in the grid editor).
@@ -516,20 +503,18 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
             this.onchange();
             evt.stopPropagation();
             evt.preventDefault();
-            if (onTabKey != null) {
-              onTabKey.apply(htmlElement);
-            }
-          } else if (evt.keyCode == bcdui.util.Event.KEY_ESC && onEscKey != null) {
+            bcdui.util._executeJsFunctionFromString(onTabKey, htmlElement);
+          } else if (evt.keyCode == bcdui.util.Event.KEY_ESC && onEscKey != "") {
             evt.stopPropagation();
             evt.preventDefault();
-            onEscKey.apply(htmlElement);
-          } else if (evt.keyCode == bcdui.util.Event.KEY_RETURN && onEnterKey != null) {
+            bcdui.util._executeJsFunctionFromString(onEscKey, htmlElement);
+          } else if (evt.keyCode == bcdui.util.Event.KEY_RETURN && onEnterKey != "") {
             evt.stopPropagation();
             evt.preventDefault();// we consume the event in onkeyUp because of IE6
           }
-        }.bind());
+        }.bind(htmlElement));
 
-        if(onEnterKey){
+        if(onEnterKey != ""){
           bcdui._migPjs._$(htmlElement).on("keyup", function(evt) {
             if(evt.keyCode == bcdui.util.Event.KEY_RETURN){// ENTER
               if(bcdui.widget.inputField._areOptionsVisible(htmlElement.id)){
@@ -538,9 +523,9 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
               this.onchange();
               evt.stopPropagation();
               evt.preventDefault();
-              onEnterKey.apply(htmlElement);
+              bcdui.util._executeJsFunctionFromString(onEnterKey, htmlElement);
             }
-          }.bind());
+          }.bind(htmlElement));
         }
       }
     },

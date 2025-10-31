@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -317,7 +317,7 @@
     _createMultiCheckBox: function(){
       const header = "<div class='bcdHeader form-control'><span class='bcdCount'></span><i class='bcdDown'></i></i></div>";
       const search = "<div class='bcdSearch'><span class='bcdSearchCount'><input placeholder='"+this.i18nPleaseType+"' class='form-control' type='text'></input></span><i class='bcdClear'></i><i class='bcdFind'></i></div>";
-      const footer = this.options.singleSelect ? "" : "<div class='bcdFooter'><bcd-checkboxNg label='"+this.i18nShowSelectedOnly+"' targetModelXPath='"+this.switchTargetModelXPath+"' skin='switch'></bcd-checkboxNg><bcd-buttonNg caption='"+this.i18nSelectVisible+"' onClickAction='bcdui.widgetNg.multiCheck._tick(this, true, false)'></bcd-buttonNg><bcd-buttonNg caption='"+this.i18nClearVisible+"' onClickAction='bcdui.widgetNg.multiCheck._tick(this, false, false)'></bcd-buttonNg><bcd-buttonNg caption='"+this.i18nSelectAll+"' onClickAction='bcdui.widgetNg.multiCheck._tick(this, true, true)'></bcd-buttonNg><bcd-buttonNg caption='"+this.i18nClearAll+"' onClickAction='bcdui.widgetNg.multiCheck._tick(this, false, true)'></bcd-buttonNg><span></div>";
+      const footer = this.options.singleSelect ? "" : "<div class='bcdFooter'><bcd-checkboxNg label='"+this.i18nShowSelectedOnly+"' targetModelXPath='"+this.switchTargetModelXPath+"' skin='switch'></bcd-checkboxNg><bcd-buttonNg bcdActionId='selectVisible' caption='"+this.i18nSelectVisible+"' onClickAction='bcdui.widgetNg.multiCheck._buttonClickAction'></bcd-buttonNg><bcd-buttonNg bcdActionId='clearVisible' caption='"+this.i18nClearVisible+"' onClickAction='bcdui.widgetNg.multiCheck._buttonClickAction'></bcd-buttonNg><bcd-buttonNg bcdActionId='selectAll' caption='"+this.i18nSelectAll+"' onClickAction='bcdui.widgetNg.multiCheck._buttonClickAction'></bcd-buttonNg><bcd-buttonNg bcdActionId='clearAll' caption='"+this.i18nClearAll+"' onClickAction='bcdui.widgetNg.multiCheck._buttonClickAction'></bcd-buttonNg><span></div>";
       return jQuery("<div class='bcdMultiCheck'" + (this.options.disabled ? " disabled" : "") + " tabindex='" + (this.options.tabIndex ? this.options.tabIndex : "1") + "' id='multiCheck_" + this.options.id + "'>"+header+"<div style='display:none' class='bcdLower form-control'>"+search+"<div class='bcdItems'></div>"+footer+"</div></div>");
     },
 
@@ -345,6 +345,18 @@ bcdui.widgetNg.multiCheck = Object.assign(bcdui.widgetNg.multiCheck,
   init: function(htmlElement){
     bcdui.log.isTraceEnabled() && bcdui.log.trace("bcdui multiCheck widget adapter init");
     jQuery(htmlElement).bcduiMultiCheckNg();
+  },
+  
+  _buttonClickAction: function() {
+    const action = jQuery(this).closest("*[bcdActionId]").attr("bcdActionId") || "";
+    if (action == "selectVisible")
+      bcdui.widgetNg.multiCheck._tick(this, true, false);
+    if (action == "clearVisible")
+      bcdui.widgetNg.multiCheck._tick(this, false, false);
+    if (action == "selectAll")
+      bcdui.widgetNg.multiCheck._tick(this, true, true);
+    if (action == "clearAll")
+      bcdui.widgetNg.multiCheck._tick(this, false, true);
   },
   
   /**

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2019 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -64,13 +64,13 @@
       };
       
       if(this.options.formatter_in){
-        this.context.formatter_in = eval(this.options.formatter_in);
+        this.context.formatter_in = bcdui.util._getJsObjectFromString(this.options.formatter_in);
       } else {
         this.context.formatter_in = asIsFormatter;
       }
 
       if(this.options.formatter_out){
-        this.context.formatter_out = eval(this.options.formatter_out);
+        this.context.formatter_out = bcdui.util._getJsObjectFromString(this.options.formatter_out);
       } else {
         this.context.formatter_out = asIsFormatter;
       }

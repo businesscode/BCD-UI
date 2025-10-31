@@ -1,5 +1,5 @@
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@
           <xsl:variable name="targetPage" select="$defaultUrl[not($url)] | $url"/>
           <xsl:if test="$targetPage">
             <xsl:if test="not($accessRight) or contains($bcdPageAccess, concat(' ', $accessRight, ' ')) or contains($bcdPageAccess, ' * ')">
-              <Entry caption="Drill to analysis">
+              <Entry caption="Drill to analysis" bcdActionId="drillToAnalysis" targetPage="{concat($bcdContextPath,'/',$targetPage)}" >
                   <!-- We "freeze" the current row/colIdents to prevent them from changing between the closing of the context menu and the start of the detail export -->
                   <JavaScriptAction>
                     bcdui._migPjs._$(this.eventSrcElement).trigger( "scorecardActions:drillToAnalysis", 
@@ -97,7 +97,7 @@
           <xsl:variable name="defaultBs" select="$sccDefinition/*/scc:Kpis/dm:DetailDataDefaults/dm:DetailData[@name=$detailData/@defaults]/dm:Translations/@bindingSet"/>
           <xsl:variable name="bindingSet" select="$defaultBs[not($bs)] | $bs"/>
           <xsl:if test="$bindingSet">
-            <Entry caption="Export detail data">
+            <Entry caption="Export detail data" bcdActionId="detailExport">
               <JavaScriptAction>
                 bcdui._migPjs._$(this.eventSrcElement).trigger( "scorecardActions:detailExport", 
                   { bcdRowIdent: '<xsl:value-of select="$bcdRowIdent"/>',  bcdColIdent: '<xsl:value-of select="$bcdColIdent"/>' }
@@ -112,7 +112,7 @@
         Everywhere on the scorecard
         -->
       <ContextMenuEntryGroup caption="Report action" >
-        <Entry caption="Export report WYSIWYG">
+        <Entry caption="Export report WYSIWYG" bcdActionId="reportExcelExport">
           <JavaScriptAction>bcdui._migPjs._$(this.eventSrcElement).trigger("scorecardActions:reportExcelExport")</JavaScriptAction>
         </Entry>
       </ContextMenuEntryGroup>

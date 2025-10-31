@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@
     <xsl:choose>
       <xsl:when test="/*/wrs:Data/wrs:Level | /*/wrs:Data/wrs:R">
         <xsl:variable name="onLoad" select="concat('bcdui.component.treeView._registerTreeViewListener(&quot;', $bcdControllerVariableName, '&quot;);', $bcdOnLoad)"/>
-        <div class="bcdTreeView" bcdOnLoad="{$onLoad}">
+        <div class="bcdTreeView" bcdOnLoad="bcdui.component.treeView._handleBcdOnLoad" oldBcdOnLoad="{$bcdOnLoad}" bcdControllerVariableName="{$bcdControllerVariableName}">
           <table class="{concat('bcdReport bcdTreeReport',substring('Pi',0,1div(not($parentChildColIdx))))}">
 
             <!-- Create thead with htmlHeaderBuilderTemplate -->
@@ -206,7 +206,7 @@
       
       <!-- +/-, but we create no extra +/- column if we have an unknown recursion-depth due to parentChildColIdx -->
       <xsl:if test="not($parentChildColIdx)">
-        <td>
+        <td levelId="{../@levelId}" isExpended="{$is_expanded}" rendererId="{$bcdControllerVariableName}">
           <xsl:attribute name="class">
             <xsl:choose>
               <xsl:when test="$isLeaf">bcdExpandCollapseButton bcdIndent bcdEmpty</xsl:when>
@@ -217,7 +217,7 @@
           <xsl:choose>
             <xsl:when test="not($isLeaf)">
               <xsl:call-template name="buttonNg">
-                <xsl:with-param name="onClickAction">bcdui.component.treeView.expandCollapse("<xsl:value-of select="../@levelId"/>", "<xsl:value-of select="$bcdControllerVariableName"/>", <xsl:value-of select="not($is_expanded)"/>)</xsl:with-param>
+                <xsl:with-param name="onClickAction">bcdui.component.treeView._toggleAction</xsl:with-param>
               </xsl:call-template>
             </xsl:when>
             <xsl:otherwise>&#160;</xsl:otherwise>
@@ -235,7 +235,7 @@
         <xsl:copy-of select="@bcdTranslate"/>
 
         <!-- In case of parentChildColIdx +/- is inlined into the caption. We reserve space (bcdPlusSpan) for each level which has at least one +- button -->
-        <span>
+        <span levelId="{../@levelId}" isExpended="{$is_expanded}" rendererId="{$bcdControllerVariableName}">
           <xsl:attribute name="class">
             <xsl:choose>
               <xsl:when test="$isLeaf">bcdExpandCollapseButton </xsl:when>
@@ -247,7 +247,7 @@
           <xsl:choose>
             <xsl:when test="not($isLeaf)  and $parentChildColIdx">
               <xsl:call-template name="buttonNg">
-                <xsl:with-param name="onClickAction">bcdui.component.treeView.expandCollapse("<xsl:value-of select="../@levelId"/>", "<xsl:value-of select="$bcdControllerVariableName"/>", <xsl:value-of select="not($is_expanded)"/>)</xsl:with-param>
+                <xsl:with-param name="onClickAction">bcdui.component.treeView._toggleAction</xsl:with-param>
               </xsl:call-template>
             </xsl:when>
             <xsl:otherwise>&#160;</xsl:otherwise>

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -175,7 +175,7 @@
 
                 // check for optional validationFunction
                 if(args.validationFunction){
-                  var func = bcdui.util.isString(args.validationFunction) ? eval(args.validationFunction) : args.validationFunction;
+                  var func = bcdui.util.isString(args.validationFunction) ? bcdui.util._toJsFunction(args.validationFunction,) : args.validationFunction;
                   if(!func){
                     throw new Error("custom validation function not found (is null): " + (bcdui.util.isString(args.validationFunction)?"name:" + args.validationFunction : ""));
                   }

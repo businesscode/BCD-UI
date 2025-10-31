@@ -295,21 +295,84 @@ bcdui.util =
       if(!jsFuncStr){
         return null;
       }
-      if((/^[$A-Z_](\.?[0-9A-Z_$])*$/i).test(jsFuncStr)){ // a JS variable or reference in dotted notation
-        var func = eval(jsFuncStr);
-        if(!bcdui.util.isFunction(func)){
+      if ((/^[$A-Z_](\.?[0-9A-Z_$])*$/i).test(jsFuncStr)) { // a JS variable or reference in dotted notation
+        const func = bcdui.util._getJsObjectFromString(jsFuncStr);
+        if (! bcdui.util.isFunction(func))
           throw `provided jsFuncStr '${jsFuncStr}' is not a function`;
-        }
         return func;
       }
-      return eval( "(function(){" + jsFuncStr + "})" );
+      if (bcdui.config.unsafeEval)
+	      return bcdui.browserCompatibility.isIE8 ? eval( "(function(){return function(){" + jsFuncStr + "}; })()" ) : eval( "(function(){" + jsFuncStr + "})" );
+		  else    
+    	  throw `provided jsFuncStr '${jsFuncStr}' is not a function name. Don't provide a function call with parameters here.`;
     }
 
     throw "unsupported type: " + type + ",jsFuncStr provided is neither a function nor a string";
   },
 
   /**
-   * Executes a JS code by reference or by eval(), used to support JS+HTML function parameters,
+   * Get a JS object given via a string
+   *
+   * @param {string}  jsRef object name
+   * @returns the found object or null
+   * @private
+   * */
+  _getJsObjectFromString: function(objName, dontThrow) {
+    const obj = objName.split(".").reduce(function(fkt, f) { return fkt && fkt[f]; }, window);
+    if (dontThrow)
+      return obj;
+    else if (! obj)
+      throw "not an object: " + objName;
+    else
+      return obj;
+  },
+
+  /**
+   * Helper functions which can be called from bcdOnLoad/bcdOnUnload
+   * which take the string from bcdInit/bcdUnInit and executes them as js functions with "this" (the html element) as parameter
+   * @private
+   * */
+  _bcdInit:function() {
+    bcdui.util._executeJsFunctionFromString((jQuery(this).attr("bcdInit") || ""), null, [this]);
+  },
+  _bcdUnInit:function() {
+    bcdui.util._executeJsFunctionFromString((jQuery(this).attr("bcdUnInit") || ""), null, [this]);
+  },
+
+  /**
+   * Execute a JS function given via a string
+   *
+   * @param {string}  jsRef Function with parameters as string, either comma separated (e.g. alert, hello world) or function alert('hello world');
+   * @param {object}  bindContext context for function bind
+   * @param {array}   addParams additional optional parameter objects
+   * @private
+   * */
+  _executeJsFunctionFromString : function(jsFuncStr, bindContext, addParams) {
+    const match = jsFuncStr.match(/([\w\.]+)\((.*)\)/);
+    const paramString = (match && match.length == 3) ? match[1].trim() + "," + match[2].replace(/["'`]/g, "").trim() : jsFuncStr || "";
+    const fktParam = paramString.split(",").map((e) => e.trim()).filter((f) => f != "");
+    let ok = false;
+    if (fktParam.length != 0) {
+      let scope = window;
+      const obj = fktParam[0].split(".").reduce(function(fkt, f) {
+        scope = fkt;
+        return fkt && fkt[f]
+      }, window);
+
+      if (typeof obj == "function") {
+        // we found the function, so call it with the parameters (or optionally only return it)
+        const finalParams = [(bindContext || scope)].concat(fktParam.slice(1).concat((addParams || [])));
+        const fkt = obj.bind(...finalParams);
+        ok = true;
+        return fkt();
+      }
+    }
+    if (!ok)
+      throw "not a function: " + jsFuncStr;
+  },
+
+  /**
+   * Executes a JS code used to support JS+HTML function parameters,
    * returns functions result. If jsRef is a String and does not contain paranthesis, then it is
    * assumed to be a function reference (coming thru HTML API)
    *
@@ -332,21 +395,19 @@ bcdui.util =
     var wrap = function(){
       if (typeof jsRef === "string"){
         // assume a simple function reference, i.e. 'myfunc'
-        if(jsRef.indexOf("(") < 0 && jsRef.indexOf(" ") < 0){
-          jsRef = eval(jsRef);
-          if(typeof jsRef === "function"){
-            return jsRef.apply(this, arguments);
-          }
-          // a non function reference
-          return jsRef;
+        if ((/^[$A-Z_](\.?[0-9A-Z_$])*$/i).test(jsRef)) { // a JS variable or reference in dotted notation
+          const func = bcdui.util._getJsObjectFromString(jsRef);
+          if (! bcdui.util.isFunction(func))
+            throw `provided jsFuncStr '${jsRef}' is not a function`;
+          return func.apply(this, arguments);;
         }
-        jsRef = eval("(function(){" + jsRef + "})");
+        throw `provided jsRef '${jsRef}' is not a function name. Don't provide a function call with parameters here.`;
       }
 
       if (typeof jsRef === "function"){
         return jsRef.apply(this, arguments);
       } else {
-        return jsRef;
+        throw `provided jsRef '${jsRef}' is not a function name. Don't provide a function call with parameters here.`;
       }
     };
 

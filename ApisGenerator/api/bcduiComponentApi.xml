@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -389,6 +389,11 @@
             When setting this to true, dimensions and measures lists are sorted by caption.
           </Doc>
         </Param>
+        <Param name="actionHandler" type="string">
+          <Doc>
+            Instance (or name) of an action handler class. Requires contextMenuActionHandler property. Default is an instance of bcdui.component.cube.configurator.ActionHandler.
+          </Doc>
+        </Param>
       </Api>
 
       <Api name="farModel" extends="dataProvider">
@@ -403,6 +408,11 @@
         <Param name="statusModel" type="dataProvider" isJSPChild="paramBag.statusModel" required="false" default="bcdui.wkModels.guiStatusEstablished">
           <Doc>
             The StatusModel, containing the filters at /SomeRoot/f:Filter
+          </Doc>
+        </Param>
+        <Param name="actionHandler" type="string">
+          <Doc>
+            Instance (or name) of an action handler class. Requires contextMenuActionHandler property. Default is an instance of bcdui.component.far.ActionHandler.
           </Doc>
         </Param>
         <Param name="componentId" type="string" default="far">
@@ -495,6 +505,11 @@
         <Param name="contextMenu" type="string">
           <Doc>
             'true' brings default context menu, 'false' no context menu and any other string is a url to a custom context menu.
+          </Doc>
+        </Param>
+        <Param name="actionHandler" type="string">
+          <Doc>
+            Instance (or name) of an action handler class. Requires contextMenuActionHandler property. Default is an instance of bcdui.component.scorecard.ActionHandler.
           </Doc>
         </Param>
         <Param name="tooltipUrl" type="url">
@@ -606,6 +621,11 @@
         <Param name="serverSidedPagination" type="boolean" default="false">
           <Doc>
             Set to true if you want to enable server sided pagination.
+          </Doc>
+        </Param>
+        <Param name="actionHandler" type="string">
+          <Doc>
+            Instance (or name) of an action handler class. Requires contextMenuActionHandler property. Default is an instance of bcdui.component.grid.ActionHandler.
           </Doc>
         </Param>
       <!--    
@@ -737,7 +757,6 @@
         </Impl>
         <Examples>
         </Examples>
-
         <Param name="targetHtml" type="targetHtmlRef">
           <Doc>An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.</Doc>
         </Param>
@@ -749,6 +768,11 @@
         <Param name="persistent" type="boolean" default="true">
           <Doc>
             'true' brings default context menu, 'false' no context menu and any other string is a url to a custom context menu.
+          </Doc>
+        </Param>
+        <Param name="actionHandler" type="string">
+          <Doc>
+            Instance (or name) of an action handler class. Requires contextMenuActionHandler property. Default is an instance of bcdui.component.tree.ActionHandler.
           </Doc>
         </Param>
       </Api>

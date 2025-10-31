@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -393,6 +393,7 @@ bcdui.component = Object.assign(bcdui.component,
    * @param {string}                  [args.url=WrsServlet]                                       - The URL the model for the grouping editor is loaded from. If omitted the WrsServlet is taken as default.
    * @param {string}                  [args.expandCollapseCells]                                  - When specified (with 'expand' or 'collapse' or 'collapse2nd'), cube turns on the expand/collapse mode. collapse2nd initially keeps level one open.
    * @param {boolean}                 [args.doSortOptions=false]                                  - When setting this to true, dimensions and measures lists are sorted by caption.
+   * @param {Object|string}           [args.actionHandler]                                        - Instance (or name) of an action handler class. Requires contextMenuActionHandler property. Default is an instance of bcdui.component.cube.configurator.ActionHandler.
    *
    * @return null.
    *
@@ -512,6 +513,8 @@ bcdui.component = Object.assign(bcdui.component,
         args.summaryTargetHtmlElementId = "bcdDndSummaryDiv_" + args.cubeId;
 
         args.applyFunction = args.applyFunction || bcdui.core.lifecycle.applyAction;
+        if (typeof args.applyFunction == "string")
+          args.applyFunction = bcdui.util._toJsFunction(args.applyFunction);
 
         bcdui.widget.createBlindUpDownArea({
           id: "bcdBlindUpDown_" + args.cubeId
@@ -534,7 +537,7 @@ bcdui.component = Object.assign(bcdui.component,
 
         bcdui.widgetNg.createButton({
           caption: "Apply",
-          onClickAction: bcdui.util._toJsFunction(args.applyFunction),
+          onClickAction: args.applyFunction,
           targetHtml: "#bcdDNDApplyButton_" + args.cubeId
         });
       }
@@ -611,11 +614,23 @@ bcdui.component = Object.assign(bcdui.component,
           , cubeConfig     : bcdui.factory.objectRegistry.getObject(args.cubeId).getConfigModel()
           }
         });
+
+        let actionHandler = args.actionHandler;
+        if (typeof actionHandler == "string" && actionHandler.trim() != "") {
+          const cp = bcdui.util._getJsObjectFromString(actionHandler);
+          actionHandler = new cp();
+        }
+
+        const defaultActionHandler = typeof bcdui.component.cube.configurator.ActionHandlerEnterprise == "undefined"
+        ? new bcdui.component.cube.configurator.ActionHandler().contextMenuActionHandler
+        : new bcdui.component.cube.configurator.ActionHandlerEnterprise().contextMenuActionHandler;
+
         bcdui.widget.createContextMenu({
             targetRendererId: args.cubeId
           , inputModel      : contextMenu
           , tableMode       : true
           , refreshMenuModel: true
+          , actionHandler   : (actionHandler && actionHandler.contextMenuActionHandler) || defaultActionHandler
         });
       }
 
@@ -656,6 +671,30 @@ bcdui.component = Object.assign(bcdui.component,
         templateRenderer.onReady(function(){
           jQuery(cube.getTargetHtml()).trigger("bcdui:cubeConfigurator:templateManagerRendered");
           jQuery(templateRenderer.getTargetHtml()).trigger("bcdui:cubeConfigurator:templateManagerRendered")
+          
+          jQuery("#" + args.templateTargetHtmlElementId).find(".bcdReportTemplateList").off("click");
+          jQuery("#" + args.templateTargetHtmlElementId).find(".bcdReportTemplateList").on("click", ".bcdAction", function(event) {
+            
+            let htmlElement = jQuery(event.target);
+            if (! htmlElement.hasClass("bcdAction"))
+              htmlElement = jQuery(htmlElement).closest(".bcdAction");
+
+            const objectId = htmlElement.attr("objectId") || "";
+            const templateId = htmlElement.attr("templateId") || "";
+            const reportPath = htmlElement.attr("reportPath") || "";
+            
+            if (htmlElement.hasClass("apply") && objectId != "" && templateId != "")
+              bcdui.component.cube.templateManager._applyUserTemplate(objectId, templateId, htmlElement.get(0));            
+            if (htmlElement.hasClass("clear") && objectId != "")
+              bcdui.component.cube.templateManager.clearLayout(objectId);            
+
+            if (htmlElement.hasClass("toggle"))
+              bcdui.component.cube.templateManager._toggleElement('userTempEditor');
+            if (htmlElement.hasClass("save") && objectId != "" && reportPath != "")
+              bcdui.component.cube.templateManager.saveTemplates(reportPath, objectId);
+            if (htmlElement.hasClass("remove") && objectId != "" && templateId != "" && reportPath != "")
+              bcdui.component.cube.templateManager._updateTemplates(reportPath, null, templateId, objectId);
+          });
         });
         cube.getConfigModel().onChange(function() {templateRenderer.execute();}, "/*/cube:Layouts");
 

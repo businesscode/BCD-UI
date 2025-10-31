@@ -8,23 +8,23 @@
 
   <!-- used for empty content -->
   <ctx:Context id="empty">
-    <ctx:Entry caption="Add Expression">
+    <ctx:Entry caption="Add Expression" bcdActionId="combine">
       <ctx:JavaScriptAction>jQuery("#" + this.eventSourceElement).trigger("bcdui:universalFilter:combine");</ctx:JavaScriptAction>
     </ctx:Entry>
   </ctx:Context>
 
   <ctx:Context id="is-expression">
-    <ctx:Entry caption="Edit">
+    <ctx:Entry caption="Edit" bcdActionId="edit">
       <ctx:JavaScriptAction>jQuery("#" + this.eventSourceElement).trigger("bcdui:universalFilter:edit");</ctx:JavaScriptAction>
     </ctx:Entry>
   </ctx:Context>
   
   <ctx:Context id="non-empty">
-    <ctx:Entry caption="Delete">
+    <ctx:Entry caption="Delete" bcdActionId="delete">
       <ctx:JavaScriptAction>jQuery("#" + this.eventSourceElement).trigger("bcdui:universalFilter:delete");</ctx:JavaScriptAction>
     </ctx:Entry>
 
-    <ctx:Entry caption="Combine with new expression">
+    <ctx:Entry caption="Combine with new expression" bcdActionId="combine">
       <ctx:JavaScriptAction>jQuery("#" + this.eventSourceElement).trigger("bcdui:universalFilter:combine");</ctx:JavaScriptAction>
     </ctx:Entry>
   </ctx:Context>

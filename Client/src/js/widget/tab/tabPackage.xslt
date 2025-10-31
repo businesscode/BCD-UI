@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -50,7 +50,15 @@
       ,idOrElement:'<xsl:value-of select="normalize-space($idOrElement)"/>'
     }
   </xsl:variable>
-  <div style="display: none;" bcdOnLoad="bcdui.widget.tab.init({$args})"> </div>
+  <div style="display: none;"
+    bcdId="{normalize-space($id)}"
+    rendererUrl="{normalize-space($rendererUrl)}"
+    rendererId="{normalize-space($rendererId)}"
+    handlerJsClassName="{normalize-space($handlerJsClassName)}"
+    targetHTMLElementId="{normalize-space($targetHTMLElementId)}"
+    idOrElement="{normalize-space($idOrElement)}"
+    bcdOnLoad="bcdui.widget.tab._callInit">
+  </div>
 </xsl:template>
 
 </xsl:stylesheet>

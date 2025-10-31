@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -146,7 +146,7 @@
       var args = this.options;
   
       if(args.filterFunction && bcdui.util.isString(args.filterFunction)){
-        args.filterFunction = eval(args.filterFunction);
+        args.filterFunction = bcdui.util._toJsFunction(args.filterFunction);
       }
   
       // if browser supports html5 datalist

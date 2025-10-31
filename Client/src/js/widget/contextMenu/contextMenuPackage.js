@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -31,7 +31,44 @@ bcdui.widget.contextMenu = Object.assign(bcdui.widget.contextMenu,
       var cm = bcdui.util.getSingletonElement("bcdContextMenuDiv");
       if( "true"!=cm.attr("bcdInitialized") ) {
         bcdui.widget.contextMenu._attachDelayedAutoHiding({ targetHTMLElementId: "bcdContextMenuDiv" });
-        bcdui._migPjs._$("bcdContextMenuDiv").on("click", bcdui.widget.contextMenu._clickItem);
+
+        // contextMenu click handler
+        jQuery("#bcdContextMenuDiv").on("click", function(event) {
+          const eventSourceElementId = jQuery("#bcdContextMenuDiv").attr("bcdEventSourceElementId") || "";
+          if (eventSourceElementId != "" && jQuery("#" + eventSourceElementId).length > 0) {
+
+            const actionHandler = jQuery("#bcdContextMenuDiv").data("actionHandler");
+            if (actionHandler) {
+
+              // collect all html attributes from bcdActionId element
+              const bcdActionIdElement = jQuery(event.target).closest("*[bcdActionId]").get(0);
+              const htmlAttr = {};
+              if (bcdActionIdElement)
+                Array.from(bcdActionIdElement.attributes).forEach(function(a) { htmlAttr[a.nodeName] = a.nodeValue; });
+              
+              const _srcEl = jQuery("#" + eventSourceElementId);
+              let bcdRowIdent = _srcEl.closest("[bcdRowIdent]").attr("bcdRowIdent");
+              let bcdColIdent = _srcEl.closest("[bcdColIdent]").attr("bcdColIdent");
+              let _table;
+              if(!event.bcdColIdent && (_table=_srcEl.closest("table")).length){ // lookup in the thead/tr[last()] element of the outer table, if colIdent was not on ancestor path
+                var _lastTr = _table.find("thead tr").last();
+                bcdColIdent = jQuery(_lastTr.find("th").add("td", _lastTr).get(_srcEl.index())).attr("bcdColIdent");
+              }
+
+              // add some well knowns
+              const wellKnown = {
+                event: event
+              , htmlElement: jQuery(event.target).get(0)
+              , bcdColIdent: bcdColIdent
+              , bcdRowIdent: bcdRowIdent
+              , bcdEventSourceElement : jQuery("#" + eventSourceElementId).get(0)
+              }
+              setTimeout(function() { actionHandler.click(Object.assign(wellKnown, htmlAttr));});
+            }
+            else
+              throw 'no contextMenu action handler found';
+          }
+        });
         cm.attr("bcdInitialized","true");
       }
     },
@@ -65,34 +102,5 @@ bcdui.widget.contextMenu = Object.assign(bcdui.widget.contextMenu,
           timer = null;
         }
       });
-    },
-
-    /**
-     * 
-     * @private
-     */
-    _clickItem: function(/* Event */ event)
-    {
-      var event = new bcdui.widget.DetachedEvent(event);
-      var bcdMenuCode = bcdui._migPjs._$(event.target).attr("bcdMenuCode");
-      var bcdContextMenuDiv = bcdui._migPjs._$("bcdContextMenuDiv");
-      var eventSourceElement = bcdContextMenuDiv.attr("bcdEventSourceElementId");
-      bcdui._migPjs._$("bcdContextMenuDiv").hide();
-      if (bcdMenuCode != null && eventSourceElement != null) {
-        event.eventSourceElement = eventSourceElement;
-        event.eventSrcElement = eventSourceElement;
-        // set the bcdRowIdent and bcdColIdent values looking up in ancestor path of the eventSourceElement
-        var _srcEl = jQuery("#" + event.eventSourceElement);
-        event.bcdRowIdent = _srcEl.closest("[bcdRowIdent]").attr("bcdRowIdent");
-        event.bcdColIdent = _srcEl.closest("[bcdColIdent]").attr("bcdColIdent");
-        var _table;
-        if(!event.bcdColIdent && (_table=_srcEl.closest("table")).length){ // lookup in the thead/tr[last()] element of the outer table, if colIdent was not on ancestor path
-          var _lastTr = _table.find("thead tr").last();
-          event.bcdColIdent = jQuery(_lastTr.find("th").add("td", _lastTr).get(_srcEl.index())).attr("bcdColIdent");
-        }
-        // We must call this function deferred, because otherwise the menu
-        // mechanism gets broken in case of an exception.
-        setTimeout((function() { eval(bcdMenuCode) }).bind(event));
-      }
-    }
+    }    
 });

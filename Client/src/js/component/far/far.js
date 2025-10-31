@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ bcdui.component.far.Far = class
    * @param {string}                    [args.componentId=far]  An ID for the component, 'far' is the default. This is not the data provider's technical identifier,
    *                                                            this ID is used as component identifer to support multiple components on single page, i.e. reuse same configuration.
    * @param {bcdui.core.DataProvider}   [args.statusModel=bcdui.wkModels.guiStatusEstablished]  The StatusModel, containing the filters at /SomeRoot/f:Filter
+   * @param {Object|string}           [args.actionHandler]      Instance (or name) of an action handler class. Requires contextMenuActionHandler property. Default is an instance of bcdui.component.far.ActionHandler.
    */
   constructor(args){
     const self = this;
@@ -53,6 +54,8 @@ bcdui.component.far.Far = class
 
     // technical ID which MUST be unique; all technical IDs derived in scope must inherit from this ID
     this.id = bcdui.factory.objectRegistry.generateTemporaryIdInScope("bcd" + this.options.componentId);
+    
+    this.actionHandler = (this.options.actionHandler && this.options.actionHandler.contextMenuActionHandler) ? this.options.actionHandler : new bcdui.component.far.ActionHandler();
 
     // create enhanced configuration
     this.enhancedConfig = bcdui.component.far.enhancer.createEnhancedConfiguration({
@@ -190,7 +193,8 @@ bcdui.component.far.Far = class
     if(this.enhancedConfig.query("/*/far:ContextMenu")){
       bcdui.widget.createContextMenu({
         targetHtml : this.gridRenderingTarget,
-        inputModel : new bcdui.core.SimpleModel(bcdui.config.libPath + "js/component/far/contextMenu.xml")
+        inputModel : new bcdui.core.SimpleModel(bcdui.config.libPath + "js/component/far/contextMenu.xml"),
+        actionHandler: this.actionHandler.contextMenuActionHandler
       });
     }
     // enable report filter
@@ -328,6 +332,10 @@ bcdui.component.far.Far = class
       bcdui.wkModels.guiStatus.onChange(syncReportAndFilter.bind(this, true), "/*/far:Far[@id='"+this.options.componentId+"']");  // remove missing from filter
     }
   }
+};
+
+bcdui.component.far.triggerAdd = function() {
+  jQuery(this).trigger('bcdui:universalFilter:add')
 };
 
 /**

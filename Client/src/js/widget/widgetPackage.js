@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -832,17 +832,16 @@ jQuery.extend(bcdui.widget,
         args.onclick = '';
       if (typeof args.resizable == 'undefined')
         args.resizable = false;
-      var onclick = "bcdui.widget.hideModalBox();";
 
       var text = "";
       if (args.modalBoxType == bcdui.widget.modalBoxTypes.plainText)
         text = args.message;
       else if (args.modalBoxType == bcdui.widget.modalBoxTypes.ok)
-        text = '<div class="bcdModalMessage" ><div class="bcdSuccess"><center><b>' + args.message + '</b></center><div class="bcdButton"><a id="MB_OkButton" href="javascript:void(0)" onclick="' + onclick + '"> OK </a></div></div></div>';
+        text = '<div class="bcdModalMessage" ><div class="bcdSuccess"><center><b>' + args.message + '</b></center><div class="bcdButton"><a class="action" id="MB_OkButton"> OK </a></div></div></div>';
       else if (args.modalBoxType == bcdui.widget.modalBoxTypes.warning)
-        text = '<div class="bcdModalMessage" ><div class="bcdWarning"><center><b>' + args.message + '</b></center><div class="bcdButton"><a id="MB_WarningButton" href="javascript:void(0)" onclick="' + onclick + '"> OK </a></div></div></div>';
+        text = '<div class="bcdModalMessage" ><div class="bcdWarning"><center><b>' + args.message + '</b></center><div class="bcdButton"><a class="action" id="MB_WarningButton"> OK </a></div></div></div>';
       else if (args.modalBoxType == bcdui.widget.modalBoxTypes.error)
-        text = '<div class="bcdModalMessage" ><div class="bcdError"><center><b>' + args.message + '</b></center><div class="bcdButton"><a id="MB_ErrorButton" href="javascript:void(0)" onclick="' + onclick + '"> OK </a></div></div></div>';
+        text = '<div class="bcdModalMessage" ><div class="bcdError"><center><b>' + args.message + '</b></center><div class="bcdButton"><a class="action" id="MB_ErrorButton"> OK </a></div></div></div>';
 
       // take over either created html text or prepared html via id
       bcdui.util.getSingletonElement("bcdModalBoxDiv")
@@ -861,6 +860,9 @@ jQuery.extend(bcdui.widget,
           , closeText: "\u2716"
           , title: args.title
           , open: function() {
+            
+            jQuery("#bcdModalBoxDiv").find("a.action").off("click");
+            jQuery("#bcdModalBoxDiv").find("a.action").on("click", bcdui.widget.hideModalBox);
 
             // set auto width/height again since upper method does not seem to work on all browsers and jQuery seems to calculate a px value
             if (args.width == "auto") jQuery('#bcdModalBoxDiv').css('width','auto');
@@ -883,7 +885,7 @@ jQuery.extend(bcdui.widget,
             if (typeof args.onclick == "function")
               args.onclick();
             else if (args.onclick != "")
-              eval(args.onclick);
+              bcdui.util._executeJsFunctionFromString(args.onclick);
           }
         }
       );
@@ -968,10 +970,22 @@ jQuery.extend(bcdui.widget,
           , targetHtml: args.targetHtml
         });
         renderer.onceReady(function() {
+
+          jQuery("#" + args.targetHtml + " .isClickable").off("click");
+          jQuery("#" + args.targetHtml + " .isClickable").on("click", function(event) {
+            const bcdAction = jQuery(event.target).attr("bcdAction") || "";
+            if (bcdAction != "")
+              bcdui.util._executeJsFunctionFromString(bcdAction);
+          });
+
           jQuery("#" + args.targetHtml + " .bcdMenu").show();
           if (_menuHandlerClassName) {
-            var strVal = "window." + _menuHandlerVarName + " = new "+_menuHandlerClassName + "({name:'" + _menuHandlerVarName+"'" + ", customConfigFunction:function configMenu(){this.closeDelayTime = 300;}" + ",rootIdOrElement:'"+_menuRootElementId+"'});";
-            eval(strVal);
+            const o = bcdui.util._getJsObjectFromString(_menuHandlerClassName);
+            window[_menuHandlerVarName] = new o({
+              name: _menuHandlerVarName
+            , customConfigFunction: function configMenu(){this.closeDelayTime = 300;}
+            , rootIdOrElement: _menuRootElementId
+            });
           }
         });
       });
@@ -1765,6 +1779,7 @@ jQuery.extend(bcdui.widget,
    * @param {string}         [args.identsWithin]      Id of an element. If given bcdColIdent and bcdRowIdent are set to the innermost values given between the event source and the element given here. bcdRow/ColIdent do not need to be set at the same element.
    * @param {boolean}        [args.tableMode=false]   This flag can be set to 'true' if the 'bcdRowIdent' and 'bcdColIdent' parameters should be extracted from the HTML and added as parameters on the tooltipRenderer. They are derived from 'bcdRowIdent' and 'bcdColIdent' attributes of tr rows and header columns (td or th).
    * @param {targetHtmlRef}  [args.targetHtml]        The HTML listeners are placed on this Element instead of the targetHtml of the given targetRendererId.
+   * @param {Object|string}  [args.actionHandler]     Instance (or name) of an action handler class. Context Menu calls instance's click method when selecting an context menu item.
    */
   createContextMenu: function(args){
 
@@ -1801,6 +1816,12 @@ jQuery.extend(bcdui.widget,
     args.dataProviders.push(bcdui.wkModels.bcdRowIdent);
     args.dataProviders.push(bcdui.wkModels.bcdColIdent);
 
+    let actionHandler = args.actionHandler;
+    if (typeof actionHandler == "string" && actionHandler.trim() != "") {
+    	const cp = bcdui.util._getJsObjectFromString(actionHandler);
+			actionHandler = new cp();
+    }
+
     // Renderer of the context menu itself
     bcdui.factory.createRenderer({
         id                 : args.id
@@ -1810,6 +1831,7 @@ jQuery.extend(bcdui.widget,
       , inputModel         : args.inputModel
       , dataProviders      : args.dataProviders
       , parameters         : args.parameters
+      , actionHandler      : actionHandler
     });
 
     bcdui.factory.objectRegistry.withReadyObjects({
@@ -2152,6 +2174,49 @@ jQuery.extend(bcdui.widget,
         return;
       }
     },
+    
+    /**
+     *
+     * @param el - htmlElement of the pagingPanel table calling this via bcdOnLoad
+     * @private
+     */
+    _pagingPanelInit : function(el) {
+      jQuery(el).off("click");
+      jQuery(el).on("click", ".bcdPagingButton", function(event) {
+        const targetModelId = jQuery(event.target).attr("targetModelId") || "";
+        const targetModelXPath = jQuery(event.target).attr("targetModelXPath") || "";
+        const delta = jQuery(event.target).attr("delta") || "";
+        const currentPage = jQuery(event.target).attr("currentPage") || "";
+        const lastPage = jQuery(event.target).attr("lastPage") || "";
+        const elementId = jQuery(event.target).attr("elementId") || "";
+        if (targetModelId != "" && targetModelXPath !="" && delta != "" && currentPage != "" && lastPage != "" && elementId != "") {
+          bcdui.widget._pagingPanelChangePageNum({
+            targetModelId: targetModelId
+          , targetModelXPath: targetModelXPath
+          , delta: parseInt(delta, 10)
+          , currentPage: currentPage
+          , lastPage: parseInt(lastPage, 10)
+          , elementId: elementId
+          });
+          bcdui.util._executeJsFunctionFromString(jQuery(event.target).attr("paginatedAction"));
+        }
+      });
+      jQuery(el).off("change");
+      jQuery(el).on("change", "select", function(event) {
+        const targetModelId = jQuery(event.target).attr("targetModelId") || "";
+        const targetModelXPath = jQuery(event.target).attr("targetModelXPath") || "";
+        const paginatedAction = jQuery(event.target).attr("paginatedAction") || "";
+        if (targetModelId != "" && targetModelXPath !="") {
+          const val = event.target.value;
+          bcdui.core.createElementWithPrototype(bcdui.factory.objectRegistry.getObject(targetModelId).dataDoc, targetModelXPath).text = val;
+          for (let i = 0; i < this.options.length; i++ )
+            if (this.options[i].value == val)
+              this.options[i].selected = 'selected';
+          bcdui.factory.objectRegistry.getObject(targetModelId).fire();
+          bcdui.util._executeJsFunctionFromString(jQuery(event.target).attr("paginatedAction"));
+        }
+      });
+    },
 
     /**
      *
@@ -2483,18 +2548,18 @@ jQuery.extend(bcdui.widget,
                 "<div><input type='checkbox'></input><span class='bcdShowAll' bcdTranslate='bcd_widget_filter_showAll'></span></div>" +
                 "<p>&nbsp;</p>" +
                 "<div class='form-row'>" +
-                  "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_selectAll' onClickAction='bcdui.widget._setFilterStatus(this, true)'></bcd-buttonng></div>" +
-                  "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_clear' onClickAction='bcdui.widget._setFilterStatus(this, false)'></bcd-buttonng></div>" +
-                  "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_reset' onClickAction='bcdui.widget._setFilterStatus(this, false, true)'></bcd-buttonng></div>" +
+                  "<div class='col-sm-auto'><bcd-buttonng bcdActionId='selectAll' caption='" + bcdui.i18n.TAG + "bcd_widget_filter_selectAll' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>" +
+                  "<div class='col-sm-auto'><bcd-buttonng bcdActionId='clear' caption='" + bcdui.i18n.TAG + "bcd_widget_filter_clear' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>" +
+                  "<div class='col-sm-auto'><bcd-buttonng bcdActionId='reset' caption='" + bcdui.i18n.TAG + "bcd_widget_filter_reset' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>" +
                 "</div>"+
               "</div>" +
               "<div class='bcdFilterMultiSelect'></div>"+
               "<p><span class='bcdCount'></span>&nbsp;<span bcdTranslate='bcd_widget_filter_itemsSelected'></span></p>"+
             "</div>"+
             "<div class='form-row'>" +
-              "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_apply' onClickAction='bcdui.widget._applyFilter(this)'></bcd-buttonng></div>" +
-              "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_remove' onClickAction='bcdui.widget._removeFilter(this)'></bcd-buttonng></div>" +
-              "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_cancel' onClickAction='bcdui.widget._cancelFilter(this)'></bcd-buttonng></div>" +
+              "<div class='col-sm-auto'><bcd-buttonng bcdActionId='apply' caption='" + bcdui.i18n.TAG + "bcd_widget_filter_apply' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>" +
+              "<div class='col-sm-auto'><bcd-buttonng bcdActionId='remove' caption='" + bcdui.i18n.TAG + "bcd_widget_filter_remove' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>" +
+              "<div class='col-sm-auto'><bcd-buttonng bcdActionId='cancel' caption='" + bcdui.i18n.TAG + "bcd_widget_filter_cancel' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>" +
         		"</div>" +
           "</div>");
           bcdui.i18n.syncTranslateHTMLElement({elementOrId: jQuery(".bcdFilterDialog").get(0)});
@@ -2694,6 +2759,22 @@ jQuery.extend(bcdui.widget,
      */
     _getTooltipFilterOption: function(inputText) {
       return inputText;
+    },
+    
+    _filterClickAction: function() {
+      const action = jQuery(this).closest("*[bcdActionId]").attr("bcdActionId") || "";
+      if (action == "selectAll")
+        bcdui.widget._setFilterStatus(this, true);
+      if (action == "clear")
+        bcdui.widget._setFilterStatus(this, false);
+      if (action == "reset")
+        bcdui.widget._setFilterStatus(this, false, true);
+      if (action == "apply")
+        bcdui.widget._applyFilter(this);
+      if (action == "remove")
+        bcdui.widget._removeFilter(this);
+      if (action == "cancel")
+        bcdui.widget._cancelFilter(this);
     },
 
     /**

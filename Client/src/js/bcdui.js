@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -191,7 +191,8 @@ bcdui = Object.assign(bcdui,
         if (bcdui.config) {
 
           if(bcdui.config.clientLogAppenderJSClassName){
-            appender = eval("new " + bcdui.config.clientLogAppenderJSClassName + "()");
+            const app = bcdui.util._getJsObjectFromString(bcdui.config.clientLogAppenderJSClassName);
+            appender = new app();
           }
           //attach special appender
           else {

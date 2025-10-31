@@ -152,7 +152,7 @@ bcdui.core.transformators.JsTransformator = class extends bcdui.core.transformat
   {
     super( procFkt);
     if( typeof procFkt == "string" ) {
-      procFkt = eval(procFkt);
+      procFkt = bcdui.util._toJsFunction(procFkt);
     }
     this.procFkt = procFkt;
   }

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -35,7 +35,14 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
   constructor(args)
     {
       super(args);
-      
+
+      let actionHandler = args.actionHandler;
+      if (typeof actionHandler == "string" && actionHandler.trim() != "") {
+      	const cp = bcdui.util._getJsObjectFromString(actionHandler);
+      	actionHandler = new cp();
+      }
+      this.actionHandler = actionHandler;
+
       var statusModel = args.statusModel||bcdui.wkModels.guiStatus;
 
       /**
@@ -399,7 +406,10 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
       jQuery(targetElement).find(" *["+attribute+"]").each(function(idx,onLoadElement) {
         var initCode = onLoadElement.getAttribute( attribute );
         if (initCode && initCode.trim().length!=0) {
-          (function() { eval(initCode); }.bind(onLoadElement))(); // No defer, keep order for bcdui.core.bcdParamBag
+          if (bcdui.config.unsafeEval)
+            (function() { eval(initCode); }.bind(onLoadElement))(); // No defer, keep order for bcdui.core.bcdParamBag
+          else
+	          bcdui.util._executeJsFunctionFromString(initCode, onLoadElement);
         }
         onLoadElement.removeAttribute( attribute );
       });
@@ -483,6 +493,10 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
               }
   
               this._executeOnXAttributes(targetElement, "bcdOnload");
+
+              // attach action handler to target
+              if (this.actionHandler)
+                jQuery(targetElement).data("actionHandler", this.actionHandler);
             }
           }
 
@@ -980,6 +994,7 @@ bcdui.core.Renderer = class extends bcdui.core.TransformationChain
    * @param {string}                  [args.id]                             - Globally unique id for use in declarative contexts
    * @param {boolean}                 [args.suppressInitialRendering=false] - If true, the renderer does not initially auto execute but waits for an explicit execute
    * @param {function}                [args.postHtmlAttachProcess]          - synchronous js function called after attaching html fragment to dom (either partitially or fully)
+   * @param {Object|string}           [args.actionHandler]                  - Instance (or name) of an action handler class. Is attached to renderers targetHtml as 'actionHandler'.
    */
   constructor(args)
   {

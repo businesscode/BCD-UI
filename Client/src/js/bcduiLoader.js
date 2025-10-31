@@ -141,6 +141,7 @@ bcdui.bcduiCeFiles =
         , "/js/widgetNg/sideBySideChooser/sideBySideChooserPackage.js"
         , "/js/widgetNg/chipsChooser/chipsPackage.js"
         , "/js/widgetNg/universalFilter/universalFilterPackage.js"
+        , "/js/widgetNg/universalFilter/universalFilterAction.js"
         , "/js/widgetNg/slider/sliderPackage.js"
         , "/js/widgetNg/slider/typedSliders.js"
         , "/js/widgetNg/quickEdit/quickEditPackage.js"
@@ -183,6 +184,7 @@ bcdui.bcduiCeFiles =
           "/js/component/cube/cubeCreate.js"
         , "/js/component/cube/cubeConfigurator/cubeConfigurator.js"
         , "/js/component/cube/cubeConfigurator/cubeConfiguratorDND.js"
+        , "/js/component/cube/cubeConfigurator/cubeConfiguratorAction.js"
         , "/js/component/cube/expandCollapseCells.js"
         , "/js/component/cube/templateManager/templateManager.js"
         , "/js/component/cube/rankingEditor/rankingEditor.js"
@@ -215,6 +217,7 @@ bcdui.bcduiCeFiles =
         "/js/component/far/configurator/farConfigurator.js"
         ,"/js/component/far/farModel.js"
         ,"/js/component/far/far.js"
+        ,"/js/component/far/farAction.js"
         ,"/js/component/far/create.js"
       ],
       "buildFolders": [
@@ -240,6 +243,8 @@ bcdui.bcduiCeFiles =
           "/js/component/scorecard/scorecardModel.js"
         , "/js/component/scorecard/scorecardCreate.js"
         , "/js/component/scorecard/scorecardConfigurator.js"
+        , "/js/component/scorecard/scorecardAction.js"
+        , "/js/component/scorecard/scorecardDndAction.js"
         , "/js/component/scorecard/bcdAspects.js"
         , "/js/component/cube/templateManager/templateManager.js"
         , "/js/component/cube/rankingEditor/rankingEditor.js"
@@ -271,6 +276,7 @@ bcdui.bcduiCeFiles =
         , "/js/3rdParty/handsontable.js"
         , "/js/component/grid/gridCreate.js"
         , "/js/component/grid/gridEditor.js"
+        , "/js/component/grid/gridAction.js"
       ],
       "css": [
         "/js/3rdParty/handsontable.css"
@@ -288,6 +294,7 @@ bcdui.bcduiCeFiles =
         , "/js/3rdParty/ckeditor/ckeditor_jqueryPlugin.js"
         , "/js/component/grid/gridCreate.js"
         , "/js/component/grid/gridEditor.js"
+        , "/js/component/grid/gridAction.js"
         , "/js/widget/messages/bcduiHtmlEditor.js"
         , "/js/widget/messages/messagesEditor.js"
         , "/js/widget/messages/messagesViewer.js"
@@ -325,6 +332,7 @@ bcdui.bcduiCeFiles =
       "required": "optional",
       "files": [
         "/js/component/tree/treeCreate.js"
+      , "/js/component/tree/treeAction.js"
       ],
       "buildFolders": [
         "/js/component/tree"

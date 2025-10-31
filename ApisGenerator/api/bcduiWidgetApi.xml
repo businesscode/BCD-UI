@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -288,6 +288,11 @@
           <Doc>
             This flag can be set to 'true' if the menu model needs to be executed always. I.e. if the menu depends
             on bcdColIdent and bcdRowIdent.
+          </Doc>
+        </Param>
+        <Param name="actionHandler" type="string">
+          <Doc>
+            Instance (or name) of an action handler class. Context Menu calls instance's click method when selecting an context menu item.
           </Doc>
         </Param>
         <Param name="offset" type="int">

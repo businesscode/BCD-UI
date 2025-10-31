@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -21,6 +21,13 @@
 bcdui.component.treeView = Object.assign(bcdui.component.treeView, 
 /** @lends bcdui.component.treeView */
 {
+  
+  _toggleAction: function() {
+    const levelId = jQuery(this).closest("*[levelId]").attr("levelId") || "";
+    const rendererId = jQuery(this).closest("*[rendererId]").attr("rendererId") || "";
+    const isExpanded = (jQuery(this).closest("*[isExpended]").attr("isExpended") || "false") == "true";
+    bcdui.component.treeView.expandCollapse(levelId, rendererId, ! isExpanded);
+  },
 
   /**
    * Expand or collapse a level for a treeView renderer
@@ -96,6 +103,14 @@ bcdui.component.treeView = Object.assign(bcdui.component.treeView,
     });
   },
   
+  _handleBcdOnLoad: function() {
+    const oldBcdOnLoad = jQuery(this).attr("oldBcdOnLoad") || "";
+    const bcdControllerVariableName = jQuery(this).attr("bcdControllerVariableName") || "";
+    bcdui.component.treeView._registerTreeViewListener(bcdControllerVariableName);
+    if (oldBcdOnLoad)
+      bcdui.util._executeJsFunctionFromString(oldBcdOnLoad, this);
+  },
+
   /**
    * @private
    */

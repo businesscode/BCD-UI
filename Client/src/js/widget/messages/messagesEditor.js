@@ -84,5 +84,10 @@ jQuery.extend(bcdui.widget, {
         }
       , hotArgs: hotArgs
     });
+  },
+  
+  _initCkEditor : function(args) {
+    jQuery(this).ckeditor();
   }
+
 });

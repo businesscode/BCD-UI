@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -34,10 +34,10 @@
       <xsl:if test="/*/scc:Layout[@scorecardId=$scorecardId]/scc:Dimensions/*/dm:LevelRef[@bRef=$itemId]">
         <Context id="bcdDim">
           <ContextMenuEntryGroup caption="{concat(/*/scc:Layout[@scorecardId=$scorecardId]/scc:Dimensions/*/dm:LevelRef[@bRef=$itemId]/@caption, ' Totals')}" >
-            <Entry caption="Hide total">
+            <Entry caption="Hide total" bcdActionId="hideTotals" scorecardId="{$scorecardId}">
               <JavaScriptAction>bcdui.component.scorecardConfigurator._hideTotals('<xsl:value-of select="$scorecardId"/>')</JavaScriptAction>
             </Entry>
-            <Entry caption="Show total">
+            <Entry caption="Show total" bcdActionId="showTotals" scorecardId="{$scorecardId}">
               <JavaScriptAction>bcdui.component.scorecardConfigurator._showTotals('<xsl:value-of select="$scorecardId"/>')</JavaScriptAction>
             </Entry>
           </ContextMenuEntryGroup>
@@ -48,13 +48,13 @@
           <xsl:variable name="aspNode" select="/*/scc:Layout[@scorecardId=$scorecardId]/scc:AspectRefs/scc:AspectRef[@idRef=$itemId]|/*/scc:Layout[@scorecardId=$scorecardId]/scc:AspectRefs/scc:AspectKpi[$itemId='bcdKpi' and $bcdColIdent='asp']"/>
           <xsl:if test="/*/scc:Layout[@scorecardId=$scorecardId]/scc:Dimensions/scc:Rows/scc:LevelKpi">
             <ContextMenuEntryGroup caption="{concat($aspNode/@caption, ' Sorting')}" >
-                <Entry caption="Sort ascending">
+                <Entry caption="Sort ascending" bcdActionId="sortAscending" scorecardId="{$scorecardId}">
                   <JavaScriptAction>bcdui.component.scorecardConfigurator._sortAspect("<xsl:value-of select="$scorecardId"/>", "ascending", "")</JavaScriptAction>
                 </Entry>
-              <Entry caption="Sort descending">
+              <Entry caption="Sort descending" bcdActionId="sortDescending" scorecardId="{$scorecardId}">
                 <JavaScriptAction>bcdui.component.scorecardConfigurator._sortAspect("<xsl:value-of select="$scorecardId"/>", "descending", "")</JavaScriptAction>
               </Entry>
-              <Entry caption="Remove Sorting">
+              <Entry caption="Remove Sorting" bcdActionId="clearSorting" scorecardId="{$scorecardId}">
                 <JavaScriptAction>bcdui.component.scorecardConfigurator._sortAspect("<xsl:value-of select="$scorecardId"/>", "", "")</JavaScriptAction>
               </Entry>
             </ContextMenuEntryGroup>

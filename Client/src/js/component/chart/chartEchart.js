@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -743,6 +743,7 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
           chain : finalChain
         , parameters :  Object.assign(customOnContextMenu.parameters, {bcdChartGotDetails: bcdChartGotDetails, targetHtml: this.targetHtml})
         })
+      , actionHandler: opts.on.detailsmenu.actionHandler
       });
       
       jQuery("#" + this.targetHTMLElementId).on("chart:contextMenu", function(evt, args) {

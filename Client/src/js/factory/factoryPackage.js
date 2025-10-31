@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -468,6 +468,7 @@ bcdui.factory = Object.assign(bcdui.factory,
             targetHtml: args.targetHtml || args.targetHTMLElementId || args.targetHtmlElementId, // map all possible options to targetHtml for simplification
             suppressInitialRendering: args.suppressInitialRendering,
             postHtmlAttachProcess: args.postHtmlAttachProcess,
+            actionHandler: args.actionHandler,
             debug: args.debug
           });
     };
@@ -676,11 +677,12 @@ bcdui.factory = Object.assign(bcdui.factory,
         if (typeof args.status == "string" && !!args.status.trim()) {
           var isFunctionCall = args.status.endsWith("()");
           if (isFunctionCall && args.status.startsWith(".")) {
-            args.status = eval("bcdui.factory.objectRegistry.objectMap." + args.ids + args.status);
+            args.status = bcdui.util._executeJsFunctionFromString("bcdui.factory.objectRegistry.objectMap." + args.ids + args.status);
           } else if (isFunctionCall) {
-            args.status = eval(args.status);
+            args.status = bcdui.util._executeJsFunctionFromString(args.status);
           } else {
-            args.status = eval("new " + args.status + "()");
+            const cp = bcdui.util._getJsObjectFromString(args.status);
+            args.status = new cp();
           }
         } else {
           delete args.status;

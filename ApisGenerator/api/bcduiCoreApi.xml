@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -996,6 +996,11 @@
             In case targetHTMLElementId is provided, the created renderer is initially and
             immediately executed, this can be suppressed by setting this flag to 'true'. You will
             have to trigger the rendering manually by calling .execute()
+          </Doc>
+        </Param>
+        <Param name="actionHandler" type="string">
+          <Doc>
+            Instance (or name) of an action handler class. Is attached to renderers targetHtml as 'actionHandler'.
           </Doc>
         </Param>
         <Param name="postHtmlAttachProcess" type="function">

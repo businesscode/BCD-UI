@@ -436,6 +436,8 @@ $h6-font-size:                $bcd-font-size-base !default;
     }
    }
    
+  .popupSelectBox td:hover,
+  .weekListSelection a:hover,
   .weekListSelectionHover,
   .weekListSelectionHover a,
   .popupSelectBoxHover {
@@ -1309,16 +1311,19 @@ table.bcd-far-configurator {
       select { border: none; }
     }
 
+    .bcdPagingButton:hover,
     .bcdPagingButtonActive,
     .bcdPagingCoutOfElements,
     .bcdPagingButton {
       border: 1px solid $border-color;
       white-space: nowrap;
     }
+    .bcdPagingButton:hover,
     .bcdPagingButtonActive,
     .bcdPagingButton {
       cursor: pointer;
     }
+    .bcdPagingButton:hover,
     .bcdPagingButtonActive {
  	    @include bcdSelected();
     }
@@ -1327,6 +1332,11 @@ table.bcd-far-configurator {
 }
 
 /* Grid and Scheduler */
+
+.popupActionButtons .defaultButton {
+  margin: 0 0 0 1em;
+  padding: 0;
+}
 
 .bcdGrid.bcdGridDE {
   display: block;
@@ -1746,6 +1756,9 @@ span.bcdInputFieldGrid {
     text-decoration: none;
     @include bcdSelected();
   }
+
+  .bcdReportTemplatesItems a .bcdTemplateRemove { display: none; }
+  .bcdReportTemplatesItems a:hover .bcdTemplateRemove { display:block; }
 
   .bcdReportTemplatesSaveArea {
     border-bottom: 1px solid $border-color;
