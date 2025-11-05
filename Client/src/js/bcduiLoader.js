@@ -150,7 +150,7 @@ bcdui.bcduiCeFiles =
       "required": "backCompatibility",
       "files": [
           "/js/component/chart/chartPackage.js"
-        , "/js/component/chart/chart.js"
+        , "/js/component/chart/chart.js?bcdNoModules=true"
         , "/js/component/chart/drawer.js"
         , "/js/component/chart/colorProvider.js"
         , "/js/component/chart/XmlChart.js"
@@ -347,10 +347,10 @@ bcdui.bcduiCeFiles =
       "required": "mandatory",
       "browserCompatibility": "mandatory",
       "files": [
-          "/js/core/customElements.js"
+          "/js/core/customElements.js?bcdNoModules=true"
         , "/js/widget/customElements.js?bcdNoModules=true"
         , "/js/widgetNg/customElements.js?bcdNoModules=true"
-        , "/js/component/chart/customElements.js"
+        , "/js/component/chart/customElements.js?bcdNoModules=true"
         , "/js/component/cube/customElements.js?bcdNoModules=true"
         , "/js/component/scorecard/customElements.js?bcdNoModules=true"
         , "/js/component/far/customElements.js?bcdNoModules=true"
