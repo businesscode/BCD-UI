@@ -29,7 +29,7 @@
  * @type {bcdui.component.textnavigation.TextNavigation}
  * @extends bcdui.core.Renderer
  */
-bcdui.component.textnavigation.TextNavigation = class extends bcdui.core.Renderer
+export const bcduiExport_TextNavigation = bcdui.component.textnavigation.TextNavigation = class extends bcdui.core.Renderer
 {
   /**
    * @constructs

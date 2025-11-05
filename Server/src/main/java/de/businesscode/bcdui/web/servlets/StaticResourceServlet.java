@@ -88,6 +88,8 @@ public class StaticResourceServlet extends HttpServlet {
   // For removal of bcduiApiStubs imports
   private final Pattern patternImportBcduiApiStubs = Pattern.compile("import \\{bcdui\\} from [^;]+bcduiApiStubs\\.js.;");
   public static final Pattern patternExports = Pattern.compile("export const bcduiExport_[\\w]+[\\s]*=[\\s]*");
+  public static final Pattern customElementsReplace1 = Pattern.compile("import \"\\.\\./import/core.js\"");
+  public static final Pattern customElementsReplace2 = Pattern.compile("await import\\(\"\\.\\./import/[/\\w]+\\.js\"\\);");
   private final int patternImportBcduiApiStubsSearchLen = 1000;
 
   @Override
@@ -148,11 +150,17 @@ public class StaticResourceServlet extends HttpServlet {
       if( matcher.find() ) Arrays.fill(data, matcher.start(), matcher.end(), (byte)' ');
     }
 
-    if ("true".equals(req.getParameter("_bcdNoMod"))) {
+    // when not using modules, the parameter bcdNoModules triggers removal of general export in js classes and 2 imports within custom elements
+    if ("true".equals(req.getParameter("bcdNoModules"))) {
       Matcher matcher = patternExports.matcher(new String(data));
-      while (matcher.find()) {
+      while (matcher.find())
         Arrays.fill(data, matcher.start(), matcher.end(), (byte)' ');
-      }
+      matcher = customElementsReplace1.matcher(new String(data));
+      while (matcher.find())
+        Arrays.fill(data, matcher.start(), matcher.end(), (byte)' ');
+      matcher = customElementsReplace2.matcher(new String(data));
+      while (matcher.find())
+        Arrays.fill(data, matcher.start(), matcher.end(), (byte)' ');
     }
     resp.setContentLength(data.length);
     resp.getOutputStream().write(data);

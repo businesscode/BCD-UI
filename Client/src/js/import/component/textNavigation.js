@@ -16,4 +16,6 @@
 
 import "../core.js"
 
-import "../../component/textNavigation/textNavigation.js"
+import {bcduiExport_TextNavigation as TextNavigation} from "../../component/textNavigation/textNavigation.js"
+
+export {TextNavigation};

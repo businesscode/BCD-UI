@@ -17,7 +17,7 @@
 /**
  * @namespace bcdui.component.cube.configurator
  */
-bcdui.component.cube.configurator = Object.assign(bcdui.component.cube.configurator,
+export const bcduiExport_CubeConfigurator = bcdui.component.cube.configurator = Object.assign(bcdui.component.cube.configurator,
 /** @lends bcdui.component.cube.configurator */
 {
 

@@ -14,7 +14,7 @@
   limitations under the License.
 */
 
-import "../widget/widget.js"
+import "../widget/widgetBase.js"
 
 import "../../widgetNg/widgetUtils.js"
 import "../../widgetNg/bcduiWidget.js"

@@ -287,7 +287,7 @@ task bcduiClientJsFileGroups {
     // Create a task for combining and minifying all non-3rdParty js in the current file group
     def fileGroupName = fileSet.id
     def inputFiles = files( fileSet.files.findAll { !it.contains("3rdParty") }.collect { fPathName ->
-      "$clientCombinedDir/${fPathName}".replace("?_bcdNoMod=true","")
+      "$clientCombinedDir/${fPathName}".replace("?bcdNoModules=true","")
     }).collect{it.absolutePath}
     if( ! inputFiles.isEmpty() ) {
       dependsOn += createBabelTask("$taskPrefix-$fileGroupName"           , inputFiles, "$clientCombinedDir/$jsDistDir/${fileGroupName}.js", false )

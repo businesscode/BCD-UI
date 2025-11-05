@@ -20,7 +20,7 @@
  * to read data using far:Configuration.
  * @extends bcdui.core.AsyncJsDataProvider
  */
-bcdui.component.far.FarModel = class extends bcdui.core.AsyncJsDataProvider
+export const bcduiExport_FarModel = bcdui.component.far.FarModel = class extends bcdui.core.AsyncJsDataProvider
 {
   /**
    * @param {object}                  args                      Parameter map contains the following properties:

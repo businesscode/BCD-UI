@@ -14,8 +14,7 @@
   limitations under the License.
 */
 
-import "./widget.js"
+import "./widgetBase.js"
 import "../../widgetNg/input/inputPackage.js"
-import "../../widgetNg/customElements/input.js"
-import {bcdInput} from "../../widgetNg/widgetNgClasses.js"
-export {bcdInput}
+import {Input} from "../../widgetNg/widgetNgClasses.js"
+export {Input}

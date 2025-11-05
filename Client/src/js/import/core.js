@@ -29,7 +29,7 @@ import "../log/logPackage.js"
 import "../core/abstractExecutable.js"
 
 import {
-  bcduiExport_DataProvider as bcdDataProvider
+  bcduiExport_DataProvider as DataProvider
 } from "../core/dataProvider.js"
 
 import "../core/browserCompatibility.js"
@@ -37,24 +37,24 @@ import "../core/extendedBrowserCompatibility.js"
 import "../core/commonStatusObjects.js"
 
 import {
-  bcduiExport_AsyncJsDataProvider as bcdAsyncJsDataProvider
-, bcduiExport_ConstantDataProvider as bcdConstantDataProvider
-, bcduiExport_DataProviderAlias as bcdDataProviderAlias
-, bcduiExport_DataProviderHolder as bcdDataProviderHolder
-, bcduiExport_DataProviderHtmlAttribute as bcdDataProviderHtmlAttribute
-, bcduiExport_DataProviderWithXPath as bcdDataProviderWithXPath
-, bcduiExport_DataProviderWithXPathNodes as bcdDataProviderWithXPathNodes
-, bcduiExport_JsDataProvider as bcdJsDataProvider
-, bcduiExport_OptionsDataProvider as bcdOptionsDataProvider
-, bcduiExport_PromptDataProvider as bcdPromptDataProvider
-, bcduiExport_RequestDocumentDataProvider as bcdRequestDocumentDataProvider
-, bcduiExport_StringDataProvider as bcdStringDataProvider
+  bcduiExport_AsyncJsDataProvider as AsyncJsDataProvider
+, bcduiExport_ConstantDataProvider as ConstantDataProvider
+, bcduiExport_DataProviderAlias as DataProviderAlias
+, bcduiExport_DataProviderHolder as DataProviderHolder
+, bcduiExport_DataProviderHtmlAttribute as DataProviderHtmlAttribute
+, bcduiExport_DataProviderWithXPath as DataProviderWithXPath
+, bcduiExport_DataProviderWithXPathNodes as DataProviderWithXPathNodes
+, bcduiExport_JsDataProvider as JsDataProvider
+, bcduiExport_OptionsDataProvider as OptionsDataProvider
+, bcduiExport_PromptDataProvider as PromptDataProvider
+, bcduiExport_RequestDocumentDataProvider as RequestDocumentDataProvider
+, bcduiExport_StringDataProvider as StringDataProvider
 } from "../core/dataProviders.js"
 
 import {
-  bcduiExport_DotJsTransformator as bcdDotJsTransformator
-, bcduiExport_JsTransformator as bcdJsTransformator
-, bcduiExport_WebworkerTransformator as bcdWebworkerTransformator
+  bcduiExport_DotJsTransformator as DotJsTransformator
+, bcduiExport_JsTransformator as JsTransformator
+, bcduiExport_WebworkerTransformator as WebworkerTransformator
 } from "../core/transformators.js"
 
 import "../core/xmlLoader.js"
@@ -63,22 +63,22 @@ import "../log/clientEventsPublisher.js"
 import "../core/abstractUpdatableModel.js"
 
 import {
-  bcduiExport_SimpleModel as bcdSimpleModel
+  bcduiExport_SimpleModel as SimpleModel
 } from "../core/simpleModel.js"
 
 import {
-  bcduiExport_StaticModel as bcdStaticModel
+  bcduiExport_StaticModel as StaticModel
 } from "../core/staticModel.js"
 
 import {
-  bcduiExport_AutoModel as bcdAutoModel
+  bcduiExport_AutoModel as AutoModel
 } from "../core/autoModel.js"
 
 import {
-  bcduiExport_Renderer as bcdRenderer
-, bcduiExport_ModelUpdater as bcdModelUpdater
-, bcduiExport_ModelWrapper as bcdModelWrapper
-, bcduiExport_TransformationChain as bcdTransformationChain
+  bcduiExport_Renderer as Renderer
+, bcduiExport_ModelUpdater as ModelUpdater
+, bcduiExport_ModelWrapper as ModelWrapper
+, bcduiExport_TransformationChain as TransformationChain
 } from "../core/transformationChain.js"
 
 import "../core/event/eventPackage.js"
@@ -96,11 +96,11 @@ import "../core/customElements.js"
 //document.adoptedStyleSheets.push(bcduiCss);
 
 export {
-  bcdAutoModel
-, bcdDataProvider
-, bcdModelUpdater, bcdModelWrapper, bcdRenderer, bcdTransformationChain
-, bcdSimpleModel
-, bcdStaticModel
-, bcdDotJsTransformator, bcdWebworkerTransformator, bcdJsTransformator
-, bcdAsyncJsDataProvider, bcdConstantDataProvider, bcdDataProviderAlias, bcdDataProviderHolder, bcdDataProviderHtmlAttribute, bcdDataProviderWithXPath, bcdDataProviderWithXPathNodes, bcdJsDataProvider, bcdOptionsDataProvider, bcdPromptDataProvider, bcdRequestDocumentDataProvider, bcdStringDataProvider
+  AutoModel
+, DataProvider
+, ModelUpdater, ModelWrapper, Renderer, TransformationChain
+, SimpleModel
+, StaticModel
+, DotJsTransformator, WebworkerTransformator, JsTransformator
+, AsyncJsDataProvider, ConstantDataProvider, DataProviderAlias, DataProviderHolder, DataProviderHtmlAttribute, DataProviderWithXPath, DataProviderWithXPathNodes, JsDataProvider, OptionsDataProvider, PromptDataProvider, RequestDocumentDataProvider, StringDataProvider
 }; 

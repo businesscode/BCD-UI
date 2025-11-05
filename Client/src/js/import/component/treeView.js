@@ -15,4 +15,6 @@
 */
 
 import "../widgetNg/button.js"
-import "../../component/treeView/treeViewPackage.js"
+import {bcduiExport_TreeView as TreeView} from "../../component/treeView/treeViewPackage.js"
+
+export {TreeView};

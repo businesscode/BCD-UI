@@ -14,10 +14,9 @@
   limitations under the License.
 */
 
-import "./widget.js"
+import "./widgetBase.js"
 import "../../3rdParty/nouislider.js"
 import "../../widgetNg/slider/sliderPackage.js"
 import "../../widgetNg/slider/typedSliders.js"
-import "../../widgetNg/customElements/slider.js"
-import {bcdSlider} from "../../widgetNg/widgetNgClasses.js"
-export {bcdSlider};
+import {Slider} from "../../widgetNg/widgetNgClasses.js"
+export {Slider};

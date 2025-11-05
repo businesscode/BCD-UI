@@ -14,8 +14,7 @@
   limitations under the License.
 */
 
-import "./widget.js"
+import "./widgetBase.js"
 import "../../widgetNg/checkbox/checkboxPackage.js"
-import "../../widgetNg/customElements/checkbox.js"
-import {bcdCheckbox} from "../../widgetNg/widgetNgClasses.js"
-export {bcdCheckbox};
+import {Checkbox} from "../../widgetNg/widgetNgClasses.js"
+export {Checkbox};

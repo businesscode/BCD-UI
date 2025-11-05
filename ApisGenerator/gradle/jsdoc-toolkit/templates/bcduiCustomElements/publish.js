@@ -44,7 +44,8 @@ function customElementsCore( taffyData, path )
 {
   var result = "";
   var clazz = taffyData( { kind: "class", longname: "bcdui.core.Renderer", undocumented: { "!is": true } } ).get()[0];
-  result += printCustomTag( "bcd-"+clazz.name.toLowerCase(), clazz.memberof+"."+clazz.name+"Tag", clazz.params, "bcdui.factory.createRenderer" );
+  result += "import \"../import/core.js\"" + newLine;
+  result += printCustomTag( "bcd-"+clazz.name.toLowerCase(), clazz.memberof+"."+clazz.name+"Tag", clazz.params, "bcdui.factory.createRenderer", "");
   
   fs.mkPath( path );
   fs.writeFileSync( path+"/customElements.js", result, 'utf8');
@@ -60,28 +61,32 @@ function customElementsComponent( taffyData, path )
   // We want to name it 'Chart', though technically it is an XmlChart
   var clazzes = taffyData( { kind: "class", longname: "bcdui.component.chart.XmlChart", undocumented: { "!is": true } } ).get();
   if( clazzes.length === 1 ) {
-    var result = printCustomTag( "bcd-chart", clazzes[0].memberof+"."+"ChartTag", clazzes[0].params, "bcdui.component.chart.createChart" );
+    var result = "import \"../import/core.js\"" + newLine; 
+    result += printCustomTag( "bcd-chart", clazzes[0].memberof+"."+"ChartTag", clazzes[0].params, "bcdui.component.chart.createChart", "../import/component/chart.js" );
     fs.mkPath( path+"/chart" );
     fs.writeFileSync( path+"/chart/customElements.js", result, 'utf8');
   }
 
   clazzes = taffyData( { kind: "class", longname: "bcdui.component.cube.Cube", undocumented: { "!is": true } } ).get();
   if( clazzes.length === 1 ) {
-    var result = printCustomTag( "bcd-cube", clazzes[0].memberof+"."+"CubeTag", clazzes[0].params, "bcdui.component.createCube" );
+    var result = "import \"../import/core.js\"" + newLine; 
+    result += printCustomTag( "bcd-cube", clazzes[0].memberof+"."+"CubeTag", clazzes[0].params, "bcdui.component.createCube", "../import/component/cube.js" );
     fs.mkPath( path+"/cube" );
     fs.writeFileSync( path+"/cube/customElements.js", result, 'utf8');
   }
-  
+
   clazzes = taffyData( { kind: "class", longname: "bcdui.component.scorecard.Scorecard", undocumented: { "!is": true } } ).get();
   if( clazzes.length === 1 ) {
-    var result = printCustomTag( "bcd-scorecard", clazzes[0].memberof+"."+"ScorecardTag", clazzes[0].params, "bcdui.component.createScorecard" );
+    var result = "import \"../import/core.js\"" + newLine; 
+    result += printCustomTag( "bcd-scorecard", clazzes[0].memberof+"."+"ScorecardTag", clazzes[0].params, "bcdui.component.createScorecard", "../import/component/scorecard.js" );
     fs.mkPath( path+"/scorecard" );
     fs.writeFileSync( path+"/scorecard/customElements.js", result, 'utf8');
   }
 
   clazzes = taffyData( { kind: "class", longname: "bcdui.component.far.Far", undocumented: { "!is": true } } ).get();
   if( clazzes.length === 1 ) {
-    var result = printCustomTag( "bcd-far", clazzes[0].memberof+"."+"FarTag", clazzes[0].params, "bcdui.component.createFar" );
+    var result = "import \"../import/core.js\"" + newLine; 
+    result += printCustomTag( "bcd-far", clazzes[0].memberof+"."+"FarTag", clazzes[0].params, "bcdui.component.createFar", "../import/component/far.js" );
     fs.mkPath( path+"/far" );
     fs.writeFileSync( path+"/far/customElements.js", result, 'utf8');
   }
@@ -107,21 +112,22 @@ function customElementsWidgets( taffyData, packageName, postfix, path )
     }); 
   });
   
-  // create single files (for module import)
+  var resultWidget = "import \"../import/core.js\"" + newLine;
   widgets.forEach( function( widget ) {
     var name = widget.name.substring(6); // Get rid of "create"
-    const resultWidget = printCustomTag( "bcd-"+name.toLowerCase()+postfix, widget.memberof+"."+name+postfix+"Tag", widget.params, widget.longname );
-    fs.mkPath( path+"/customElements" );
-    fs.writeFileSync( path+"/customElements/" + name.substring(0, 1).toLowerCase() + name.substring(1) + ".js", resultWidget, 'utf8');
+    const jsFileName = name.substring(0, 1).toLowerCase() + name.substring(1) + ".js";
+    resultWidget += printCustomTag( "bcd-"+name.toLowerCase()+postfix, widget.memberof+"."+name+postfix+"Tag", widget.params, widget.longname, (postfix == "ng" ? "../import/widgetNg/" : "../import/widget/") + jsFileName );
   });
+  fs.mkPath( path );
+  fs.writeFileSync( path+"/customElements.js", resultWidget, 'utf8');
 }
 
-function printCustomTag( tagName, jsConstructorLongname, params, factory )
+function printCustomTag( tagName, jsConstructorLongname, params, factory, jsFileName)
 {
   params = params || [];
 
   result = "// " + tagName + " HTML custom element" + newLine;
-  result += "bcdui.util.createCustomElement( '"+tagName+"', function() {" + newLine;
+  result += "bcdui.util.createCustomElement( '"+tagName+"', async function() {" + newLine;
   result += "  var args = { targetHtml: this };" + newLine;
 
   // Because HTML attributes are not case sensitive, we cannot generically derive param names from attribute names, instead we have to list them explicitly
@@ -184,7 +190,8 @@ function printCustomTag( tagName, jsConstructorLongname, params, factory )
   });
   result += "  if( this.hasAttribute('objectId') )" + newLine;
   result += "    args.id = this.getAttribute('objectId');" + newLine;
-
+  if (jsFileName != "")
+    result += "  await import(\"" + jsFileName+"\");" + newLine;
   result += "  " + factory + "( args );" + newLine;
   result += "});" + newLine;
   return result;

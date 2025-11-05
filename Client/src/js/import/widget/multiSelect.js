@@ -14,8 +14,7 @@
   limitations under the License.
 */
 
-import "./widget.js"
+import "./widgetBase.js"
 import "../../widget/multiSelect/multiSelectPackage.js"
-import "../../widget/customElements/multiSelect.js"
-import {bcdMultiSelect} from "../../widget/widgetClasses.js"
-export {bcdMultiSelect};
+import {MultiSelect} from "../../widget/widgetClasses.js"
+export {MultiSelect};

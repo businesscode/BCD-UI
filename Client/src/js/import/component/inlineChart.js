@@ -15,5 +15,6 @@
 */
 
 import "./eChart.js"
-import "./cube.js"
+import {Cube, CubeModel} from "./cube.js"
 import "../../../js/component/cube/inlineChart/inlineChart.js"
+export {Cube, CubeModel}

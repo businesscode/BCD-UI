@@ -14,11 +14,10 @@
   limitations under the License.
 */
 
-import "./widget.js"
+import "./widgetBase.js"
 
 import "../widget/contextMenu.js"
 import "../../widgetNg/universalFilter/universalFilterPackage.js"
 
-import "../../widgetNg/customElements/universalFilter.js"
-import {bcdUniversalFilter} from "../../widgetNg/widgetNgClasses.js"
-export {bcdUniversalFilter};
+import {UniversalFilter} from "../../widgetNg/widgetNgClasses.js"
+export {UniversalFilter};

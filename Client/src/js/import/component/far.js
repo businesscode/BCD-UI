@@ -24,11 +24,10 @@ import "../widgetNg/input.js"
 import "../widgetNg/checkbox.js"
 
 import "../../component/far/configurator/farConfigurator.js"
-import "../../component/far/farModel.js"
+import {bcduiExport_FarModel as FarModel} from "../../component/far/farModel.js"
 import "../../component/far/far.js"
-import "../../component/far/create.js"
+import {FbcduiExport_Far as Far} from "../../component/far/create.js"
 
 import "../../component/far/customElements.js"
 
-import {bcdFarModel, bcdFar} from "../../component/componentClasses.js"
-export {bcdFarModel, bcdFar};
+export {Far, FarModel};

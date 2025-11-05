@@ -14,8 +14,7 @@
   limitations under the License.
 */
 
-import "./widget.js"
+import "./widgetBase.js"
 import "../../widget/inputField/inputFieldPackage.js"
-import "../../widget/customElements/inputField.js"
-import {bcdInputField} from "../../widget/widgetClasses.js"
-export {bcdInputField};
+import {InputField} from "../../widget/widgetClasses.js"
+export {InputField};

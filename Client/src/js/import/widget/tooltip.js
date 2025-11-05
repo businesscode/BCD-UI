@@ -14,7 +14,6 @@
   limitations under the License.
 */
 
-import "./widget.js"
-import "../../widget/customElements/tooltip.js"
-import {bcdTooltip} from "../../widget/widgetClasses.js"
-export {bcdTooltip};
+import "./widgetBase.js"
+import {Tooltip} from "../../widget/widgetClasses.js"
+export {Tooltip};

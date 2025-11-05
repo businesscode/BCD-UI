@@ -14,8 +14,7 @@
   limitations under the License.
 */
 
-import "./widget.js"
+import "./widgetBase.js"
 import "../../widget/tab/tabPackage.js"
-import "../../widget/customElements/tabMenu.js"
-import {bcdTab} from "../../widget/widgetClasses.js"
-export {bcdTab};
+import {Tab} from "../../widget/widgetClasses.js"
+export {Tab};

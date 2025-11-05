@@ -14,9 +14,8 @@
   limitations under the License.
 */
 
-import "./widget.js"
+import "./widgetBase.js"
 import "../../widgetNg/checkbox/checkboxPackage.js"
 import "../../widgetNg/multiCheck/multiCheckPackage.js"
-import "../../widgetNg/customElements/multiCheck.js"
-import {bcdMultiCheck} from "../../widgetNg/widgetNgClasses.js"
-export {bcdMultiCheck};
+import {MultiCheck} from "../../widgetNg/widgetNgClasses.js"
+export {MultiCheck};

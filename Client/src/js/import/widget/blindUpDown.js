@@ -14,7 +14,6 @@
   limitations under the License.
 */
 
-import "./widget.js"
-import "../../widget/customElements/blindUpDownArea.js"
-import {bcdBlindUpDown} from "../../widget/widgetClasses.js"
-export {bcdBlindUpDown};
+import "./widgetBase.js"
+import {BlindUpDown} from "../../widget/widgetClasses.js"
+export {BlindUpDown};

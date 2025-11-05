@@ -14,8 +14,7 @@
   limitations under the License.
 */
 
-import "./widget.js"
+import "./widgetBase.js"
 import "../../widgetNg/singleSelect/singleSelectPackage.js"
-import "../../widgetNg/customElements/singleSelect.js"
-import {bcdSingleSelect} from "../../widgetNg/widgetNgClasses.js"
-export {bcdSingleSelect};
+import {SingleSelect} from "../../widgetNg/widgetNgClasses.js"
+export {SingleSelect};

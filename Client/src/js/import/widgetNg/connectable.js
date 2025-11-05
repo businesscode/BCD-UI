@@ -14,8 +14,7 @@
   limitations under the License.
 */
 
-import "./widget.js"
+import "./widgetBase.js"
 import "../../widgetNg/connectable/connectablePackage.js"
-import "../../widgetNg/customElements/connectable.js"
-import {bcdConnectable} from "../../widgetNg/widgetNgClasses.js"
-export {bcdConnectable};
+import {Connectable} from "../../widgetNg/widgetNgClasses.js"
+export {Connectable};

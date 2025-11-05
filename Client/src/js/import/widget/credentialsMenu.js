@@ -14,7 +14,6 @@
   limitations under the License.
 */
 
-import "./widget.js"
-import "../../widget/customElements/credentialsMenu.js"
-import {bcdCredentialsMenu} from "../../widget/widgetClasses.js"
-export {bcdCredentialsMenu};
+import "./widgetBase.js"
+import {CredentialsMenu} from "../../widget/widgetClasses.js"
+export {CredentialsMenu};

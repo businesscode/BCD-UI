@@ -23,7 +23,7 @@
   * Creates a cube model, provides data with calculations and col dimensions applied
   * @extends bcdui.core.ModelWrapper
   */
-bcdui.component.cube.CubeModel = class extends bcdui.core.ModelWrapper
+export const bcduiExport_CubeModel = bcdui.component.cube.CubeModel = class extends bcdui.core.ModelWrapper
 
 {
   /**
@@ -783,3 +783,5 @@ bcdui.component = Object.assign(bcdui.component,
     return ( value && value !="false" && value != "" );
   }
 });
+
+export const bcduiExport_Cube = bcdui.component.cube.Cube;

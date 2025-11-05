@@ -14,7 +14,7 @@
   limitations under the License.
 */
 
-import "./scorecard.js"
+import {Scorecard, ScorecardModel} from "./scorecard.js"
 
 import "../widgetNg/checkbox.js"
 import "../widgetNg/button.js"
@@ -25,5 +25,4 @@ import "../../component/cube/templateManager/templateManager.js"
 import "../../component/cube/rankingEditor/rankingEditor.js"
 import "../../component/cube/summaryDisplay/summaryDisplay.js"
 
-import {bcdScorecardModel, bcdScorecard} from "../../component/componentClasses.js"
-export {bcdScorecardModel, bcdScorecard};
+export {Scorecard, ScorecardModel};

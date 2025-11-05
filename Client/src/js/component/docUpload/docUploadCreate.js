@@ -23,7 +23,7 @@
  * Creates an Uploader
  * @extends bcdui.core.Renderer
  */
-bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
+export const bcduiExport_DocUpload = bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
 {
   /**
   * @param args The parameter map contains the following properties:

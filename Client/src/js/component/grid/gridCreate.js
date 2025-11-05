@@ -42,7 +42,7 @@
  * Creates a GridModel
  * @extends bcdui.core.SimpleModel
  */
-bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
+export const bcduiExport_GridModel = bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
 {
   /**
   * @param {Object} args The parameter map contains the following properties:
@@ -3860,3 +3860,5 @@ bcdui.component = Object.assign(bcdui.component,
     return { refId: args.id, symbolicLink: true };
   }
 });
+
+export const bcduiExport_Grid = bcdui.component.grid.Grid;

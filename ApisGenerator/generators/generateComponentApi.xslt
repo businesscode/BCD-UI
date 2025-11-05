@@ -48,12 +48,6 @@
         </File>
       </xsl:for-each>
 
-      <!-- JS factory methods, mainly setting params as html attributes to the container -->
-      <File name="gensrc/js/component/componentClasses.js">
-        <xsl:text>"use strict";</xsl:text>
-        <xsl:apply-templates select="$normalizedApi/*/BcdObject" mode="jsFactoryClasses"/>
-      </File>
-
       <!-- XSLT / XAPI Api -->
       <File name="gensrc/js/component/component.xslt" outputFormat="xml">
         <xsla:stylesheet version="1.0" xmlns:xapi="http://www.businesscode.de/schema/bcdui/xmlapi-1.0.0">

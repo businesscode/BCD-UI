@@ -14,5 +14,5 @@
   limitations under the License.
 */
 
-import "./widget.js"
+import "./widgetBase.js"
 import "../../widget/visualizeXml/visualizeXml.js"

@@ -370,3 +370,5 @@ bcdui.component.far.enhancer = Object.assign(bcdui.component.far.enhancer,
     return new bcdui.core.ModelWrapper(enhancerParams);
   }
 });
+
+export const bcduiExport_Far = bcdui.component.far.Far;

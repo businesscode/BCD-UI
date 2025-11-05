@@ -14,5 +14,4 @@
   limitations under the License.
 */
 
-import "./widget.js"
-import "../../widget/customElements/navPath.js"
+import "./widgetBase.js"

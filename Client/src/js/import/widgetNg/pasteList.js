@@ -16,6 +16,5 @@
 
 import "./input.js"
 import "../../widgetNg/pasteList/pasteListPackage.js"
-import "../../widgetNg/customElements/pasteList.js"
-import {bcdPasteList} from "../../widgetNg/widgetNgClasses.js"
-export {bcdPasteList};
+import {PasteList} from "../../widgetNg/widgetNgClasses.js"
+export {PasteList};

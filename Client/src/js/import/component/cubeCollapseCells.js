@@ -14,7 +14,9 @@
   limitations under the License.
 */
 
-import "./cube.js"
+import {Cube, CubeModel} from "./cube.js"
 
-import "../widget/widget.js"
+import "../widget/widgetBase.js"
 import "../../component/cube/expandCollapseCells.js"
+
+export {Cube, CubeModel}

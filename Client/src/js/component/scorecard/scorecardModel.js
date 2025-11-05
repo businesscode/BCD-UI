@@ -35,7 +35,7 @@
  * See {@link bcdui.component.createScorecard} if you want a default scorecard rendering.
  * @extends bcdui.core.DataProvider
  */
-bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
+export const bcduiExport_ScorecardModel = bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
 {
   /* This class represents a Scorecard. The process is:
     * <pre>

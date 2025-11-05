@@ -15,8 +15,6 @@
 */
 
 import "../core.js"
-import "../../component/cube/cubeCreate.js"
+import {bcduiExport_Cube as Cube, bcduiExport_CubeModel as CubeModel} from "../../component/cube/cubeCreate.js"
 import "../../component/cube/customElements.js"
-
-import {bcdCubeModel, bcdCube} from "../../component/componentClasses.js"
-export {bcdCubeModel, bcdCube};
+export {Cube, CubeModel};

@@ -64,20 +64,20 @@ bcdui.bcduiCeFiles =
         , "/js/factory/objectRegistry.js"
         , "/js/log/logPackage.js"
         , "/js/core/abstractExecutable.js"
-        , "/js/core/dataProvider.js?_bcdNoMod=true"
+        , "/js/core/dataProvider.js?bcdNoModules=true"
         , "/js/core/browserCompatibility.js"
         , "/js/core/extendedBrowserCompatibility.js"
         , "/js/core/commonStatusObjects.js"
-        , "/js/core/dataProviders.js?_bcdNoMod=true"
-        , "/js/core/transformators.js?_bcdNoMod=true"
+        , "/js/core/dataProviders.js?bcdNoModules=true"
+        , "/js/core/transformators.js?bcdNoModules=true"
         , "/js/core/xmlLoader.js"
         , "/js/log/backendEventsPoller.js"
         , "/js/log/clientEventsPublisher.js"
         , "/js/core/abstractUpdatableModel.js"
-        , "/js/core/simpleModel.js?_bcdNoMod=true"
-        , "/js/core/staticModel.js?_bcdNoMod=true"
-        , "/js/core/autoModel.js?_bcdNoMod=true"
-        , "/js/core/transformationChain.js?_bcdNoMod=true"
+        , "/js/core/simpleModel.js?bcdNoModules=true"
+        , "/js/core/staticModel.js?bcdNoModules=true"
+        , "/js/core/autoModel.js?bcdNoModules=true"
+        , "/js/core/transformationChain.js?bcdNoModules=true"
         , "/js/core/event/eventPackage.js"
         , "/js/core/compression/compressionPackage.js"
         , "/js/factory/factoryPackage.js"
@@ -175,8 +175,8 @@ bcdui.bcduiCeFiles =
       "id": "bcduiCube",
       "required": "backCompatibility",
       "files": [
-          "/js/component/cube/cubeCreate.js"
-        , "/js/component/cube/cubeConfigurator/cubeConfigurator.js"
+          "/js/component/cube/cubeCreate.js?bcdNoModules=true"
+        , "/js/component/cube/cubeConfigurator/cubeConfigurator.js?bcdNoModules=true"
         , "/js/component/cube/cubeConfigurator/cubeConfiguratorDND.js"
         , "/js/component/cube/expandCollapseCells.js"
         , "/js/component/cube/templateManager/templateManager.js"
@@ -208,8 +208,8 @@ bcdui.bcduiCeFiles =
       "required": "optional",
       "files": [              
         "/js/component/far/configurator/farConfigurator.js"
-        ,"/js/component/far/farModel.js"
-        ,"/js/component/far/far.js"
+        ,"/js/component/far/farModel.js?bcdNoModules=true"
+        ,"/js/component/far/far.js?bcdNoModules=true"
         ,"/js/component/far/create.js"
       ],
       "buildFolders": [
@@ -232,8 +232,8 @@ bcdui.bcduiCeFiles =
       "id": "bcduiScorecard",
       "required": "backCompatibility",
       "files": [
-          "/js/component/scorecard/scorecardModel.js"
-        , "/js/component/scorecard/scorecardCreate.js"
+          "/js/component/scorecard/scorecardModel.js?bcdNoModules=true"
+        , "/js/component/scorecard/scorecardCreate.js?bcdNoModules=true"
         , "/js/component/scorecard/scorecardConfigurator.js"
         , "/js/component/scorecard/bcdAspects.js"
         , "/js/component/cube/templateManager/templateManager.js"
@@ -252,7 +252,7 @@ bcdui.bcduiCeFiles =
       "id": "bcduiTreeView",
       "required": "backCompatibility",
       "files": [
-        "/js/component/treeView/treeViewPackage.js"
+        "/js/component/treeView/treeViewPackage.js?bcdNoModules=true"
       ],
       "buildFolders": [
         "/js/component/treeView"
@@ -264,7 +264,7 @@ bcdui.bcduiCeFiles =
       "files": [
           "/js/3rdParty/numbro.js"
         , "/js/3rdParty/handsontable.js"
-        , "/js/component/grid/gridCreate.js"
+        , "/js/component/grid/gridCreate.js?bcdNoModules=true"
         , "/js/component/grid/gridEditor.js"
       ],
       "css": [
@@ -281,7 +281,7 @@ bcdui.bcduiCeFiles =
           "/js/3rdParty/handsontable.js"
         , "/js/3rdParty/ckeditor/ckeditorPackage/ckeditor.js"
         , "/js/3rdParty/ckeditor/ckeditor_jqueryPlugin.js"
-        , "/js/component/grid/gridCreate.js"
+        , "/js/component/grid/gridCreate.js?bcdNoModules=true"
         , "/js/component/grid/gridEditor.js"
         , "/js/widget/messages/bcduiHtmlEditor.js"
         , "/js/widget/messages/messagesEditor.js"
@@ -309,7 +309,7 @@ bcdui.bcduiCeFiles =
       "id": "bcduiDocUpload",
       "required": "optional",
       "files": [
-        "/js/component/docUpload/docUploadCreate.js"
+        "/js/component/docUpload/docUploadCreate.js?bcdNoModules=true"
       ],
       "buildFolders": [
         "/js/component/docUpload"
@@ -319,7 +319,7 @@ bcdui.bcduiCeFiles =
       "id": "bcduiTree",
       "required": "optional",
       "files": [
-        "/js/component/tree/treeCreate.js"
+        "/js/component/tree/treeCreate.js?bcdNoModules=true"
       ],
       "buildFolders": [
         "/js/component/tree"
@@ -339,7 +339,7 @@ bcdui.bcduiCeFiles =
       "id": "bcduiTextNavigation",
       "required": "backCompatibility",
       "files": [
-        "/js/component/textNavigation/textNavigation.js"
+        "/js/component/textNavigation/textNavigation.js?bcdNoModules=true"
       ]
     },
     {
@@ -348,45 +348,12 @@ bcdui.bcduiCeFiles =
       "browserCompatibility": "mandatory",
       "files": [
           "/js/core/customElements.js"
-
-        , "/js/widget/customElements/blindUpDownArea.js"
-        , "/js/widget/customElements/contextMenu.js"
-        , "/js/widget/customElements/credentialsMenu.js"
-        , "/js/widget/customElements/dimensionChooser.js"
-        , "/js/widget/customElements/formulaEditor.js"
-        , "/js/widget/customElements/inputField.js"
-        , "/js/widget/customElements/menu.js"
-        , "/js/widget/customElements/multiSelect.js"
-        , "/js/widget/customElements/navPath.js"
-        , "/js/widget/customElements/periodChooser.js"
-        , "/js/widget/customElements/singleSelect.js"
-        , "/js/widget/customElements/tabMenu.js"
-        , "/js/widget/customElements/tooltip.js"
-
-        , "/js/widgetNg/customElements/button.js"
-        , "/js/widgetNg/customElements/checkbox.js"
-        , "/js/widgetNg/customElements/chipsChooser.js"
-        , "/js/widgetNg/customElements/comment.js"
-        , "/js/widgetNg/customElements/connectable.js"
-        , "/js/widgetNg/customElements/dateInput.js"
-        , "/js/widgetNg/customElements/input.js"
-        , "/js/widgetNg/customElements/inputLookup.js"
-        , "/js/widgetNg/customElements/label.js"
-        , "/js/widgetNg/customElements/login.js"
-        , "/js/widgetNg/customElements/multiCheck.js"
-        , "/js/widgetNg/customElements/pasteList.js"
-        , "/js/widgetNg/customElements/rankingChooser.js"
-        , "/js/widgetNg/customElements/sideBySideChooser.js"
-        , "/js/widgetNg/customElements/singleSelect.js"
-        , "/js/widgetNg/customElements/slider.js"
-        , "/js/widgetNg/customElements/suggestInput.js"
-        , "/js/widgetNg/customElements/textArea.js"
-        , "/js/widgetNg/customElements/universalFilter.js"
-
+        , "/js/widget/customElements.js?bcdNoModules=true"
+        , "/js/widgetNg/customElements.js?bcdNoModules=true"
         , "/js/component/chart/customElements.js"
-        , "/js/component/cube/customElements.js"
-        , "/js/component/scorecard/customElements.js"
-        , "/js/component/far/customElements.js"
+        , "/js/component/cube/customElements.js?bcdNoModules=true"
+        , "/js/component/scorecard/customElements.js?bcdNoModules=true"
+        , "/js/component/far/customElements.js?bcdNoModules=true"
       ]
     }
   ]

@@ -14,7 +14,7 @@
   limitations under the License.
 */
 
-import "../widget/widget.js"
+import "../widget/widgetBase.js"
 
 import "../../3rdParty/fileSaver/fileSaver.js" 
 import "../../3rdParty/jquery.blockUI.js"

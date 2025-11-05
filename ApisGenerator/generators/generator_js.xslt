@@ -50,7 +50,7 @@
       </xsl:if>
     </xsl:variable>
     <xsl:if test="$package!='' or @implementationFunction!=''">
-    <xsl:value-of select="concat('&#10;export let ', $bcdName, ' = class {')"/>
+    <xsl:value-of select="concat('&#10;export let ', substring($bcdName, 4), ' = class {')"/>
 /**
   * <xsl:value-of select="normalize-space(Api/Doc[position()=last()])"/>
   * @param {Object}  args  The parameter map contains the following properties.<xsl:for-each select="Api/Param">

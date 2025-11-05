@@ -14,8 +14,7 @@
   limitations under the License.
 */
 
-import "./widget.js"
+import "./widgetBase.js"
 import "../../widget/contextMenu/contextMenuPackage.js"
-import "../../widget/customElements/contextMenu.js"
-import {bcdContextMenu} from "../../widget/widgetClasses.js"
-export {bcdContextMenu};
+import {ContextMenu} from "../../widget/widgetClasses.js"
+export {ContextMenu};
