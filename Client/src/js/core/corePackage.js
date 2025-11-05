@@ -1152,25 +1152,45 @@ bcdui.core = Object.assign(bcdui.core,
    */
   ready: function(fn)
     {
-      if (bcdui.core.windowLoaded) {
-        fn();
-      } else {
-        jQuery(function() {
-          bcdui.core.windowLoaded = true;
-          if (bcdui.browserCompatibility.isGecko) {
-            /*
-             * Firefox swallows all errors thrown in this event handler.
-             */
-            try {
+      const rdy = function(fn) {
+        if (bcdui.core.windowLoaded) {
+          fn();
+        } else {
+          jQuery(function() {
+            bcdui.core.windowLoaded = true;
+            if (bcdui.browserCompatibility.isGecko) {
+              /*
+               * Firefox swallows all errors thrown in this event handler.
+               */
+              try {
+                fn();
+              } catch (e) {
+                bcdui.log.error({id: null, message: e});
+              }
+            } else {
               fn();
-            } catch (e) {
-              bcdui.log.error({id: null, message: e});
             }
-          } else {
-            fn();
+          });
+        }
+      };
+
+      // bcdui.core.page.waitForJs might contain js files which should be imported upfront
+      // so signal readiness after importing them
+      const waitJs = bcdui.core.page && bcdui.core.page.waitForJs ? bcdui.core.page.waitForJs : [];
+      // no js files to import or they are already scheduled, let's go on with ready...
+      if (waitJs.length == 0 || bcdui.core.awaitImportsDone)
+        rdy(fn);
+      else {
+        // schedule import of single files
+        waitJs.forEach(async function(e, c) {
+          await import(e);
+          // if last import is scheduled, call rdy and signal awaitImportsDone
+          if (c == waitJs.length - 1) {
+            rdy(fn);
+            bcdui.core.awaitImportsDone = true;
           }
-        });
-      }
+         });
+       }
     },
 
     /**

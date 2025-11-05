@@ -520,3 +520,16 @@ if(typeof bcdui.config != "undefined") {
 
 // start marker for BCD-UI lib load
 bcdui.log.isDebugEnabled() && bcdui.log.debug("BCD-UI lib just started loading");
+
+// custom bcd-page html element, currently only used for adding jsFiles which are dynamically imported in bcdui.core.ready
+// use this to import js files which create modelUpdaters on guiStatus 
+bcdui.util.createCustomElement( 'bcd-page', async function() {
+  bcdui.core = bcdui.core || {};
+  bcdui.core.page  = bcdui.core.page || {};
+  bcdui.core.page.waitForJs = [];
+  if( this.hasAttribute('waitForJs')) {
+    const prefix = window.location.href.substring(0, window.location.href.lastIndexOf("/"));
+    bcdui.core.page.waitForJs = (this.getAttribute('waitForJs') || "").split(",").map(function(e) { return prefix + "/" + e.trim(); }).filter(function(e) { return e != ""; });
+    bcdui.core.page.waitForJs= bcdui.core.page.waitForJs.filter(function(e, idx){return bcdui.core.page.waitForJs.indexOf(e) == idx});
+  }
+});
