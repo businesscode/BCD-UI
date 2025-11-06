@@ -273,8 +273,8 @@ task bcduiClientJsFileGroups {
         if (! is3rdParty) {
           outFile.text = outFile.text.replace('"use strict";', "")
           outFile.text = outFile.text.replaceAll("export const bcduiExport_[\\w]+[\\s]*=[\\s]*", "")
-          outFile.text = outFile.text.replaceAll('await import\\(\\"\\.\\./import/[\\w/]+\\.js\\"\\),', '')
-			    outFile.text = outFile.text.replaceAll('import\\"\\.\\./import/core.js\\";', '')
+          outFile.text = outFile.text.replaceAll('await import\\(\\"\\.\\./modules/[\\w/]+\\.js\\"\\),', '')
+			    outFile.text = outFile.text.replaceAll('import\\"\\.\\.modules/core.js\\";', '')
           outFile.text = '"use strict";' + outFile.text
         }
         outFile.text += newLine + ( is3rdParty ? '/* For license see THIRDPARTYLICENSEREADME.txt */' : "/* $bcdCopyRightText */" )
