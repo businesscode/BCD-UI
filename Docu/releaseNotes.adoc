@@ -30,6 +30,7 @@ ___
 .Security:
 .Development:
 .Bugfixes:
+* inputNg: consider value of "step" attribute for type="numeric"
 * WrsNextIdentifierServlet: fix counter creation with blockSize>1
 * internal logging is now compatible with Log4j2 async logging (also with disruptor based method for high throughput logging)
 

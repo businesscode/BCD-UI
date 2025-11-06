@@ -19,8 +19,6 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.Filter;
@@ -40,13 +38,13 @@ import de.businesscode.util.Utils;
 
 @Plugin(name = "ErrorLogAppender", category = "Core", elementType = "appender", printObject = true)
 public class ErrorLogAppender extends AbstractAppender {
-  
-  public ErrorLogAppender(final String name, final Filter filter, final Layout<? extends Serializable> layout, 
+
+  public ErrorLogAppender(final String name, final Filter filter, final Layout<? extends Serializable> layout,
       final boolean ignoreExceptions, final Property[] properties) {
     super(name, filter, layout, ignoreExceptions, properties);
     start(); // needs to be called explicitly, unless the appender is defined in the log4j2.xml config file (which is currently not)
   }
-  
+
   @PluginFactory // this annotation is needed so log4j2 can create this appender (even if we create it manually)
   public static ErrorLogAppender createAppender(@PluginAttribute("name") String name,
                                                 @PluginElement("Layout") Layout<? extends Serializable> layout,
@@ -55,7 +53,7 @@ public class ErrorLogAppender extends AbstractAppender {
           layout = PatternLayout.createDefaultLayout();
       return new ErrorLogAppender(name, filter, layout, false, null);
   }
-  
+
   /**
    * Just a convenience method to create this appender with default settings.
    * @return
@@ -70,8 +68,7 @@ public class ErrorLogAppender extends AbstractAppender {
     // If this is not the case, there is a programming error, which should lead to an uncaught exception.
     ErrorLogEvent bcduiLogEvent = (ErrorLogEvent) event.getMessage();
 
-    HttpServletRequest request = bcduiLogEvent.getRequest();
-    if(ErrorSqlLogger.getInstance().isEnabled() && request != null) {
+    if(ErrorSqlLogger.getInstance().isEnabled()) {
       try {
         Level errorLevel = event.getLevel();
         String pageHash = ThreadContext.get(RequestLifeCycleFilter.MDC_KEY_BCD_PAGEHASH),
