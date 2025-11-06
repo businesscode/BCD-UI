@@ -33,7 +33,8 @@ import groovy.json.JsonSlurper
 def bcdCopyRightText = file("$rootProject.rootDir.path/gradle/LICENSE_header.txt").text
 def newLine = System.properties['line.separator']
 def src3rdParty       = "$buildDir/tmp/src3rdParty"
-def clientCombinedDir = "$buildDir/tmp/clientCombined"
+def clientCombined    = "clientCombined"
+def clientCombinedDir = "$buildDir/tmp/$clientCombined"
 def jsDistDir         = 'jsDist'
 
 // This knows, where to find the right files for what 3rdParty lib for the easy 1:1 copy- (+maybe rename) cases
@@ -280,6 +281,18 @@ task bcduiClientJsFileGroups {
         outFile.text += newLine + ( is3rdParty ? '/* For license see THIRDPARTYLICENSEREADME.txt */' : "/* $bcdCopyRightText */" )
       }
     }
+  }
+
+  // minimize single js files which are kept as standalone for module import functionality
+  def bcduiSingleFiles = new JsonSlurper().parseText(origBcduiLoaderJsonSplit[1])
+  def singleFiles = bcduiSingleFiles.groups.inject([]){ fullResult, group -> return fullResult + group.files.findAll({ ! it.contains('3rdParty') }) }
+  singleFiles = singleFiles.unique(false)
+  // fix 'nonmodules' naming first 
+  singleFiles.collect { f -> f.replaceAll(/\/js\/nonmodules\//, '/js/')}.eachWithIndex { jsFile, i ->
+    // and build final path in clientCombinedDir by replacing the first "/js/" part 
+    def f = ("$clientCombinedDir" + jsFile).replaceAll("\\\\", "/").replaceAll("$clientCombined/js/", "$clientCombined/$jsDistDir/");
+    def name = f.substring(f.lastIndexOf('/') + 1)
+    dependsOn += createBabelTask("$i-minimize-$name", [f], f, false )
   }
 
   // All non 3rd-party files are handled here
