@@ -103,6 +103,7 @@ task bcduiDocuJsApiStubs ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
   def files = bcduiFiles.groups.inject([]){ fullResult, group -> return fullResult + group.files.findAll({ ! it.contains('3rdParty') }) }
   // If a file is included in different fileGroups, just take it once to have all definitions unambiguous
   files = files.unique(false)
+  files = files.collect { f -> f.replaceAll(/\/js\/nonmodules\//, '/js') }
 
   script = file("$nodeModulesDir/jsdoc/jsdoc.js")
   args   = files.collect { tasks.findByPath(':Client:bcduiClientCollectAll').destinationDir.path+it } +

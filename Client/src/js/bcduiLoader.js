@@ -43,49 +43,49 @@ bcdui.bcduiCeFiles =
       "id": "bcduiUtil",
       "required": "mandatory",
       "files": [
-          "/js/util/typedefs.js"
-        , "/js/util/utilPackage.js"
-        , "/js/util/datetimePackage.js"
-        , "/js/util/clipboardPackage.js"
-        , "/js/util/urlPackage.js"
-        , "/js/util/xmlPackage.js"
-        , "/js/jison/bcdui_util_xml_filterExpressionParser.js"
-        , "/js/util/bcdJQueryPlugins.js"
+          "/js/nonmodules/util/typedefs.js"
+        , "/js/nonmodules/util/utilPackage.js"
+        , "/js/nonmodules/util/datetimePackage.js"
+        , "/js/nonmodules/util/clipboardPackage.js"
+        , "/js/nonmodules/util/urlPackage.js"
+        , "/js/nonmodules/util/xmlPackage.js"
+        , "/js/nonmodules/jison/bcdui_util_xml_filterExpressionParser.js"
+        , "/js/nonmodules/util/bcdJQueryPlugins.js"
       ]
     },
     {
       "id": "bcduiCore",
       "required": "mandatory",
       "files": [
-          "/js/bcdui.js"
-        , "/js/settings.js"
-        , "/js/core/corePackage.js"
-        , "/js/core/statusHandling.js"
-        , "/js/factory/objectRegistry.js"
-        , "/js/log/logPackage.js"
-        , "/js/core/abstractExecutable.js"
-        , "/js/core/dataProvider.js?bcdNoModules=true"
-        , "/js/core/browserCompatibility.js"
-        , "/js/core/extendedBrowserCompatibility.js"
-        , "/js/core/commonStatusObjects.js"
-        , "/js/core/dataProviders.js?bcdNoModules=true"
-        , "/js/core/transformators.js?bcdNoModules=true"
-        , "/js/core/xmlLoader.js"
-        , "/js/log/backendEventsPoller.js"
-        , "/js/log/clientEventsPublisher.js"
-        , "/js/core/abstractUpdatableModel.js"
-        , "/js/core/simpleModel.js?bcdNoModules=true"
-        , "/js/core/staticModel.js?bcdNoModules=true"
-        , "/js/core/autoModel.js?bcdNoModules=true"
-        , "/js/core/transformationChain.js?bcdNoModules=true"
-        , "/js/core/event/eventPackage.js"
-        , "/js/core/compression/compressionPackage.js"
-        , "/js/factory/factoryPackage.js"
-        , "/js/i18n/i18n.js"
-        , "/js/i18n/i18nPackage.js"
-        , "/js/core/lifecycle/lifecyclePackage.js"
-        , "/js/core/lifecycle/autoRefresh.js"
-        , "/js/wrs/wrsUtilPackage.js"
+          "/js/nonmodules/bcdui.js"
+        , "/js/nonmodules/settings.js"
+        , "/js/nonmodules/core/corePackage.js"
+        , "/js/nonmodules/core/statusHandling.js"
+        , "/js/nonmodules/factory/objectRegistry.js"
+        , "/js/nonmodules/log/logPackage.js"
+        , "/js/nonmodules/core/abstractExecutable.js"
+        , "/js/nonmodules/core/dataProvider.js"
+        , "/js/nonmodules/core/browserCompatibility.js"
+        , "/js/nonmodules/core/extendedBrowserCompatibility.js"
+        , "/js/nonmodules/core/commonStatusObjects.js"
+        , "/js/nonmodules/core/dataProviders.js"
+        , "/js/nonmodules/core/transformators.js"
+        , "/js/nonmodules/core/xmlLoader.js"
+        , "/js/nonmodules/log/backendEventsPoller.js"
+        , "/js/nonmodules/log/clientEventsPublisher.js"
+        , "/js/nonmodules/core/abstractUpdatableModel.js"
+        , "/js/nonmodules/core/simpleModel.js"
+        , "/js/nonmodules/core/staticModel.js"
+        , "/js/nonmodules/core/autoModel.js"
+        , "/js/nonmodules/core/transformationChain.js"
+        , "/js/nonmodules/core/event/eventPackage.js"
+        , "/js/nonmodules/core/compression/compressionPackage.js"
+        , "/js/nonmodules/factory/factoryPackage.js"
+        , "/js/nonmodules/i18n/i18n.js"
+        , "/js/nonmodules/i18n/i18nPackage.js"
+        , "/js/nonmodules/core/lifecycle/lifecyclePackage.js"
+        , "/js/nonmodules/core/lifecycle/autoRefresh.js"
+        , "/js/nonmodules/wrs/wrsUtilPackage.js"
       ],
       "css": [
         "/js/3rdParty/jquery-ui.css",
@@ -96,166 +96,166 @@ bcdui.bcduiCeFiles =
       "id": "bcduiWidget",
       "required": "mandatory",
       "files": [
-          "/js/widget/pageEffects.js"
-        , "/js/widget/widgetPackage.js"
-        , "/js/widget/detachedEvent.js"
-        , "/js/widget/mouseTracker.js"
-        , "/js/widget/xmlDataUpdateListener.js"
-        , "/js/widgetNg/widgetUtils.js"
-        , "/js/widgetNg/bcduiWidget.js"
-        , "/js/widget/inputField/inputFieldPackage.js"
-        , "/js/widget/singleSelect/singleSelectPackage.js"
-        , "/js/widget/multiSelect/multiSelectPackage.js"
-        , "/js/widget/dimensionChooser/dimensionChooserPackage.js"
-        , "/js/widget/formulaEditor/formulaEditorPackage.js"
-        , "/js/widget/formulaEditor/formulaParser.js"
-        , "/js/widget/periodChooser/periodChooserPackage.js"
-        , "/js/widget/periodChooser/popcalendar.js"
-        , "/js/widget/notification/notificationsWidgetPackage.js"
-        , "/js/widget/detailView/detailViewPackage.js"
-        , "/js/widget/menu/menu.js"
-        , "/js/widget/visualizeXml/visualizeXml.js"
-        , "/js/widget/contextMenu/contextMenuPackage.js"
-        , "/js/widget/tab/tabPackage.js"
-        , "/js/widget/effects/effectsPackage.js"
-        , "/js/widgetNg/capabilityPackage.js"
-        , "/js/widgetNg/commons.js"
-        , "/js/widgetNg/validators.js"
-        , "/js/widgetNg/widgetPackage.js"
-        , "/js/widgetNg/widgetImpl.js"
-        , "/js/widgetNg/button/buttonPackage.js"
-        , "/js/widgetNg/input/inputPackage.js"
-        , "/js/widgetNg/inputLookup/inputLookupPackage.js"
-        , "/js/widgetNg/dateInput/dateInputPackage.js"
-        , "/js/widgetNg/textArea/textAreaPackage.js"
-        , "/js/widgetNg/pasteList/pasteListPackage.js"
-        , "/js/widgetNg/checkbox/checkboxPackage.js"
-        , "/js/widgetNg/suggestInput/suggestInputPackage.js"
-        , "/js/widgetNg/singleSelect/singleSelectPackage.js"
-        , "/js/widgetNg/connectable/connectablePackage.js"
-        , "/js/widgetNg/sideBySideChooser/sideBySideChooserPackage.js"
-        , "/js/widgetNg/chipsChooser/chipsPackage.js"
-        , "/js/widgetNg/universalFilter/universalFilterPackage.js"
-        , "/js/widgetNg/slider/sliderPackage.js"
-        , "/js/widgetNg/slider/typedSliders.js"
-        , "/js/widgetNg/quickEdit/quickEditPackage.js"
-        , "/js/widgetNg/comment/commentPackage.js"
-        , "/js/widgetNg/label/labelPackage.js"
-        , "/js/widgetNg/multiCheck/multiCheckPackage.js"
-        , "/js/widgetNg/login/loginPackage.js"
+          "/js/nonmodules/widget/pageEffects.js"
+        , "/js/nonmodules/widget/widgetPackage.js"
+        , "/js/nonmodules/widget/detachedEvent.js"
+        , "/js/nonmodules/widget/mouseTracker.js"
+        , "/js/nonmodules/widget/xmlDataUpdateListener.js"
+        , "/js/nonmodules/widgetNg/widgetUtils.js"
+        , "/js/nonmodules/widgetNg/bcduiWidget.js"
+        , "/js/nonmodules/widget/inputField/inputFieldPackage.js"
+        , "/js/nonmodules/widget/singleSelect/singleSelectPackage.js"
+        , "/js/nonmodules/widget/multiSelect/multiSelectPackage.js"
+        , "/js/nonmodules/widget/dimensionChooser/dimensionChooserPackage.js"
+        , "/js/nonmodules/widget/formulaEditor/formulaEditorPackage.js"
+        , "/js/nonmodules/widget/formulaEditor/formulaParser.js"
+        , "/js/nonmodules/widget/periodChooser/periodChooserPackage.js"
+        , "/js/nonmodules/widget/periodChooser/popcalendar.js"
+        , "/js/nonmodules/widget/notification/notificationsWidgetPackage.js"
+        , "/js/nonmodules/widget/detailView/detailViewPackage.js"
+        , "/js/nonmodules/widget/menu/menu.js"
+        , "/js/nonmodules/widget/visualizeXml/visualizeXml.js"
+        , "/js/nonmodules/widget/contextMenu/contextMenuPackage.js"
+        , "/js/nonmodules/widget/tab/tabPackage.js"
+        , "/js/nonmodules/widget/effects/effectsPackage.js"
+        , "/js/nonmodules/widgetNg/capabilityPackage.js"
+        , "/js/nonmodules/widgetNg/commons.js"
+        , "/js/nonmodules/widgetNg/validators.js"
+        , "/js/nonmodules/widgetNg/widgetPackage.js"
+        , "/js/nonmodules/widgetNg/widgetImpl.js"
+        , "/js/nonmodules/widgetNg/button/buttonPackage.js"
+        , "/js/nonmodules/widgetNg/input/inputPackage.js"
+        , "/js/nonmodules/widgetNg/inputLookup/inputLookupPackage.js"
+        , "/js/nonmodules/widgetNg/dateInput/dateInputPackage.js"
+        , "/js/nonmodules/widgetNg/textArea/textAreaPackage.js"
+        , "/js/nonmodules/widgetNg/pasteList/pasteListPackage.js"
+        , "/js/nonmodules/widgetNg/checkbox/checkboxPackage.js"
+        , "/js/nonmodules/widgetNg/suggestInput/suggestInputPackage.js"
+        , "/js/nonmodules/widgetNg/singleSelect/singleSelectPackage.js"
+        , "/js/nonmodules/widgetNg/connectable/connectablePackage.js"
+        , "/js/nonmodules/widgetNg/sideBySideChooser/sideBySideChooserPackage.js"
+        , "/js/nonmodules/widgetNg/chipsChooser/chipsPackage.js"
+        , "/js/nonmodules/widgetNg/universalFilter/universalFilterPackage.js"
+        , "/js/nonmodules/widgetNg/slider/sliderPackage.js"
+        , "/js/nonmodules/widgetNg/slider/typedSliders.js"
+        , "/js/nonmodules/widgetNg/quickEdit/quickEditPackage.js"
+        , "/js/nonmodules/widgetNg/comment/commentPackage.js"
+        , "/js/nonmodules/widgetNg/label/labelPackage.js"
+        , "/js/nonmodules/widgetNg/multiCheck/multiCheckPackage.js"
+        , "/js/nonmodules/widgetNg/login/loginPackage.js"
       ]
     },
     {
       "id": "bcduiChart",
       "required": "backCompatibility",
       "files": [
-          "/js/component/chart/chartPackage.js"
-        , "/js/component/chart/chart.js?bcdNoModules=true"
-        , "/js/component/chart/drawer.js"
-        , "/js/component/chart/colorProvider.js"
-        , "/js/component/chart/XmlChart.js"
+          "/js/nonmodules/component/chart/chartPackage.js"
+        , "/js/nonmodules/component/chart/chart.js"
+        , "/js/nonmodules/component/chart/drawer.js"
+        , "/js/nonmodules/component/chart/colorProvider.js"
+        , "/js/nonmodules/component/chart/XmlChart.js"
       ],
       "buildFolders": [
-        "/js/component/chart"
+        "/js/nonmodules/component/chart"
       ]
     },
     {
       "id": "bcduiChart2",
       "required": "optional",
       "files": [
-          "/js/component/chart/chartPackage.js"
+          "/js/nonmodules/component/chart/chartPackage.js"
         , "/js/3rdParty/echarts.js"
-        , "/js/component/chart/chartEchart.js"
+        , "/js/nonmodules/component/chart/chartEchart.js"
       ],
       "buildFolders": [
-        "/js/component/chart"
+        "/js/nonmodules/component/chart"
       ]
     },
     {
       "id": "bcduiCube",
       "required": "backCompatibility",
       "files": [
-          "/js/component/cube/cubeCreate.js?bcdNoModules=true"
-        , "/js/component/cube/cubeConfigurator/cubeConfigurator.js?bcdNoModules=true"
-        , "/js/component/cube/cubeConfigurator/cubeConfiguratorDND.js"
-        , "/js/component/cube/expandCollapseCells.js"
-        , "/js/component/cube/templateManager/templateManager.js"
-        , "/js/component/cube/rankingEditor/rankingEditor.js"
-        , "/js/component/cube/summaryDisplay/summaryDisplay.js"
+          "/js/nonmodules/component/cube/cubeCreate.js"
+        , "/js/nonmodules/component/cube/cubeConfigurator/cubeConfigurator.js"
+        , "/js/nonmodules/component/cube/cubeConfigurator/cubeConfiguratorDND.js"
+        , "/js/nonmodules/component/cube/expandCollapseCells.js"
+        , "/js/nonmodules/component/cube/templateManager/templateManager.js"
+        , "/js/nonmodules/component/cube/rankingEditor/rankingEditor.js"
+        , "/js/nonmodules/component/cube/summaryDisplay/summaryDisplay.js"
       ],
       "buildFolders": [
-          "/js/component/cube"
-        , "/js/component/cube/templateManager"
-        , "/js/component/cube/rankingEditor"
-        , "/js/component/cube/summaryDisplay"
+          "/js/nonmodules/component/cube"
+        , "/js/nonmodules/component/cube/templateManager"
+        , "/js/nonmodules/component/cube/rankingEditor"
+        , "/js/nonmodules/component/cube/summaryDisplay"
       ]
     },
     {
       "id": "bcduiCubeInlineChart",
       "required": "optional",
       "files": [
-          "/js/component/cube/inlineChart/inlineChart.js"
+          "/js/nonmodules/component/cube/inlineChart/inlineChart.js"
         , "/js/3rdParty/echarts.js"
-        , "/js/component/chart/chartEchart.js"
+        , "/js/nonmodules/component/chart/chartEchart.js"
       ],
       "buildFolders": [
-          "/js/component/cube/inlineChart"
-        , "/js/component/chart"
+          "/js/nonmodules/component/cube/inlineChart"
+        , "/js/nonmodules/component/chart"
       ]
     },
     {
       "id": "bcduiFar",
       "required": "optional",
       "files": [              
-        "/js/component/far/configurator/farConfigurator.js"
-        ,"/js/component/far/farModel.js?bcdNoModules=true"
-        ,"/js/component/far/far.js?bcdNoModules=true"
-        ,"/js/component/far/create.js"
+         "/js/nonmodules/component/far/configurator/farConfigurator.js"
+        ,"/js/nonmodules/component/far/farModel.js"
+        ,"/js/nonmodules/component/far/far.js"
+        ,"/js/nonmodules/component/far/create.js"
       ],
       "buildFolders": [
-        "/js/component/far"
+        "/js/nonmodules/component/far"
       ]
     },
     {
       "id": "bcduiExport",
       "required": "backCompatibility",
       "files": [
-          "/js/component/exports/pdfExport.js"
-        , "/js/component/exports/exportsPackage.js"
+          "/js/nonmodules/component/exports/pdfExport.js"
+        , "/js/nonmodules/component/exports/exportsPackage.js"
         , "/js/3rdParty/fileSaver/fileSaver.js" 
       ],
       "buildFolders": [
-        "/js/component/exports"
+        "/js/nonmodules/component/exports"
       ]
     },
     {
       "id": "bcduiScorecard",
       "required": "backCompatibility",
       "files": [
-          "/js/component/scorecard/scorecardModel.js?bcdNoModules=true"
-        , "/js/component/scorecard/scorecardCreate.js?bcdNoModules=true"
-        , "/js/component/scorecard/scorecardConfigurator.js"
-        , "/js/component/scorecard/bcdAspects.js"
-        , "/js/component/cube/templateManager/templateManager.js"
-        , "/js/component/cube/rankingEditor/rankingEditor.js"
-        , "/js/component/cube/summaryDisplay/summaryDisplay.js"
+          "/js/nonmodules/component/scorecard/scorecardModel.js"
+        , "/js/nonmodules/component/scorecard/scorecardCreate.js"
+        , "/js/nonmodules/component/scorecard/scorecardConfigurator.js"
+        , "/js/nonmodules/component/scorecard/bcdAspects.js"
+        , "/js/nonmodules/component/cube/templateManager/templateManager.js"
+        , "/js/nonmodules/component/cube/rankingEditor/rankingEditor.js"
+        , "/js/nonmodules/component/cube/summaryDisplay/summaryDisplay.js"
       ],
       "buildFolders": [
-        "/js/component/scorecard"
-        , "/js/component/cube"
-        , "/js/component/cube/templateManager"
-        , "/js/component/cube/rankingEditor"
-        , "/js/component/cube/summaryDisplay"
+          "/js/nonmodules/component/scorecard"
+        , "/js/nonmodules/component/cube"
+        , "/js/nonmodules/component/cube/templateManager"
+        , "/js/nonmodules/component/cube/rankingEditor"
+        , "/js/nonmodules/component/cube/summaryDisplay"
       ]
     },
     {
       "id": "bcduiTreeView",
       "required": "backCompatibility",
       "files": [
-        "/js/component/treeView/treeViewPackage.js?bcdNoModules=true"
+        "/js/nonmodules/component/treeView/treeViewPackage.js"
       ],
       "buildFolders": [
-        "/js/component/treeView"
+        "/js/nonmodules/component/treeView"
       ]
     },
     {
@@ -264,14 +264,14 @@ bcdui.bcduiCeFiles =
       "files": [
           "/js/3rdParty/numbro.js"
         , "/js/3rdParty/handsontable.js"
-        , "/js/component/grid/gridCreate.js?bcdNoModules=true"
-        , "/js/component/grid/gridEditor.js"
+        , "/js/nonmodules/component/grid/gridCreate.js"
+        , "/js/nonmodules/component/grid/gridEditor.js"
       ],
       "css": [
         "/js/3rdParty/handsontable.css"
       ],
       "buildFolders": [
-        "/js/component/grid"
+        "/js/nonmodules/component/grid"
       ]
     },
     {
@@ -281,65 +281,65 @@ bcdui.bcduiCeFiles =
           "/js/3rdParty/handsontable.js"
         , "/js/3rdParty/ckeditor/ckeditorPackage/ckeditor.js"
         , "/js/3rdParty/ckeditor/ckeditor_jqueryPlugin.js"
-        , "/js/component/grid/gridCreate.js?bcdNoModules=true"
-        , "/js/component/grid/gridEditor.js"
-        , "/js/widget/messages/bcduiHtmlEditor.js"
-        , "/js/widget/messages/messagesEditor.js"
-        , "/js/widget/messages/messagesViewer.js"
+        , "/js/nonmodules/component/grid/gridCreate.js"
+        , "/js/nonmodules/component/grid/gridEditor.js"
+        , "/js/nonmodules/widget/messages/bcduiHtmlEditor.js"
+        , "/js/nonmodules/widget/messages/messagesEditor.js"
+        , "/js/nonmodules/widget/messages/messagesViewer.js"
       ],
       "css": [
         "/js/3rdParty/handsontable.css"
       ],
       "buildFolders": [
-        "/js/component/grid"
-      , "/js/widget/messages"
+        "/js/nonmodules/component/grid"
+      , "/js/nonmodules/widget/messages"
       ]
     },
     {
       "id": "bcduiMessagesViewer",
       "required": "mandatory",
       "files": [
-        "/js/widget/messages/messagesViewer.js"
+        "/js/nonmodules/widget/messages/messagesViewer.js"
       ],
       "buildFolders": [
-        "/js/widget/messages"
+        "/js/nonmodules/widget/messages"
       ]
     },
     {
       "id": "bcduiDocUpload",
       "required": "optional",
       "files": [
-        "/js/component/docUpload/docUploadCreate.js?bcdNoModules=true"
+        "/js/nonmodules/component/docUpload/docUploadCreate.js"
       ],
       "buildFolders": [
-        "/js/component/docUpload"
+        "/js/nonmodules/component/docUpload"
       ]
     },
     {
       "id": "bcduiTree",
       "required": "optional",
       "files": [
-        "/js/component/tree/treeCreate.js?bcdNoModules=true"
+        "/js/nonmodules/component/tree/treeCreate.js"
       ],
       "buildFolders": [
-        "/js/component/tree"
+        "/js/nonmodules/component/tree"
       ]
     },
     {
       "id": "bcduiUserCalcEditor",
       "required": "backCompatibility",
       "files": [
-        "/js/component/userCalcEditor/userCalcEditorPackage.js"
+        "/js/nonmodules/component/userCalcEditor/userCalcEditorPackage.js"
       ],
       "buildFolders": [
-        "/js/component/userCalcEditor"
+        "/js/nonmodules/component/userCalcEditor"
       ]
     },
     {
       "id": "bcduiTextNavigation",
       "required": "backCompatibility",
       "files": [
-        "/js/component/textNavigation/textNavigation.js?bcdNoModules=true"
+        "/js/nonmodules/component/textNavigation/textNavigation.js"
       ]
     },
     {
@@ -347,13 +347,13 @@ bcdui.bcduiCeFiles =
       "required": "mandatory",
       "browserCompatibility": "mandatory",
       "files": [
-          "/js/core/customElements.js?bcdNoModules=true"
-        , "/js/widget/customElements.js?bcdNoModules=true"
-        , "/js/widgetNg/customElements.js?bcdNoModules=true"
-        , "/js/component/chart/customElements.js?bcdNoModules=true"
-        , "/js/component/cube/customElements.js?bcdNoModules=true"
-        , "/js/component/scorecard/customElements.js?bcdNoModules=true"
-        , "/js/component/far/customElements.js?bcdNoModules=true"
+          "/js/nonmodules/core/customElements.js"
+        , "/js/nonmodules/widget/customElements.js"
+        , "/js/nonmodules/widgetNg/customElements.js"
+        , "/js/nonmodules/component/chart/customElements.js"
+        , "/js/nonmodules/component/cube/customElements.js"
+        , "/js/nonmodules/component/scorecard/customElements.js"
+        , "/js/nonmodules/component/far/customElements.js"
       ]
     }
   ]

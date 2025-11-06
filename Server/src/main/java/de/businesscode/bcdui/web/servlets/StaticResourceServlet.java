@@ -144,23 +144,23 @@ public class StaticResourceServlet extends HttpServlet {
     byte[] data = resource.getData();
 
     // Remove import {bcdui} from "bcduiApiStubs.js" from js files
-    if( req.getRequestURI().endsWith(".js") ) {
+    if (req.getRequestURI().endsWith(".js")) {
       String asString = new String(Arrays.copyOfRange(data, 0, patternImportBcduiApiStubsSearchLen));
       Matcher matcher = patternImportBcduiApiStubs.matcher(asString);
       if( matcher.find() ) Arrays.fill(data, matcher.start(), matcher.end(), (byte)' ');
-    }
 
-    // when not using modules, the parameter bcdNoModules triggers removal of general export in js classes and 2 imports within custom elements
-    if ("true".equals(req.getParameter("bcdNoModules"))) {
-      Matcher matcher = patternExports.matcher(new String(data));
-      while (matcher.find())
-        Arrays.fill(data, matcher.start(), matcher.end(), (byte)' ');
-      matcher = customElementsReplace1.matcher(new String(data));
-      while (matcher.find())
-        Arrays.fill(data, matcher.start(), matcher.end(), (byte)' ');
-      matcher = customElementsReplace2.matcher(new String(data));
-      while (matcher.find())
-        Arrays.fill(data, matcher.start(), matcher.end(), (byte)' ');
+      // if we have nonmodules, we need to kill some import/export patterns
+      if (req.getRequestURI().contains("/js/nonmodules/")) {
+        matcher = patternExports.matcher(new String(data));
+        while (matcher.find())
+          Arrays.fill(data, matcher.start(), matcher.end(), (byte)' ');
+        matcher = customElementsReplace1.matcher(new String(data));
+        while (matcher.find())
+          Arrays.fill(data, matcher.start(), matcher.end(), (byte)' ');
+        matcher = customElementsReplace2.matcher(new String(data));
+        while (matcher.find())
+          Arrays.fill(data, matcher.start(), matcher.end(), (byte)' ');
+      }
     }
     resp.setContentLength(data.length);
     resp.getOutputStream().write(data);
@@ -260,6 +260,11 @@ public class StaticResourceServlet extends HttpServlet {
          fixedPath = fixedPath.substring(0, jSessionIdPosition) + fixedPath.substring(jSessionIdPosition + token.length());
         }
         path = fixedPath;
+      }
+
+      // mirrow /js/nonmodules/ path to normal /js/ path
+      if (path.contains("/js/nonmodules/")) {
+        path = path.replace("/js/nonmodules/", "/js/");
       }
 
       // Debug logging
