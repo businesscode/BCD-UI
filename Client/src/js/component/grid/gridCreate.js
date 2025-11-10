@@ -58,6 +58,7 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
   * @param {Object}                  [args.serverSidedPagination=false]                     - Set to true if you want to enable server sided pagination
   * @param {bcdui.core.DataProvider} [args.pagerModel=bcdui.wkModels.guiStatus]             - StatusModel of the pagination information
   * @param {chainDef}                [args.requestPostChain]                                - The definition of the transformation chain
+  * @param {modelUrl}                [args.modelUrl=WrsServlet]                             - This is a string or string- DataProvider with the URL which to send the requestModel result to
  */
   constructor(args) {
     // Evaluate default parameters
@@ -139,7 +140,8 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
     });
 
     // Load our data
-    super({saveChain: args.saveChain, saveParameters: args.saveParameters, url: new bcdui.core.RequestDocumentDataProvider({requestModel: reqMw}), id: id });
+    const modelUrl = args.modelUrl || bcdui.core.webRowSetServletPath;
+    super({saveChain: args.saveChain, saveParameters: args.saveParameters, url: new bcdui.core.RequestDocumentDataProvider({modelUrl: modelUrl, requestModel: reqMw}), id: id });
     this.id = id;
     this.config = config;
     this.statusModel = statusModel;
@@ -195,6 +197,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   * @param {integer}                 [args.paginationSize=20]                               - Set pagination page size (and enable pagination)
   * @param {boolean}                 [args.paginationAllPages=false]                        - Set pagination show all option (and enable pagination)
   * @param {chainDef}                [args.requestPostChain]                                - The definition of the transformation chain
+  * @param {modelUrl}                [args.modelUrl=WrsServlet]                             - This is a string or string- DataProvider with the URL which to send the requestModel result to
   */
   constructor(args) {
     var id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("grid");
@@ -241,6 +244,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         , serverSidedPagination: serverSidedPagination
         , pagerModel: pagerHolder
         , requestPostChain : args.requestPostChain
+        , modelUrl: args.modelUrl || bcdui.core.webRowSetServletPath
       });
     }
     else
