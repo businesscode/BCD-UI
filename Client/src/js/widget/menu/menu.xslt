@@ -25,8 +25,8 @@
   <!-- application context path -->
   <xsl:param name="contextPath" select="'/'"/>
   <xsl:param name="bcdControllerVariableName" select="'root_'"/>
-  <xsl:param name="legacyTheme" select='false'/>
-  <xsl:param name="isCredentialMenu" select='false'/>
+  <xsl:param name="legacyTheme" select="'false'"/>
+  <xsl:param name="isCredentialMenu" select="'false'"/>
   <xsl:param name="userName"/>
   <xsl:param name="userEmail"/>
   <xsl:param name="userLogin"/>
@@ -87,7 +87,7 @@
             </xsl:variable>
     
             <xsl:attribute name="class">
-              <xsl:if test="$activeClassName!='' and not($isCredentialMenu)"> bcd__active-item</xsl:if>
+              <xsl:if test="$activeClassName!='' and $isCredentialMenu!='true'"> bcd__active-item</xsl:if>
               <xsl:if test="$node[@disable='true']"> bcdDisabled</xsl:if>
               <xsl:if test="$node[@hide='true']"> bcdHidden</xsl:if>
             </xsl:attribute>

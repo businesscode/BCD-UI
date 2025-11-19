@@ -437,7 +437,14 @@
             <xsl:text>&#10;  </xsl:text>
             <xsl:choose>
               <xsl:when test="@default">
-                <xsla:param name="{@name}" select="{@default}"/>
+                <xsl:choose>
+                  <xsl:when test="@type='boolean'">
+                    <xsla:param name="{@name}" select="'{@default}'"/>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsla:param name="{@name}" select="{@default}"/>
+                  </xsl:otherwise>
+                </xsl:choose>
               </xsl:when>
               <xsl:otherwise>
                 <xsla:param name="{@name}"/>

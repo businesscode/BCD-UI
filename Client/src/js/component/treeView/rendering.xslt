@@ -38,7 +38,7 @@
   xmlns:xsla="http://www.w3.org/1999/XSL/Transform/Alias"
   xmlns:generator="urn(bcd-xsltGenerator)">
 
-  <xsl:import href="bcduicp://bcdui/xslt/renderer/htmlHeaderBuilder.xslt"/>
+  <xsl:import href="../../../xslt/renderer/htmlHeaderBuilder.xslt"/>
 
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no" media-type="text/xslt"/>
 

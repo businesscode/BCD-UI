@@ -38,30 +38,30 @@
   <xsl:param name="gridModel"/>
   <xsl:param name="totalRowCountDp"/>
 
-  <xsl:variable name="paginate" select="/*/xp:Paginate"/>
+<!--   <xsl:variable name="paginate" select="/*/xp:Paginate"/> -->
   
-  <xsl:variable name="page">
-    <xsl:choose>
-      <xsl:when test="$targetModel/*/xp:Paginate/xp:PageNumber"><xsl:value-of select="$targetModel/*/xp:Paginate/xp:PageNumber"/></xsl:when>
-      <xsl:otherwise><xsl:value-of select="$paginate/xp:PageNumber"/></xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
+<!--   <xsl:variable name="page"> -->
+<!--     <xsl:choose> -->
+<!--       <xsl:when test="$targetModel/*/xp:Paginate/xp:PageNumber"><xsl:value-of select="$targetModel/*/xp:Paginate/xp:PageNumber"/></xsl:when> -->
+<!--       <xsl:otherwise><xsl:value-of select="$paginate/xp:PageNumber"/></xsl:otherwise> -->
+<!--     </xsl:choose> -->
+<!--   </xsl:variable> -->
 
   <xsl:template match="/">
     <div>
-      <!-- render pagination if pagination is enabled and we have data in the model -->
-      <xsl:if test="$paginate and $gridModel/*/wrs:Data/wrs:*">
-        <xsl:call-template name="createPagingPanel">
-          <xsl:with-param name="pageSize" select="$paginate/xp:PageSize"/>
-          <xsl:with-param name="totalRowsCount" select="number($totalRowCountDp/*/wrs:Data/wrs:*[1]/wrs:C[1])"/>
-          <xsl:with-param name="rowsCount" select="number($totalRowCountDp/*/wrs:Data/wrs:*[1]/wrs:C[1])"/>
-          <xsl:with-param name="page" select="$page"/>
-          <xsl:with-param name="targetModelId" select="$targetModelId"/>
-          <xsl:with-param name="targetModelXPath">/*/xp:Paginate/xp:PageNumber</xsl:with-param>
-          <xsl:with-param name="showAllOption" select="$paginate/xp:ShowAllOption"/>
-          <xsl:with-param name="bcdControllerVariableName" select="$bcdControllerVariableName"/>
-        </xsl:call-template>
-      </xsl:if>
+<!--       render pagination if pagination is enabled and we have data in the model -->
+<!--       <xsl:if test="$paginate and $gridModel/*/wrs:Data/wrs:*"> -->
+<!--         <xsl:call-template name="createPagingPanel"> -->
+<!--           <xsl:with-param name="pageSize" select="$paginate/xp:PageSize"/> -->
+<!--           <xsl:with-param name="totalRowsCount" select="number($totalRowCountDp/*/wrs:Data/wrs:*[1]/wrs:C[1])"/> -->
+<!--           <xsl:with-param name="rowsCount" select="number($totalRowCountDp/*/wrs:Data/wrs:*[1]/wrs:C[1])"/> -->
+<!--           <xsl:with-param name="page" select="$page"/> -->
+<!--           <xsl:with-param name="targetModelId" select="$targetModelId"/> -->
+<!--           <xsl:with-param name="targetModelXPath">/*/xp:Paginate/xp:PageNumber</xsl:with-param> -->
+<!--           <xsl:with-param name="showAllOption" select="$paginate/xp:ShowAllOption"/> -->
+<!--           <xsl:with-param name="bcdControllerVariableName" select="$bcdControllerVariableName"/> -->
+<!--         </xsl:call-template> -->
+<!--       </xsl:if> -->
     </div>
   </xsl:template>
 </xsl:stylesheet>

@@ -104,30 +104,30 @@
     </span>
   </xsl:template>
 
-  <xsl:template match="processing-instruction('xml')" mode="visualizeXml">
-    <span class="visXml_e">
-      <span class="visXml_b">
-        <xsl:call-template name="visualizeXml_entity-ref">
-          <xsl:with-param name="name">nbsp</xsl:with-param>
-        </xsl:call-template>
-      </span>
-      <span class="visXml_m">
-        <xsl:text>&lt;?</xsl:text>
-      </span>
-      <span class="visXml_pi">
-        <xsl:text>xml </xsl:text>
-        <xsl:for-each select="@*">
-          <xsl:value-of select="name(.)"/>
-          <xsl:text>="</xsl:text>
-          <xsl:value-of select="."/>
-          <xsl:text>" </xsl:text>
-        </xsl:for-each>
-      </span>
-      <span class="visXml_m">
-        <xsl:text>?></xsl:text>
-      </span>
-    </span>
-  </xsl:template>
+<!--   <xsl:template match="processing-instruction('xml')" mode="visualizeXml"> -->
+<!--     <span class="visXml_e"> -->
+<!--       <span class="visXml_b"> -->
+<!--         <xsl:call-template name="visualizeXml_entity-ref"> -->
+<!--           <xsl:with-param name="name">nbsp</xsl:with-param> -->
+<!--         </xsl:call-template> -->
+<!--       </span> -->
+<!--       <span class="visXml_m"> -->
+<!--         <xsl:text>&lt;?</xsl:text> -->
+<!--       </span> -->
+<!--       <span class="visXml_pi"> -->
+<!--         <xsl:text>xml </xsl:text> -->
+<!--         <xsl:for-each select="@*"> -->
+<!--           <xsl:value-of select="name(.)"/> -->
+<!--           <xsl:text>="</xsl:text> -->
+<!--           <xsl:value-of select="."/> -->
+<!--           <xsl:text>" </xsl:text> -->
+<!--         </xsl:for-each> -->
+<!--       </span> -->
+<!--       <span class="visXml_m"> -->
+<!--         <xsl:text>?></xsl:text> -->
+<!--       </span> -->
+<!--     </span> -->
+<!--   </xsl:template> -->
 
   <xsl:template match="@*" mode="visualizeXml">
     <xsl:param name="indent"/>

@@ -35,7 +35,7 @@
     <xsl:param name="onChange" select="''"/>
     <xsl:param name="forwardsTitle" select="'forwards'"/>
     <xsl:param name="backwardsTitle" select="'backwards'"/>
-    <xsl:param name="showAllOption" select="false"/>
+    <xsl:param name="showAllOption" select="'false'"/>
     <xsl:param name="showAllTitle" select="'All'"/>
 
     <xsl:variable name="lastPage" select="(($rowsCount - ($rowsCount mod $pageSize)) div $pageSize) + 1*(boolean( ($rowsCount mod $pageSize) > 0))"/>
