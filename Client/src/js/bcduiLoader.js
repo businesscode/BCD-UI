@@ -366,7 +366,6 @@ bcdui.bcduiCeFiles =
 };
 // JSON-PART-FOR-BUILD
 
-debugger;
 // remove saxonJs 3rd Party file if not required
 if (!bcdui.config.useSaxonJs) {
   bcdui.bcduiCeFiles["groups"].forEach(function(group) {
