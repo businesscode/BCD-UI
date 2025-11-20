@@ -63,6 +63,7 @@ public class Configuration implements ConfigurationProvider {
   public static final String VFS_CATALOG_KEY       = "bcdui/cache/vfs/catalog";
   public static final String CONFIG_DB_RELOAD_SEC  = "bcdui/config/dbProperties/reloadFrequencySeconds";
 
+  public static final String USE_SAXONJS_XSLT      = "bcdui/useSaxonJsXslt";
   public static final String DEFAULT_DB_CONTEXT_ID = "bcdui/defaultConnection";
   private static final String BINDING_DB_CONFIG    = "bcd_db_properties";
   private static final int DEFAULT_CONFIG_DB_RELOAD_SEC = 30; // db properties are reloaded after every 30sec

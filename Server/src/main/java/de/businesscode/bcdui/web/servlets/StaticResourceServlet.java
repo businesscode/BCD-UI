@@ -42,6 +42,7 @@ import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingException;
 import de.businesscode.bcdui.toolbox.Configuration;
+import de.businesscode.bcdui.toolbox.config.BareConfiguration;
 import de.businesscode.bcdui.vfs.provider.database.DatabaseFileSystemConfigBuilder;
 import de.businesscode.util.SOAPFaultMessage;
 
@@ -84,6 +85,8 @@ public class StaticResourceServlet extends HttpServlet {
    * init parameter name to set VFS file extensions
    */
   private String vfsFileExtensionsInitParamName="vfsFileExtensions";
+  
+  private static boolean useSaxonJs = ((Boolean)BareConfiguration.getInstance().getConfigurationParameter(Configuration.USE_SAXONJS_XSLT)).booleanValue();
   
   // For removal of bcduiApiStubs imports
   private final Pattern patternImportBcduiApiStubs = Pattern.compile("import \\{bcdui\\} from [^;]+bcduiApiStubs\\.js.;");
@@ -245,6 +248,13 @@ public class StaticResourceServlet extends HttpServlet {
          fixedPath = fixedPath.substring(0, jSessionIdPosition) + fixedPath.substring(jSessionIdPosition + token.length());
         }
         path = fixedPath;
+      }
+
+      // mirrow xslt files to sef path
+      if (useSaxonJs && path.contains(".xslt") && !path.contains("Template.xslt")) {
+        path = path.replace("/bcdui/js/", "/bcdui/sef/js/");
+        path = path.replace("/bcdui/xslt/", "/bcdui/sef/xslt/");
+        path = path.replace(".xslt", ".sef.json");
       }
 
       // Debug logging

@@ -60,7 +60,7 @@ js3rdPartyNpm = js3rdPartyNpm.findAll { project.hasProperty('bcdui.3rdPartyJs.'+
 def copyUnmodified = ["xlsx.full.min.js": [ofn: "src/js/3rdParty/xlsx.full.min.js"]]
 
 // list 3rdParty folders (src/js/3rdPary) which should be taken 1:1 into the jar
-def unmodified3rdPartyFolders = ["ckeditor"]
+def unmodified3rdPartyFolders = ["ckeditor", "saxonJs"]
 
 //**********************************
 // Install node modules for our runtime. Needed for the (client) distribution
@@ -175,13 +175,42 @@ task bcduiClientCollect3rdParty {
   }
 }
 
+//**********************************
+// transforms all xslt files to sef.json
+task bcduiProcessXslt {
+	mustRunAfter ':ApisGenerator:bcduiBuild'
+
+  def createXSLTTask = { String newTaskName, String folder, File xsltFile ->
+    tasks.register(newTaskName, Exec) {
+      def xsltDir    = xsltFile.parentFile
+      def path = xsltFile.path.replace("\\", "/")
+      def target = "${generatedApisDir}/sef/" + xsltFile.path.substring(path.indexOf(folder) + folder.length()).replace(".xslt", ".sef.json")
+      
+      executable "node"
+      args(
+        "$nodeModulesDir/xslt3/xslt3.js",
+        "-xsl:${xsltFile.name}",
+        "-export:${target}",
+        "-nogo",
+        "-relocate:on"
+      )
+      workingDir xsltDir
+    }
+  }
+  fileTree(dir: "src", include: "**/*.xslt").eachWithIndex { file, i ->
+    if (!file.name.endsWith("Template.xslt"))
+	    dependsOn += createXSLTTask( "xslt-$i-$file.name", "src/", file )
+  }
+
+  ["widgetNg", "widget", "component", "core"].each{ cat -> dependsOn += createXSLTTask( "xslt-$cat", "${generatedApisDir}/", file("$generatedApisDir/js/${cat}/${cat}.xslt")) }
+}
 
 //**********************************
 // Copies all bcdui/js and bcdui/xslt from the various places together, except bcduiLoader, which is treated separately
 // Shrink XSLTs and other non-js for production use and put them to build/bcduiClientPrepareNonJs
 task bcduiClientCollectAll( type: Copy ) {
 
-  dependsOn ':ApisGenerator:bcduiBuild', bcduiClientCollect3rdParty
+  dependsOn bcduiProcessXslt, ':ApisGenerator:bcduiBuild', bcduiClientCollect3rdParty
 
   into clientCombinedDir
   includeEmptyDirs   = false
@@ -197,6 +226,10 @@ task bcduiClientCollectAll( type: Copy ) {
   }
   from ( ['src/xslt', "$generatedApisDir/xslt"] ) {
     into 'xslt'
+  }
+  from ( ["$generatedApisDir/sef"] ) {
+    include '**/*.sef.json'
+    into 'sef'
   }
 
   exclude '**/bcduiLoader.js'
@@ -403,6 +436,9 @@ task bcduiDist(type: Jar) {
   }
   from( "$clientCombinedDir/xslt" ) {
     into    'bcdui/xslt'
+  }
+  from( "$clientCombinedDir/sef" ) {
+    into    'bcdui/sef'
   }
 
   manifest {
