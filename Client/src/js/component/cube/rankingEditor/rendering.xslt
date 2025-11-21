@@ -20,7 +20,7 @@
   xmlns:calc="http://www.businesscode.de/schema/bcdui/calc-1.0.0"
   version="1.0">
 
-  <xsl:output method="html" version="1.0" encoding="UTF-8" indent="yes" />
+  <xsl:output method="html" encoding="UTF-8" indent="yes" />
 
   <!-- models for the input fields -->
   <xsl:param name="rankOrderModelId"/>

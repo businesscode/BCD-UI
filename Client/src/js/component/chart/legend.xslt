@@ -20,7 +20,7 @@
   xmlns:chart="http://www.businesscode.de/schema/bcdui/charts-1.0.0"
   >
 
-  <xsl:output method="html" version="1.0" encoding="UTF-8" indent="yes"/>
+  <xsl:output method="html" encoding="UTF-8" indent="yes"/>
 <!--
 
   Creates chart legend from given over chart metadata document

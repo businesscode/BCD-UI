@@ -30,7 +30,7 @@
 
   <msxsl:script language="JScript" implements-prefix="exslt">this['node-set']= function (x) { return x; }</msxsl:script>
 
-  <xsl:output method="html" version="1.0" encoding="UTF-8" indent="no"/>
+  <xsl:output method="html" encoding="UTF-8" indent="no"/>
 
   <xsl:param name="bcdContextPath"/>
   <xsl:param name="scopes"/>

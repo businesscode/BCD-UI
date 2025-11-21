@@ -29,7 +29,7 @@
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
   exclude-result-prefixes="exslt msxsl">
 
-<xsl:output method="html" version="1.0" encoding="UTF-8" indent="yes"/>
+<xsl:output method="html" encoding="UTF-8" indent="yes"/>
 
 <xsl:key name="validationMessages" use="concat(../wrs:C[1],'_$_',../wrs:C[2])" match="/wrs:Wrs/wrs:Header/wrs:ValidationResult/wrs:Wrs/wrs:Data/wrs:R/wrs:C[3]"/>
 

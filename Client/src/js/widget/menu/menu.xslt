@@ -20,7 +20,7 @@
   xmlns:menu="http://www.businesscode.de/schema/bcdui/menu-1.0.0"
   >
 
-  <xsl:output method="html" version="1.0" encoding="UTF-8" indent="no" />
+  <xsl:output method="html" encoding="UTF-8" indent="no" />
 
   <!-- application context path -->
   <xsl:param name="contextPath" select="'/'"/>

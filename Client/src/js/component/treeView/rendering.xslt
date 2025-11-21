@@ -64,7 +64,7 @@
           <xsl:apply-templates select="$renderingTemplateInclude/*/*[local-name()!='import']" mode="generateXSLT"/>
         </xsl:when>
         <xsl:otherwise>
-          <xsla:output method="html" version="1.0" encoding="UTF-8" indent="no"/>
+          <xsla:output method="html" encoding="UTF-8" indent="no"/>
           <xsla:template match="/*">
             <div class="bcdInfoBox"><span bcdTranslate="bcd_EmptyReport">Please note, no data is available for the current chooser settings.</span></div>
           </xsla:template>

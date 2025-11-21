@@ -5,7 +5,7 @@
   xmlns:cust="http://www.businesscode.de/schema/bcdui/customization-1.0.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   
-  <xsl:output method="html" version="1.0" encoding="UTF-8" indent="no" media-type="text/html"/>
+  <xsl:output method="html" encoding="UTF-8" indent="no" media-type="text/html"/>
 
   <xsl:param name="cssClassPrefix" select="'bcd-unifilter-'"/>
   <!-- attribute name of which provides uniquelly generated node id -->

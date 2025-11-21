@@ -30,7 +30,7 @@
   >
   <xsl:import href="../../widget/pagingPanel/pagingPanelTemplate.xslt"/>
 
-  <xsl:output method="html" standalone="yes" version="1.0" encoding="UTF-8" indent="no"/>
+  <xsl:output method="html" standalone="yes" encoding="UTF-8" indent="no"/>
 
   <xsl:param name="bcdControllerVariableName"/>
   <xsl:param name="targetModelId"/>

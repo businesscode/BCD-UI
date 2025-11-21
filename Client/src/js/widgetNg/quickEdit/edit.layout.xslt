@@ -19,7 +19,7 @@
   xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-  <xsl:output method="html" version="1.0" encoding="UTF-8" indent="no" media-type="text/html"/>
+  <xsl:output method="html" encoding="UTF-8" indent="no" media-type="text/html"/>
   
   <xsl:param name="rowId"/>
   <xsl:param name="I18N_TAG" select="'&#xE0FF;'"/>

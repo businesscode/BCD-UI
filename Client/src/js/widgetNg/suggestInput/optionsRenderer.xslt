@@ -33,7 +33,7 @@
     widget scope. Also be aware that your own parameters do not conflict by name with these internal ones.
 
    -->
-  <xsl:output method="html" indent="no" version="1.0"  encoding="UTF-8"/>
+  <xsl:output method="html" indent="no" encoding="UTF-8"/>
 
   <xsl:param name="bcdWidgetValue"/>
   <xsl:param name="bcdIsNative"/>

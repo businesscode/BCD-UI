@@ -26,7 +26,7 @@
   <xsl:import href="bcduicp://bcdui/xslt/renderer/numberFormatting.xslt"/>
   <xsl:import href="bcduicp://bcdui/js/widgetNg/widgetNg.xslt"/>
 
-  <xsl:output method="html" version="1.0" encoding="UTF-8" indent="yes"/>
+  <xsl:output method="html" encoding="UTF-8" indent="yes"/>
 
   <xsl:param name="guiStatus"/>
 

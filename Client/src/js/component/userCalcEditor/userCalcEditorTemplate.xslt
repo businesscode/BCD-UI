@@ -19,7 +19,7 @@
 <xsl:import href="../../widget/widget.xslt"/>
 <xsl:import href="../../widgetNg/widgetNg.xslt"/>
 
-<xsl:output method="html" version="1.0" encoding="UTF-8" indent="no"/>
+<xsl:output method="html" encoding="UTF-8" indent="no"/>
 
 <xsl:param name="id"/>
 <xsl:param name="targetModelXPath"/>

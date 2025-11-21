@@ -53,7 +53,7 @@
       <File name="gensrc/js/widget/widget.xslt" outputFormat="xml">
         <xsla:stylesheet version="1.0" xmlns:xapi="http://www.businesscode.de/schema/bcdui/xmlapi-1.0.0">
           <xsl:text>&#10;</xsl:text>
-          <xsla:output method="html" version="1.0" encoding="UTF-8" indent="no"/>
+          <xsla:output method="html" encoding="UTF-8" indent="no"/>
           <xsl:text>&#10;</xsl:text>
           <xsl:apply-templates select="$normalizedApi/*/BcdObject[not(@generateXSLT) or @generateXSLT='true']" mode="xslt"/>
         </xsla:stylesheet>

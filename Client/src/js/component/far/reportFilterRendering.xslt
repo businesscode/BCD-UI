@@ -11,7 +11,7 @@
 
   <xsl:import href="../../widgetNg/universalFilter/rendering.xslt"/>
 
-  <xsl:output method="html" version="1.0" encoding="UTF-8" indent="no" media-type="text/html"/>
+  <xsl:output method="html" encoding="UTF-8" indent="no" media-type="text/html"/>
 
   <xsl:param name="cssClassPrefix" select="'bcd-unifilter-'"/>
   <!-- attribute name of which provides uniquelly generated node id -->

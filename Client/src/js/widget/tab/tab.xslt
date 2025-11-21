@@ -18,7 +18,7 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:bcd="http://www.businesscode.de/schema/bcdui/html-extensions-1.0.0">
 
-  <xsl:output method="html" version="1.0" encoding="UTF-8"
+  <xsl:output method="html" encoding="UTF-8"
     indent="no" />
 
   <!-- application context path -->

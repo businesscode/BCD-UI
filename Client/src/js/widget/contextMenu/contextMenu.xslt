@@ -16,7 +16,7 @@
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
     xmlns:ctx="http://www.businesscode.de/schema/bcdui/contextMenu-1.0.0">
-  <xsl:output method="html" version="1.0" encoding="UTF-8" indent="yes"/>
+  <xsl:output method="html" encoding="UTF-8" indent="yes"/>
 
   <!-- Add a contextId attribute to an element to restrict the context menu
     If given, only entries outside of a ctx:Context node are shown plus the ones where ctx:Context[@id=contextId]
