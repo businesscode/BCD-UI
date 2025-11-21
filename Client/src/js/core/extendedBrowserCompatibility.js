@@ -610,7 +610,7 @@ if ( bcdui.config.useSaxonJs ) {
     {
       this.transFkt = function runSaxonTransform(args) {
         const result =  SaxonJS.transform({
-          stylesheetInternal: args.template,
+          stylesheetLocation: args.template,
           sourceNode: args.input,
           destination: "document",
           stylesheetParams: args.params
@@ -635,7 +635,7 @@ if ( bcdui.config.useSaxonJs ) {
          url = url.replace("/bcdui/js/", "/bcdui/sef/js/");
          url = url.replace("/bcdui/xslt/", "/bcdui/sef/xslt/");
          url = url.replace(".xslt", ".sef.json");
-         return new bcdui.core.SimpleModel({ url: url, mimeType: "application/json" });
+         return new bcdui.core.ConstantDataProvider({ name: name, value: url});
        }, 
        ruleTf: function( args ) { 
         args.callBack(new bcdui.core.transformators.XSLTSaxonJsTransformator(args)) 
