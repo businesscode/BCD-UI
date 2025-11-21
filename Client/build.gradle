@@ -180,6 +180,16 @@ task bcduiClientCollect3rdParty {
 task bcduiProcessXslt {
 	mustRunAfter ':ApisGenerator:bcduiBuild'
 
+	def copyXSLTTask = { String newTaskName, String folder, File xsltFile ->
+  	tasks.register(newTaskName, Copy) {
+      def path = xsltFile.path.replace("\\", "/")
+      def target = "${generatedApisDir}/sef/" + xsltFile.path.substring(path.indexOf(folder) + folder.length())
+      def targetDir = file("${target}").parentFile
+      from xsltFile
+      into targetDir
+  	}
+	}
+
   def createXSLTTask = { String newTaskName, String folder, File xsltFile ->
     tasks.register(newTaskName, Exec) {
       def xsltDir    = xsltFile.parentFile
@@ -192,7 +202,7 @@ task bcduiProcessXslt {
         "-xsl:${xsltFile.name}",
         "-export:${target}",
         "-nogo",
-        "-relocate:on"
+        "-relocate"
       )
       workingDir xsltDir
     }
@@ -200,6 +210,8 @@ task bcduiProcessXslt {
   fileTree(dir: "src", include: "**/*.xslt").eachWithIndex { file, i ->
     if (!file.name.endsWith("Template.xslt"))
 	    dependsOn += createXSLTTask( "xslt-$i-$file.name", "src/", file )
+    else
+      dependsOn += copyXSLTTask( "copy-$i-$file.name", "src/", file )
   }
 
   ["widgetNg", "widget", "component", "core"].each{ cat -> dependsOn += createXSLTTask( "xslt-$cat", "${generatedApisDir}/", file("$generatedApisDir/js/${cat}/${cat}.xslt")) }
@@ -228,7 +240,6 @@ task bcduiClientCollectAll( type: Copy ) {
     into 'xslt'
   }
   from ( ["$generatedApisDir/sef"] ) {
-    include '**/*.sef.json'
     into 'sef'
   }
 
