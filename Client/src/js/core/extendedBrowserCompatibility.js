@@ -584,3 +584,66 @@ if (bcdui.browserCompatibility.isGecko) {
 //-----------------------------------------------------------------------------
 //END: Implementation of Gecko functions
 //-----------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------
+//BEGIN: Adding support for SaxonJs based XSLT handling
+//-----------------------------------------------------------------------------
+
+if ( bcdui.config.useSaxonJs ) {
+
+  bcdui.core.transformators.XSLTSaxonJsTransformator = class extends bcdui.core.transformators.IdentityTransformator
+  {
+    /**
+     * @private
+     */
+    constructor(/* object */ procFkt)
+    {
+      super(procFkt);
+    }
+
+    /**
+     * For usage by TransformationChain
+     * @private
+     */
+    transformToDocument( /* XMLDocument */ sourceDoc, /* function */ fn )
+    {
+      this.transFkt = function runSaxonTransform(args) {
+        const result =  SaxonJS.transform({
+          stylesheetInternal: args.template,
+          sourceNode: args.input,
+          destination: "document",
+          stylesheetParams: args.params
+        });
+        const doc = bcdui.core.browserCompatibility.newDOMDocument();
+        doc.append(result.principalResult)
+        return doc;
+      };
+      fn( this.transFkt( { template: this.template.model, input: sourceDoc, params: this.params } ) );
+    }
+  };
+
+  // add a XSLT matching rule to the first pos of ruleToTransformerMapping array
+  bcdui.core.transformators.ruleToTransformerMapping.unshift(
+    { test: function(rule){ return  typeof rule === "string" && rule.match(/\.xsl[t\;\?\#]?/) != null }, 
+      info: {
+       // sef.js files are json files so we load them with mime type json
+       // generally we load the equally named .sef.json instead of the .xslt from the same location
+       // for lib based xslt files, we switch to /bcdui/sef folder where the precompiled one are available
+       ruleDp: function( rule ) { 
+         let url = rule;
+         url = url.replace("/bcdui/js/", "/bcdui/sef/js/");
+         url = url.replace("/bcdui/xslt/", "/bcdui/sef/xslt/");
+         url = url.replace(".xslt", ".sef.json");
+         return new bcdui.core.SimpleModel({ url: url, mimeType: "application/json" });
+       }, 
+       ruleTf: function( args ) { 
+        args.callBack(new bcdui.core.transformators.XSLTSaxonJsTransformator(args)) 
+      }
+    }
+  });
+}
+
+//-----------------------------------------------------------------------------
+//END: Adding support for SaxonJs based XSLT handling
+//-----------------------------------------------------------------------------

@@ -848,8 +848,19 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
               /*
                * Usually it comes from a URL attribute.
                */
+              let url = stylesheet.getAttribute("url");
+              let mimeType = "application/xslt+xml";
+
+              // for saxonJs usage, we need to switch to sef.json
+              if (bcdui.config.useSaxonJs) {
+                url = url.replace("/bcdui/js/", "/bcdui/sef/js/");
+                url = url.replace("/bcdui/xslt/", "/bcdui/sef/xslt/");
+                url = url.replace(".xslt", ".sef.json");
+                mimeType = "application/json";
+              }
               xsltModel = new bcdui.core.SimpleModel({
                 url: bcdui.util.url.resolveURLWithXMLBase(stylesheet, stylesheet.getAttribute("url"))
+                , mimeType: mimeType
               });
               var mappingInfo = bcdui.core.transformators.ruleToTransformerMapping.find( function(mapping) { return mapping.test(stylesheet.getAttribute("url")); } );
               xslt.transformerFactory = mappingInfo.info.ruleTf;
