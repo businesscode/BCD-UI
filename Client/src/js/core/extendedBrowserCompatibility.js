@@ -32,6 +32,8 @@
  */
 
 
+if (!bcdui.config.useSaxonJs) {
+
 //-----------------------------------------------------------------------------
 //BEGIN: Webkit and Gecko overwrites (in reality this is all browsers)
 //-----------------------------------------------------------------------------
@@ -589,8 +591,8 @@ if (bcdui.browserCompatibility.isGecko) {
 //-----------------------------------------------------------------------------
 //BEGIN: Adding support for SaxonJs based XSLT handling
 //-----------------------------------------------------------------------------
-
-if ( bcdui.config.useSaxonJs ) {
+}
+else {
 
   // let's create an own (pseudo) XSLTProcessor
   window.XSLTProcessor = function XSLTProcessor() {}
@@ -609,10 +611,36 @@ if ( bcdui.config.useSaxonJs ) {
 
     setTimeout(fn.bind(undefined,proc));
   }
+  
+  XSLTProcessor.prototype.determineOutputFormat = function(result) {
+    let outputFormat = "xml";
+    let isXSLT = false;
+
+    if (! result.stylesheetInternal) {
+      let outputNode = result.selectSingleNode("/*/xsl:output");
+      if (outputNode != null) {
+        isXSLT |= (outputNode.getAttribute("media-type") === "text/xslt");
+        outputFormat = outputNode.getAttribute("method");
+      }
+    }
+    else {
+      if (result.stylesheetInternal.C) {
+        result.stylesheetInternal.C.forEach(function(c) {
+          if (c.N == "output") {
+            c.C.forEach(function(p) {
+              if (p.name == "method")
+                outputFormat = p.value;
+              isXSLT |= (p.name == "media-type" && p.value == "text/xslt");               
+            }.bind(this));
+          }
+        }.bind(this));
+      }
+    }
+    return (outputFormat == "xml" && isXSLT) ? "xslt" : outputFormat;
+  }
 
   XSLTProcessor.prototype.transformToDocument = function(sourceDoc)
   {
-    
     if (!this.sourceNode) {
       const result =  SaxonJS.transform({
         stylesheetLocation: this.sefJson,
@@ -620,45 +648,37 @@ if ( bcdui.config.useSaxonJs ) {
         destination: "document",
         stylesheetParams: this.parameters
       });
-  
-      // try to identify output format via saxonJS result structure
-      let isXSLT = false;
-      if (result.stylesheetInternal && result.stylesheetInternal.C) {
-        result.stylesheetInternal.C.forEach(function(c) {
-          if (c.N == "output") {
-            c.C.forEach(function(p) {
-              if (p.name == "method")
-                this.outputFormat = p.value;
-              isXSLT |= (p.name == "media-type" && p.value == "text/xslt");               
-            }.bind(this));
-          }
-        }.bind(this));
-      }
-  
-      // check if output format is XSLT
-      if (this.outputFormat == "xml" && isXSLT)
-        this.outputFormat = "xslt";
-      // in case of html return fragment
-      else if (this.outputFormat == "html")
+      this.outputFormat = this.determineOutputFormat(result);
+      if (this.outputFormat == "html")
         return result.principalResult;
-
-      // xslt and xml returns document
-      const doc = bcdui.core.browserCompatibility.newDOMDocument();
-      doc.append(result.principalResult);
-      return doc;
+      else {
+        const doc = bcdui.core.browserCompatibility.newDOMDocument();
+        doc.append(result.principalResult);
+        return doc;
+      }
     }
     else {
-      const newDoc = SaxonJS.transform({
-        stylesheetLocation: bcdui.contextPath + "/test/transform.sef.json"
+      const xmlBase = bcdui.contextPath ? window.location.href.substring(0, window.location.href.indexOf(bcdui.contextPath)) : window.location.origin;
+      this.sourceNode.selectSingleNode("/*").setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:base", xmlBase);
+      const result = SaxonJS.transform({
+        stylesheetLocation: bcdui.contextPath + "/bcdui/sef/xslt/xslt_transform.sef.json"
       , destination: "document"
       , sourceNode: sourceDoc
       , stylesheetParams: {
           sourceNode: sourceDoc
         , stylesheetNode: this.sourceNode
         , stylesheetParams: this.parameters
-      }
+        }
       });
-      return doc;
+      this.outputFormat = this.determineOutputFormat(this.sourceNode);
+      if (this.outputFormat == "html") {
+        return new XMLSerializer().serializeToString(result.principalResult);
+      }
+      else {
+        const doc = bcdui.core.browserCompatibility.newDOMDocument();
+        doc.append(result.principalResult);
+        return doc;
+      }
     }
   }
   XSLTProcessor.prototype.transform = function( args ) {
