@@ -180,6 +180,7 @@ task bcduiClientCollect3rdParty {
 task bcduiProcessXslt {
 	mustRunAfter ':ApisGenerator:bcduiBuild'
 
+  // copy *Template.xslt files to the sef location
 	def copyXSLTTask = { String newTaskName, String folder, File xsltFile ->
   	tasks.register(newTaskName, Copy) {
       def path = xsltFile.path.replace("\\", "/")
@@ -190,12 +191,13 @@ task bcduiProcessXslt {
   	}
 	}
 
+  // let the node based xslt compiler create the sef.json files
   def createXSLTTask = { String newTaskName, String folder, File xsltFile ->
     tasks.register(newTaskName, Exec) {
       def xsltDir    = xsltFile.parentFile
       def path = xsltFile.path.replace("\\", "/")
       def target = "${generatedApisDir}/sef/" + xsltFile.path.substring(path.indexOf(folder) + folder.length()).replace(".xslt", ".sef.json")
-      
+
       executable "node"
       args(
         "$nodeModulesDir/xslt3/xslt3.js",
@@ -207,6 +209,10 @@ task bcduiProcessXslt {
       workingDir xsltDir
     }
   }
+  
+  // translate all xslt files to sef.json unless they are named *Template.xslt (these are files which get loaded via document inside xslt files
+  // and so they need to get copied to the same place in the sef location so that during the actual transformation they are found relatively
+  // to the sef file
   fileTree(dir: "src", include: "**/*.xslt").eachWithIndex { file, i ->
     if (!file.name.endsWith("Template.xslt"))
 	    dependsOn += createXSLTTask( "xslt-$i-$file.name", "src/", file )
@@ -214,6 +220,8 @@ task bcduiProcessXslt {
       dependsOn += copyXSLTTask( "copy-$i-$file.name", "src/", file )
   }
 
+  // we need to copy the api generated xslt files, too
+  // this needs to get skipped for DE/EE though
   ["widgetNg", "widget", "component", "core"].each{ cat -> dependsOn += createXSLTTask( "xslt-$cat", "${generatedApisDir}/", file("$generatedApisDir/js/${cat}/${cat}.xslt")) }
 }
 
