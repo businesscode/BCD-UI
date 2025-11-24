@@ -602,20 +602,29 @@ else {
     var proc = new XSLTProcessor();
     proc.outputFormat = "xml";
     
+    // either we have a string which contains the sef.json and the original xslt url
     if (typeof args.model == "string") {
       proc.sefJson = args.model.split(bcdui.core.magicChar.separator)[0];
       proc.stylesheetURL = args.model.split(bcdui.core.magicChar.separator)[1];
     }
+    // or we work on a generated xslt document
     else
-      proc.sourceNode = args.model;
+      proc.stylesheetNode = args.model;
 
     setTimeout(fn.bind(undefined,proc));
   }
   
+
+  /**
+   * Determin transformation output formt (xslt, xml or html)
+   * @param {Object} result EIther a saxonJS transformation result object or a document
+   * @returns xslt, xml or html as a string
+   */
   XSLTProcessor.prototype.determineOutputFormat = function(result) {
     let outputFormat = "xml";
     let isXSLT = false;
 
+    // input was an xslt stylesheet document
     if (! result.stylesheetInternal) {
       let outputNode = result.selectSingleNode("/*/xsl:output");
       if (outputNode != null) {
@@ -623,6 +632,7 @@ else {
         outputFormat = outputNode.getAttribute("method");
       }
     }
+    // otherwise check saxonJS internal structure for output parameters
     else {
       if (result.stylesheetInternal.C) {
         result.stylesheetInternal.C.forEach(function(c) {
@@ -641,7 +651,8 @@ else {
 
   XSLTProcessor.prototype.transformToDocument = function(sourceDoc)
   {
-    if (!this.sourceNode) {
+    // if no stylesheetNode is specified, we work on a 'standard' xslt transformation with an available sef.json file 
+    if (!this.stylesheetNode) {
       const result =  SaxonJS.transform({
         stylesheetLocation: this.sefJson,
         sourceNode: sourceDoc,
@@ -649,6 +660,11 @@ else {
         stylesheetParams: this.parameters
       });
       this.outputFormat = this.determineOutputFormat(result);
+      
+      // depending on the output we either return a fragment or a document
+      // for HTML it might be useful to check if serializing the output and returning a string is better
+      // in the htmlbuilder case (see below in the stylesheetNode trafo) attaching it to the HMTL dom tree causes rendering issues since it seems that the
+      // standard (html) namespace is not correctly used in that case
       if (this.outputFormat == "html")
         return result.principalResult;
       else {
@@ -658,20 +674,25 @@ else {
       }
     }
     else {
-      const xmlBase = bcdui.contextPath ? window.location.href.substring(0, window.location.href.indexOf(bcdui.contextPath)) : window.location.origin;
-      this.sourceNode.selectSingleNode("/*").setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:base", xmlBase);
+      // stylesheetNode is prepared, bcduicp:// and relative urls were resolved and made absolute already
+      // saxonJs needs to know a base URI for resolving uris in the sourceDoc, so we set xml:base to the application root 
+      this.stylesheetNode.selectSingleNode("/*").setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:base", window.location.origin);
       const result = SaxonJS.transform({
         stylesheetLocation: bcdui.contextPath + "/bcdui/sef/xslt/xslt_transform.sef.json"
       , destination: "document"
-      , sourceNode: sourceDoc
+      , sourceNode: sourceDoc // not really used here but required since saxonJS needs an input
+      
+      // parameters form the actual transformation
       , stylesheetParams: {
           sourceNode: sourceDoc
-        , stylesheetNode: this.sourceNode
+        , stylesheetNode: this.stylesheetNode
         , stylesheetParams: this.parameters
         }
       });
-      this.outputFormat = this.determineOutputFormat(this.sourceNode);
+      this.outputFormat = this.determineOutputFormat(this.stylesheetNode);
       if (this.outputFormat == "html") {
+        // need to serialize output here since attaching a document fragment here leads to weird rendering effects, most likely caused by
+        // standard namespace issues of the fragment versus the outer html
         return new XMLSerializer().serializeToString(result.principalResult);
       }
       else {
@@ -681,9 +702,12 @@ else {
       }
     }
   }
+
   XSLTProcessor.prototype.transform = function( args ) {
-      this.parameters = args.parameters;
-      args.callBack( this.transformToDocument(args.input) );
+
+    // remember parameters, currently no additional work on them since saxonJS works fine with all kind of types     
+    this.parameters = args.parameters;
+    args.callBack( this.transformToDocument(args.input) );
   };
 
   // add a XSLT matching rule to the first pos of ruleToTransformerMapping array
@@ -698,6 +722,8 @@ else {
          url = url.replace("/bcdui/js/", "/bcdui/sef/js/");
          url = url.replace("/bcdui/xslt/", "/bcdui/sef/xslt/");
          url = url.replace(".xslt", ".sef.json");
+         
+         // provide the new url (maybe for later use, also remember the original xslt name, deliminated via separator)
          return new bcdui.core.ConstantDataProvider({ name: name, value: url + bcdui.core.magicChar.separator + rule});
        }, 
        ruleTf: function( args ) { bcdui.core.browserCompatibility.asyncCreateXsltProcessor(args); }
