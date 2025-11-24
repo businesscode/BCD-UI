@@ -592,64 +592,78 @@ if (bcdui.browserCompatibility.isGecko) {
 
 if ( bcdui.config.useSaxonJs ) {
 
-  bcdui.core.transformators.XSLTSaxonJsTransformator = class extends bcdui.core.transformators.IdentityTransformator
+  // let's create an own (pseudo) XSLTProcessor
+  window.XSLTProcessor = function XSLTProcessor() {}
+
+  bcdui.core.browserCompatibility.asyncCreateXsltProcessor =  function( args ) {
+    var fn = args.callBack;
+    var proc = new XSLTProcessor();
+    proc.outputFormat = "xml";
+    
+    if (typeof args.model == "string") {
+      proc.sefJson = args.model.split(bcdui.core.magicChar.separator)[0];
+      proc.stylesheetURL = args.model.split(bcdui.core.magicChar.separator)[1];
+    }
+    else
+      proc.sourceNode = args.model;
+
+    setTimeout(fn.bind(undefined,proc));
+  }
+
+  XSLTProcessor.prototype.transformToDocument = function(sourceDoc)
   {
-    /**
-     * @private
-     */
-    constructor(/* object */ procFkt)
-    {
-      super(procFkt);
+    
+    if (!this.sourceNode) {
+      const result =  SaxonJS.transform({
+        stylesheetLocation: this.sefJson,
+        sourceNode: sourceDoc,
+        destination: "document",
+        stylesheetParams: this.parameters
+      });
+  
+      // try to identify output format via saxonJS result structure
+      let isXSLT = false;
+      if (result.stylesheetInternal && result.stylesheetInternal.C) {
+        result.stylesheetInternal.C.forEach(function(c) {
+          if (c.N == "output") {
+            c.C.forEach(function(p) {
+              if (p.name == "method")
+                this.outputFormat = p.value;
+              isXSLT |= (p.name == "media-type" && p.value == "text/xslt");               
+            }.bind(this));
+          }
+        }.bind(this));
+      }
+  
+      // check if output format is XSLT
+      if (this.outputFormat == "xml" && isXSLT)
+        this.outputFormat = "xslt";
+      // in case of html return fragment
+      else if (this.outputFormat == "html")
+        return result.principalResult;
+
+      // xslt and xml returns document
+      const doc = bcdui.core.browserCompatibility.newDOMDocument();
+      doc.append(result.principalResult);
+      return doc;
     }
-
-    /**
-     * For usage by TransformationChain
-     * @private
-     */
-    transformToDocument( /* XMLDocument */ sourceDoc, /* function */ fn )
-    {
-      this.outputFormat = "xml";
-      const self = this;
-
-      this.transFkt = function runSaxonTransform(args) {
-        const result =  SaxonJS.transform({
-          stylesheetLocation: args.template,
-          sourceNode: args.input,
-          destination: "document",
-          stylesheetParams: args.params
-        });
-
-        // try to identify output format via saxonJS result structure
-        let isXSLT = false;
-        if (result.stylesheetInternal && result.stylesheetInternal.C) {
-          result.stylesheetInternal.C.forEach(function(c) {
-            if (c.N == "output") {
-              c.C.forEach(function(p) {
-                if (p.name == "method")
-                  self.outputFormat = p.value;
-                isXSLT |= (p.name == "media-type" && p.value == "text/xslt");               
-              });
-            }
-          });
-        }
-
-        // check if output format is XSLT
-        if (self.outputFormat == "xml" && isXSLT)
-          self.outputFormat = "xslt";
-        // in case of html return fragment
-        else if (self.outputFormat == "html")
-          return result.principalResult;
-
-        const doc = bcdui.core.browserCompatibility.newDOMDocument();
-        doc.append(result.principalResult);
-
-        if (self.outputFormat == "xslt") {
-        }
-
-        return doc;
-      };
-      fn( this.transFkt( { template: this.template.model, input: sourceDoc, params: this.params } ) );
+    else {
+      const newDoc = SaxonJS.transform({
+        stylesheetLocation: bcdui.contextPath + "/test/transform.sef.json"
+      , destination: "document"
+      , sourceNode: sourceDoc
+      , stylesheetParams: {
+          sourceNode: sourceDoc
+        , stylesheetNode: this.sourceNode
+        , stylesheetParams: this.parameters
+      }
+      });
+      return doc;
     }
+  }
+  XSLTProcessor.prototype.transform = function( args ) {
+      this.parameters = args.parameters;
+      args.callBack( this.transformToDocument(args.input) );
   };
 
   // add a XSLT matching rule to the first pos of ruleToTransformerMapping array
@@ -659,16 +673,14 @@ if ( bcdui.config.useSaxonJs ) {
        // sef.js files are json files so we load them with mime type json
        // generally we load the equally named .sef.json instead of the .xslt from the same location
        // for lib based xslt files, we switch to /bcdui/sef folder where the precompiled one are available
-       ruleDp: function( rule ) { 
+       ruleDp: function( rule, name ) { 
          let url = rule;
          url = url.replace("/bcdui/js/", "/bcdui/sef/js/");
          url = url.replace("/bcdui/xslt/", "/bcdui/sef/xslt/");
          url = url.replace(".xslt", ".sef.json");
-         return new bcdui.core.ConstantDataProvider({ name: name, value: url});
+         return new bcdui.core.ConstantDataProvider({ name: name, value: url + bcdui.core.magicChar.separator + rule});
        }, 
-       ruleTf: function( args ) { 
-        args.callBack(new bcdui.core.transformators.XSLTSaxonJsTransformator(args)) 
-      }
+       ruleTf: function( args ) { bcdui.core.browserCompatibility.asyncCreateXsltProcessor(args); }
     }
   });
 }
