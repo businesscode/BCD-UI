@@ -45,6 +45,7 @@ ext.artifactsBaseName    = hasProperty('artifactsBaseName')    ? getProperty('ar
 ext.sharedBuildFilesRoot = hasProperty('sharedBuildFilesRoot') ? getProperty('sharedBuildFilesRoot') : rootProject.rootDir.path
 ext.jsBcduiLoader        = hasProperty('jsBcduiLoader')        ? getProperty('jsBcduiLoader')        : 'bcduiLoader.js'
 ext.bcduiVersion         = getProperty('bcdui.version')
+ext.generatedXslts       = hasProperty('generatedXslts')       ? getProperty('generatedXslts')       : ["widgetNg", "widget", "component", "core"]
 
 // Derived
 ext.jsBcduiLoaderPath = "$rootProject.rootDir/Client/src/js/$jsBcduiLoader"

@@ -222,7 +222,7 @@ task bcduiProcessXslt {
 
   // we need to copy the api generated xslt files, too
   // this needs to get skipped for DE/EE though
-  ["widgetNg", "widget", "component", "core"].each{ cat -> dependsOn += createXSLTTask( "xslt-$cat", "${generatedApisDir}/", file("$generatedApisDir/js/${cat}/${cat}.xslt")) }
+  generatedXslts.each{ cat -> dependsOn += createXSLTTask( "xslt-$cat", "${generatedApisDir}/", file("$generatedApisDir/js/${cat}/${cat}.xslt")) }
 }
 
 //**********************************
