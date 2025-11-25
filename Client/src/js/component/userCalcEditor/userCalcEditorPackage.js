@@ -108,7 +108,7 @@ bcdui.component.userCalcEditor = Object.assign(bcdui.component.userCalcEditor,
 
     var res = bcdui.factory.createRenderer({
       id: wrapperId,
-      url: bcdui.util.url.resolveToFullURLPathWithCurrentURL("/bcdui/js/component/userCalcEditor/userCalcEditorTemplate.xslt"),
+      url: bcdui.util.url.resolveToFullURLPathWithCurrentURL("/bcdui/js/component/userCalcEditor/userCalcEditorStylesheet.xslt"),
       parameters: parameters,
       targetHTMLElementId: bcdui.component.userCalcEditor._htmlContainerId
     });

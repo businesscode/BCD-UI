@@ -28,7 +28,7 @@
   xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
   xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"
   >
-  <xsl:import href="../../widget/pagingPanel/pagingPanelTemplate.xslt"/>
+  <xsl:import href="../../widget/pagingPanel/pagingPanelStylesheet.xslt"/>
 
   <xsl:output method="html" standalone="yes" encoding="UTF-8" indent="no"/>
 

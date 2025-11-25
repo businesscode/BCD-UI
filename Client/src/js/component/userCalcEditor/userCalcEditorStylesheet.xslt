@@ -16,9 +16,6 @@
 -->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:bcd="http://www.businesscode.de/schema/bcdui/html-extensions-1.0.0">
 
-<xsl:import href="../../widget/widget.xslt"/>
-<xsl:import href="../../widgetNg/widgetNg.xslt"/>
-
 <xsl:output method="html" encoding="UTF-8" indent="no"/>
 
 <xsl:param name="id"/>
@@ -74,25 +71,25 @@
     </div>
     <div class="bcdUserCalcEditorName">
       <label>Name:</label>
-      <xsl:call-template name="inputField">
-        <xsl:with-param name="targetModelXPath" select="concat($tempTargetModelXPath, '/@caption')"/>
-        <xsl:with-param name="onBlur">bcdui.component.userCalcEditor._onNameUpdate(('<xsl:value-of select="$id"/>'), ('formulaEditor_<xsl:value-of select="$id"/>'), this)</xsl:with-param>
-        <xsl:with-param name="mandatory" select="true()"/>
-      </xsl:call-template>
+      <bcd-inputField>
+        <xsl:attribute name="targetModelXPath"><xsl:value-of select="concat($tempTargetModelXPath, '/@caption')"/></xsl:attribute>
+        <xsl:attribute name="onBlur">bcdui.component.userCalcEditor._onNameUpdate(('<xsl:value-of select="$id"/>'), ('formulaEditor_<xsl:value-of select="$id"/>'), this)</xsl:attribute>
+        <xsl:attribute name="mandatory">true</xsl:attribute>
+      </bcd-inputField>
     </div>
     <div class="bcdUserCalcEditorFormula">
-      <xsl:call-template name="formulaEditor">
-        <xsl:with-param name="id" select="concat('formulaEditor_',$id)"/>
-        <xsl:with-param name="targetModelXPath" select="$tempTargetModelXPath"/>
-        <xsl:with-param name="optionsModelXPath" select="$optionsModelXPath"/>
-        <xsl:with-param name="optionsModelRelativeValueXPath" select="$optionsModelRelativeValueXPath"/>
-        <xsl:with-param name="caption">Rule:</xsl:with-param>
-        <xsl:with-param name="skipValidationCaption" select="$validateVariableNamesCaption"/>
-        <xsl:with-param name="validateVariableNamesCheckbox" select="$validateVariableNamesCheckbox"/>
-        <xsl:with-param name="validate" select="true()"/>
-        <xsl:with-param name="mandatory" select="true()"/>
-        <xsl:with-param name="skipServerSidedFunctions" select="$skipServerSidedFunctions"/>
-      </xsl:call-template>
+      <bcd-formulaeditor>
+        <xsl:attribute name="id"><xsl:value-of select="concat('formulaEditor_',$id)"/></xsl:attribute>
+        <xsl:attribute name="targetModelXPath"><xsl:value-of select="$tempTargetModelXPath"/></xsl:attribute>
+        <xsl:attribute name="optionsModelXPath"><xsl:value-of select="$optionsModelXPath"/></xsl:attribute>
+        <xsl:attribute name="optionsModelRelativeValueXPath"><xsl:value-of select="$optionsModelRelativeValueXPath"/></xsl:attribute>
+        <xsl:attribute name="caption">Rule:</xsl:attribute>
+        <xsl:attribute name="skipValidationCaption"><xsl:value-of select="$validateVariableNamesCaption"/></xsl:attribute>
+        <xsl:attribute name="validateVariableNamesCheckbox"><xsl:value-of select="$validateVariableNamesCheckbox"/></xsl:attribute>
+        <xsl:attribute name="validate">true</xsl:attribute>
+        <xsl:attribute name="mandatory">true</xsl:attribute>
+        <xsl:attribute name="skipServerSidedFunctions"><xsl:value-of select="$skipServerSidedFunctions"/></xsl:attribute>
+      </bcd-formulaeditor>
     </div>
     <div class="bcdUserCalcEditorParameters">
       <xsl:if test="not(boolean($isFormatOptionsVisible))">
@@ -100,10 +97,10 @@
       </xsl:if>
       <label>Format:</label><input id="doScale" type="checkbox" class="bcdCalcEditorFormat checkboxes" checked="checked"/>
       <span class="bcdCalcEditorFormatComponents"><label>Fractional digits:</label>
-        <xsl:call-template name="inputField">
-          <xsl:with-param name="id" select="'inputScale'"/>
-          <xsl:with-param name="targetModelXPath" select="concat($tempTargetModelXPath, '/calc:Calc/@scale')"/>
-        </xsl:call-template>
+        <bcd-inputfield>
+          <xsl:attribute name="id">inputScale</xsl:attribute>
+          <xsl:attribute name="targetModelXPath"><xsl:value-of select="concat($tempTargetModelXPath, '/calc:Calc/@scale')"/></xsl:attribute>
+        </bcd-inputfield>
         <label>Percent:</label> <input type="checkbox" class="bcdCalcEditorPercent checkboxes"/></span>
     </div>
     <br style="clear:both"/>
@@ -124,16 +121,16 @@
     <br style="clear:both"/>
     <div class="bcdUserCalcEditorButtons form-row">
       <div class="col-sm-auto">
-        <xsl:call-template name="buttonNg">
-          <xsl:with-param name="caption">Ok</xsl:with-param>
-          <xsl:with-param name="onClickAction">bcdui.component.userCalcEditor._save();</xsl:with-param>
-        </xsl:call-template>
+        <bcd-buttonng>
+          <xsl:attribute name="caption">Ok</xsl:attribute>
+          <xsl:attribute name="onClickAction">bcdui.component.userCalcEditor._save();</xsl:attribute>
+        </bcd-buttonng>
       </div>
       <div class="col-sm-auto">
-        <xsl:call-template name="buttonNg">
-          <xsl:with-param name="caption">Cancel</xsl:with-param>
-          <xsl:with-param name="onClickAction">bcdui.component.userCalcEditor._cancel();</xsl:with-param>
-        </xsl:call-template>
+        <bcd-buttonng>
+          <xsl:attribute name="caption">Cancel</xsl:attribute>
+          <xsl:attribute name="onClickAction">bcdui.component.userCalcEditor._cancel();</xsl:attribute>
+        </bcd-buttonng>
       </div>
     </div>
   </span>
