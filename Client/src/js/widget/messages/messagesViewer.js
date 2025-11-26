@@ -128,6 +128,8 @@ jQuery.extend(bcdui.widget, {
             frame.find(".bcdHtmlViewerFooter").data("messages", msgs);
             frame.find(".bcdHtmlViewerFooter").data("page", 0);
 
+            frame.find('.bcdHtmlViewer').scrollTop(0);
+
             // handle prev/next message clicking
             frame.find(".bcdHtmlViewerFooter").on("click", ".bcdAction", function(event) {
               const target = jQuery(event.target).closest(".bcdAction");

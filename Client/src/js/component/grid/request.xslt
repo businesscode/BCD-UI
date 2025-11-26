@@ -21,6 +21,7 @@
   xmlns:grid="http://www.businesscode.de/schema/bcdui/grid-1.0.0"
   xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"
   xmlns:guiStatus="http://www.businesscode.de/schema/bcdui/guiStatus-1.0.0"
+  xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
   xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
   xmlns:exslt="http://exslt.org/common"
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
