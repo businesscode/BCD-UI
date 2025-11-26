@@ -80,14 +80,13 @@ public class GlobalScriptTag extends BodyTagSupport {
           }
         }
         else {        
-          if (isInsideScriptTag())
-            pageContext.getOut().println(
-                isInsideScriptTag()
-                ? bodyContent.getString()
-                : "<script" + (nonce.isEmpty() ? "" : " nonce=\"" + nonce + "\"") + " type=\"text/javascript\">" + bodyContent.getString() + "</script>"
-            );
+          pageContext.getOut().println(
+              isInsideScriptTag()
+              ? bodyContent.getString()
+              : "<script" + (nonce.isEmpty() ? "" : " nonce=\"" + nonce + "\"") + " type=\"text/javascript\">" + bodyContent.getString() + "</script>"
+          );
         }
-        
+
         // in case we have defered scripts, we add a runner (only once) which executes the collected scripts onLoad event
         if (pageContext.getRequest().getAttribute("bcdDeferedScriptsRunner") == null && bcdDeferedScripts) {
           pageContext.getRequest().setAttribute("bcdDeferedScriptsRunner", "true");
