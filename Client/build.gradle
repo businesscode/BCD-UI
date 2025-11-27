@@ -259,7 +259,7 @@ task bcduiClientJsFileGroups {
   file("$clientCombinedDir/js/3rdParty").mkdirs()
 
   // A babel task for combining multiple files, minifying and optional ecma6-transpiling
-  def createBabelTask = { String newTaskName, inputFiles, outFileName, is3rdParty ->
+  def createBabelTask = { String newTaskName, inputFiles, outFileName, is3rdParty, replaceExports ->
     task(newTaskName, type: NodeTask) {
       mustRunAfter 'bcduiClientCollectAll'
       inputs.files inputFiles + "./src/js/$jsBcduiLoader"
@@ -273,9 +273,11 @@ task bcduiClientJsFileGroups {
         def outFile = file(outFileName)
         if (! is3rdParty) {
           outFile.text = outFile.text.replace('"use strict";', "")
-          outFile.text = outFile.text.replaceAll("export const bcduiExport_[\\w]+[\\s]*=[\\s]*", "")
-          outFile.text = outFile.text.replaceAll('await import\\(\\"\\.\\./modules/[\\w/]+\\.js\\"\\),', '')
-			    outFile.text = outFile.text.replaceAll('import\\"\\.\\./modules/core.js\\";', '')
+          if (replaceExports) {
+            outFile.text = outFile.text.replaceAll("export const bcduiExport_[\\w]+[\\s]*=[\\s]*", "")
+            outFile.text = outFile.text.replaceAll('await import\\(\\"\\.\\./modules/[\\w/]+\\.js\\"\\),', '')
+  			    outFile.text = outFile.text.replaceAll('import\\"\\.\\./modules/core.js\\";', '')
+			    }
           outFile.text = '"use strict";' + outFile.text
         }
         outFile.text += newLine + ( is3rdParty ? '/* For license see THIRDPARTYLICENSEREADME.txt */' : "/* $bcdCopyRightText */" )
@@ -292,7 +294,7 @@ task bcduiClientJsFileGroups {
     // and build final path in clientCombinedDir by replacing the first "/js/" part 
     def f = ("$clientCombinedDir" + jsFile).replaceAll("\\\\", "/").replaceAll("$clientCombined/js/", "$clientCombined/$jsDistDir/");
     def name = f.substring(f.lastIndexOf('/') + 1)
-    dependsOn += createBabelTask("$i-minimize-$name", [f], f, false )
+    dependsOn += createBabelTask("$i-minimize-$name", [f], f, false, false)
   }
 
   // All non 3rd-party files are handled here
@@ -305,7 +307,7 @@ task bcduiClientJsFileGroups {
       "$clientCombinedDir/${fPathName}".replace("/js/nonmodules/", "/js/")
     }).collect{it.absolutePath}
     if( ! inputFiles.isEmpty() ) {
-      dependsOn += createBabelTask("$taskPrefix-$fileGroupName"           , inputFiles, "$clientCombinedDir/$jsDistDir/${fileGroupName}.js", false )
+      dependsOn += createBabelTask("$taskPrefix-$fileGroupName"           , inputFiles, "$clientCombinedDir/$jsDistDir/${fileGroupName}.js", false, true )
     }
   }
 
@@ -345,7 +347,7 @@ task bcduiClientJsFileGroups {
       def fPathNameWoExt= f.name.lastIndexOf('.').with {it != -1 ? f.name[0..<it] : f.name}
       def outFileName = "$clientCombinedDir/$jsDistDir/3rdParty/${fPathNameWoExt}.js"
       // we just create a minified version
-      dependsOn += createBabelTask( "$taskPrefix-$fPathNameWoExt", ["$clientCombinedDir/js/3rdParty/${fPathNameWoExt}.js"], outFileName, true )
+      dependsOn += createBabelTask( "$taskPrefix-$fPathNameWoExt", ["$clientCombinedDir/js/3rdParty/${fPathNameWoExt}.js"], outFileName, true, false )
     }
   }
 
