@@ -14,7 +14,7 @@
   limitations under the License.
 */
 
-import {_bcdTemplateLib} from "./3rdParty.js"
+import "./3rdParty.js"
 
 import "../../bcdui.js?mode=module"
 
