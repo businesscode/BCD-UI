@@ -198,6 +198,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   * @param {boolean}                 [args.paginationAllPages=false]                        - Set pagination show all option (and enable pagination)
   * @param {chainDef}                [args.requestPostChain]                                - The definition of the transformation chain
   * @param {modelUrl}                [args.modelUrl=WrsServlet]                             - This is a string or string- DataProvider with the URL which to send the requestModel result to
+  * @param {modelUrl}                [args.exportFileName]                                  - Filename for grid export
   */
   constructor(args) {
     var id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("grid");
@@ -296,6 +297,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     this.serverSidedPagination = args.serverSidedPagination;
     this.pageBuffer = {};
     this.validationResultPageBuffer = {};
+    this.exportFileName = args.exportFileName;
 
     // limitation for now, since we need to update rowStart/rowEnd in the gridModel request, we disallow external wrs for the moment 
     if (args.inputModel)
@@ -3407,7 +3409,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       var theGrid = this;
       jQuery("#" + this.targetHtml).on("gridActions:fullDataExport", function(evt){
         if (typeof bcdui.component.exports != "undefined" && typeof bcdui.component.exports.exportToExcelTemplate == "function") {
-          bcdui.component.exports.exportToExcelTemplate({inputModel: 
+          bcdui.component.exports.exportToExcelTemplate({fileName: this.exportFileName, inputModel: 
             new bcdui.core.ModelWrapper({
               inputModel: this.gridModel
             , chain: function(doc) {
@@ -3852,6 +3854,8 @@ bcdui.component = Object.assign(bcdui.component,
         forceAddAtBottom:     args.forceAddAtBottom,
         disableDeepKeyCheck:  args.disableDeepKeyCheck,
         ignoreKeyCase:        args.ignoreKeyCase,
+        modelUrl:             args.modelUrl,
+        exportFileName:       args.exportFileName,
         columnFiltersGetCaptionForColumnValue: args.columnFiltersGetCaptionForColumnValue,
         columnFiltersCustomFilter:             args.columnFiltersCustomFilter,
         defaultButtons:                        args.defaultButtons,
