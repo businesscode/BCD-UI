@@ -726,6 +726,11 @@
             Set pagination show all option (and enable pagination).
           </Doc>
         </Param>
+        <Param name="exportFileName" type="string">
+          <Doc>
+            Filename for grid export.
+          </Doc>
+        </Param>
       </Api>
 
       <Api name="tree">
