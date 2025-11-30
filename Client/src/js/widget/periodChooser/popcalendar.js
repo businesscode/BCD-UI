@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -61,7 +61,6 @@ var selectDateMessage = "Select [date] as date."; // do not replace [date], it w
 var  crossobj, crossMonthObj, crossYearObj, monthSelected, yearSelected, dateSelected, omonthSelected, oyearSelected, odateSelected, monthConstructed, yearConstructed, intervalID1, intervalID2, timeoutID1, timeoutID2, ctlToPlaceValue, ctlToPlaceValue2, ctlNow, dateFormat, nStartingYear;
 var dateFormatStartRange, dateFormatEndRange, dateFormatParse, isTimeSpan;
 
-var  bPageLoaded=false;
 var  ie=document.all;
 var  dom=document.getElementById;
 
@@ -259,17 +258,48 @@ function _initPopupCalendar()  {
    *
    */
   if (dom && document.getElementById("bcdCalendar") == null) {
-    var calDiv = "<div id='bcdCalendar' style='z-index:+9999;position:absolute;visibility:hidden;'><iframe id='menu4iframe' marginwidth='0' marginheight='0' align='bottom' scrolling='no' frameborder='0' style='height:100%; position:absolute; left:0; top:0px; width: 100%;display:block; z-index:-1;' src='javascript:false'></iframe><table class='popupBaseColor' style='width:auto;font-family:arial;font-size:11px;border-width:1px;border-style:solid;font-family:arial; font-size:11px}' ><tr class='popupBaseColor'><td><table width='"+((showWeekNumber==1)?248:218)+"'><tr><td style='padding:2px;font-family:arial; font-size:11px;'><font color='#ffffff'><B><span id='popCalCaption'></span></B></font></td><td class='calCloseImage'>" + (showPopCalendarImages ? "<IMG id='calCloseImage' WIDTH='15' HEIGHT='13' BORDER='0'></IMG>" : "") + "<SPAN " + utf8CharStyle + " class='calCloseImage'></SPAN></td></tr></table></td></tr><tr><td style='padding:5px' bgcolor=#ffffff><span id='popCalContent'></span></td></tr>";
+    var calDiv = "<div id='bcdCalendar' style='z-index:+9999;position:absolute;visibility:hidden;'><iframe id='menu4iframe' marginwidth='0' marginheight='0' align='bottom' scrolling='no' frameborder='0' style='height:100%; position:absolute; left:0; top:0px; width: 100%;display:block; z-index:-1;'></iframe><table class='popupBaseColor' style='width:auto;font-family:arial;font-size:11px;border-width:1px;border-style:solid;font-family:arial; font-size:11px}' ><tr class='popupBaseColor'><td><table width='"+((showWeekNumber==1)?248:218)+"'><tr><td style='padding:2px;font-family:arial; font-size:11px;'><font color='#ffffff'><B><span id='popCalCaption'></span></B></font></td><td class='calCloseImage'>" + (showPopCalendarImages ? "<IMG id='calCloseImage' WIDTH='15' HEIGHT='13' BORDER='0'></IMG>" : "") + "<SPAN " + utf8CharStyle + " class='calCloseImage'></SPAN></td></tr></table></td></tr><tr><td style='padding:5px' bgcolor=#ffffff><span id='popCalContent'></span></td></tr>";
     calDiv += "<tr class='popupBaseColor'><td id='lblPick' style='padding: 0px 0px 5px 0px; position:relative;'></td></tr>";
       if (showToday==1) {
       calDiv += "<tr class='popupBaseColor'><td style='padding: 0px 0px 5px 5px;'><span id='lblToday'></span></td></tr>";
     }
     calDiv += "</table></div>";
-    jQuery("head").append(calDiv); // will be moved to body during bcdLoadPost.js
+    var bcdHolder = bcdui.util.getSingletonElement("bcdSingletonHolder", true);
+    jQuery(bcdHolder).prepend(jQuery(calDiv));
     jQuery("#bcdCalendar").off();
     jQuery("#bcdCalendar").on("click", function() {bShow=true; clearCalendarTimeOut();});
     jQuery("#bcdCalendar td.calCloseImage").off();
     jQuery("#bcdCalendar td.calCloseImage").on("click", function() {hideCalendar();});
+    jQuery("#bcdCalendar").on("click", "a.bcdPopCalenderAction", function(event) {
+
+      if (jQuery(event.target).hasClass("yearIsSelected"))
+        return bcdui.widget.periodChooser._closeCalendar({yearIsSelected:1});
+      
+      if (jQuery(event.target).hasClass("quarterIsSelected"))
+        return bcdui.widget.periodChooser._closeCalendar({quarterIsSelected:1});
+      
+      if (jQuery(event.target).hasClass("monthIsSelected"))
+        return bcdui.widget.periodChooser._closeCalendar({monthIsSelected:1});
+      
+      if (jQuery(event.target).hasClass("prevDay"))
+        return bcdui.widget.periodChooser._closeCalendar({prevDay:true});
+      
+      if (jQuery(event.target).hasClass("prevWeek"))
+        return bcdui.widget.periodChooser._closeCalendar({prevWeek:true});
+
+      if (jQuery(event.target).hasClass("prevMonth"))
+        return bcdui.widget.periodChooser._closeCalendar({prevMonth:true});
+
+      if (jQuery(event.target).hasClass("monthSelected"))
+        return bcdui.widget.periodChooser._constructCalendar({monthSelected : jQuery(event.target).attr("monthNow"), yearSelected : jQuery(event.target).attr("yearNow")});
+      
+      if (jQuery(event.target).hasClass("currentWeek"))
+        return bcdui.widget.periodChooser._closeCalendar({currentWeek: jQuery(event.target).attr("currentWeek"), weekIsSelected: 1, firstDay : jQuery(event.target).attr("datePointer")});
+
+      if (jQuery(event.target).hasClass("dateSelected"))
+        return bcdui.widget.periodChooser._closeCalendar({dateSelected : jQuery(event.target).attr("datePointer")});
+    });
+    
   }
 
   if (!ns4)
@@ -291,7 +321,7 @@ function _initPopupCalendar()  {
 
     if (showToday==1)
     {
-      document.getElementById("lblToday").innerHTML =selectCurrentMonth+todayString + " <a onmousemove='window.status=\""+gotoString+"\"' onmouseout='window.status=\"\"' title='"+gotoString+"' style='"+styleAnchor+"' href='javascript:monthSelected=monthNow;yearSelected=yearNow;bcdui.widget.periodChooser._constructCalendar();'>"+dayName[(today.getDay()-startAt==-1)?6:(today.getDay()-startAt)]+", " + dateNow + " " + monthName[monthNow].substring(0,3)  + "  " +  yearNow  + " Week " +(WeekNbr(new Date(yearNow,monthNow,dateNow)))+"</a>";
+      document.getElementById("lblToday").innerHTML =selectCurrentMonth+todayString + " <a class='bcdPopCalenderAction' title='"+gotoString+"' style='"+styleAnchor+"' xhref='javascript:monthSelected=monthNow;yearSelected=yearNow;bcdui.widget.periodChooser._constructCalendar();'>"+dayName[(today.getDay()-startAt==-1)?6:(today.getDay()-startAt)]+", " + dateNow + " " + monthName[monthNow].substring(0,3)  + "  " +  yearNow  + " Week " +(WeekNbr(new Date(yearNow,monthNow,dateNow)))+"</a>";
     }
     */
 
@@ -344,9 +374,6 @@ function _initPopupCalendar()  {
         calCloseImageElement.onmouseout = function() { document.getElementById("calCloseImage").src = imgDir + "calclose.gif" };
       }
     }
-
-    bPageLoaded=true;
-
   }
 
 }
@@ -602,7 +629,7 @@ function constructMonth() {
       if (i==monthSelected){
         sName =  "<font class=popupContraColor >" +  sName +  "</font>";
       }
-      sHTML += "<tr><td class='popupSelectBox' id='m" + i + "' onmouseover='this.className=\"popupSelectBoxHover\"' onmouseout='this.className=\"popupSelectBox\"'>&nbsp;" + sName + "&nbsp;</td></tr>";
+      sHTML += "<tr><td class='popupSelectBox' id='m" + i + "'>&nbsp;" + sName + "&nbsp;</td></tr>";
     }
 
     jQuery("#selectMonth table.popupSelectBox").off();
@@ -828,17 +855,17 @@ bcdui.widget.periodChooser._constructCalendar = function(args) {
       );
   }
 
-  var yearSelection = isYearSelectable ? ("<a class='calendarYearSelection' href='javascript:bcdui.widget.periodChooser._closeCalendar({yearIsSelected:1});'>" + yearSelected + "</a>") : "";
-  var quarterSelection = isQuarterSelectable ? ("<a class='calendarQuarterSelection' href='javascript:bcdui.widget.periodChooser._closeCalendar({quarterIsSelected:1});'>Q" + (Math.floor(monthSelected / 3) + 1) + "</a>") : "";
+  var yearSelection = isYearSelectable ? ("<a class='calendarYearSelection bcdPopCalenderAction yearIsSelected'>" + yearSelected + "</a>") : "";
+  var quarterSelection = isQuarterSelectable ? ("<a class='calendarQuarterSelection bcdPopCalenderAction quarterIsSelected'>Q" + (Math.floor(monthSelected / 3) + 1) + "</a>") : "";
 
   if (isMonthSelectable && isMonthWithinSelectableRange){
-    selectCurrentMonth = "<a class='calendarMonthSelection' href='javascript:bcdui.widget.periodChooser._closeCalendar({monthIsSelected:1});'>"+ monthName[monthSelected].substring(0,3)+"</a>&nbsp;" + yearSelection + "&nbsp;" + quarterSelection + "&nbsp;"
+    selectCurrentMonth = "<a class='calendarMonthSelection bcdPopCalenderAction monthIsSelected'>"+ monthName[monthSelected].substring(0,3)+"</a>&nbsp;" + yearSelection + "&nbsp;" + quarterSelection + "&nbsp;"
   }else{
     selectCurrentMonth = monthName[monthSelected].substring(0,3) + "&nbsp;" + yearSelection + "&nbsp;" + quarterSelection + "&nbsp;"
   }
-  var prevString = (isDaySelectable ? "&nbsp;<a href='javascript:bcdui.widget.periodChooser._closeCalendar({prevDay:true});'>Day</a>" : "")
-  + (isWeekSelectable ? "&nbsp;<a href='javascript:bcdui.widget.periodChooser._closeCalendar({prevWeek:true});'>Week</a>" : "")
-  + (isMonthSelectable ? "&nbsp;<a href='javascript:bcdui.widget.periodChooser._closeCalendar({prevMonth:true});'>Month</a>": "");
+  var prevString = (isDaySelectable ? "&nbsp;<a class='bcdPopCalenderAction prevDay'>Day</a>" : "")
+  + (isWeekSelectable ? "&nbsp;<a class='bcdPopCalenderAction prevWeek'>Week</a>" : "")
+  + (isMonthSelectable ? "&nbsp;<a class='bcdPopCalenderAction prevMonth'>Month</a>": "");
 
   prevString = prevString != "" ? "<span style='position: absolute; right: 5px;'>Prev:" + prevString + "</span>" : "";
   selectCurrentMonth = selectCurrentMonth != "" ? "<span style='position: absolute; left: 5px;'>" + selectCurrentMonth + "</span>" : "";
@@ -847,7 +874,7 @@ bcdui.widget.periodChooser._constructCalendar = function(args) {
 
   if (showToday==1)
   {
-    document.getElementById("lblToday").innerHTML = todayString + " <a onmousemove='window.status=\""+gotoString+"\"' onmouseout='window.status=\"\"' title='"+gotoString+ /*"' style='"+styleAnchor+*/"' href='javascript:bcdui.widget.periodChooser._constructCalendar({monthSelected : " + monthNow + ", yearSelected : " + yearNow+ "});'>"+dayName[(today.getDay()-startAt==-1)?6:(today.getDay()-startAt)]+", " + dateNow + " " + monthName[monthNow].substring(0,3)  + "  " +  yearNow  + " Week " +(WeekNbr(new Date(yearNow,monthNow,dateNow)))+"</a>";
+    document.getElementById("lblToday").innerHTML = todayString + " <a class='bcdPopCalenderAction monthSelected' monthNow='"+monthNow+"' yearNow='"+yearNow+"' title='"+gotoString+ /*"' style='"+styleAnchor+*/"'>"+dayName[(today.getDay()-startAt==-1)?6:(today.getDay()-startAt)]+", " + dateNow + " " + monthName[monthNow].substring(0,3)  + "  " +  yearNow  + " Week " +(WeekNbr(new Date(yearNow,monthNow,dateNow)))+"</a>";
   }
 
 
@@ -894,7 +921,7 @@ bcdui.widget.periodChooser._constructCalendar = function(args) {
     //firstDayOfWeek = datePointer +1
     //lastDayOfWeek = datePointer +1+7
     //selectedWeek = 1
-    //sHTML += "<td align=right onmouseover='this.style.backgroundColor=\"#FFCC99\"' onmouseout='this.style.backgroundColor=\"\"'>" + "<a href='javascript:currentWeek="+(WeekNbr(new Date(yearSelected,monthSelected,datePointer+1)))+";weekIsSelected = 1; firstDay = "+ datePointer+";bcdui.widget.periodChooser._closeCalendar();'>" +WeekNbr(startDate) + "</a>"+ "&nbsp;</td>"
+    //sHTML += "<td align=right>" + "<a class='bcdPopCalenderAction' xhref='javascript:currentWeek="+(WeekNbr(new Date(yearSelected,monthSelected,datePointer+1)))+";weekIsSelected = 1; firstDay = "+ datePointer+";bcdui.widget.periodChooser._closeCalendar();'>" +WeekNbr(startDate) + "</a>"+ "&nbsp;</td>"
     var isWeekWithinSelectableRange = true;
     if (firstSelectableDay > 0) {
         var firstDateOfWeek = new Date(yearSelected, monthSelected, datePointer).getTime();
@@ -906,7 +933,7 @@ bcdui.widget.periodChooser._constructCalendar = function(args) {
           );
     }
     if (isWeekSelectable && isWeekWithinSelectableRange){
-      sHTML += "<td class='weekListSelection' align=right onmouseover='this.className=\"weekListSelectionHover\"' onmouseout='this.className=\"weekListSelection\"'>" + "<a href='javascript:bcdui.widget.periodChooser._closeCalendar({currentWeek:"+(WeekNbr(new Date(yearSelected,monthSelected,datePointer+1)))+", weekIsSelected: 1, firstDay : "+ datePointer+"});'>" +(WeekNbr(new Date(yearSelected,monthSelected,datePointer+1)))+ "</a>"+ "&nbsp;</td>"
+      sHTML += "<td class='weekListSelection' align=right>" + "<a class='bcdPopCalenderAction currentWeek' datePointer='"+datePointer+"' currentWeek='"+(WeekNbr(new Date(yearSelected,monthSelected,datePointer+1)))+"'>" +(WeekNbr(new Date(yearSelected,monthSelected,datePointer+1)))+ "</a>"+ "&nbsp;</td>"
     }else{
       sHTML += "<td class='weekListSelection' align=right>" +(WeekNbr(new Date(yearSelected,monthSelected,datePointer+1)))+ "&nbsp;</td>"
     }
@@ -941,18 +968,18 @@ bcdui.widget.periodChooser._constructCalendar = function(args) {
     var regexp= /\"/g;
     sHint=sHint.replace(regexp,"&quot;");
 
-    dateMessage = "onmousemove='window.status=\""+selectDateMessage.replace("[date]",constructDate(datePointer,monthSelected,yearSelected))+"\"' onmouseout='window.status=\"\"' ";
-    var noDateMessage = "onmousemove='window.status=\"Date selection not possible\"' onmouseout='window.status=\"\"' ";
+    dateMessage = "";
+    var noDateMessage = "";
     var currentDate;
     if (firstSelectableDay > 0 && (firstSelectableDay > (currentDate = new Date(yearSelected, monthSelected, datePointer).getTime()) || lastSelectableDay < currentDate)) {
       sHTML += "<span style='"+sStyle+";cursor: default'>&nbsp;<font style=\"font-style: italic; font-weight: bold; color: #C0C0C0\">" + datePointer + "</font>&nbsp;</span>"
     } else
     if ((datePointer==dateNow)&&(monthSelected==monthNow)&&(yearSelected==yearNow))
-    { sHTML += "<b><a class='popupDay popupToday " + (isDaySelectable ? "" : "popupNoDay") + "' "+(isDaySelectable ? dateMessage : noDateMessage)+" title=\"" + sHint + "\" "+popUpCalendar_getDateHref(datePointer)+">&nbsp;" + datePointer + "&nbsp;</a></b>"}
+    { sHTML += "<b><a datePointer='"+datePointer+"' class='dateSelected bcdPopCalenderAction popupDay popupToday " + (isDaySelectable ? "" : "popupNoDay") + "' "+(isDaySelectable ? dateMessage : noDateMessage)+" title=\"" + sHint + "\" >&nbsp;" + datePointer + "&nbsp;</a></b>"}
     else if  (dayPointer % 7 == (startAt * -1)+1)
-    { sHTML += "<a class='popupDay popupSunday " + (isDaySelectable ? "" : "popupNoDay") + "' "+(isDaySelectable ? dateMessage : noDateMessage)+" title=\"" + sHint + "\" "+popUpCalendar_getDateHref(datePointer)+">&nbsp;" + datePointer + "&nbsp;</a>" }
+    { sHTML += "<a datePointer='"+datePointer+"' class='dateSelected bcdPopCalenderAction popupDay popupSunday " + (isDaySelectable ? "" : "popupNoDay") + "' "+(isDaySelectable ? dateMessage : noDateMessage)+" title=\"" + sHint + "\" >&nbsp;" + datePointer + "&nbsp;</a>" }
     else
-    { sHTML += "<a class='popupDay " + (isDaySelectable ? "" : "popupNoDay") + "' "+(isDaySelectable ? dateMessage : noDateMessage)+" title=\"" + sHint + "\" "+popUpCalendar_getDateHref(datePointer)+">&nbsp;" + datePointer + "&nbsp;</a>" }
+    { sHTML += "<a datePointer='"+datePointer+"' class='dateSelected bcdPopCalenderAction popupDay " + (isDaySelectable ? "" : "popupNoDay") + "' "+(isDaySelectable ? dateMessage : noDateMessage)+" title=\"" + sHint + "\" >&nbsp;" + datePointer + "&nbsp;</a>" }
 
     sHTML += "";
     if ((dayPointer+startAt) % 7 == startAt) {
@@ -973,7 +1000,7 @@ bcdui.widget.periodChooser._constructCalendar = function(args) {
               );
         }
         if (isWeekSelectable && isWeekWithinSelectableRange){
-            sHTML += "<td class='weekListSelection' align=right onmouseover='this.className=\"weekListSelectionHover\"' onmouseout='this.className=\"weekListSelection\"'>" + "<a href='javascript:bcdui.widget.periodChooser._closeCalendar({currentWeek: "+(WeekNbr(new Date(yearSelected,monthSelected,datePointer+1)))+", weekIsSelected : 1, firstDay : "+ datePointer+"});'>" +(WeekNbr(new Date(yearSelected,monthSelected,datePointer+1)))+ "</a>"+ "&nbsp;</td>"
+            sHTML += "<td class='weekListSelection' align=right>" + "<a class='bcdPopCalenderAction currentWeek' datePointer='"+datePointer+"' currentWeek='"+WeekNbr(new Date(yearSelected,monthSelected,datePointer+1))+"'>" +(WeekNbr(new Date(yearSelected,monthSelected,datePointer+1)))+ "</a>"+ "&nbsp;</td>"
           }else{
             sHTML += "<td class='weekListSelection' align=right>" +(WeekNbr(new Date(yearSelected,monthSelected,datePointer+1)))+ "&nbsp;</td>"
           }
@@ -986,15 +1013,6 @@ bcdui.widget.periodChooser._constructCalendar = function(args) {
   document.getElementById("popCalContent").innerHTML   = sHTML;
   document.getElementById("spanMonth").innerHTML = "&nbsp;" +  monthName[monthSelected] + "&nbsp;" + (showPopCalendarImages ? "<IMG id='changeMonth' SRC='"+imgDir+imgsrc[0]+"' WIDTH='12' HEIGHT='10' BORDER=0></IMG>" : "") + "<SPAN  " + utf8CharStyle + " class='changeMonth'></SPAN>";
   document.getElementById("spanYear").innerHTML =  "&nbsp;" + yearSelected  + "&nbsp;" + (showPopCalendarImages ? "<IMG id='changeYear' SRC='"+imgDir+imgsrc[0]+"' WIDTH='12' HEIGHT='10' BORDER=0></IMG>" : "") + "<SPAN " + utf8CharStyle + " class='changeYear'></SPAN>"
-}
-
-/**
- * helper function used to retrieve href content for date anchor,
- * decides whether to make day selection available or not
- * @ignore
- */
-function popUpCalendar_getDateHref(datePointer){
-  return isDaySelectable?"href='javascript:bcdui.widget.periodChooser._closeCalendar({dateSelected :"+datePointer+"});'":"";
 }
 
 /**
@@ -1081,7 +1099,6 @@ bcdui.widget.periodChooser.popUpCalendar = function(ctl,ctl2,out2,format,startFo
         parseInt(_lastSelDate.substring(8, 10), 10));
   }
 
-  if (bPageLoaded)
   {
 
     // If there is already a calendar open hide it
@@ -1263,11 +1280,6 @@ bcdui.widget.periodChooser.popUpCalendar = function(ctl,ctl2,out2,format,startFo
 
   isFirstAppear = false;
 
-  // move calendar from head to body (if not done yet) and show it
-  if( jQuery("#bcdCalendar").parent()[0].nodeName == "HEAD" ) {
-    var bcdHolder = bcdui.util.getSingletonElement("bcdSingletonHolder", true);
-    jQuery(bcdHolder).prepend(jQuery("#bcdCalendar"));
-  }
   jQuery("#bcdCalendar").show();
 }
 
@@ -1444,8 +1456,7 @@ function getCalendarWidth()
   return calDiv.offsetWidth;
 }
 
-
-//popupcalendar init
-_initPopupCalendar();
+//popupcalendar attach to singleton holder after page load
+window.addEventListener('load', function() { _initPopupCalendar(); });
 
 }());
