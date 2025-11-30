@@ -33,7 +33,7 @@ bcdui.bcduiCeFiles =
         , "/js/3rdParty/log4javascript/log4javascript.js"
         , "/js/3rdParty/jquery.js"
         , "/js/3rdParty/jquery-ui.js"
-        , "/js/3rdParty/doT.js"
+        , "/js/3rdParty/doT/doT.js"
         , "/js/3rdParty/jquery.blockUI.js"
         , "/js/3rdParty/nouislider.js"
         , "/js/3rdParty/d3-format.js"
