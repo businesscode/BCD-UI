@@ -199,6 +199,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   * @param {chainDef}                [args.requestPostChain]                                - The definition of the transformation chain
   * @param {modelUrl}                [args.modelUrl=WrsServlet]                             - This is a string or string- DataProvider with the URL which to send the requestModel result to
   * @param {modelUrl}                [args.exportFileName]                                  - Filename for grid export
+  * @param {boolean}                 [args.disableExport=false]                             - Disable export functionality.
   */
   constructor(args) {
     var id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("grid");
@@ -298,6 +299,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     this.pageBuffer = {};
     this.validationResultPageBuffer = {};
     this.exportFileName = args.exportFileName;
+    this.disableExport = args.disableExport;
 
     // limitation for now, since we need to update rowStart/rowEnd in the gridModel request, we disallow external wrs for the moment 
     if (args.inputModel)
@@ -3235,7 +3237,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           , allowSorting: "" + this.columnSorting
           , gridModel: this.gridModel
           , gridId: this.id
-          , gotExport: "" + (typeof bcdui.component.exports != "undefined" && typeof bcdui.component.exports.exportToExcelTemplate == "function")
+          , gotExport: "" + (typeof bcdui.component.exports != "undefined" && typeof bcdui.component.exports.exportToExcelTemplate == "function") && !this.disableExport
           , rowIsDisabled: new bcdui.core.ConstantDataProvider({id: this.id + "_rowIsDisabled", name: "rowIsDisabled", value: ""})
           , rowsSelected:  new bcdui.core.ConstantDataProvider({id: this.id + "_rowsSelected", name: "rowsSelected", value: ""})
           }
@@ -3408,6 +3410,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
       var theGrid = this;
       jQuery("#" + this.targetHtml).on("gridActions:fullDataExport", function(evt){
+        if (this.disableExport)
+          return;
         if (typeof bcdui.component.exports != "undefined" && typeof bcdui.component.exports.exportToExcelTemplate == "function") {
           bcdui.component.exports.exportToExcelTemplate({fileName: this.exportFileName, inputModel: 
             new bcdui.core.ModelWrapper({
@@ -3821,6 +3825,8 @@ bcdui.component = Object.assign(bcdui.component,
    * @param {boolean}                 [args.forceAddAtBottom=false]                          - Always add a new row at the bottom, no matter if topMode or pagination
    * @param {boolean}                 [args.disableDeepKeyCheck=false]                       - Set this to true if you really want to disable the deep key check which is active if your grid is only a subset of the underlying table
    * @param {boolean}                 [args.ignoreKeyCase=false]                             - Set this to true if the key test should not be case sensitive
+   * @param {modelUrl}                [args.exportFileName]                                  - Filename for grid export
+   * @param {boolean}                 [args.disableExport=false]                             - Disable export functionality.
    * @private
    */
   createGrid: function( args )
@@ -3856,6 +3862,7 @@ bcdui.component = Object.assign(bcdui.component,
         ignoreKeyCase:        args.ignoreKeyCase,
         modelUrl:             args.modelUrl,
         exportFileName:       args.exportFileName,
+        disableExport:        args.disableExport,
         columnFiltersGetCaptionForColumnValue: args.columnFiltersGetCaptionForColumnValue,
         columnFiltersCustomFilter:             args.columnFiltersCustomFilter,
         defaultButtons:                        args.defaultButtons,
