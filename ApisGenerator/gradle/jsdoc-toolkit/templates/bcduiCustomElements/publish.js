@@ -193,6 +193,8 @@ function printCustomTag( tagName, jsConstructorLongname, params, factory, jsFile
   if (jsFileName != "")
     result += "  await import(\"" + jsFileName+"\");" + newLine;
   result += "  " + factory + "( args );" + newLine;
+  result += "  this._bcdHtmlReady = true;" + newLine;
+  result += "  this.dispatchEvent(new CustomEvent('bcdHtmlReady', { bubbles: true }));" + newLine;
   result += "});" + newLine;
   return result;
 }

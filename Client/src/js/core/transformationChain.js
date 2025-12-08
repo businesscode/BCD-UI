@@ -449,7 +449,6 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
               // Transformation can deliver HTML as DOM or as a string
               if( typeof result=="string" ) {
                 jQuery(targetElement).html( result ); // to support .destroy() mechanism of jQuery Widgets
-                bcdui.i18n.syncTranslateHTMLElement({elementOrId:targetElement});
               }
               // XSLT will deliver fragment
               // If we receive a document, we assume the last step did not provide any output to us, because in such cases
@@ -642,10 +641,55 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
           this.dataDoc = doc;
         }
         var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.transformedStatus;  
-        this.setStatus(newStatus);
-      } else {
+
+        // if we're a HTML renderer we first check for custom html elements to get ready (if any)
+        if (this.targetHtmlElement || this.targetHTMLElementId) {
+          const targetHtml = this.targetHtmlElement || document.getElementById(this.targetHTMLElementId);
+          if (targetHtml) { 
+            const customHtmlElements = Array.from(targetHtml.querySelectorAll("*")).filter(el => el.localName.startsWith('bcd-'));
+            this._waitForHtmlReady(targetHtml, customHtmlElements);
+          }
+        }
+        else
+          this.setStatus(newStatus);
+        } else {
         this._runTransformation(nextXslt, lastNotNullOutput );
       }
+    }
+
+  /**
+   * Waits till all custom html elements signal their readiness with the custom event bcdHtmlReady
+   * @private
+   */
+  // waiting for custom html elements to get initialized
+  _waitForAllCustomElements(elements)
+    {
+      // add an custom event listener on all custom elements and wait till they fire
+      return Promise.all(
+        elements.map(el => new Promise(resolve => {
+          if (el._bcdHtmlReady) return resolve(); 
+            el.addEventListener("bcdHtmlReady", () => resolve(), { once: true });
+        }))
+      );
+    }
+
+  /**
+   * Waits till all custom html elements signal their readiness with the custom event bcdHtmlReady
+   * @private
+   */
+  _waitForHtmlReady(targetElement, customHtmlElements)
+    {
+      if (customHtmlElements.length == 0) {
+        bcdui.i18n.syncTranslateHTMLElement({elementOrId:targetElement});
+        this.setStatus(this.transformedStatus);
+      }
+      else {
+        this._waitForAllCustomElements(customHtmlElements).then(function() {
+          // all custom html elements ready, but they might added new ones, so check and wait again
+          const addedElements = Array.from(targetElement.querySelectorAll("*")).filter(el => el.localName.startsWith('bcd-')).filter(el => !el._bcdHtmlReady);
+          this._waitForHtmlReady(targetElement, addedElements);
+        }.bind(this));
+      }  
     }
 
   /**
