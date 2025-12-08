@@ -186,6 +186,8 @@ function printCustomTag( tagName, jsConstructorLongname, params, factory )
   result += "    args.id = this.getAttribute('objectId');" + newLine;
 
   result += "  " + factory + "( args );" + newLine;
+  result += "  this._bcdHtmlReady = true;" + newLine;
+  result += "  this.dispatchEvent(new CustomEvent('bcdHtmlReady', { bubbles: true }));" + newLine;
   result += "});" + newLine;
   return result;
 }
