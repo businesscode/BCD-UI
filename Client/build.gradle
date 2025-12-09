@@ -276,7 +276,7 @@ task bcduiClientJsFileGroups {
           if (replaceExports) {
             outFile.text = outFile.text.replaceAll("export const bcduiExport_[\\w]+[\\s]*=[\\s]*", "")
             outFile.text = outFile.text.replaceAll('await import\\(\\"\\.\\./modules/[\\w/]+\\.js\\"\\),', '')
-  			    outFile.text = outFile.text.replaceAll('import\\"\\.\\./modules/core.js\\";', '')
+  			    outFile.text = outFile.text.replaceAll('import\\"[\\.\\/]+/modules/core.js\\";', '')
 			    }
           outFile.text = '"use strict";' + outFile.text
         }

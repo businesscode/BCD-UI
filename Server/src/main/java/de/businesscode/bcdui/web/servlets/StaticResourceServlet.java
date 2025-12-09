@@ -88,8 +88,8 @@ public class StaticResourceServlet extends HttpServlet {
   // For removal of bcduiApiStubs imports
   private final Pattern patternImportBcduiApiStubs = Pattern.compile("import \\{bcdui\\} from [^;]+bcduiApiStubs\\.js.;");
   public static final Pattern patternExports = Pattern.compile("export const bcduiExport_[\\w]+[\\s]*=[\\s]*");
-  public static final Pattern customElementsReplace1 = Pattern.compile("import \"\\.\\./modules/core.js\"");
-  public static final Pattern customElementsReplace2 = Pattern.compile("await import\\(\"\\.\\./modules/[/\\w]+\\.js\"\\);");
+  public static final Pattern customElementsReplace1 = Pattern.compile("import \"[\\.\\/]+/modules/core.js\"");
+  public static final Pattern customElementsReplace2 = Pattern.compile("await import\\(\"[\\.\\/]+modules/[/\\w]+\\.js\"\\);");
   private final int patternImportBcduiApiStubsSearchLen = 1000;
 
   @Override

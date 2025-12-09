@@ -61,32 +61,32 @@ function customElementsComponent( taffyData, path )
   // We want to name it 'Chart', though technically it is an XmlChart
   var clazzes = taffyData( { kind: "class", longname: "bcdui.component.chart.XmlChart", undocumented: { "!is": true } } ).get();
   if( clazzes.length === 1 ) {
-    var result = "import \"../modules/core.js\"" + newLine; 
-    result += printCustomTag( "bcd-chart", clazzes[0].memberof+"."+"ChartTag", clazzes[0].params, "bcdui.component.chart.createChart", "../modules/component/chart.js" );
+    var result = "import \"../../modules/core.js\"" + newLine; 
+    result += printCustomTag( "bcd-chart", clazzes[0].memberof+"."+"ChartTag", clazzes[0].params, "bcdui.component.chart.createChart", "../../modules/component/chart.js" );
     fs.mkPath( path+"/chart" );
     fs.writeFileSync( path+"/chart/customElements.js", result, 'utf8');
   }
 
   clazzes = taffyData( { kind: "class", longname: "bcdui.component.cube.Cube", undocumented: { "!is": true } } ).get();
   if( clazzes.length === 1 ) {
-    var result = "import \"../modules/core.js\"" + newLine; 
-    result += printCustomTag( "bcd-cube", clazzes[0].memberof+"."+"CubeTag", clazzes[0].params, "bcdui.component.createCube", "../modules/component/cube.js" );
+    var result = "import \"../../modules/core.js\"" + newLine; 
+    result += printCustomTag( "bcd-cube", clazzes[0].memberof+"."+"CubeTag", clazzes[0].params, "bcdui.component.createCube", "../../modules/component/cube.js" );
     fs.mkPath( path+"/cube" );
     fs.writeFileSync( path+"/cube/customElements.js", result, 'utf8');
   }
 
   clazzes = taffyData( { kind: "class", longname: "bcdui.component.scorecard.Scorecard", undocumented: { "!is": true } } ).get();
   if( clazzes.length === 1 ) {
-    var result = "import \"../modules/core.js\"" + newLine; 
-    result += printCustomTag( "bcd-scorecard", clazzes[0].memberof+"."+"ScorecardTag", clazzes[0].params, "bcdui.component.createScorecard", "../modules/component/scorecard.js" );
+    var result = "import \"../../modules/core.js\"" + newLine; 
+    result += printCustomTag( "bcd-scorecard", clazzes[0].memberof+"."+"ScorecardTag", clazzes[0].params, "bcdui.component.createScorecard", "../../modules/component/scorecard.js" );
     fs.mkPath( path+"/scorecard" );
     fs.writeFileSync( path+"/scorecard/customElements.js", result, 'utf8');
   }
 
   clazzes = taffyData( { kind: "class", longname: "bcdui.component.far.Far", undocumented: { "!is": true } } ).get();
   if( clazzes.length === 1 ) {
-    var result = "import \"../modules/core.js\"" + newLine; 
-    result += printCustomTag( "bcd-far", clazzes[0].memberof+"."+"FarTag", clazzes[0].params, "bcdui.component.createFar", "../modules/component/far.js" );
+    var result = "import \"../../modules/core.js\"" + newLine; 
+    result += printCustomTag( "bcd-far", clazzes[0].memberof+"."+"FarTag", clazzes[0].params, "bcdui.component.createFar", "../../modules/component/far.js" );
     fs.mkPath( path+"/far" );
     fs.writeFileSync( path+"/far/customElements.js", result, 'utf8');
   }
