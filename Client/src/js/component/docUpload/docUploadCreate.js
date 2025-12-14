@@ -37,7 +37,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
   * @param {string}                  [args.doAcknowledge=false]                             - Set to true if acknowledge mode is required
   * @param {string}                  [args.downloadAll=false]                               - Set to true if you want to be able to download/zip all documents
   * @param {function}                [args.onBeforeSave]                                    - Function which is called before each save operation. Parameter holds current wrs dataprovider. Function needs to return true to save or false for skipping save process and resetting data
-  * @param {filterBRefs}             [args.filterBRefs]                                     - The space separated list of binding Refs that will be used in filter clause of request document
+  * @param {string}                  [args.filterBRefs]                                     - The space separated list of binding Refs that will be used in filter clause of request document
   * @param {string}                  [args.zipName=documents.zip]                           - The filename for the generated zip, ensure it ends with .zip
   * @param {targetHtmlRef}           [args.zipDownloadTargetHtml]                           - optional targetHml htmlElement or jQuery object for zip download button, if not present, it's rendered to its default place
   * @param {chainDef}                [args.renderChain]                                     - A custom renderer chain 
@@ -388,7 +388,12 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
       });
     }.bind(this));
   }
-  
+
+  /**
+   * @private
+   * @param area
+   * @param isAcknowledged
+   */
   setAcknowledge(area, isAcknowledged) {
     const bRefs = this.finalBRefs.filter(function(e) { return e != "fileExists";});
     const ackModel = new bcdui.core.AutoModel({bRefs: bRefs.join(" "), bindingSetId: this.bindingSetId, filterElement: bcdui.wrs.wrsUtil.parseFilterExpression(this.filterExpression), isAutoRefresh: false, filterBRefs: this.filterBRefs });
@@ -422,6 +427,9 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
     ackModel.execute();
   }
 
+  /**
+   * @inheritDoc
+   */
   getClassName() {return "bcdui.component.docUpload.Uploader";}
 
   /**
@@ -612,10 +620,10 @@ bcdui.component.docUpload = Object.assign(bcdui.component.docUpload,
   * @param args The parameter map contains the following properties:
   * @param {string}                  args.scope                                             - The scope identifier
   * @param {string}                  [args.id]                                              - The id of the returned wrs modelwrapper
-  * @param {string|array}            [args.instance]                                        - Array or string or space separated string of instance ids in case you want to limit the output
-  * @param {filterBRefs}             [args.filterBRefs]                                     - The space separated list of binding Refs that will be used in filter clause of request document
+  * @param {string|Array<string>}    [args.instance]                                        - Array or string or space separated string of instance ids in case you want to limit the output
+  * @param {string}                  [args.filterBRefs]                                     - The space separated list of binding Refs that will be used in filter clause of request document
   * @param {bcdui.core.DataProvider} [args.config=bcdui.wkModels.bcdDocUpload]              - The model containing the docUpload configuration data. If it is not present the well known bcdui.wkModels.bcdDocUpload is used
-  * @return a wrs model holding the overview information
+  * @return {bcdui.core.DataProvider} a wrs model holding the overview information
   */
   getUploadOverview: function(args) {
     if (! args.scope)
@@ -723,7 +731,7 @@ bcdui.component = Object.assign(bcdui.component,
   * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the docUpload registers itself at {@link bcdui.factory.objectRegistry}
   * @param {string}                  [args.addBRefs]                                        - Space separated list of additional bRefs you want to load 
   * @param {function}                [args.onBeforeSave]                                    - Function which is called before each save operation. Parameter holds current wrs dataprovider. Function needs to return true to save or false for skipping save process and resetting data
-  * @param {filterBRefs}             [args.filterBRefs]                                     - The space separated list of binding Refs that will be used in filter clause of request document
+  * @param {string}                  [args.filterBRefs]                                     - The space separated list of binding Refs that will be used in filter clause of request document
   * @param {string}                  [args.doAcknowledge=false]                             - Set to true if acknowledge mode is required
   * @param {string}                  [args.downloadAll=false]                               - Set to true if you want to be able to download/zip all documents
   * @param {bcdui.core.DataProvider} [args.config=bcdui.wkModels.bcdDocUpload]              - The model containing the docUpload configuration data. If it is not present the well known bcdui.wkModels.bcdDocUpload is used

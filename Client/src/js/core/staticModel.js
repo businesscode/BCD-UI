@@ -81,10 +81,12 @@ bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
       }
 
       /**
+       * @type {bcdui.core.status.InitializedStatus}
        * @constant
        */
       this.initializedStatus = new bcdui.core.status.InitializedStatus();
       /**
+       * @type {bcdui.core.status.TransformedStatus}
        * @constant
        */
       this.transformedStatus = new bcdui.core.status.TransformedStatus();
@@ -125,7 +127,10 @@ bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
 
     }
 
-    getClassName() {return "bcdui.core.StaticModel";}
+  /**
+   * @inheritDoc
+   */
+  getClassName() {return "bcdui.core.StaticModel";}
 
   /**
    * @private

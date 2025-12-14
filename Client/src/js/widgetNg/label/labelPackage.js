@@ -105,6 +105,9 @@
       }
     },
 
+    /**
+     * @private
+     */
     _render: function() {
       var el = "";
       if (this.config.optionsModelId) {

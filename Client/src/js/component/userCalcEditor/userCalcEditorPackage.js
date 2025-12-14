@@ -380,11 +380,11 @@ bcdui.component.userCalcEditor = Object.assign(bcdui.component.userCalcEditor,
    * @param {HtmlElement} containerHtmlElement Widget container element.
    * @return The map contains the following properties:
    * <ul>
-   *   <li>targetModelId: {String} The identifier of target model.</li>
+   *   <li>targetModelId: {string} The identifier of target model.</li>
    *   <li>targetModel: {bcdui.core.DataProvider} The target model.</li>
-   *   <li>targetModelXPath: {String} The XPath in whole XML model data.</li>
+   *   <li>targetModelXPath: {string} The XPath in whole XML model data.</li>
    *   <li>doc: {DomDocument} The XML data of provider.</li>
-   *   <li>tempTargetModelId: {String} The identifier of temporary model.</li>
+   *   <li>tempTargetModelId: {string} The identifier of temporary model.</li>
    *   <li>tempTargetModelXPath: {bcdui.core.DataProvider} The XPath in whole temporary model.</li>
    * </ul>
    * @private

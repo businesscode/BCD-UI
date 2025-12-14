@@ -404,7 +404,7 @@
           </Example>
           <Example type="js"></Example>
         </Examples>
-        <Param name="caption" type="boolean">
+        <Param name="caption" type="string">
           <Doc>
             default '', it will be used as i18n key to translate the caption.
           </Doc>
@@ -858,7 +858,7 @@
            A flag that can be set to 'true' if the target node should not be removed as soon as the value is empty.
           </Doc>
         </Param>
-        <Param name="skin" type="enum" value="radio|panel" default="radio">
+        <Param name="skin" type="enumString" value="radio|panel" default="radio">
           <Doc>Currently supporting radio (default) and panel style.</Doc>
         </Param>
       </Api>

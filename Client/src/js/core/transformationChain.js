@@ -44,7 +44,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
        * User can provide a inputModel
        * And/or a single or an array of data providers.
        * If no inputModel is given, the (first) dataProvider will be used as the inputModel
-       * @type Array
+       * @type {Array<bcdui.core.DataProvider>}
        * @private
        */
       this.dataProviders = undefined;
@@ -70,7 +70,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
       }
       /**
        * The data document offered by this model. Use getData() to read it.
-       * @type XMLDocument
+       * @type {XMLDocument}
        * @private
        */
       this.dataDoc = null;
@@ -108,7 +108,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
       /**
        * The id of the parameter denoting the primary model of the
        * transformation.
-       * @type String
+       * @type {string}
        * @private
        */
       this.modelParameterId = this.dataProviders[0].id;
@@ -126,7 +126,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
        * (optional) The ID of the HTML element and the html element itself getting the result of the final XSLT
        * transformation if it has output="html". If it creates XML this can be null.
        * this is set on first exectue
-       * @type string
+       * @type {string}
        * @private
        */
       if (this.setTargetHtml)
@@ -135,7 +135,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
       /**
        * chainParam: chain parameter. Can have many typey: xml, string, array etc. 
        * Will be translated to the internal format later and then stored in this.chain
-       * @type bcdui.core.Model
+       * @type {bcdui.core.DataProvider}
        * @private
        */
         this.chainParam = args.chain;
@@ -147,21 +147,21 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
 
       /**
        * This status is set when the constructor has set all parameters.
-       * @type bcdui.core.status.InitializedStatus
+       * @type {bcdui.core.status.InitializedStatus}
        * @constant
        */
       this.initializedStatus = new bcdui.core.status.InitializedStatus();
 
       /**
        * The status code activated as soon as the loading begins.
-       * @type bcdui.core.status.LoadingStatus
+       * @type {bcdui.core.status.LoadingStatus}
        * @constant
        */
       this.loadingStatus = new bcdui.core.status.LoadingStatus();
 
       /**
        * A status reached when the chain model is ready.
-       * @type bcdui.core.status.ChainLoadedStatus
+       * @type {bcdui.core.status.ChainLoadedStatus}
        * @constant
        */
       this.chainLoadedStatus = new bcdui.core.status.ChainLoadedStatus();
@@ -169,14 +169,14 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
       /**
        * This status is kept as long as the transformation chain is waiting
        * for parameters to load and when the chain has already loaded.
-       * @type bcdui.core.status.WaitingForParametersStatus
+       * @type {bcdui.core.status.WaitingForParametersStatus}
        * @constant
        */
       this.waitingForParametersStatus = new bcdui.core.status.WaitingForParametersStatus();
 
       /**
        * As long as this status is active the XSLT transformations are running.
-       * @type bcdui.core.status.TransformingStatus
+       * @type {bcdui.core.status.TransformingStatus}
        * @constant
        */
       this.transformingStatus = new bcdui.core.status.TransformingStatus();
@@ -185,7 +185,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
 
       /**
        * The status code is reached when a transformation failed and operation cannot proceed
-       * @type bcdui.core.status.TransformFailedStatus
+       * @type {bcdui.core.status.TransformFailedStatus}
        * @constant
        */
       this.transformFailedStatus = new bcdui.core.status.TransformFailedStatus();
@@ -194,7 +194,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
        * The status code is reached when everything is finished and the transformation
        * result is available. This is the final state of the TransformationChain process
        * if no error occurs.
-       * @type bcdui.core.status.TransformedStatus
+       * @type {bcdui.core.status.TransformedStatus}
        * @constant
        */
       this.transformedStatus = new bcdui.core.status.TransformedStatus();
@@ -202,14 +202,14 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
       /**
        * This (final) status is reached when an error occurs during the loading or
        * transformation process.
-       * @type bcdui.core.status.LoadFailedStatus
+       * @type {bcdui.core.status.LoadFailedStatus}
        * @constant
        */
       this.loadFailedStatus = new bcdui.core.status.LoadFailedStatus();
 
       /**
        * This (final) status is reached when the chain model could not be loaded.
-       * @type bcdui.core.status.ChainStylesheetLoadingFailed
+       * @type {bcdui.core.status.ChainStylesheetLoadingFailed}
        * @constant
        */
       this.chainLoadingFailed = new bcdui.core.status.ChainLoadingFailed();
@@ -217,7 +217,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
       /**
        * This (final) status is reached when the loading of a chain stylesheet has
        * failed.
-       * @type bcdui.core.status.ChainStylesheetLoadingFailed
+       * @type {bcdui.core.status.ChainStylesheetLoadingFailed}
        * @constant
        */
       this.chainStylesheetLoadingFailed = new bcdui.core.status.ChainStylesheetLoadingFailed();
@@ -257,7 +257,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
    * The global state transition listener. This listener is responsible for
    * executing the appropriate action based on a state transition.
    * @private
-   * @param {StatusEvent} statusEvent
+   * @param {bcdui.core.StatusEvent} statusEvent
    */
   _statusTransitionHandler(statusEvent)
     {
@@ -319,7 +319,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
    *          The output has been generated. (<b>ready</b>)
    *
    * </td></tr></table></p>
-   * @return {Status} The transformed status.
+   * @return {bcdui.core.Status} The transformed status.
    */
   getReadyStatus()
     {
@@ -348,7 +348,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
   /**
    * Gets the data providers attached to this object as hash map. This map can
    * be passed to the transformator functions to set the parameters
-   * @param {Array} [stylesheetParams] If stylesheetParams is given, only params for that stylesheet (the global ones plus the given local from the param) are returned
+   * @param {Array<Object>} [stylesheetParams] If stylesheetParams is given, only params for that stylesheet (the global ones plus the given local from the param) are returned
    *                 if not given, all dataproviders given to any stylesheet are included
    * @private
    */
@@ -375,7 +375,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
     }
 
   /**
-   * @param {String} name
+   * @param {string} name
    * @returns {bcdui.core.DataProvider} returns the parameter of the given name
    */
   getDataProviderByName(name)
@@ -730,7 +730,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
     }
 
   /**
-   * @return {String} String representation of the chain.
+   * @return {string} String representation of the chain.
    */
   toString()
     {
@@ -1023,7 +1023,7 @@ bcdui.core.Renderer = class extends bcdui.core.TransformationChain
    * Once this Renderer is {@link bcdui.core.AbstractExecutable#execute executed}, it will check each parameter and execute it if it is not {@link bcdui.core.AbstractExecutable .isReady()} before executing itself.
    * @param {string}                  [args.id]                             - Globally unique id for use in declarative contexts
    * @param {boolean}                 [args.suppressInitialRendering=false] - If true, the renderer does not initially auto execute but waits for an explicit execute
-   * @param {function}                [args.postHtmlAttachProcess]          - synchronous js function called after attaching html fragment to dom (either partitially or fully)
+   * @param {function}                [args.postHtmlAttachProcess]          - synchronous js function called after attaching html fragment to dom (either partitially or fully). Note: custom elements will not be applied, wait for isRead() if you need that
    */
   constructor(args)
   {
@@ -1045,15 +1045,15 @@ bcdui.core.Renderer = class extends bcdui.core.TransformationChain
    */
    
   /**
-   * @typedef {object} ExecuteParam
+   * @typedef {object} Type_RendererExecute_Args
    * @property {function} [fn] A function called once when the object becomes ready again. Called immediately if we are already ready && shouldRefresh==false
-   * @property {String} [partialHtmlTargets] Space separated list of html element ids. If given, only these elements within targetHmtlElement of the render
+   * @property {string} [partialHtmlTargets] Space separated list of html element ids. If given, only these elements within targetHmtlElement of the render
    *         are touched in the DOM tree, plus the chain gets the parameter bcdPartialHtmlTargets set to this value. Valid for this one call only, cleared after.
    * @property {boolean} [shouldRefresh] "false" if this method should do nothing when the object is already in the ready status. Default is "true"false".
    */
 
   /**
-   * @param {(boolean|ExecuteParam)} args either true for forced or parameter map
+   * @param {(boolean|Type_RendererExecute_Args)} args either true for forced or parameter map
    */
   execute( args)
   {
@@ -1161,6 +1161,10 @@ bcdui.core.ModelWrapper = class extends bcdui.core.TransformationChain
   {
     super(args);
   }
+
+  /**
+   * @inheritDoc
+   */
   getClassName() {return "bcdui.core.ModelWapper";}
 };
 
@@ -1211,5 +1215,9 @@ bcdui.core.ModelUpdater = class extends bcdui.core.TransformationChain
 
     args.targetModel._addModelUpdater(this, args.autoUpdate);
   }
+
+  /**
+   * @inheritDoc
+   */
   getClassName() {return "bcdui.core.ModelUpdater";}
 };

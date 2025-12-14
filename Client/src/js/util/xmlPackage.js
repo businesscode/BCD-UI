@@ -43,7 +43,7 @@ bcdui.util.xml =
      * source element should be copied to.
      * @param {HtmlElement} sourceElement The source for the elements and attributes copied under the
      * target element.
-     * @return {Element} The targetElement.
+     * @return {DomElement} The targetElement.
      */
     cloneElementContent: function(targetElement, sourceElement)
       {
@@ -64,7 +64,7 @@ bcdui.util.xml =
      * is supported by the browser (e.g. FireFox) the native implementation is used. In
      * other browsers (e.g. Internet Explorer) it is computed here.
      * @param {DomElement} element
-     * @return {Element} The element immediately following the specified element or
+     * @return {DomElement} The element immediately following the specified element or
      * null if there is no such element.
      */
     nextElementSibling: function(element)
@@ -145,7 +145,7 @@ bcdui.util.xml =
      * with an XPath.
      * @param {DomDocument | bcdui.core.DataProvider } doc - The document the XPath specified in the "path"
      * argument is evaluated on.
-     * @param {writableModelXPath | String} path - The XPath pointing to the nodes to be removed.
+     * @param {writableModelXPath | string} path - The XPath pointing to the nodes to be removed.
      * @param {boolean} [enableWrsExtensions=true] Set this flag to "true" if the function should treat
      * wrs elements differently (like converting wrs:R to wrs:D instead of removing it).
      * It is "true" by default.
@@ -186,12 +186,12 @@ bcdui.util.xml =
      * and the "or" conjunction cannot be used.
      * </p>
      * @param {DomDocument | DomElement | bcdui.core.DataProvider} baseElement - The DOM document or the XML element the path is evaluated on.
-     * @param {modelXPath | String} path - The XPath identifying the element to be retrieved or
+     * @param {modelXPath | string} path - The XPath identifying the element to be retrieved or
      * created.
      * @param {boolean} [enableWrsExtensions=true] Set this flag to "true" if the function should treat
      * wrs elements differently (like converting wrs:R to wrs:M or creating wrs:I
      * elements). It is "true" by default.
-     * @return {Element} The XML element to be found under the specified XPath.
+     * @return {DomElement} The XML element to be found under the specified XPath.
      */
     createElementWithPrototype: function( baseElement, path, enableWrsExtensions)
       {
@@ -203,7 +203,7 @@ bcdui.util.xml =
      * or an element. It is quite useful especially for attribute nodes, because the
      * parentNode property does not work on them.
      * @param {DomElement | DomAttribute} node
-     * @return {Element} The parent element of the specified node.
+     * @return {DomElement} The parent element of the specified node.
      */
     getParentNode: function( node)
       {
@@ -234,7 +234,7 @@ bcdui.util.xml =
    * xPath lookups thru JS API, i.e. document.selectSingleNode("/wrs:Wrs/wrs:Header").
    *
    * @param {string|DomDocument|DomElement|DomAttribute}  doc   XML Document as a String or Document or Node. If a document or a node is provided, they are cloned. A node is re-built as a document.
-   * @return wrapped Document with namespace resolver and .selectSingleNode(), .selectNodes() API
+   * @return {document} wrapped Document with namespace resolver and .selectSingleNode(), .selectNodes() API
    */
   parseDocument : function(doc){
     if(bcdui.util.isString(doc)){

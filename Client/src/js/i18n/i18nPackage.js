@@ -14,6 +14,9 @@
   limitations under the License.
 */
 "use strict";
+/**
+ * @namespace bcdui.i18n
+ */
 bcdui.i18n = Object.assign(bcdui.i18n, 
 /** @lends bcdui.i18n */
 {
@@ -38,7 +41,7 @@ bcdui.i18n = Object.assign(bcdui.i18n,
   /**
    * checks if given string is a key
    * 
-   * @returns true if given str is an i18n-key (starts with bcdui.i18n.TAG)
+   * @returns {boolean} true if given str is an i18n-key (starts with bcdui.i18n.TAG)
    * @private
    */
   isI18nKey : function(str){
@@ -153,7 +156,7 @@ bcdui.i18n = Object.assign(bcdui.i18n,
    * @param {HtmlElement|string} args.elementOrId  - ID or HTML element to translate, default "document"
    * @param {string} args.i18nModelId                - model with i18n entries, default "bcdI18nModel"
    * @param {string} args.display                    - original css 'display' value of the HTML element to be set after translation
-   * @returns translation time
+   * @returns {void}
    *
    */
   translateHTMLElement: function(args){
@@ -252,7 +255,7 @@ bcdui.i18n = Object.assign(bcdui.i18n,
 
     /**
      * formats message
-     * @param {String} message
+     * @param {string} message
      * @param {any[]} values - Array values to set
      * @param {object} formattingFunctions
      * @example

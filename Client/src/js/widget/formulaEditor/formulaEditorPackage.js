@@ -137,16 +137,16 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
    * Retrieves the common target and options data.
    * @param {HtmlElement} containerHtmlElement Widget container element.
    * @private
-   * @return The map contains the following properties:
+   * @return {Object} The map contains the following properties:
    * <ul>
-   *   <li>targetModelId: {String} The identifier of target model.</li>
+   *   <li>targetModelId: {string} The identifier of target model.</li>
    *   <li>targetModel: {bcdui.core.DataProvider} The target model.</li>
-   *   <li>targetModelXPath: {String} The XPath in whole XML model data.</li>
+   *   <li>targetModelXPath: {string} The XPath in whole XML model data.</li>
    *   <li>doc: {DomDocument} The XML data of provider.</li>
-   *   <li>optionsModelId: {String} The identifier of options model.</li>
+   *   <li>optionsModelId: {string} The identifier of options model.</li>
    *   <li>optionsModel: {bcdui.core.DataProvider} The options model.</li>
-   *   <li>optionsModelXPath: {String} The XPath in whole XML options data.</li>
-   *   <li>optionsModelRelativeValueXPath: {String} The relative XPath in whole XML options data.</li>
+   *   <li>optionsModelXPath: {string} The XPath in whole XML options data.</li>
+   *   <li>optionsModelRelativeValueXPath: {string} The relative XPath in whole XML options data.</li>
    * </ul>
    */
   _getModelData: function(containerHtmlElement)
@@ -193,13 +193,13 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
   /**
    * Updates the XML model data. Parses formula and if success put tree under targetModelXPath
    * @private
-   * @param {String} formula formula value.
+   * @param {string} formula formula value.
    * @param {bcdui.core.DataProvider} targetModel The target model.
-   * @param {String} targetModelXPath The XPath in whole XML model data.
+   * @param {string} targetModelXPath The XPath in whole XML model data.
    * @param {bcdui.core.DataProvider?} optionsModel The options model with variables for formula.
-   * @param {String?} optionsModelXPath The XPath to variable in whole XML options data.
-   * @param {String?} optionsModelRelativeValueXPath Relative path to caption of variable in options model
-   * @param {Boolean} skipServerSidedFunctions Set to true to disable usage of server sided functions like CntDist. Default is false.
+   * @param {string?} optionsModelXPath The XPath to variable in whole XML options data.
+   * @param {string?} optionsModelRelativeValueXPath Relative path to caption of variable in options model
+   * @param {boolean} skipServerSidedFunctions Set to true to disable usage of server sided functions like CntDist. Default is false.
    */
   _updateXMLDoc: function(formula, targetModel, targetModelXPath, optionsModel, optionsModelXPath, optionsModelRelativeValueXPath, skipVariablesValidation, skipServerSidedFunctions)
     {
@@ -245,7 +245,7 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
   /**
    * Return formula tree if formula successfully parsed, and input string if formula not parsed
    * @param {bcdui.core.DataProvider} targetModel The target model.
-   * @param {String} targetModelXPath The XPath in whole XML model data.
+   * @param {string} targetModelXPath The XPath in whole XML model data.
    * @private
    */
   readFormula: function(targetModel, targetModelXPath)
@@ -262,9 +262,9 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
   /**
    * Updates the XML attribute @userInput in model (will call only validation and will not generate xml).
    * @private
-   * @param {String} formula formula value.
+   * @param {string} formula formula value.
    * @param {bcdui.core.DataProvider} targetModel The target model.
-   * @param {String} targetModelXPath The XPath in whole XML model data.
+   * @param {string} targetModelXPath The XPath in whole XML model data.
    */
   _setUnparsedFormula: function(formula, targetModel, targetModelXPath)
     {
@@ -690,7 +690,7 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
 
   /**
    * Add the option to the bcdAutoCompletionBox.
-   * @return the added item (HTMLElement)
+   * @return {DomElement} the added item (HTMLElement)
    * @private
    */
   _addOption: function(containerHtmlElement, value, isSep)

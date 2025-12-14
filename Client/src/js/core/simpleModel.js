@@ -138,6 +138,7 @@ bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
       /**
        * The model was created but no {@link bcdui.core.SimpleModel#execute myModel.execute()} was called explicitly or by a DataProvider or Renderer, having this as an input.
        * @constant
+       * @type {bcdui.core.Status}
        */
       this.initializedStatus = new bcdui.core.status.InitializedStatus();
       /**
@@ -163,6 +164,7 @@ bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
       /**
        * Indicating the model is ready for access. Check via {@link bcdui.core.SimpleModel#isReady myModel.isReady()}
        * @constant
+       * @type {bcdui.core.Status}
        */
       this.transformedStatus = new bcdui.core.status.TransformedStatus();
 
@@ -178,7 +180,10 @@ bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
       this.setStatus(this.initializedStatus);
     }
 
-    getClassName() {return "bcdui.core.SimpleModel";}
+  /**
+   * @inheritDoc
+   */
+  getClassName() {return "bcdui.core.SimpleModel";}
 
   /**
    * @private
@@ -400,7 +405,7 @@ bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
 
   /**
    * Returns the list of status objects indicating that something has failed.
-   * @return {Array} The array of failure {@link bcdui.core.Status} objects.
+   * @return {Array<bcdui.core.Status>} The array of failure {@link bcdui.core.Status} objects.
    */
   getFailedStatus()
     {
@@ -420,7 +425,7 @@ bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
     }
 
   /**
-   * @inheritdoc
+   * @inheritDoc
    */
   getData()
     {

@@ -268,7 +268,7 @@ bcdui.widgetNg.login = Object.assign(bcdui.widgetNg.login,
    * To support OAuth flow with cookie SameSite strict, we work with a client-site redirect here
    * which is triggered from within the popup by a script send from OAuthAuthenticatingFilter on login success
    * This way we get the cookie and stay in the successfully validated session
-   * @param redirectUrl
+   * @param {string} redirectUrl
    */
   oAuthLoginOnSuccess: function(redirectUrl) {
     window.location.href = redirectUrl;

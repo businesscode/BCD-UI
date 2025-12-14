@@ -65,7 +65,7 @@ bcdui.factory = Object.assign(bcdui.factory,
    * is  $myModel/wrs:Wrs/wrs:Data/wrs:R it returns an object like: { xPath:
    * "/wrs:Wrs/wrs:Data/wrs:R", modelId: "myModel" }. If the model is missing "guiStatus"
    * is returned as modelId.
-   * @param {String} xPathWithModelId The XPath optionally starting with a $model...
+   * @param {string} xPathWithModelId The XPath optionally starting with a $model...
    * prefix and containing an XPath based on the model.
    * @return {Object} An object like { xPath: ... , modelId: ... } containing the parts
    * the xPathWithModelId parameter is composed of.
@@ -283,7 +283,7 @@ bcdui.factory = Object.assign(bcdui.factory,
 
   /**
    * Convenience method to normalize with different forms of data provider lists
-   * @return {Array} Array of strings with the data provider's ids;
+   * @return {Array<string>} Array of strings with the data provider's ids;
    *                 Also argument dependencies[] a is extended with the data provider's ids
    * @private
    */
@@ -423,11 +423,11 @@ bcdui.factory = Object.assign(bcdui.factory,
   /**
    * JSP/SXLT/API factory for {@link bcdui.core.Renderer}
    * @param args The parameter map contains the same members {@link bcdui.core.Renderer} plus the following properties:
-   * @param {String} [args.url]  This parameter can be set when the renderer should only
+   * @param {string} [args.url]  This parameter can be set when the renderer should only
    *          apply one single XSLT style sheet. It contains the URL pointing to
    *          it. If this parameter is set the 'chain' and 'stylesheetModel' parameters
    *          must be omitted.
-   * @param {String|bcdui.core.DataProvider|SymLink} [args.stylesheetModel] A model providing the stylesheet
+   * @param {string|bcdui.core.DataProvider|SymLink} [args.stylesheetModel] A model providing the stylesheet
    *          of the renderer. If specified the parameters 'url' and 'chain' are
    *          invalid.
    * @return {bcdui.factory.SymLink} A reference to the renderer (TransformationChain object).
@@ -486,8 +486,8 @@ bcdui.factory = Object.assign(bcdui.factory,
 
   /**
    * Map ids and symlinks of bcdui.core.DataProvider to the bcdui.core.DataProvider
-   * @param {Array.<(string|datasymlink)>}     idArray - An array of ids and symlinks
-   * @return {Array.<bcdui.core.DataProvider>} An array of the associated bcdui.core.DataProvider. 
+   * @param {Array<(string|datasymlink)>}     idArray - An array of ids and symlinks
+   * @return {Array<bcdui.core.DataProvider>} An array of the associated bcdui.core.DataProvider.
    *  If the symlink has a name different from the DP, then the DP is 'locally renamed' by wrappin it into a bcdui.core.DataProviderAlias 
    *  to preserve its parameter name, which can differ from the real name 
    * @private
@@ -639,11 +639,11 @@ bcdui.factory = Object.assign(bcdui.factory,
    * has a specific set of states and transitions between them. They are documented in
    * the respective component (such as the TransformationChain class).
    * @param {Object} args The parameter map contains the following properties:
-   * @param {bcdui.core.DataProvider|SymLink|String} args.idRef The DataProvider the listener is
+   * @param {bcdui.core.DataProvider|SymLink|string} args.idRef The DataProvider the listener is
    *          added to.
-   * @param {Function|StatusListener} args.listener A function or StatusListener object
+   * @param {Function|bcdui.core.StatusListener} args.listener A function or StatusListener object
    *         representing the listener action.
-   * @param {Status|String} [args.status] The status object which identifies the status
+   * @param {bcdui.core.Status|string} [args.status] The status object which identifies the status
    *          that needs to be reached for the listener to be executed. If this
    *          parameter is missing the listener is called on every status transition.
    *          If the status is described with a String it can be the JavaScript variable
@@ -651,7 +651,7 @@ bcdui.factory = Object.assign(bcdui.factory,
    *          from a property of the DataProvider. This is useful because most
    *          DataProviders (like TransformationChain) offer their possible status objects
    *          as properties so that the user can access them. (i.e. ".getReadyStatus()" as string)
-   * @param {Boolean} [args.onlyOnce] A boolean variable indicating that the listener should
+   * @param {boolean} [args.onlyOnce] A boolean variable indicating that the listener should
    *         be automatically removed after it has been executed. The default value
    *         is "false".
    *
@@ -696,14 +696,14 @@ bcdui.factory = Object.assign(bcdui.factory,
    * any change or on a change in a specific XPath result.
    *
    * @param {Object} args The parameter map contains the following properties:
-   * @param {bcdui.core.DataProvider|SymLink|String} args.idRef The DataProvider the listener is
+   * @param {bcdui.core.DataProvider|SymLink|string} args.idRef The DataProvider the listener is
    *          added to.
    * @param {(Function|Object)} [args.listener]  A synonym for 'callback'.
-   * @param {String} [args.side] Whether the listener is called before or after, default is after.
-   * @param {Boolean}[args.onlyOnce] A boolean variable indicating that the listener should
+   * @param {string} [args.side] Whether the listener is called before or after, default is after.
+   * @param {boolean}[args.onlyOnce] A boolean variable indicating that the listener should
    *         be automatically removed after it has been executed. The default value
    *         is "false".
-   * @param {String}[trackingXPath] An XPath filter that is applied on the data document
+   * @param {string}[trackingXPath] An XPath filter that is applied on the data document
    *          before checking if the data has actually changed. If the document has changed,
    *          but the result of the XPath has not, the callback function is not called.
    *
@@ -740,7 +740,7 @@ bcdui.factory = Object.assign(bcdui.factory,
      * by a listener function.
      *
      * @param args The parameter map contains the following properties:
-     * @param {bcdui.core.DataProvider|SymLink|String} args.idRef The DataProvider the listener is
+     * @param {bcdui.core.DataProvider|SymLink|string} args.idRef The DataProvider the listener is
      *          added to.
      * @param args.id: Id of the listener
      * @param args.listener the function/listener itself
@@ -768,14 +768,14 @@ bcdui.factory = Object.assign(bcdui.factory,
    * function and therefore it inherits all parameters from it. The only additional
    * parameter required is the "targetModel" parameter described below.
    * @param args The parameter map
-   * @param {bcdui.core.DataProvider|SymLink|String} args.targetModel  The ID of the Model
+   * @param {bcdui.core.DataProvider|SymLink|string} args.targetModel  The ID of the Model
    *          (DataProvider) whose content is supposed to be transformed.
-   * @param {bcdui.core.DataProvider|SymLink|String} [args.chain] from modelWrapper - A DataProvider (or SymLink or
+   * @param {bcdui.core.DataProvider|SymLink|string} [args.chain] from modelWrapper - A DataProvider (or SymLink or
    *          its ID) which contains the list of style sheets that make up the
    *          transformation chain of this renderer. This DataProvider must
    *          contain an XML document satisfying the XML Schema 'chain-1.0.0.xsd'.
    *          The 'url' and 'chain' parameters are mutually exclusive.
-   * @param {String}[args.url] from modelWrapper - This parameter can be set when the renderer should only
+   * @param {string}[args.url] from modelWrapper - This parameter can be set when the renderer should only
    *          apply one single XSLT style sheet. It contains the URL pointing to
    *          it. If this parameter is set the 'chain' parameter must be omitted.
    * @param {bcdui.core.DataProvider|SymLink} [args.inputModel]  from modelWrapper - The DataProvider instance that
@@ -835,11 +835,11 @@ bcdui.factory = Object.assign(bcdui.factory,
    * (Re)-executes the given {@link bcdui.core.DataProvider} and calls a function
    * when it has finished.
    * @param {Object} args The argument map
-   * @param {String|bcdui.factory.SymLink} args.idRef The data provider to be
+   * @param {string|bcdui.factory.SymLink} args.idRef The data provider to be
    *         re-executed.
    * @param {Function} [args.fn] The function to be called when the data provider
    *         becomes ready.
-   * @param {Boolean} [args.forced]  If true, the object will be re-executed even
+   * @param {boolean} [args.forced]  If true, the object will be re-executed even
    *         if it is currently ready. Otherwise it is not re-executed when
    *         it is already ready, but the callback function is executed
    *         immediately. The default value is "true".
@@ -917,7 +917,7 @@ bcdui.factory = Object.assign(bcdui.factory,
      * consider call to _syncAndNormalize( ['statusDoc'], { statusDoc : 'guiStatus', foo : "bar" }, cb ), the cb will be executed
      * once 'guiStatus' is ready and cb will get following args: { statusDoc : bcdui.wkModels.guiStatus, foo : "bar" }
      *
-     * @param {array}     objArray  Array of object references to AbstractExecutables, may be string (an id), SymLink or object reference
+     * @param {Array<bcdui.core.AbstractExecutable>}  objArray  Array of object references to AbstractExecutables, may be string (an id), SymLink or object reference
      * @param {object}    args      Original args
      * @param {function}  cb        Function to execute once objects are ready receiving 'args' as parameters with resolved properties defined in objArray
      * @private
@@ -963,7 +963,7 @@ bcdui.factory.SymLink = class
 {
 
   /**
-   * @param {String} obj The string id of the object to be referenced. This id can be
+   * @param {string} obj The string id of the object to be referenced. This id can be
    * used with $getObject to get the actual object as soon as it exists.
    * @private
    */
@@ -981,7 +981,7 @@ bcdui.factory.SymLink = class
     }
 
   /**
-   * @return {String} A string representation of the symbolic link.
+   * @return {string} A string representation of the symbolic link.
    */
    toString()
     {

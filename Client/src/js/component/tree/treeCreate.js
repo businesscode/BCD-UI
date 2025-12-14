@@ -28,7 +28,7 @@ bcdui.component.tree.Tree = class extends bcdui.core.Renderer
   /**
   * @param args The parameter map contains the following properties:
   * @param {targetHtmlRef}           args.targetHtml                                        - A reference to the HTML DOM Element where to put the output
-  * @param {bcdui.core.DataProvider} [args.config=./treeConfiguration]                      - The model containing the tree configuration data. If it is not present a SimpleModel with the url  './treeConfiguration.xml' is created.
+  * @param {bcdui.core.DataProvider} [args.config="./treeConfiguration"]                    - The model containing the tree configuration data. If it is not present a SimpleModel with the url  './treeConfiguration.xml' is created.
   * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatus]            - StatusModel (default is 'guiStatus'), containing the filters as /SomeRoot/f:Filter and used to store tree expand/collapse status
   * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id.
   * @param {boolean}                 [args.persistent=true]                                 - Tree expand/collapse status is stored
@@ -199,6 +199,12 @@ bcdui.component.tree.Tree = class extends bcdui.core.Renderer
     this.enhancedConfiguration.execute();
   }
 
+  /**
+   * @param doc
+   * @param args
+   * @returns {*}
+   * @private
+   */
   _render(doc, args)
     {
       // start the recursive rendering
@@ -206,6 +212,10 @@ bcdui.component.tree.Tree = class extends bcdui.core.Renderer
       return doc;
     }
 
+  /**
+   * @param args
+   * @private
+   */
   _renderNextNode(args)
     {
       var root = args.root || this.enhancedConfiguration.query("/*/tree:Root");
@@ -395,8 +405,11 @@ bcdui.component.tree.Tree = class extends bcdui.core.Renderer
       }
       return doc;
     }
-    
-    getClassName() {return "bcdui.component.tree.Tree";}
+
+  /**
+   * @inheritDoc
+   */
+  getClassName() {return "bcdui.component.tree.Tree";}
 }
 
 /************************
@@ -408,7 +421,7 @@ bcdui.component = Object.assign(bcdui.component,
   /**
    * Helper for jsp and XAPI and custom HTMLElements. First waits for all dependencies to be available
    * @param {targetHtmlRef}           args.targetHtml                                        - A reference to the HTML DOM Element where to put the output
-   * @param {bcdui.core.DataProvider} [args.config=./treeConfiguration.xml]                  - The model containing the tree configuration data. If it is not present a SimpleModel with the url  './treeConfiguration.xml' is created.
+   * @param {bcdui.core.DataProvider} [args.config="./treeConfiguration.xml"]                - The model containing the tree configuration data. If it is not present a SimpleModel with the url  './treeConfiguration.xml' is created.
    * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatus]            - StatusModel (default is 'guiStatusEstablished'), containing the filters as /SomeRoot/f:Filter
    * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id.
    * @param {boolean}                 [args.persistent=true]                                 - Tree expand/collapse status is stored

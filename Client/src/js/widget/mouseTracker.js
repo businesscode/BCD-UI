@@ -82,7 +82,7 @@ bcdui.widget.MouseTracker = class
    * specified base element until the {@link #stop()} method is executed.
    * @constructs
    * @param {Object} args The argument map offers the following properties:
-   * @param {HtmlElement|String} args.baseElement  The id or HTML element that contains
+   * @param {HtmlElement|string} args.baseElement  The id or HTML element that contains
    *         the sub-elements the mouse enter / leave events should be tracked on.
    *         It is recommended to use an HTML DIV element as base element.
    * @param {Function} [args.onEnter]  The function to be executed when an observed
@@ -91,7 +91,7 @@ bcdui.widget.MouseTracker = class
    *         argument.
    * @param {Function} [args.onLeave] A function which is run when the mouse leaves an
    *         observed element. The function has no arguments.
-   * @param {String} [args.filter] The tag name (or multiple pipe-separated tag names)
+   * @param {string} [args.filter] The tag name (or multiple pipe-separated tag names)
    *         that should be observed for the onEnter / onLeave events. It is often
    *         TD or TR so that moving the mouse over table cells / rows inside the
    *         base element is observed. If omitted every child element is observed.

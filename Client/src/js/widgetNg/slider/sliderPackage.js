@@ -209,9 +209,8 @@
      * 
      * @private
      * @param {object} args with params
-     * @param {targetHtmlRef} args.targetHtml target html to render into
-     * @param {array} args.captions set for range captions (or single element array)
-     * @param {array} args.values set for range values (or single element array)
+     * @param {targetHtmlRef} args.targetHtml target HTML to render into
+     * @param {Array<string>} args.captions set for range captions (or single element array)
      */
     _defaultLabelRenderingFunction : function(args) {
       if (args.captions.length > 1) {
@@ -388,7 +387,7 @@
      * updates model with new value, this function is called by widget onchange
      * 
      * @private
-     * @param {array} value the distinct value (single element in array) or range
+     * @param {Array} value the distinct value (single element in array) or range
      */
     _writeModel : function(value) {
       var selector = this._getTargetSelector();

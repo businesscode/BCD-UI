@@ -42,8 +42,8 @@ bcdui.component.chart.SVGVMLDrawer = class
    * Constructor of bcdui.component.chart.SVGVMLDrawer, called by prototype. 
    * Instantiate {@link bcdui.component.chart.SVGDrawer} concrete subclass
    * @param {Object} args - parameter Object
-   * @param {Object} [args.scale=x:1,y:1] - Default is no scaling \{ x: 1, y: 1\}
-   * @param {Object} [args.transform]     - Default is no shifting \{ x: 0, y: 0 \}
+   * @param {Object} [args.scale={x:1,y:1}] - Default is no scaling { x: 1, y: 1 }
+   * @param {Object} [args.transform]       - Default is no shifting { x: 0, y: 0 }
    * @private
    */
   constructor(args)
@@ -61,8 +61,8 @@ bcdui.component.chart.SVGVMLDrawer = class
   /**
    * Set transform and scale
    * @param {Object} args - parameter Object
-   * @param {Object} [args.scale=x:1,y:1] - Default is no scaling \{ x: 1, y: 1\}
-   * @param {Object} [args.transform]     - Default is no shifting \{ x: 0, y: 0 \}
+   * @param {Object} [args.scale={x:1,y:1}] - Default is no scaling \{ x: 1, y: 1\}
+   * @param {Object} [args.transform]       - Default is no shifting \{ x: 0, y: 0 \}
    */
   setTransScale(args)
   {
@@ -162,7 +162,7 @@ bcdui.component.chart.SVGVMLDrawer = class
 
   /**
    * Returns the a DOM element containing the SVG drawing
-   * @returns {Element} Returns the a DOM element containing the VML or SVG drawing
+   * @returns {DomElement} Returns the a DOM element containing the VML or SVG drawing
    */
   getResult()
   {
@@ -175,6 +175,8 @@ bcdui.component.chart.SVGVMLDrawer = class
 /**
  * A SVG drawer, drawing basic geometries
  * @extends bcdui.component.chart.SVGVMLDrawer
+ * @abstract
+ * @deprecated
  */
 bcdui.component.chart.SVGDrawer = class extends bcdui.component.chart.SVGVMLDrawer
 {
@@ -182,9 +184,9 @@ bcdui.component.chart.SVGDrawer = class extends bcdui.component.chart.SVGVMLDraw
    * @constructs
    * Constructor of bcdui.component.chart.SVGDrawer
    * @param {Object} args - Parameter object
-   * @param {DomDocument} args.doc               - Document for creating the SVG drawing
-   * @param {Object}   [args.scale=x:1,y:1]   - Default is no scaling \{ x: 1, y: 1\}
-   * @param {Object}   [args.transform]       - Default is no shifting \{ x: 0, y: 0 \}
+   * @param {DomDocument} args.doc            - Document for creating the SVG drawing
+   * @param {Object}   [args.scale={x:1,y:1}] - Default is no scaling { x: 1, y: 1}
+   * @param {Object}   [args.transform]       - Default is no shifting { x: 0, y: 0 }
    * @param {function} [args.createToolTipCb] - Call back getting the source element, returning the tool tip HTML</li>
    * @param {Object}   [args.addAttr]         - A set of additional string attributes to be attached to the root element</li>
    */
@@ -213,10 +215,10 @@ bcdui.component.chart.SVGDrawer = class extends bcdui.component.chart.SVGVMLDraw
   /**
    * Draw a SVG line
    * @param {Object} args - Parameter object
-   * @param {numeric[][]} args.points           - 2 dimensional array with x,y points, args.points[0][0] being the first one</li>
+   * @param {number[][]}  args.points           - 2 dimensional array with x,y points, args.points[0][0] being the first one</li>
    * @param {string}      [args.effect]         - An effect to be used for areas. Possible values: linearGradient, radialPlate, linearRound, linearPlate
-   * @param {string}      [args.rgb=black]      - Line color
-   * @param {numeric}     [args.width=1]        - Line width
+   * @param {string}      [args.rgb="black"]    - Line color
+   * @param {number}      [args.width=1]        - Line width
    * @param {boolean}     [args.isFilled=false] - Fill area
    * @param {function}    [args.onClick]        - On click callback
    * @param {Object}      [args.addAttr]        - A set of additional string attributes to be attached to the root element</li>
@@ -255,12 +257,12 @@ bcdui.component.chart.SVGDrawer = class extends bcdui.component.chart.SVGVMLDraw
   /**
    * Draw a SVG box
    * @param {Object} args - Parameter object
-   * @param {numeric}     args.x                - Left
-   * @param {numeric}     args.y                - Top
-   * @param {numeric}     args.width            - Width
-   * @param {numeric}     args.height           - Height
+   * @param {number}      args.x                - Left
+   * @param {number}      args.y                - Top
+   * @param {number}      args.width            - Width
+   * @param {number}      args.height           - Height
    * @param {string}      [args.effect]         - An effect to be used for areas. Possible values: linearGradient, radialPlate, linearRound, linearPlate
-   * @param {string}      [args.rgb=black]      - Color
+   * @param {string}      [args.rgb="black"]    - Color
    * @param {boolean}     [args.isFilled=false] - Fill area
    * @param {function}    [args.onClick]        - On click callback
    * @param {Object}      [args.addAttr]        - A set of additional string attributes to be attached to the root element</li>
@@ -290,15 +292,15 @@ bcdui.component.chart.SVGDrawer = class extends bcdui.component.chart.SVGVMLDraw
   /**
    * Draw a SVG arc
    * @param {Object} args - Parameter object
-   * @param {numeric}     args.x                - Center
-   * @param {numeric}     args.y                - Center
-   * @param {numeric}     args.radius           - Radius
-   * @param {numeric}     args.start            - Start
-   * @param {numeric}     args.end              - End
+   * @param {number}      args.x                - Center
+   * @param {number}      args.y                - Center
+   * @param {number}      args.radius           - Radius
+   * @param {number}      args.start            - Start
+   * @param {number}      args.end              - End
    * @param {string}      [args.effect]         - An effect to be used for areas. Possible values: linearGradient, radialPlate, linearRound, linearPlate
-   * @param {numeric}     [args.percWidth]      - Inner radius
-   * @param {string}      [args.rgb=black]      - Fill color
-   * @param {string}      [args.stroke=black]   - Border color
+   * @param {number}      [args.percWidth]      - Inner radius
+   * @param {string}      [args.rgb="black"]    - Fill color
+   * @param {string}      [args.stroke="black"] - Border color
    * @param {boolean}     [args.isFilled=false] - Fill area
    * @param {function}    [args.onClick]        - On click callback
    * @param {Object}      [args.addAttr]        - A set of additional string attributes to be attached to the root element</li>
@@ -346,11 +348,11 @@ bcdui.component.chart.SVGDrawer = class extends bcdui.component.chart.SVGVMLDraw
   /**
    * Draw a SVG circle
    * @param {Object} args - Parameter object
-   * @param {numeric}     args.x                - Center
-   * @param {numeric}     args.y                - Center
-   * @param {numeric}     args.radius           - Radius
+   * @param {number}      args.x                - Center
+   * @param {number}      args.y                - Center
+   * @param {number}      args.radius           - Radius
    * @param {string}      [args.effect]         - An effect to be used for areas. Possible values: linearGradient, radialPlate, linearRound, linearPlate
-   * @param {string}      [args.rgb=black]      - Color
+   * @param {string}      [args.rgb="black"]    - Color
    * @param {boolean}     [args.isFilled=false] - Fill area
    * @param {function}    [args.onClick]        - On click callback
    * @param {Object}      [args.addAttr]        - A set of additional string attributes to be attached to the root element</li>
@@ -378,8 +380,8 @@ bcdui.component.chart.SVGDrawer = class extends bcdui.component.chart.SVGVMLDraw
   /**
    * Draw a SVG text
    * @param {Object} args - Parameter object
-   * @param {numeric}     args.x                - Position
-   * @param {numeric}     args.y                - Position
+   * @param {number}      args.x                - Position
+   * @param {number}      args.y                - Position
    * @param {string}      args.text             - The text
    * @param {string}      [args.cssClass]       - A css class to be used
    * @param {string}      [args.align]          - Possible values middle, end
@@ -426,10 +428,10 @@ bcdui.component.chart.SVGDrawer = class extends bcdui.component.chart.SVGVMLDraw
   /**
    * Draw an SVG image element
    * @param {Object} args - Parameter object
-   * @param {numeric}     args.x                - Left
-   * @param {numeric}     args.y                - Top
-   * @param {numeric}     args.width            - Width
-   * @param {numeric}     args.height           - Height
+   * @param {number}      args.x                - Left
+   * @param {number}      args.y                - Top
+   * @param {number}      args.width            - Width
+   * @param {number}      args.height           - Height
    * @param {string}      [args.href]           - The image
    * @param {function}    [args.onClick]        - On click callback
    * @param {Object}      [args.addAttr]        - A set of additional string attributes to be attached to the root element</li>

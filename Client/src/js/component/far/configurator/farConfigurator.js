@@ -164,7 +164,7 @@
 
     /**
      * helper function to copy an element into given targetXPath with option to remove in targetxpath
-     * @param {element}                 srcElement  The element to copy, may be null to remove in target
+     * @param {DomElement}                 srcElement  The element to copy, may be null to remove in target
      * @param {bcdui.core.DataProvider} dstDp       Target data provider
      * @param {string}                  dstXPath    xpath within dstDp
      *
@@ -261,7 +261,7 @@ bcdui.component.far.farConfigurator = Object.assign(bcdui.component.far.farConfi
 /** @lends bcdui.component.far.farConfigurator */
 {
   /**
-   * @param {targetHtml} htmlElement Creates a widget in given html element
+   * @param {targetHtmlRef} htmlElement Creates a widget in given HTML element
    */
   init : function(htmlElement){
     jQuery(htmlElement).bcduiFarConfigurator();

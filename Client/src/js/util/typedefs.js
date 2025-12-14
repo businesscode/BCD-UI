@@ -87,6 +87,11 @@ jQuery.extend( true, bcdui, {
  * A DomNodeSet
  */
 /**
+ * @typedef {Object} DomNode
+ * @description
+ * A DomNode, can be text, an attribute or an element etc
+ */
+/**
  * @typedef {Object} HtmlElement
  * @description
  * HtmlElement
@@ -98,7 +103,7 @@ jQuery.extend( true, bcdui, {
  */
 
 /**
- * @typedef {url|Function|Array.<(url|Function)>|bcdui.core.DataProvider} chainDef
+ * @typedef {string|Function|Array.<(string|Function)>|bcdui.core.DataProvider} chainDef
  * @description
  * Defines the transformation steps of a transformation chain, like {@link bcdui.core.ModelWrapper} or {@link bcdui.core.Renderer}.
  * <br/>Can be: url | function | Array<(url|function)> | bcdui.core.DataProvider
@@ -134,6 +139,11 @@ jQuery.extend( true, bcdui, {
  * caption = "\uE0FFdata" // Treats value 'data' as an i18n-key
  */
 
+/**
+ * @typedef {Object} jQuery
+ * @description
+ * A jQuery wrapped DOM element
+ */
 
 /**
  * @typedef {string|HtmlElement|jQuery} targetHtmlRef

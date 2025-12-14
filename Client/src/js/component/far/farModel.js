@@ -25,7 +25,7 @@ bcdui.component.far.FarModel = class extends bcdui.core.AsyncJsDataProvider
   /**
    * @param {object}                  args                      Parameter map contains the following properties:
    * @param {bcdui.core.DataProvider} args.config               Configuration document from http://www.businesscode.de/schema/bcdui/far-1.0.0
-   * @param {string}                  [args.componentId=far]    An ID for the component, 'far' is the default. This is not the data provider's technical identifier,
+   * @param {string}                  [args.componentId="far"]  An ID for the component, 'far' is the default. This is not the data provider's technical identifier,
    *                                                            this ID is used as component identifer to support multiple components on single page, i.e. reuse same configuration.
    * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished]  The StatusModel, containing the filters at /SomeRoot/f:Filter
    */
@@ -70,7 +70,7 @@ bcdui.component.far.FarModel = class extends bcdui.core.AsyncJsDataProvider
   }
 
   /**
-   * @return data provider returning /Root/TotalRows yielding the total rows count for current request
+   * @return {bcdui.core.DataProvider} data provider returning /Root/TotalRows yielding the total rows count for current request
    * @private
    */
   _getTotalRowsCountProvider(){
@@ -103,5 +103,12 @@ bcdui.component.far.FarModel = class extends bcdui.core.AsyncJsDataProvider
       args.setData(this.getData());
     });
     this.dataModel.execute();
+  }
+
+  /**
+   * @inheritDoc
+   */
+  getClassName() {
+    return "bcdui.component.far.FarModel";
   }
 };

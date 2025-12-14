@@ -320,6 +320,7 @@ if (bcdui.browserCompatibility.isWebKit || bcdui.browserCompatibility.isGecko) {
    * created from.
    * @param {Function} fn The callback function executed when the processor has been created. It
    * takes the processor instance as argument.
+   * @private
    */
   bcdui.core.browserCompatibility.asyncCreateXsltProcessor = bcdui.core.browserCompatibility.fixXslt.asyncCreateXsltProcessor;
 
@@ -361,7 +362,7 @@ if (bcdui.browserCompatibility.isWebKit) {
    * i.e. the namespaces do not survive if not used except within xPaths
    * And also, if a document is cut out from another, like the aggregators in the scorecard, they do not contain all namespaces needed
    * @param {DomElement} doc - The XML document to add the namespaces on
-   * @param {Array} except - Array of well-known prefixes whose namespaces are not to be added
+   * @param {Array<string>} except - Array of well-known prefixes whose namespaces are not to be added
    */
   bcdui.core.browserCompatibility.fixXslt._addDefaultNamespaceAttributesToDocumentElement = function(/* XMLDocument */ doc, except )
   {
@@ -374,9 +375,10 @@ if (bcdui.browserCompatibility.isWebKit) {
     return doc;
   };
 
-  /*
+  /**
    * Workaround for Webkit, because it does not copy the namespaces which are only used in XPath select attributes.
    * We add the declarations here
+   * @private
    */
   bcdui.core.browserCompatibility.cleanupGeneratedXslt = function( args )
   {
@@ -477,6 +479,7 @@ if (bcdui.browserCompatibility.isWebKit) {
 if (bcdui.browserCompatibility.isGecko) {
   /**
    * Helper to support namespace-alias for Gecko
+   * @private
    */
   bcdui.core.browserCompatibility.cleanupGeneratedXslt = function( args )
   {
@@ -559,7 +562,7 @@ if (bcdui.browserCompatibility.isGecko) {
    * Adds dummy attributes of all well-known BCD-UI namespaces (beside those in except) to a document
    * Gecko does not require this
    * @param {DomElement} doc - The XML document to add the namespaces on
-   * @param {Array} except - Array of well-known prefixes whose namespaces are not to be added
+   * @param {Array<string>} except - Array of well-known prefixes whose namespaces are not to be added
    */
   bcdui.core.browserCompatibility.fixXslt._addDefaultNamespaceAttributesToDocumentElement = function(/* XMLDocument */ doc, except )
   {
