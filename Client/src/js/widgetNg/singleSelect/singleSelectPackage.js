@@ -179,18 +179,18 @@
                   if(!func){
                     throw new Error("custom validation function not found (is null): " + (bcdui.util.isString(args.validationFunction)?"name:" + args.validationFunction : ""));
                   }
-                  bcdui.widgetNg.utils._addValidator(config.htmlElementId, func);
+                  bcdui.widgetNg.utils._addValidator(controlElement, func);
                 }
 
                 // attach balloon displaying fly-over + ballon for the widget to display hints and validation
-                bcdui.widgetNg.commons.balloon.attach(config.htmlElementId, {noBalloon:!args.displayBalloon});
+                bcdui.widgetNg.commons.balloon.attach(controlElement, {noBalloon:!args.displayBalloon});
                 
                 // reset loadings status
                 bcdui.widgetNg.utils._setUnsetFieldLoadingStatus(controlElement, false);
                 // run explicit validation
                 bcdui.widgetNg.utils._validateElement(controlElement);
                 // sync the bound model value once
-                bcdui.widgetNg.utils._syncValue(config.htmlElementId);
+                bcdui.widgetNg.utils._syncValue(controlElement);
                 bcdui.log.isTraceEnabled() && bcdui.log.trace("initialized " + args.id);
 
                 // display after initialization (jqm workaround)
