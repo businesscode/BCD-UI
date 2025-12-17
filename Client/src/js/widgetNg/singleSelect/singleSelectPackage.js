@@ -128,13 +128,13 @@
 
       // add observers and listeners
       {
-        controlEl.on("change", bcdui.widgetNg.utils.updateValue.bind(undefined,controlEl.get(0).id));
+        controlEl.on("change", bcdui.widgetNg.utils.updateValue.bind(undefined, controlEl));
 
         // listen to updates on model
         this._setOnTargetModelChange(function(){
           try{
             if(!this._writingData){
-              bcdui.widgetNg.utils._syncValue(config.htmlElementId);
+              bcdui.widgetNg.utils._syncValue(controlEl);
             }
           } finally {
             this._writingData = false;
@@ -171,7 +171,7 @@
 //                bcdui.widgetNg.suggestInput._attachValidators(controlElement);
 
                 // add validator
-                bcdui.widgetNg.utils._addValidator(controlElement.id, bcdui.widgetNg.validation.validators.widget.existingValueValidator);
+                bcdui.widgetNg.utils._addValidator(controlElement, bcdui.widgetNg.validation.validators.widget.existingValueValidator);
 
                 // check for optional validationFunction
                 if(args.validationFunction){
@@ -186,7 +186,7 @@
                 bcdui.widgetNg.commons.balloon.attach(config.htmlElementId, {noBalloon:!args.displayBalloon});
                 
                 // reset loadings status
-                bcdui.widgetNg.utils._setUnsetFieldLoadingStatus(controlElement.id, false);
+                bcdui.widgetNg.utils._setUnsetFieldLoadingStatus(controlElement, false);
                 // run explicit validation
                 bcdui.widgetNg.utils._validateElement(controlElement);
                 // sync the bound model value once
