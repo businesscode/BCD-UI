@@ -275,7 +275,7 @@
         this._validateElement(inputElementId, true)
         .then(() => {
           // check if widget still exists by re-looking it up in the HTML DOM via ID
-          if (jQuery("#" + el.data("_config_").inputElementId).length > 0) {
+          if (el.data("_config_") && jQuery("#" + el.data("_config_").inputElementId).length > 0) {
             if(!el.data("_config_").extendedConfig.hasCustomPlaceholderHandler){
               this._setUnsetPlaceholder(inputElementId, isValueEmpty);
             }
