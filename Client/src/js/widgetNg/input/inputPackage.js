@@ -357,7 +357,7 @@
       bcdui.log.isTraceEnabled() && bcdui.log.trace("_readDataFromXML");
       var config = bcdui._migPjs._$(inputElementId).data("_config_");
       return {
-        value: bcdui.widget._getDataFromXML(bcdui.factory.objectRegistry.getObject(config.target.modelId),config.target.xPath)
+        value: ! config ? "" : bcdui.widget._getDataFromXML(bcdui.factory.objectRegistry.getObject(config.target.modelId),config.target.xPath)
       }
     },
 
