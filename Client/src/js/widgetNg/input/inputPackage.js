@@ -442,7 +442,7 @@
       if(validators!=null){
         bcdui.log.isTraceEnabled() && bcdui.log.trace("found validators: " + validators.length);
         validators.forEach(function(v){
-          var res = v(config.inputElementId); // backwards compatibility: validate functions work with the id, not the htmlElement
+          var res = v(bcdui._migPjs._$(inputElementId));
           if(res!=null){
             messages.push(res.validationMessage);
           }
