@@ -239,7 +239,7 @@
       var el = bcdui._migPjs._$(htmlElementId);
       var config = el.data("_config_");
       var args = el.data("_args_");
-      var dataListEl = bcdui._migPjs._$(config.dataListElementId).get(0);
+      var dataListEl = bcdui._migPjs._$(htmlElementId).get(0);
       var currentDataValue=bcdui.widgetNg.utils._readDataFromXML(htmlElementId).value;
 
       bcdui.log.isTraceEnabled() && bcdui.log.trace("(singleSelect._ntv_syncToOptionsProvider)updating the data list, current model value: " + currentDataValue);
@@ -358,8 +358,6 @@
       bcdui.log.isTraceEnabled() && bcdui.log.trace("native selectInput initialization");
       // TODO: use jq api (data)
       var config = el.data("_config_");
-      // datalist is THE native html SELECT element
-      config.dataListElementId = el.get(0).id;
 
       // update the data list initially
       this._ntv_syncToOptionsProvider(el.get(0));
