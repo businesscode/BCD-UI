@@ -44,7 +44,7 @@ bcdui.component.chart.SVGVMLDrawer = class
    * @param {Object} args - parameter Object
    * @param {Object} [args.scale={x:1,y:1}] - Default is no scaling { x: 1, y: 1 }
    * @param {Object} [args.transform]       - Default is no shifting { x: 0, y: 0 }
-   * @private
+   * @protected
    */
   constructor(args)
   {

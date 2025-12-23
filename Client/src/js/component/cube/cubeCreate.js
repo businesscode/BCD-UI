@@ -401,8 +401,6 @@ bcdui.component = Object.assign(bcdui.component,
    * @param {string}                  [args.expandCollapseCells]                                  - When specified (with 'expand' or 'collapse' or 'collapse2nd'), cube turns on the expand/collapse mode. collapse2nd initially keeps level one open.
    * @param {boolean}                 [args.doSortOptions=false]                                  - When setting this to true, dimensions and measures lists are sorted by caption.
    *
-   * @return {null}
-   *
    * @example
    *   new bcdui.core.SimpleModel({
    *    id:  "myDndOptions", // define ID explicitely
@@ -418,25 +416,24 @@ bcdui.component = Object.assign(bcdui.component,
    *     , rankingTargetHtmlElementId: "rankingDiv"
    *   });
    * @example
-   *  <div class='container_24 bcdCubeDndMatrix'>
-   *    <div class='grid_24'>
-   *      <div class='grid_3 omega bcdCurrentRowDimensionList alpha'></div>
-   *      <div class='grid_3 omega bcdCurrentColMeasureList'></div>
-   *      <div class='grid_3 omega'>
-   *        <div class='bcdCurrentColDimensionList'></div>
-   *        <div class='bcdCurrentMeasureList'></div>
-   *      </div>
-   *      <div class='grid_5 omega'>
-   *        <div class='bcdHeader'>Dimensions</div>
-   *        <div class='bcdDimensionList'></div>
-   *      </div>
-   *      <div class='grid_5 omega'>
-   *        <div class='bcdHeader'>Measures</div>
-   *        <div class='bcdMeasureList'></div>
-   *      </div>
-   *    </div>
-   *  </div>
-   *
+   *  &lt;div class='container_24 bcdCubeDndMatrix'>
+   *    &lt;div class='grid_24'>
+   *      &lt;div class='grid_3 omega bcdCurrentRowDimensionList alpha'>&lt;/div>
+   *      &lt;div class='grid_3 omega bcdCurrentColMeasureList'>&lt;/div>
+   *      &lt;div class='grid_3 omega'>
+   *        &lt;div class='bcdCurrentColDimensionList'>&lt;/div>
+   *        &lt;div class='bcdCurrentMeasureList'>&lt;/div>
+   *      &lt;/div>
+   *      &lt;div class='grid_5 omega'>
+   *        &lt;div class='bcdHeader'>Dimensions&lt;/div>
+   *        &lt;div class='bcdDimensionList'>&lt;/div>
+   *      &lt;/div>
+   *      &lt;div class='grid_5 omega'>
+   *        &lt;div class='bcdHeader'>Measures&lt;/div>
+   *        &lt;div class='bcdMeasureList'>&lt;/div>
+   *      &lt;/div>
+   *    &lt;/div>
+   *  &lt;/div>
    */
   createCubeConfigurator: function(/* Object */ args){
     bcdui.log.isTraceEnabled() && bcdui.log.trace("Creating DndMatrix");

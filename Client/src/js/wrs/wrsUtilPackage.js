@@ -532,7 +532,8 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
     },
 
   /**
-   * Inserting rows
+   * Inserting empty wrs:I rows at the given location, respecting default values.
+   * Values can be filled in fn().
    * 
    * @param {Object} args - Parameter object with the following properties
    * @param {bcdui.core.DataProvider} args.model                   - Id of a DataProvider or the DataProvider itself (dp must be ready)
@@ -541,6 +542,12 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
    * @param {function}                [args.fn]                    - Callback function called after operation
    * @param {boolean}                 [args.insertBeforeSelection=true]
    * @param {boolean}                 [args.propagateUpdate=true]  - If false, model is not fired
+   *
+   * @example
+   *  bcdui.wrs.wrsUtil.insertRow({model: model, propagateUpdate: false, rowStartPos:1, rowEndPos:1, fn: function(){
+   *    bcdui.wrs.wrsUtil.setCellValue(model, 1, "comment_text", conf.comment);
+   *    bcdui.wrs.wrsUtil.setCellValue(model, 1, "scope", conf.scope);
+   *  });
    */
   insertRow: function(args)
   {

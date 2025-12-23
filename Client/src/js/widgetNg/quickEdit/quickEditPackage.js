@@ -157,7 +157,7 @@
     /**
      * This callback is displayed as part of the Requester class.
      * @callback Type_Quickedit_CallbackHandler
-     * @param {QuickEdit} instance - the QuickEdit instance
+     * @param {bcdui.widgetNg.QuickEdit} instance - the QuickEdit instance
      * @param {Type_Quickedit_CallbackHandler_TYPE} type - a string specifying the type of callback
      * @param {object} args - arguments specific to the type
      */

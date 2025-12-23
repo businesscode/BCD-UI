@@ -92,7 +92,7 @@ public class WrsAccessLogEvent extends LogEventBase{
   }
 
   /**
-   * @return the requestUrl as of {@link HttpServletRequest#getRequestURL()
+   * @return the requestUrl as of {@link HttpServletRequest#getRequestURL()}
    */
   public String getRequestUrl() {
     return requestUrl;
@@ -208,7 +208,7 @@ public class WrsAccessLogEvent extends LogEventBase{
   }
 
   /**
-   * @param executeDuration
+   * @param executeTime
    *          the executeDuration to set
    */
   private void setExecuteDuration(long executeTime) {
@@ -216,7 +216,7 @@ public class WrsAccessLogEvent extends LogEventBase{
   }
 
   /**
-   * @param writeDuration
+   * @param writeTime
    *          the writeDuration to set
    */
   private void setWriteDuration(long writeTime) {

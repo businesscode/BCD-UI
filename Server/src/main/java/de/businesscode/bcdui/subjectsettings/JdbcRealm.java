@@ -416,7 +416,6 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
 
   /**
    * These setters are called from Shiro if realmBcdJdbc.#propertyname# are set in web.xml
-   * @return
    */
   public void setPasswordColumnName(String passwordColumnsName) {
     JdbcRealm.setConfigPasswordColumnName(passwordColumnsName);

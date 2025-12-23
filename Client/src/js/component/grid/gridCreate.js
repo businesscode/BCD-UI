@@ -201,7 +201,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   * @param {boolean}                 [args.paginationAllPages=false]                        - Set pagination show all option (and enable pagination)
   * @param {chainDef}                [args.requestPostChain]                                - The definition of the transformation chain
   * @param {string|bcdui.core.DataProvider} [args.modelUrl='WrsServlet']                    - This is a string or string- DataProvider with the URL which to send the requestModel result to
-  * @param {modelUrl}                [args.exportFileName]                                  - Filename for grid export
+  * @param {string}                  [args.exportFileName]                                  - Filename for grid export
   * @param {boolean}                 [args.disableExport=false]                             - Disable export functionality.
   */
   constructor(args) {
@@ -381,6 +381,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     this.isReadOnlyCell = args.isReadOnlyCell || function(){return false;}
     this.actionSave = args.customSave || this.save;
     this.customAfterAddRow = args.afterAddRow;
+    /** @private */
     this.afterAddRow = function(argsAddRow) {
   
       // fill new cell with value if column is mandatory and the optionsmodel only got one value

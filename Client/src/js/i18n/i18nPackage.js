@@ -390,6 +390,7 @@ bcdui.i18n = Object.assign(bcdui.i18n,
   */
 
   /**
+   * Assumes bcdui.wkModels.bcdI18nModel is ready and synchronously translates and formats the given message id.
    * @param  {(SyncTranslateFormatMessageParam|string)} messageId - Either an object with property msgid, or the messageId itself
    * @returns {string} translated and formated message
    */

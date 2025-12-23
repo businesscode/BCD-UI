@@ -62,11 +62,6 @@ jQuery.extend( true, bcdui, {
  * Integer
  */
 /**
- * @typedef {Object} enum
- * @description
- * Enumeration
- */
-/**
  * @typedef {Object} DomDocument
  * @description
  * DomDocument
@@ -126,7 +121,10 @@ jQuery.extend( true, bcdui, {
  * }
  */
 
-
+/**
+ * @typedef {string} url
+ * An absolute or relative url
+ */
 
 /**
  * @typedef {string} i18nToken

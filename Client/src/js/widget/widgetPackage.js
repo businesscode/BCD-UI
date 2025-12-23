@@ -3818,13 +3818,13 @@ bcdui.widget.validationToolTip = class
 
   /**
    * Initializing tooltip widget
-   * @param args
-   * @param args.id - option widget identifier
-   * @param args.targetModelId - identifier of model that should be tracked
-   * @param args.targetModelXPath - xpath of model that should be tracked
-   * @param args.containerHtmlElement - html container with binded control
-   * @param args.validateWrapperUrl - xstl transformation which implement concrete validation logic
-   * @param args.validateWrapperParameters - parameters that should be passed to validateWrapper
+   * @param {Object} args
+   * @param {string} args.id - option widget identifier
+   * @param {string} args.targetModelId - identifier of model that should be tracked
+   * @param {xPath} args.targetModelXPath - xpath of model that should be tracked
+   * @param {DomElement} args.containerHtmlElement - html container with binded control
+   * @param {url} args.validateWrapperUrl - xstl transformation which implement concrete validation logic
+   * @param {object} args.validateWrapperParameters - parameters that should be passed to validateWrapper
    * */
   constructor(args)
   {

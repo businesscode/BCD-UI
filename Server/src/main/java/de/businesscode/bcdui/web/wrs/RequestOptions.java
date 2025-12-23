@@ -43,8 +43,7 @@ public class RequestOptions implements IRequestOptions {
   /**
    * HttpRequestOptions
    *
-   * @param servletCtx
-   * @param request
+   * @param maxRows
    */
   public RequestOptions(int maxRows) {
     super();

@@ -1009,15 +1009,16 @@ bcdui.core.Renderer = class extends bcdui.core.TransformationChain
 {
   /**
    * @param {Object} args - An argument object with the following properties:
-   * @param {chainDef} args.chain - The definition of the transformation chain
+   * @param {bcdui.core.DataProvider} args.inputModel                       - The model with the data to be transformed in html
+   * @param {chainDef} [args.chain="/bcdui/xslt/renderer/htmlBuilder.xslt"] - The definition of the transformation chain
    * <ul>
-   *   <li>a single string with the URL of the transformation XSLT or doTjs template</li>
+   *   <li>Default is a WRS-to-table renderer, capable of row and column dimensions and aware of all Wrs format specifications like scale and @caption</li>
+   *   <li>But it can be a single string with the URL of the transformation XSLT or doTjs template</li>
    *   <li>or a JS transformator function</li>
    *   <li>or an array with a mixture of URLs and JS transformators</li>
    *   <li>or a DataProvider with an XML document following xsd http://www.businesscode.de/schema/bcdui/chain-1.0.0</li>
    * </ul>
-   * Make sure the last transformation outputs html, for example in case of XSLT set the last stylesheet to &lt;xsl:output method="html" 
-   * @param {bcdui.core.DataProvider} args.inputModel                       - The model with the data to be transformed in html
+   * Make sure the last transformation outputs html, for example in case of XSLT set the last stylesheet to &lt;xsl:output method="html"
    * @param {targetHtmlRef}           [args.targetHtml]                     - A reference to the HTML DOM Element where to put the output
    * @param {Object}                  [args.parameters]                     - An object, where each property holds a DataProvider as a transformation parameter
    * Once this Renderer is {@link bcdui.core.AbstractExecutable#execute executed}, it will check each parameter and execute it if it is not {@link bcdui.core.AbstractExecutable .isReady()} before executing itself.
