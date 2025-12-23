@@ -94,7 +94,7 @@
         <Param name="targetHtmlElementId" type="string" deprecated="4.6">
           <Doc>The ID of (!existing) HTML element this widget should be attached to. This is API of a factory! A widget is always created from HTML DOM element.</Doc>
         </Param>
-        <Param name="targetHtml" type="targetHtmlRef">
+        <Param name="targetHtml" type="targetHtmlRef" required="true">
           <Doc>An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.</Doc>
         </Param>
         <Param name="disabled" type="boolean" default="false">

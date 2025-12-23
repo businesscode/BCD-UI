@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@
       <xsl:variable name="jsDocType">
         <xsl:choose>
           <xsl:when test="@type='stringList' or @type='enumString'">string</xsl:when>
-          <xsl:when test="@type='dataprovider'">bcdui.core.DataProvider</xsl:when>
+          <xsl:when test="@type='dataProvider'">bcdui.core.DataProvider</xsl:when>
           <xsl:otherwise><xsl:value-of select="@type"/></xsl:otherwise>
         </xsl:choose>
       </xsl:variable>

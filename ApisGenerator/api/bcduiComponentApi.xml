@@ -638,7 +638,7 @@
       <!--
         <Param name="hotArgs"></Param>
       -->
-        <Param name="targetHtml" type="targetHtmlRef">
+        <Param name="targetHtml" type="targetHtmlRef" required="true">
           <Doc>An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.</Doc>
         </Param>
         <Param name="tooltipChain" type="dataProvider" isJSPChild="paramBag.tooltipChain">
@@ -753,7 +753,7 @@
         <Examples>
         </Examples>
 
-        <Param name="targetHtml" type="targetHtmlRef">
+        <Param name="targetHtml" type="targetHtmlRef" required="true">
           <Doc>An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.</Doc>
         </Param>
         <Param name="contextMenu" type="string">
