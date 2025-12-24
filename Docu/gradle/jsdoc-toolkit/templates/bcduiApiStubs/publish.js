@@ -25,6 +25,9 @@
  * - The methods in autosuggest indicate where they come from (current solution is not perfect here)
  */
 var helper = require('jsdoc/util/templateHelper');
+const MarkdownIndexGenerator = require("./markdownIndexGenerator")
+const MarkdownPackageGenerator = require("./markdownPackageGenerator")
+const MarkdownClassGenerator = require("./markdownClassGenerator")
 const {ApiStubsClassGenerator} = require("./apiStubsClassGenerator")
 const {ApiStubsPackageGenerator} = require("./apiStubsPackageGenerator")
 
@@ -40,7 +43,10 @@ exports.publish = function(taffyData, opts)
   // We generate various output files for IDE autocompletion, typescript type files and for AO
   const generators = [
     new ApiStubsClassGenerator(opts, taffyData),
-    new ApiStubsPackageGenerator(opts, taffyData)
+    new ApiStubsPackageGenerator(opts, taffyData),
+    new MarkdownIndexGenerator(opts, taffyData),
+    new MarkdownPackageGenerator(opts, taffyData),
+    new MarkdownClassGenerator(opts, taffyData)
   ]
 
   //-----------------------------------------
