@@ -18,7 +18,19 @@ ___
 * updated default web.xml and enforce usage of https
 * cookies created are flagged as "secure"
 * CORS: to make your app CORSable use `de.businesscode.bcdui.web.filters.ShiroFilter` as a replacement of `org.apache.shiro.web.servlet.ShiroFilter` and add `de.businesscode.bcdui.web.filters.CorsFilter` as a first in the chain and cover resources which should be available to CORS, or set it to `/*` to enable for the whole site.
-* added BindingItem description element, also added to WRS Header
+* BindingSet: Added bnd:BindingDefaults for inheriting BindingItem attribute defaults based on their id
++
+[source,xml]
+----
+<!-- Unless overwritten in a BindingSet, this applies to all country_code BindingItems in all BindingSets -->
+<bnd:BindingDefaults xmlns:bnd="http://www.businesscode.de/schema/bcdui/bindings-1.0.0">
+  <bnd:C id="country_code" caption="Country Code" type-name="VARCHAR"/>
+</bnd:BindingDefaults>
+----
+* Wrq: All attributes on `wrq:Select/wrq:Columns/wrq:C`, even custom ones, survive the roundtrip to `wrs:Header/wrs:Columns/wrs:C`
+* BindingSet: Custom elements set on `bnd:BindingSet/bnd:C` can be delivered to the client at `wrs:Header/wrs:Columns/wrs:C`
+    - If listed in web.xml bcdui/bnd/wrsAttributes for each request
+    - If listed in web.xml bcdui/bnd/wrsMetaAttribute only for metadata request, i.e. @rowStart > @rowEnd
 
 .Client:
 * Login Widget to be used in login-pages, i.e. via `<bcd-loginng>` custom tag

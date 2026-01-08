@@ -336,8 +336,8 @@ public class Bindings {
             XPath xPath = XPathUtils.newXPath();
             String xPathNS = nsContext.getXMLPrefix(BINDINGS_NAMESPACE);
     
-            // run over all BindingDefault/C elements
-            NodeList biSet = (NodeList) xPath.evaluate("/" + xPathNS + "BindingDefault//" + xPathNS + "C", bindingDefaultsDoc, XPathConstants.NODESET);
+            // run over all BindingDefaults/C elements
+            NodeList biSet = (NodeList) xPath.evaluate("/" + xPathNS + "BindingDefaults//" + xPathNS + "C", bindingDefaultsDoc, XPathConstants.NODESET);
     
             for (int bi = 0; bi < biSet.getLength(); bi++) {
               Element bindingItemElem = (Element) biSet.item(bi);
