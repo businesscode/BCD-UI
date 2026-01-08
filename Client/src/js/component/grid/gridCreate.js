@@ -46,7 +46,7 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
 {
   /**
   * @param {Object} args The parameter map contains the following properties:
-  * @param {bcdui.core.DataProvider} [args.config=./gridConfiguration.xml]                  - The model containing the grid configuration data. If it is not present a SimpleModel with the url  './gridConfiguration.xml' is created.
+  * @param {bcdui.core.DataProvider} [args.config="./gridConfiguration.xml"]                - The model containing the grid configuration data. If it is not present a SimpleModel with the url  './gridConfiguration.xml' is created.
   * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the GridModel registers itself at {@link bcdui.factory.objectRegistry}
   * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel, containing the filters as /SomeRoot/f:Filter
   * @param {chainDef}                [args.saveChain]                                       - The definition of the transformation chain
@@ -58,6 +58,7 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
   * @param {Object}                  [args.serverSidedPagination=false]                     - Set to true if you want to enable server sided pagination
   * @param {bcdui.core.DataProvider} [args.pagerModel=bcdui.wkModels.guiStatus]             - StatusModel of the pagination information
   * @param {chainDef}                [args.requestPostChain]                                - The definition of the transformation chain
+  * @param {string|bcdui.core.DataProvider} [args.modelUrl='WrsServlet']                    - This is a string or string- DataProvider with the URL which to send the requestModel result to
  */
   constructor(args) {
     // Evaluate default parameters
@@ -139,7 +140,8 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
     });
 
     // Load our data
-    super({saveChain: args.saveChain, saveParameters: args.saveParameters, url: new bcdui.core.RequestDocumentDataProvider({requestModel: reqMw}), id: id });
+    const modelUrl = args.modelUrl || bcdui.core.webRowSetServletPath;
+    super({saveChain: args.saveChain, saveParameters: args.saveParameters, url: new bcdui.core.RequestDocumentDataProvider({modelUrl: modelUrl, requestModel: reqMw}), id: id });
     this.id = id;
     this.config = config;
     this.statusModel = statusModel;
@@ -152,11 +154,14 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
     this.validationChain = args.validationChain;
     this.validationParameters = args.validationParameters;
   }
+  /**
+   * @inheritDoc
+   */
   getClassName() {return "bcdui.component.grid.GridModel";}
 }
 
 /**
- * Creates a grid front end based on given data or a configuration
+ * Creates a grid UI based on given data or a configuration allowing to edit the data
  * @extends bcdui.core.Renderer
 */
 bcdui.component.grid.Grid = class extends bcdui.core.Renderer
@@ -164,7 +169,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   /**
   * @param args The parameter map contains the following properties:
   * @param {targetHtmlRef}           args.targetHtml                                        - A reference to the HTML DOM Element where to put the output
-  * @param {bcdui.core.DataProvider} [args.config=./gridConfiguration.xml]                  - The model containing the grid configuration data. If it is not present a SimpleModel with the url  './gridConfiguration.xml' is created.
+  * @param {bcdui.core.DataProvider} [args.config="./gridConfiguration.xml"]                - The model containing the grid configuration data. If it is not present a SimpleModel with the url  './gridConfiguration.xml' is created.
   * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel (default is 'guiStatusEstablished'), containing the filters as /SomeRoot/f:Filter
   * @param {bcdui.core.DataProvider} [args.inputModel]                                      - WRS or GridModel which is used, if not provided, it is generated out of the config. If provided, config is ignored unless it is set explicitly
   * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the Grid registers itself at {@link bcdui.factory.objectRegistry}
@@ -195,6 +200,9 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   * @param {integer}                 [args.paginationSize=20]                               - Set pagination page size (and enable pagination)
   * @param {boolean}                 [args.paginationAllPages=false]                        - Set pagination show all option (and enable pagination)
   * @param {chainDef}                [args.requestPostChain]                                - The definition of the transformation chain
+  * @param {string|bcdui.core.DataProvider} [args.modelUrl='WrsServlet']                    - This is a string or string- DataProvider with the URL which to send the requestModel result to
+  * @param {string}                  [args.exportFileName]                                  - Filename for grid export
+  * @param {boolean}                 [args.disableExport=false]                             - Disable export functionality.
   */
   constructor(args) {
     var id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("grid");
@@ -241,6 +249,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         , serverSidedPagination: serverSidedPagination
         , pagerModel: pagerHolder
         , requestPostChain : args.requestPostChain
+        , modelUrl: args.modelUrl || bcdui.core.webRowSetServletPath
       });
     }
     else
@@ -292,6 +301,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     this.serverSidedPagination = args.serverSidedPagination;
     this.pageBuffer = {};
     this.validationResultPageBuffer = {};
+    this.exportFileName = args.exportFileName;
+    this.disableExport = args.disableExport;
 
     // limitation for now, since we need to update rowStart/rowEnd in the gridModel request, we disallow external wrs for the moment 
     if (args.inputModel)
@@ -370,6 +381,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     this.isReadOnlyCell = args.isReadOnlyCell || function(){return false;}
     this.actionSave = args.customSave || this.save;
     this.customAfterAddRow = args.afterAddRow;
+    /** @private */
     this.afterAddRow = function(argsAddRow) {
   
       // fill new cell with value if column is mandatory and the optionsmodel only got one value
@@ -822,12 +834,15 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       }.bind(this));
     }.bind(this) );
   }
-  
+
+  /**
+   * @inheritDoc
+   */
   getClassName() {return "bcdui.component.grid.Grid";}
 
   /**
-   *  helper function for codeCaption mapping and rowDependencies
-   * @return object
+   * Helper function for codeCaption mapping and rowDependencies
+   * @return {string}
    * @private
    */
   _getRefValue(references, rowId, lookUp) {
@@ -1184,7 +1199,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   /**
    * function which is put in front of a renderer which renders a cell with references
    * returns the caption instead of the code and adds an error in case the referenced value is not available
-   * @return code from caption
+   * @return {string} code from caption
    * @private
    */
   _renderByReference(rowIdx, col, value) {
@@ -3229,7 +3244,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           , allowSorting: "" + this.columnSorting
           , gridModel: this.gridModel
           , gridId: this.id
-          , gotExport: "" + (typeof bcdui.component.exports != "undefined" && typeof bcdui.component.exports.exportToExcelTemplate == "function")
+          , gotExport: "" + (typeof bcdui.component.exports != "undefined" && typeof bcdui.component.exports.exportToExcelTemplate == "function") && !this.disableExport
           , rowIsDisabled: new bcdui.core.ConstantDataProvider({id: this.id + "_rowIsDisabled", name: "rowIsDisabled", value: ""})
           , rowsSelected:  new bcdui.core.ConstantDataProvider({id: this.id + "_rowsSelected", name: "rowsSelected", value: ""})
           }
@@ -3402,8 +3417,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
       var theGrid = this;
       jQuery("#" + this.targetHtml).on("gridActions:fullDataExport", function(evt){
+        if (this.disableExport)
+          return;
         if (typeof bcdui.component.exports != "undefined" && typeof bcdui.component.exports.exportToExcelTemplate == "function") {
-          bcdui.component.exports.exportToExcelTemplate({inputModel: 
+          bcdui.component.exports.exportToExcelTemplate({fileName: this.exportFileName, inputModel: 
             new bcdui.core.ModelWrapper({
               inputModel: this.gridModel
             , chain: function(doc) {
@@ -3714,6 +3731,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     }
   }
 
+  /**
+   * @private
+   * @param memo
+   */
   actionAddRow(memo) {
     jQuery("#" + this.htTargetHtmlId).trigger("gridActions:rowAdd", memo);
   }
@@ -3744,7 +3765,7 @@ bcdui.component = Object.assign(bcdui.component,
 {
   /**
    * Helper for jsp and XAPI and custom HTMLElements. First waits for all dependencies to be available
-   * @param {bcdui.core.DataProvider} [args.config=./gridConfiguration.xml]                  - The model containing the grid configuration data. If it is not present a SimpleModel with the url  './gridConfiguration.xml' is created.
+   * @param {bcdui.core.DataProvider} [args.config="./gridConfiguration.xml"]                - The model containing the grid configuration data. If it is not present a SimpleModel with the url  './gridConfiguration.xml' is created.
    * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the GridModel registers itself at {@link bcdui.factory.objectRegistry}
    * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel, containing the filters as /SomeRoot/f:Filter
    * @param {chainDef}                [args.saveChain]                                       - The definition of the transformation chain
@@ -3784,7 +3805,7 @@ bcdui.component = Object.assign(bcdui.component,
   /**
    * Helper for jsp and XAPI and custom HTMLElements. First waits for all dependencies to be available
    * @param {targetHtmlRef}           args.targetHtml                                        - A reference to the HTML DOM Element where to put the output
-   * @param {bcdui.core.DataProvider} [args.config=./gridConfiguration.xml]                  - The model containing the grid configuration data. If it is not present a SimpleModel with the url  './gridConfiguration.xml' is created.
+   * @param {bcdui.core.DataProvider} [args.config="./gridConfiguration.xml"]                "- The model containing the grid configuration data. If it is not present a SimpleModel with the url  './gridConfiguration.xml' is created.
    * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel (default is 'guiStatusEstablished'), containing the filters as /SomeRoot/f:Filter
    * @param {bcdui.core.DataProvider} [args.inputModel]                                      - WRS or GridModel which is used, if not provided, it is generated out of the config. If provided, config is ignored unless it is set explicitly
    * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the Grid registers itself at {@link bcdui.factory.objectRegistry}
@@ -3815,6 +3836,8 @@ bcdui.component = Object.assign(bcdui.component,
    * @param {boolean}                 [args.forceAddAtBottom=false]                          - Always add a new row at the bottom, no matter if topMode or pagination
    * @param {boolean}                 [args.disableDeepKeyCheck=false]                       - Set this to true if you really want to disable the deep key check which is active if your grid is only a subset of the underlying table
    * @param {boolean}                 [args.ignoreKeyCase=false]                             - Set this to true if the key test should not be case sensitive
+   * @param {modelUrl}                [args.exportFileName]                                  - Filename for grid export
+   * @param {boolean}                 [args.disableExport=false]                             - Disable export functionality.
    * @private
    */
   createGrid: function( args )
@@ -3848,6 +3871,9 @@ bcdui.component = Object.assign(bcdui.component,
         forceAddAtBottom:     args.forceAddAtBottom,
         disableDeepKeyCheck:  args.disableDeepKeyCheck,
         ignoreKeyCase:        args.ignoreKeyCase,
+        modelUrl:             args.modelUrl,
+        exportFileName:       args.exportFileName,
+        disableExport:        args.disableExport,
         columnFiltersGetCaptionForColumnValue: args.columnFiltersGetCaptionForColumnValue,
         columnFiltersCustomFilter:             args.columnFiltersCustomFilter,
         defaultButtons:                        args.defaultButtons,

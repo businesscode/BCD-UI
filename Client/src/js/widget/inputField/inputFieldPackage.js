@@ -1407,7 +1407,7 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
 
   /**
    * Add the option to the bcdAutoCompletionBox.
-   * @return the added item (HTMLElement)
+   * @return {DomElement} the added item (HTMLElement)
    * @private
    */
   _addOption: function(valueBox, htmlElementId, value, isSelected, rowId)

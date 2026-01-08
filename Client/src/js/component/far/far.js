@@ -35,7 +35,7 @@ bcdui.component.far.Far = class
    * @param {object}                    args                    The parameter map contains the following properties:
    * @param {targetHtmlRef}             args.targetHtml         A reference to the HTML DOM Element where to render the output.
    * @param {bcdui.core.DataProvider}   args.config             Configuration document from http://www.businesscode.de/schema/bcdui/far-1.0.0
-   * @param {string}                    [args.componentId=far]  An ID for the component, 'far' is the default. This is not the data provider's technical identifier,
+   * @param {string}                    [args.componentId="far"] An ID for the component, 'far' is the default. This is not the data provider's technical identifier,
    *                                                            this ID is used as component identifer to support multiple components on single page, i.e. reuse same configuration.
    * @param {bcdui.core.DataProvider}   [args.statusModel=bcdui.wkModels.guiStatusEstablished]  The StatusModel, containing the filters at /SomeRoot/f:Filter
    */
@@ -343,7 +343,7 @@ bcdui.component.far.enhancer = Object.assign(bcdui.component.far.enhancer,
    *
    * @param {object}                    args                    The arguments
    * @param {bcdui.core.DataProvider}   args.config             Configuration document from http://www.businesscode.de/schema/bcdui/far-1.0.0
-   * @param {string}                    [args.componentId=far]  An ID for the component, 'far' is the default. This is not the data provider's,
+   * @param {string}                    [args.componentId="far"] An ID for the component, 'far' is the default. This is not the data provider's,
    *                                                            this ID is used as component identifer to support multiple components on single page
    * @param {bcdui.core.DataProvider}   [args.statusModel=bcdui.wkModels.guiStatusEstablished]  StatusModel, containing the filters at /SomeRoot/f:Filter,
    *                                                                                            far:Far/far:ConfiguratorLayout element, etc. default is 'guiStatusEstablished'

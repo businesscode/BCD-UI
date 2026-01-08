@@ -431,7 +431,7 @@ public class WrqBindingItem implements WrsBindingItem
   }
 
   /**
-   * Used to identify column reference parts in a SQL Column expressions to allow for prepending table alias {@see BindingUtils.splitColumnExpression}
+   * Used to identify column reference parts in a SQL Column expressions to allow for prepending table alias {@link BindingUtils#splitColumnExpression}
    * @return
    */
   public List<String> getSplitColumnExpression() {
@@ -439,7 +439,7 @@ public class WrqBindingItem implements WrsBindingItem
   }
 
   /**
-   * Used to identify column reference parts in a SQL Column expressions to allow for prepending table alias {@see BindingUtils.splitColumnExpression}
+   * Used to identify column reference parts in a SQL Column expressions to allow for prepending table alias {@link BindingUtils#splitColumnExpression}
    * @param applyVdm If false, virtual dimension member caused case-when are ignored here
    * @return
    */
@@ -542,7 +542,7 @@ public class WrqBindingItem implements WrsBindingItem
   }
 
   /**
-   * Derive the column expression<
+   * Derive the column expression
    * Note that for VDM, this relies on plainColumnExpression and jdbcDataType being set already to this.
    * @param cE
    */

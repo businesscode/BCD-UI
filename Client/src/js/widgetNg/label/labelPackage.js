@@ -105,6 +105,9 @@
       }
     },
 
+    /**
+     * @private
+     */
     _render: function() {
       var el = "";
       if (this.config.optionsModelId) {
@@ -118,7 +121,7 @@
         }.bind(this));
       }
       else {
-        el = "<label" + (bcdui.i18n.isI18nKey(this.options.text) ? (" bcdTranslate='"+this.options.substring(1)+"'></label>") : (">" + bcdui.util.escapeHtml(this.options.text) + "</label>"));
+        el = "<label" + (bcdui.i18n.isI18nKey(this.options.text) ? (" bcdTranslate='"+this.options.text.substring(1)+"'></label>") : (">" + bcdui.util.escapeHtml(this.options.text) + "</label>"));
         jQuery(this.config.element).find(".bcdLabel").empty().append(el);
         bcdui.i18n.syncTranslateHTMLElement({elementOrId:this.config.element});
       }

@@ -99,7 +99,7 @@ bcdui.widget.visualizeXml =
    * @param {string}                  [args.idRef]        Id of the model to be visualized
    * @param {bcdui.core.DataProvider} [args.inputModel]   Instead of an id, the model can be provided directly
    * @param {boolean}                 [args.isAutoRefresh=true] Automatically redraw when model changes
-   * @param {string}                  [args.stylesheetUrl=/bcdui/js/widget/visualizeXml/visualizeXmlCaller.xslt] renderer stylesheet
+   * @param {string}                  [args.stylesheetUrl="/bcdui/js/widget/visualizeXml/visualizeXmlCaller.xslt"] renderer stylesheet
    * @param {function}                [args.onReady]      onReady function for renderer
    * @example
    * // Load, transform and visualize a model

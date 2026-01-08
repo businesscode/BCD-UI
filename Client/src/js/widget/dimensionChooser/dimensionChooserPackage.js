@@ -1128,7 +1128,7 @@ bcdui.widget.dimensionChooser = Object.assign(bcdui.widget.dimensionChooser,
   /**
    * checks if container html still exists, if not, listeners, filters and client area is cleaned
    * @param {object} config the dimchooser config object
-   * @returns boolean true when chooser is not existing anymore
+   * @returns {boolen} boolean true when chooser is not existing anymore
    * @private
    */
   , _cleanupListener: function(config) {

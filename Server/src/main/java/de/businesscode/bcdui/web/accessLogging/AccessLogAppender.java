@@ -17,8 +17,6 @@ package de.businesscode.bcdui.web.accessLogging;
 
 import java.io.Serializable;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.Layout;
@@ -38,13 +36,13 @@ import de.businesscode.util.Utils;
 
 @Plugin(name = "AccessLogAppender", category = "Core", elementType = "appender", printObject = true)
 public class AccessLogAppender extends AbstractAppender {
-  
-  public AccessLogAppender(final String name, final Filter filter, final Layout<? extends Serializable> layout, 
+
+  public AccessLogAppender(final String name, final Filter filter, final Layout<? extends Serializable> layout,
       final boolean ignoreExceptions, final Property[] properties) {
     super(name, filter, layout, ignoreExceptions, properties);
     start();
   }
-  
+
   @PluginFactory
   public static AccessLogAppender createAppender(@PluginAttribute("name") String name,
                                                  @PluginElement("Layout") Layout<? extends Serializable> layout,
@@ -53,7 +51,7 @@ public class AccessLogAppender extends AbstractAppender {
           layout = PatternLayout.createDefaultLayout();
       return new AccessLogAppender(name, filter, layout, false, null);
   }
-  
+
   public static AccessLogAppender createAppender() {
     return createAppender("AccessLogAppender", null, null);
   }
@@ -65,39 +63,36 @@ public class AccessLogAppender extends AbstractAppender {
     WrsAccessLogEvent wrsLogEvent = (WrsAccessLogEvent) event.getMessage();
 
     try {
-      HttpServletRequest request = wrsLogEvent.getRequest();
-      if (request != null) {
-        String pageHash = ThreadContext.get(RequestLifeCycleFilter.MDC_KEY_BCD_PAGEHASH),
-               requestHash = ThreadContext.get(RequestLifeCycleFilter.MDC_KEY_BCD_REQUESTHASH),
-               sessionId = ThreadContext.get(RequestLifeCycleFilter.MDC_KEY_SESSION_ID),
-               reqQuery = request.getQueryString(),
-               requestUrl = request.getRequestURL().toString() + (reqQuery != null ? "?" + reqQuery : ""),
-               bindingSetName = wrsLogEvent.getBindingSetName(),
-               requestXML = wrsLogEvent.getRequestDoc() != null ? Utils.serializeElement(wrsLogEvent.getRequestDoc()) : null;
+      String pageHash = ThreadContext.get(RequestLifeCycleFilter.MDC_KEY_BCD_PAGEHASH),
+             requestHash = ThreadContext.get(RequestLifeCycleFilter.MDC_KEY_BCD_REQUESTHASH),
+             sessionId = ThreadContext.get(RequestLifeCycleFilter.MDC_KEY_SESSION_ID),
+             reqQuery = wrsLogEvent.getRequestQueryString(),
+             requestUrl = wrsLogEvent.getRequestUrl() + (reqQuery != null ? "?" + reqQuery : ""),
+             bindingSetName = wrsLogEvent.getBindingSetName(),
+             requestXML = wrsLogEvent.getRequestDoc() != null ? Utils.serializeElement(wrsLogEvent.getRequestDoc()) : null;
 
-        if (requestUrl.length()> 2000)
-          requestUrl = requestUrl.substring(0, 2000);
-        if (bindingSetName != null && bindingSetName.length()> 255)
-          bindingSetName = bindingSetName.substring(0, 255);
+      if (requestUrl.length()> 2000)
+        requestUrl = requestUrl.substring(0, 2000);
+      if (bindingSetName != null && bindingSetName.length()> 255)
+        bindingSetName = bindingSetName.substring(0, 255);
 
-        // log access
-        if(AccessSqlLogger.getInstance().isEnabled()) {
-          final AccessSqlLogger.LogRecord recordAccess = new AccessSqlLogger.LogRecord(
-                sessionId
-              , requestUrl
-              , pageHash
-              , requestHash
-              , bindingSetName
-              , requestXML
-              , wrsLogEvent.getRowCount()
-              , wrsLogEvent.getValueCount()
-              , wrsLogEvent.getRsStartTime()
-              , wrsLogEvent.getRsEndTime()
-              , wrsLogEvent.getWriteDuration()
-              , wrsLogEvent.getExecuteDuration()
-          );
-          AccessSqlLogger.getInstance().process(recordAccess);
-        }
+      // log access
+      if(AccessSqlLogger.getInstance().isEnabled()) {
+        final AccessSqlLogger.LogRecord recordAccess = new AccessSqlLogger.LogRecord(
+              sessionId
+            , requestUrl
+            , pageHash
+            , requestHash
+            , bindingSetName
+            , requestXML
+            , wrsLogEvent.getRowCount()
+            , wrsLogEvent.getValueCount()
+            , wrsLogEvent.getRsStartTime()
+            , wrsLogEvent.getRsEndTime()
+            , wrsLogEvent.getWriteDuration()
+            , wrsLogEvent.getExecuteDuration()
+        );
+        AccessSqlLogger.getInstance().process(recordAccess);
       }
     }
     catch (Exception e) {

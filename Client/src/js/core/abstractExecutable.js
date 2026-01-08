@@ -93,7 +93,7 @@ bcdui.core.AbstractExecutable = class
        * The current status of the object. This variable should not be used
        * directly. Instead the getStatus method and the status listener
        * mechanism should be used.
-       * @type Status
+       * @type {bcdui.core.Status}
        * @private
        */
       this.status = this.nullStatus;
@@ -108,7 +108,7 @@ bcdui.core.AbstractExecutable = class
       /**
        * This array contains a list of objects with a "timestamp" and a "status"
        * field. It is cleared on each execute operation.
-       * @type Array
+       * @type {Array<Object>}
        * @private
        */
       this.statusTransitionTiming = [];
@@ -116,7 +116,7 @@ bcdui.core.AbstractExecutable = class
       /**
        * A flag that will be set to true as soon as the ready or failed state is
        * reached once.
-       * @type Boolean
+       * @type {boolean}
        * @private
        */
       this.hasBeenExecutedBefore = false;
@@ -131,7 +131,7 @@ bcdui.core.AbstractExecutable = class
    * @param args The args param can either be a Status object, undefined, an
    * array of Status objects or a map with the key "status" holding an array
    * of Status objects.
-   * @return Array An array of status objects extracted from the argument map.
+   * @return {Array<bcdui.core.Status>} An array of status objects extracted from the argument map.
    * @private
    */
   _extractStatusListFromArgs(/* object */ args)
@@ -182,10 +182,10 @@ bcdui.core.AbstractExecutable = class
     }
 
   /**
-   * Removes the specified listener from the listeners map.
-   * @param {StatusListener|function} listener The listener to be removed. This can either be a function or
+   * Removes the specified listener.
+   * @param {bcdui.core.StatusListener|function} listener The listener to be removed. This can either be a function or
    * a StatusListener object.
-   * @param {Status} statusCode The status code the listener is assigned to.
+   * @param {bcdui.core.Status} statusCode The status code the listener is assigned to.
    * @private
    */
   _removeStatusListenerFromCodeMapping(listener, statusCode)
@@ -212,7 +212,7 @@ bcdui.core.AbstractExecutable = class
    */   
    /**
     * Listen for any status to be reached. For use cases with the ready status (by far the most common), see onReady() and onceReady() convenience functions.
-    * @param {(function|StatusListener|AddStatusListenerParam)} args - Either a function executed on all status transitions or a parameter map {@link AddStatusListenerParam}
+    * @param {(function|bcdui.core.StatusListener|AddStatusListenerParam)} args - Either a function executed on all status transitions or a parameter map {@link AddStatusListenerParam}
    */
   addStatusListener(args)
     {
@@ -234,7 +234,7 @@ bcdui.core.AbstractExecutable = class
    * @property {bcdui.core.Status}                  status   - The status this listener is listening to. If it is missing it is assumed that the listener belongs to the global scope.
    */
   /**
-   * @param { function|StatusListener|RemoveStatusListenerParam} args The listener to be removed. This can either be a function or a {@link bcdui.core.StatusListener StatusListener} or a parameter map {@link RemoveStatusListenerParam}.
+   * @param { function|bcdui.core.StatusListener|RemoveStatusListenerParam} args The listener to be removed. This can either be a function or a {@link bcdui.core.StatusListener StatusListener} or a parameter map {@link RemoveStatusListenerParam}.
    */
   removeStatusListener( args)
     {
@@ -252,7 +252,7 @@ bcdui.core.AbstractExecutable = class
 
   /**
    * Fires a status event to the responsible listeners.
-   * @param {Status} args The args parameter map must either be an instance of the
+   * @param {bcdui.core.Status} args The args parameter map must either be an instance of the
    * Status object or a parameter map containing a "status" property holding
    * a Status object.
    * @private
@@ -443,9 +443,9 @@ bcdui.core.AbstractExecutable = class
    * A utility function potentially asynchronously waiting until all
    * "dependentStatusPublishers" objects are ready. Then it sets the status
    * to the provided one.
-   * @param {Status} newStatus The new status to be set as soon as all publishers are
+   * @param {bcdui.core.Status} newStatus The new status to be set as soon as all publishers are
    * ready.
-   * @param {array} dependentStatusPublishers The array of status publishers that
+   * @param {Array<bcdui.core.AbstractExecutable>} dependentStatusPublishers The array of status publishers that
    * are required to be ready before the status change happens.
    * @param {function} [failureCallback]
    * @private
@@ -524,7 +524,13 @@ bcdui.core.AbstractExecutable = class
     }
 
   /**
-   * Executes the process implemented by the concrete sub-class.
+   * <b>Instead of calling this method directly, better rely on a Renderer or on method onReady().</b><br/>
+   * Executes the process implemented by the concrete sub-class
+   * This method is called by the Renderer when it is ready to render the model
+   * It is often asynchronous.
+   * Note, Renderer and sub-classes execute all input models recursively automatically.
+   * This means, usually you do not need to call this method directly. Note: it is asynchronous.
+   * Use method .onReady({executeIfNotReady: true, onSuccess: callback }) if no Renderer is involved.
    * @param {boolean} [doesRefresh=true] Set this parameter to "false" if this method should do
    * nothing when the object is already in the ready status. The default is "true"
    * meaning that the process is re-started when it is currently ready.
@@ -650,22 +656,28 @@ bcdui.core.AbstractExecutable = class
    * @private
    */
   _executeImpl()
-    {
-      throw Error("Abstract method: bcdui.core.AbstractExecutable._executeImpl");
-    }
+  {
+    throw Error("Abstract method: bcdui.core.AbstractExecutable._executeImpl");
+  }
 
-    /**
-     * Prepares this instance for disposal. Particularly, following tasks are done:
-     * - this instance is unregistered from objectRegistry, in case it initially was registered to
-     * - all listeners are removed
-     * @private
-     */
-    destroy(){
-      // de-register from object registry
-      if(this._doRegister){
-        bcdui.factory.objectRegistry.deRegisterObject(this);
-      }
-      // remove all listeners
-      this.listeners = {};
+  /**
+   * Prepares this instance for disposal. Particularly, following tasks are done:
+   * - this instance is unregistered from objectRegistry, in case it initially was registered to
+   * - all listeners are removed
+   * @private
+   */
+  destroy(){
+    // de-register from object registry
+    if(this._doRegister){
+      bcdui.factory.objectRegistry.deRegisterObject(this);
     }
+    // remove all listeners
+    this.listeners = {};
+  }
+
+  /**
+   * Get className
+   * @return {string} className
+   */
+  getClassName(){ return "bcdui.core.AbstractExecutable"; }
 }; // Create class: bcdui.core.AbstractExecutable

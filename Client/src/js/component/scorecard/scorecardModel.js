@@ -116,6 +116,9 @@ bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
     this.setStatus(this.initializedStatus);
   }
 
+  /**
+   * @inheritDoc
+   */
   getClassName() {return "bcdui.component.scorecard.Scorecard";}
 
   /**
@@ -783,7 +786,7 @@ bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
   }
 
   /**
-   * @inheritdoc
+   * @inheritDoc
    */
   getReadyStatus()
   {

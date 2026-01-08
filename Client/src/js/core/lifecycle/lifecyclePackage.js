@@ -55,7 +55,10 @@ bcdui.core._GuiEstDataProvider = class extends bcdui.core.StaticModel {
       else
         this._setReady = true;
     }
-    
+
+    /**
+     * @inheritDoc
+     */
     getClassName() {return "bcdui.core._GuiEstDataProvider";}
   };
 
@@ -69,7 +72,7 @@ bcdui.core._GuiEstDataProvider = class extends bcdui.core.StaticModel {
  * The guiStatus document must satisfy the XSD for the NamespaceURI:  <br/>
  *    http://www.businesscode.de/schema/bcdui/guiStatus-1.0.0
  * </p>
- * @type bcdui.core.DataProvider
+ * @type {bcdui.core.DataProvider}
  */
 bcdui.wkModels.guiStatus = null;
 
@@ -154,7 +157,7 @@ bcdui.core.lifecycle =
     /**
      * Jumps to another url optionally setting status document, this function is executed asynchronously.
      *
-     * @param {url} href - target URL to jump to.
+     * @param {string} href - target URL to jump to.
      * @param {DomDocument} [statusDocument] - status document to pass as guiStatusGZ parameter to href.
      */
     jumpTo: function(href, statusDocument) {

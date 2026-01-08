@@ -171,7 +171,7 @@ public class BooleanConstraintImpl extends AbstractConstrain {
   }
 
   /**
-   * @see de.businesscode.bcdui.binding.rel.impl.AbstractConstrain#getConstrainedStatement(String,String,String)
+   * @see de.businesscode.bcdui.binding.rel.impl.AbstractConstrain#getConstrainedStatement(String,boolean)
    */
   @Override
   public String getConstrainedStatement(String mainTableAlias, boolean isForJoinToCaseWhen) throws BindingException {

@@ -27,10 +27,17 @@ ___
 * autogrow attribute for textarea widget
 * Firefox v137.0.2 stopped supporting xslt document() function, extended our implementation to firefox
 * SideBySideChooser uses i18n tokens for source and target caption translations
+
 .Security:
+* Remove SPNEGO authentication mechanism as it is outdated, use oAuth instead
+* Deprecate bcdui4.Cors Filter for better CORS control using bcdui4.HttpHeaderSecurity
+
 .Development:
+
 .Bugfixes:
+* inputNg: consider value of "step" attribute for type="numeric"
 * WrsNextIdentifierServlet: fix counter creation with blockSize>1
+* internal logging is now compatible with Log4j2 async logging (also with disruptor based method for high throughput logging)
 
 .Incompatibilities:
 * In SQLEngine::transform '-' postfix needs to be converted to '\_' to omit table alias like `INSERT INTO $t.painTableName ($t.colName_) VALUES (1)`

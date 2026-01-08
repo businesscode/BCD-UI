@@ -33,7 +33,7 @@
        * the widget value has been synced to the data model, 'memo' properties passed:
        *
        * - isValueEmpty {boolean}: if value is considered empty
-       * - value {String}: the value synced
+       * - value {string}: the value synced
        * - hasWritten {boolean}: if the value has been written or not, i.e. the value is not written if either invalid or value has not changed
        *
        * @static
@@ -319,7 +319,7 @@
           el.attr("type", "number");
         }else if(args.type=="numeric"){
           el.attr("type", "number");
-          el.attr("step", "any");
+          el.attr("step", !!args.step ? args.step : "any");
         }else{
           el.attr("type", args.type);
         }

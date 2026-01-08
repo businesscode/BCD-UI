@@ -49,7 +49,7 @@ bcdui.util.clipboard =
 
     /**
      * Paste
-     * @returns {Promise} - resolving with clipboard data
+     * @returns {Promise<string>} - resolving with clipboard data
      */
     paste: function() {
       bcdui.log.isTraceEnabled() && bcdui.log.trace("Pasted from clipboard: " + data);

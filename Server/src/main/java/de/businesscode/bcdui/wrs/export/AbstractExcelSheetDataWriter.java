@@ -95,8 +95,7 @@ abstract public class AbstractExcelSheetDataWriter
   /**
    * To be called after it is guaranteed that rnd:Wrs2Excel, if given, is already read
    * 
-   * @param sheetName
-   * @throws ExcelWriterException 
+   * @throws ExcelWriterException
    */
   protected void openSheet() throws ExcelWriterException {
     log.trace("opening sheet: '" + sheetName + "'");
@@ -148,7 +147,7 @@ abstract public class AbstractExcelSheetDataWriter
 
   /**
    * moves cursor to next row and resets column cursor via #{@link #resetColCursor()}, no new row or column is inserted into excel sheet at this operation, till
-   * {@link de.businesscode.bcdui.wrs.export.Wrs2Excel.WrsContainerParser#writeCell(String, Map)}
+   * {@link de.businesscode.bcdui.wrs.export.AbstractExcelSheetDataWriter#writeCell(String)}
    * @throws ExcelWriterException 
    */
   protected void moveToNextLine() throws ExcelWriterException {
@@ -169,7 +168,7 @@ abstract public class AbstractExcelSheetDataWriter
 
 
   /**
-   * reset column cursor to {@link #setStartColIdx(int)} , such as {@link de.businesscode.bcdui.wrs.export.Wrs2Excel.WrsContainerParser#writeCell(String, Map)} would start writing with a first column
+   * reset column cursor to {@link #setStartColIdx(int)} , such as {@link de.businesscode.bcdui.wrs.export.AbstractExcelSheetDataWriter#writeCell(String)} would start writing with a first column
    */
   protected void resetColCursor() {
     currentColIdx = startColIdx;

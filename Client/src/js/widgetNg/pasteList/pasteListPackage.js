@@ -92,7 +92,7 @@
       if( !!guiValue.trim() ) {
         
         // Use configured separators?
-        let separators = "[" + (args["pasteSeps"] || ";, \\|\\t\\n" ) + "]+";
+        let separators = "[" + (args["pasteSeps"] || ",|;| |\\t|\\n|\\|" ) + "]+";
         var re = new RegExp(separators,"g");
         let value = guiValue.trim().replace(re," ").split(" ");
 

@@ -256,6 +256,9 @@ bcdui.component.scorecard.Scorecard = class extends bcdui.core.Renderer
     }.bind(this)});
   }
 
+  /**
+   * @inheritDoc
+   */
   getClassName() {return "bcdui.component.scorecard.Scorecard";}
 
   /**

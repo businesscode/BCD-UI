@@ -35,7 +35,7 @@ import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 import de.businesscode.bcdui.web.servlets.SubjectPreferences;
 
 /**
- * Support for bcd_log_login logging as well as further security enhancement, such as session-fixation {@link https://owasp.org/www-community/attacks/Session_fixation}
+ * Support for bcd_log_login logging as well as further security enhancement, such as session-fixation, see <a href="https://owasp.org/www-community/attacks/Session_fixation">OWASP Session_fixation</a>
  */
 public class AuthenticationListener implements org.apache.shiro.authc.AuthenticationListener {
 
@@ -84,7 +84,7 @@ public class AuthenticationListener implements org.apache.shiro.authc.Authentica
   /**
    * re-creates a session and copy session atts if any found
    *
-   * @see {@link https://owasp.org/www-community/attacks/Session_fixation}
+   * @see <a href="https://owasp.org/www-community/attacks/Session_fixation">Session_fixation</a>
    * @param subject
    * @return
    */

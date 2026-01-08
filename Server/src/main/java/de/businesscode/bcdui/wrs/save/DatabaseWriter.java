@@ -107,9 +107,13 @@ public class DatabaseWriter {
     ensureAllKeysAvailable(bindingSetPr, keyColumnNames);
   }
 
-  public void updateColumnsAndTypes(BindingItem[] columnsPr, Integer[] columnTypesPr) {
+  public void updateColumnsAndTypes(BindingItem[] columnsPr, Integer[] columnTypesPr, Collection<String> keyColumnNames) {
     this.columns = columnsPr;
     this.columnTypes = columnTypesPr;
+    this.isKeyColumn = new boolean[columnsPr.length];
+    for (int i = 0; i < columnsPr.length; ++i) {
+      isKeyColumn[i] = keyColumnNames.contains(columnsPr[i].getId());
+    }
   }
 
   /**

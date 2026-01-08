@@ -33,7 +33,7 @@
        * the widget value has been synced to the data model, 'memo' properties passed:
        *
        * - isValueEmpty {boolean}: if value is considered empty
-       * - value {String}: the value synced
+       * - value {string}: the value synced
        * - hasWritten {boolean}: if the value has been written or not, i.e. the value is not written if value has not changed
        *
        * @static

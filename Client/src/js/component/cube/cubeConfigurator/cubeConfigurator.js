@@ -722,9 +722,9 @@ bcdui.component.cube.configurator = Object.assign(bcdui.component.cube.configura
 
   /**
    * adds generated calc nodes to model
-   * @param nodes - generated xml nodes
-   * @param targetModelId
-   * @param targetModelXPath
+   * @param {Array<DomNode>} nodes - generated xml nodes
+   * @param {string} targetModelId
+   * @param {xPath} targetModelXPath
    * @private
    */
   _putCalcNodeToModel: function(nodes, targetModelId, targetModelXPath){
@@ -737,9 +737,10 @@ bcdui.component.cube.configurator = Object.assign(bcdui.component.cube.configura
 
   /**
    * adding row measure for cube (opening calcNode editor and put formula to cube model)
-   * @param targetModelId
-   * @param cubeId
-   * @param args \{ row, col \}
+   * @param {targetHtmlRef} targetModelId
+   * @param {string} cubeId
+   * @param { {row: integer, col: integer } } args { row, col }
+   * @return {boolean} false
    */
   addRowMeasure: function( targetModelId, cubeId, args ){
     // getting unique identifier for new measure
@@ -753,9 +754,10 @@ bcdui.component.cube.configurator = Object.assign(bcdui.component.cube.configura
 
   /**
    * adding column measure for cube (opening calcNode editor and put formula to cube model)
-   * @param targetModelId
-   * @param cubeId
-   * @param args \{ row, col \}
+   * @param {targetHtmlRef} targetModelId
+   * @param {string} cubeId
+   * @param { {row: integer, col: integer } } args { row, col }
+   * @return {boolean} false
    */
   addColumnMeasure: function( targetModelId, cubeId, args ){
     // getting unique identifier for new column
@@ -769,10 +771,10 @@ bcdui.component.cube.configurator = Object.assign(bcdui.component.cube.configura
 
   /**
    * opening calcNode editor for edit current formula
-   * @param targetModelId
-   * @param cubeId
-   * @param args
-   * @param args.calcId
+   * @param {targetHtmlRef} targetModelId
+   * @param {string} cubeId
+   * @param { {calcId: string } } args
+   * @return {boolean} false
    */
   editUserMeasure: function( targetModelId, cubeId, args ){
     var targetModelXPath = "/*/cube:Layout[@cubeId ='"+ cubeId +"']/cube:Measures/*/dm:Measure[@id='" + args.calcId + "']";
@@ -782,10 +784,10 @@ bcdui.component.cube.configurator = Object.assign(bcdui.component.cube.configura
 
   /**
    * deleting userCalc node from measures
-   * @param targetModelId
-   * @param cubeId
-   * @param args
-   * @param args.calcId
+   * @param {targetHtmlRef} targetModelId
+   * @param {string} cubeId
+   * @param { {calcId: string } } args
+   * @return {boolean} false
    */
   deleteUserMeasure: function( targetModelId, cubeId, args ){
     var xPath = "/*/cube:Layout[@cubeId ='"+ cubeId +"']/cube:Measures/*/dm:Measure[@id='" + args.calcId + "']";

@@ -52,17 +52,17 @@ import jakarta.servlet.ServletOutputStream;
  * Class to provide zipping and downloading a specified number of files
  * which need to be accessible via ResourceServlet (which also provides the secured access)
  * Files are specified via a config
- * <Vfs xmlns="http://www.businesscode.de/schema/bcdui/vfs-1.0.0">
- *   <Zip>
- *     <Folder name="folder1">
- *       <File name="/vfs/documents/ace9e8e7-548a-4410-aa52-c57fb32e34fa/xf"/>
- *     </Folder>
- *     <Folder .... />
- *   </Zip>
- * </Vfs>
+ * &lt;Vfs xmlns="http://www.businesscode.de/schema/bcdui/vfs-1.0.0">
+ *   &lt;Zip>
+ *     &lt;Folder name="folder1">
+ *       &lt;File name="/vfs/documents/ace9e8e7-548a-4410-aa52-c57fb32e34fa/xf"/>
+ *     &lt;/Folder>
+ *     &lt;Folder .... />
+ *   &lt;/Zip>
+ * &lt;/Vfs>
  *  As an alternative, you can also provide a scope/instance pair instead of a path name.
  *  This will get all matching entries from bcd_docUpload and adds them as files
- *  <File scope="..." instance="..."/>
+ *  &lt;File scope="..." instance="..."/>
  * 
  *  This class is triggered by the StaticResourceServlet if you provide an url with parameter zipInfo
  *  which is the compressed config xml

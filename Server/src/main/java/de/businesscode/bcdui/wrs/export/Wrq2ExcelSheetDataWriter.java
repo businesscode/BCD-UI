@@ -56,12 +56,18 @@ public class Wrq2ExcelSheetDataWriter extends AbstractExcelSheetDataWriter imple
   public ISqlGenerator getGenerator() {return generator;}
 
   /**
-   * {@link AbstractExcelSheetDataWriter}
-   * Handling a WrsRequest, we consume wrs:WrsRequest XMLEvent up to the closing tag
-   * @param eventReader
-   * @param event
-   * @throws XMLStreamException
-   * @throws ExcelWriterException
+   * Constructs a {@code Wrq2ExcelSheetDataWriter} instance for exporting data into an Excel sheet by processing a WrsRequest.
+   *
+   * This constructor initializes the writer with relevant request options, Excel workbook, XML event information,
+   * and other configurations to prepare for the data writing process.
+   *
+   * @param options The {@code IRequestOptions} defining the request's settings and environment, such as request document, bindings, or configurations.
+   * @param workbook The {@code Workbook} representing the Excel workbook where data will be written.
+   * @param eventRoot The {@code XMLEvent} representing the root event of the XML structure being processed.
+   * @param eventReader The {@code XMLEventReader} for consuming XML events in a streaming manner during processing.
+   * @param pathStack A {@code Stack<String>} representing the navigation path of the XML structure for context tracking.
+   * @param includeHeader A {@code boolean} flag indicating whether the Excel sheet should include header information.
+   * @throws ExcelWriterException If an error occurs during the initialization or creation of the writer.
    */
   public Wrq2ExcelSheetDataWriter( IRequestOptions options, Workbook workbook, XMLEvent eventRoot, XMLEventReader eventReader, Stack<String> pathStack, boolean includeHeader ) 
       throws ExcelWriterException

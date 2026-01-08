@@ -146,12 +146,12 @@ bcdui.widgetNg.commons.balloon._init = function(){
  * this function does nothing in case a balloon is already attached
  * on this element.
  *
- * @param {element|string} htmlElementId  The target to attach ballon to.
+ * @param {HtmlElement|string} htmlElementId  The target to attach ballon to.
  * @param {object}  [args]                Object literal containing following properties
  * @param {boolean} [args.noTooltip]      If balloon is attach a tooltip (mouseover) is attached as well,you can disable it here.
  * @param {boolean} [args.noBalloon]      If set to TRUE the static balloon is not displayed
  *
- * @return true if attached, false if not; if both noTooltip and noBalloon parameters are set, this function returns FALSE and has no effect.
+ * @return {boolean} true if attached, false if not; if both noTooltip and noBalloon parameters are set, this function returns FALSE and has no effect.
  */
 bcdui.widgetNg.commons.balloon.attach = function(htmlElementId,args){
   if(!args){
@@ -249,7 +249,7 @@ bcdui.widgetNg.commons.balloon.displayHintBalloon = function(htmlElementId){
 
 /**
  * positions element, params:
- * - {Element}htmlElement
+ * - {DomElement}htmlElement
  * - {enum: Tray.SW Tray.SE Tray.NW Tray.NE}position:
  *  tray(south-west(default), south-east, north-west, north-east) - positions element at viewport
  * @private
@@ -313,7 +313,7 @@ bcdui.widgetNg.commons.balloon.hideHintBalloon = function(htmlElementId){
  * ValidationMessages&lt;Item+>
  * Item&lt;CDATA>
  *
- * @return NULL (if no messages found / tooltip) or DOM string
+ * @return {null|string} NULL (if no messages found / tooltip) or DOM string
  */
 bcdui.widgetNg.commons.balloon.messagesToXML = function(messagesArray, tooltipString){
   // normalize

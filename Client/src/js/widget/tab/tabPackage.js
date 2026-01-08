@@ -25,9 +25,9 @@ bcdui.core.HTML2XMLDataProvider = class extends bcdui.core.DataProvider
        * @constructs
        * @extends bcdui.core.DataProvider
        * @param {Object} args
-       * @param {String} args.id
-       * @param {String} args.name
-       * @param {(String|HtmlElement)} args.idOrElement
+       * @param {string} args.id
+       * @param {string} args.name
+       * @param {(string|HtmlElement)} args.idOrElement
        *
        */
       constructor(args)
@@ -85,13 +85,16 @@ bcdui.core.HTML2XMLDataProvider = class extends bcdui.core.DataProvider
           this.setStatus(newStatus);
         }
 
+      /**
+       * @inheritDoc
+       */
       getData()
         {
           return this.doc;
         }
 
       /**
-       * @return {status}
+       * @inheritDoc
        */
       getReadyStatus()
         {

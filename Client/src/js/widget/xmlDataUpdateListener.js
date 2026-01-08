@@ -20,6 +20,7 @@
  *   and depending on the existence of a specific HTML element. When the HTML element disappears
  *   the listener de-registers itself from the target model.
  * @type {bcdui.widget.XMLDataUpdateListener}
+ * @abstract
  */
 bcdui.widget.XMLDataUpdateListener = class
 {
@@ -31,14 +32,14 @@ bcdui.widget.XMLDataUpdateListener = class
     {
       /**
        * The ID of the HTML element to be watched.
-       * @type String
+       * @type {string}
        * @constant
        */
       this.htmlElementId = "";
       this.htmlElementId = args.htmlElementId;
       /**
        * The generated id of the listener.
-       * @type String
+       * @type {string}
        * @constant
        */
       this.id = "lst_" + this.htmlElementId;
@@ -46,13 +47,13 @@ bcdui.widget.XMLDataUpdateListener = class
       /**
        * The hidden referenceId of targetModel to be watched.
        * will be needed when idRef will be removed from object.
-       * @type bcdui.core.DataProvider
+       * @type {bcdui.core.DataProvider}
        * @constant
        */
       this._targetModelId = args.idRef;
       /**
        * The referenceId of targetModel to be watched.
-       * @type bcdui.core.DataProvider
+       * @type {bcdui.core.DataProvider}
        * @constant
        */
       this.idRef = args.idRef;
@@ -60,7 +61,7 @@ bcdui.widget.XMLDataUpdateListener = class
       /**
        * The XPath within the targetModel that should be observed by the client
        * class. It is not evaluated in this base class.
-       * @type String
+       * @type {string}
        * @constant
        */
       this.trackingXPath = "";
@@ -69,13 +70,13 @@ bcdui.widget.XMLDataUpdateListener = class
       /**
        * A flag which is set to false when the class has de-registered itself from
        * the targetModel after the htmlElement has disappeared.
-       * @type Boolean
+       * @type {boolean}
        */
       this.isUnRegistered = false;
     }
 
   /**
-   * @return {String} The generated id of this listener.
+   * @return {string} The generated id of this listener.
    * @private
    */
   getId()
@@ -120,7 +121,7 @@ bcdui.widget.XMLDataUpdateListener = class
    * Tests, if the class has already unregistered itself from its target model. This
    * happens when the listener is called, but the HTML element it is assigned to has
    * disappeared.
-   * @return {Boolean} True, if the class is unregistered.
+   * @return {boolean} True, if the class is unregistered.
    */
   hasBeenUnRegistered()
     {

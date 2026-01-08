@@ -125,9 +125,9 @@ function printCustomTag( tagName, jsConstructorLongname, params, factory )
   result += "  var args = { targetHtml: this };" + newLine;
 
   // Because HTML attributes are not case sensitive, we cannot generically derive param names from attribute names, instead we have to list them explicitly
-  var allowedParamTypes = ["string", "boolean", "xPath", "i18nToken", "modelXPath", "writableModelXPath", "bcdui.core.DataProvider", "function", "chainDef", "enum", "number", "integer", "stringList", "url"];
+  var allowedParamTypes = ["string", "boolean", "xPath", "i18nToken", "modelXPath", "writableModelXPath", "bcdui.core.DataProvider", "function", "chainDef", "enum", "enumString", "number", "integer", "stringList", "url"];
   // for default values we have to distinguish between literals and string values
-  var stringParamTypes = ["string", "xPath", "i18nToken", "modelXPath", "writableModelXPath", "enum", "stringList", "url"];
+  var stringParamTypes = ["string", "xPath", "i18nToken", "modelXPath", "writableModelXPath", "enumString", "stringList", "url"];
   params.filter( function( param ) {
     // id attribute refers to the html tag, not the object. Use objectId for that
     if( param.name.indexOf(".") === -1 || param.name === "args.id" )
@@ -171,11 +171,7 @@ function printCustomTag( tagName, jsConstructorLongname, params, factory )
     } else {
       var defaultValue = param.defaultvalue;
       if(defaultValue !== undefined){
-        if(isStringType){
-          defaultValue = " || " + JSON.stringify(defaultValue);
-        } else {
-          defaultValue = " || " + defaultValue;
-        }
+        defaultValue = " || " + defaultValue;
       } else {
         defaultValue = "";
       }
@@ -186,6 +182,8 @@ function printCustomTag( tagName, jsConstructorLongname, params, factory )
   result += "    args.id = this.getAttribute('objectId');" + newLine;
 
   result += "  " + factory + "( args );" + newLine;
+  result += "  this._bcdHtmlReady = true;" + newLine;
+  result += "  this.dispatchEvent(new CustomEvent('bcdHtmlReady', { bubbles: true }));" + newLine;
   result += "});" + newLine;
   return result;
 }

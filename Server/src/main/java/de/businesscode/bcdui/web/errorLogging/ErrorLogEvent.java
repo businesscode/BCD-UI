@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2024 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -35,11 +35,17 @@ import jakarta.servlet.http.HttpSession;
  * ...
  */
 public class ErrorLogEvent extends LogEventBase {
+  private static final long serialVersionUID = 1L;
 
-  private String message;
-  private String data;
-  private HttpServletRequest request;
-  private Throwable thrwbl;
+  private final String message;
+  private final String data;
+  private final String requestUrl;
+  private final String userName;
+  private final String userAgent;
+  private final String refererUrl;
+  private final String remoteAddr;
+  private final Throwable thrwbl;
+  private final Integer requestHash;
 
   /**
    *
@@ -50,9 +56,14 @@ public class ErrorLogEvent extends LogEventBase {
    */
   public ErrorLogEvent(String message, HttpServletRequest request, String data, Throwable thrwbl) {
     this.message = message;
-    this.request = request;
     this.data = data;
     this.thrwbl = thrwbl;
+    this.requestUrl = getRequestUrl(request);
+    this.userName = getUserName(request);
+    this.userAgent = getUserAgent(request);
+    this.refererUrl = getRefererUrl(request);
+    this.remoteAddr = getRemoteAddr(request);
+    this.requestHash = getRequestHash(request);
   }
 
   /**
@@ -91,77 +102,110 @@ public class ErrorLogEvent extends LogEventBase {
     return message;
   }
 
-  /**
-   * @return the request
-   */
-  public HttpServletRequest getRequest() {
-    return request;
-  }
-
   // ==========================================================================
 
   /**
+   * @param request
    * @return the username from request
    */
-  public String getUserName() {
-    if (getRequest() != null) {
-      if (getRequest().getUserPrincipal() != null) {
-        return getRequest().getUserPrincipal().getName();
-      }
-      HttpSession session = getRequest().getSession(false);
-      if (session != null && session.getAttribute("user") != null) {
-        return session.getAttribute("user").toString();
-      }
+  public String getUserName(HttpServletRequest request) {
+    if (request.getUserPrincipal() != null) {
+      return request.getUserPrincipal().getName();
     }
+
+    HttpSession session = request.getSession(false);
+    if (session != null && session.getAttribute("user") != null) {
+      return session.getAttribute("user").toString();
+    }
+
     return null;
   }
 
   /**
+   *
+   * @return username from request, see {@link #getUserName(HttpServletRequest)}
+   */
+  public String getUserName() {
+    return this.userName;
+  }
+
+  /**
+   * @param request
    * @return the requestUrl from request
    */
-  public String getRequestUrl() {
-    if (getRequest() != null && getRequest().getRequestURL() != null) {
-      return ServletUtils.getInstance().reconstructURL(getRequest());
+  public String getRequestUrl(HttpServletRequest request) {
+    if (request.getRequestURL() != null) {
+      return ServletUtils.getInstance().reconstructURL(request);
     }
     return null;
   }
 
   /**
+   * @return the requestUrl as of {@link HttpServletRequest#getRequestURL()} see #getRequestUrl(HttpServletRequest)
+   */
+  public String getRequestUrl() {
+    return requestUrl;
+  }
+
+  /**
+   * @param request
    * @return the refererUrl from request
    */
-  public String getRefererUrl() {
-    if (getRequest() != null) {
-      return getRequest().getHeader("Referer");
-    }
-    return null;
+  public String getRefererUrl(HttpServletRequest request) {
+    return request.getHeader("Referer");
   }
 
   /**
+   * @return the refererUrl from request, see {@link #getRefererUrl(HttpServletRequest)}
+   */
+  public String getRefererUrl() {
+    return this.refererUrl;
+  }
+
+  /**
+   * @param request
    * @return the remoteAddr from request
    */
-  public String getRemoteAddr() {
-    var request = getRequest();
-    return request != null ? Utils.getRemoteAddr(request) : null;
+  public String getRemoteAddr(HttpServletRequest request) {
+    return Utils.getRemoteAddr(request);
   }
 
   /**
+   * @return the remoteAddr from request, seee {@link #getRemoteAddr(HttpServletRequest)}
+   */
+  public String getRemoteAddr() {
+    return this.remoteAddr;
+  }
+
+  /**
+   * @param request
    * @return the userAgent from request
    */
-  public String getUserAgent() {
-    if (getRequest() != null) {
-      return getRequest().getHeader("user-agent");
-    }
-    return null;
+  public String getUserAgent(HttpServletRequest request) {
+    return request.getHeader("user-agent");
   }
 
   /**
+   * @return the userAgent from request, see {@link #getUserAgent(HttpServletRequest)}
+   */
+  public String getUserAgent() {
+    return this.userAgent;
+  }
+
+  /**
+   * @param request
    * @return the requestHash from request
    */
+  public Integer getRequestHash(HttpServletRequest request) {
+    return request.hashCode();
+  }
+
+  /**
+   *
+   * @return the requestHash from request, see {@link #getRequestHash(HttpServletRequest)}
+   */
   public Integer getRequestHash() {
-    if (getRequest() != null) {
-      return getRequest().hashCode();
-    }
-    return null;
+    return this.requestHash;
   }
 
   // ==========================================================================

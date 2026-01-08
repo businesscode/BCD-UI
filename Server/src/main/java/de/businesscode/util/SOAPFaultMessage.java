@@ -147,7 +147,7 @@ public class SOAPFaultMessage {
    * @param out
    * @throws SOAPException
    * @throws IOException
-   * @see java.xml.soap.SOAPMessage#writeTo(java.io.OutputStream)
+   * see java.xml.soap.SOAPMessage#writeTo(java.io.OutputStream)
    */
   public void writeTo(OutputStream out) throws SOAPException, IOException {
     getMessage().writeTo(out);

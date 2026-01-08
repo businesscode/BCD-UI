@@ -63,7 +63,7 @@ bcdui.util.datetime =
 
 /**
    * Checks if date passed is valid date
-   * @param {String} date The date string to be parsed.
+   * @param {string} date The date string to be parsed.
    * @returns {boolean} Whether the parsed "date" argument is valid date string.
    */
   isValidDate: function(date)
@@ -296,7 +296,7 @@ bcdui.util.datetime =
   * Pretty prints a date range
   * @param {(Date|string)} startDate First day of the date range
   * @param {(Date|string)} endDate Last day of the date range
-  * @returns {String} A string describing the date range (e.g. "Jul 2010" or "CW 30, 2010").
+  * @returns {string} A string describing the date range (e.g. "Jul 2010" or "CW 30, 2010").
   */
  prettyPrintDateRange: function(startDate, endDate)
    {
@@ -359,8 +359,8 @@ bcdui.util.datetime =
 
  /**
   * The month name as abbreviated string (e.g. "Jul")
-  * @param {int} month
-  * @returns {String}.
+  * @param {integer} month
+  * @returns {string}.
   */
  getShortMonthName: function(month)
    {
@@ -368,8 +368,8 @@ bcdui.util.datetime =
    },
 
  /**
-  * @param {int} year
-  * @param {int} month
+  * @param {integer} year
+  * @param {integer} month
   * @private
   */
  _formatMonthAndYear: function( year,  month)
@@ -380,7 +380,7 @@ bcdui.util.datetime =
  /**
   * The date in the XML date format (e.g. "2010-07-23")
   * @param {Date} date
-  * @returns {String}
+  * @returns {string}
   */
  formatDate: function( date)
    {
@@ -390,7 +390,7 @@ bcdui.util.datetime =
  /**
   * The date in the XML datetime format (e.g. "2010-07-23T00:00:00")
   * @param {Date} date
-  * @returns {String}
+  * @returns {string}
   */
  formatDateTime: function(date)
    {
@@ -398,7 +398,7 @@ bcdui.util.datetime =
        + "T" + bcdui.util.datetime._twoDigits(date.getHours()) + ":" + bcdui.util.datetime._twoDigits(date.getMinutes()) + ":" + bcdui.util.datetime._twoDigits(date.getSeconds());
    },
  /**
-  * @param {int} value
+  * @param {integer} value
   * @private
   */
  _twoDigits: function( value)

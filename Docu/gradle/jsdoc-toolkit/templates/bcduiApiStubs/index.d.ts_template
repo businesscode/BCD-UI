@@ -1,0 +1,33 @@
+/*
+  Copyright 2010-2025 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+// Make types available for IDEs
+/// <reference types="./typedefs.d.ts"/>
+
+import * as bcduiExport from "./exports";
+
+// Make bcdui a well-known ambient global variable
+declare global {
+  /**
+   * BCD-UI library \
+   * Apache License, Version 2.0 \
+   * Created by BusinessCode GmbH, Germany
+   * @see https://businesscode.github.io/BCD-UI-Docu
+   */
+  const bcdui: typeof import("./exports");
+}
+
+export {bcduiExport as bcdui};

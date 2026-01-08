@@ -392,7 +392,7 @@
     /**
      * syncs current input value (or optionally given value) of the widget into model
      *
-     * @param {String?} optNewValue if this value is given, the input control will be updated by this value and then synced to model
+     * @param {string?} optNewValue if this value is given, the input control will be updated by this value and then synced to model
      *                              otherwise current controls value is synced to the model
      *
      * @static

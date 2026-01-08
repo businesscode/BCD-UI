@@ -584,7 +584,6 @@ public class DatabaseCompatibility
 
     // Redshift
     redshiftCalcFktMapping = new HashMap<String, String[]>(calcFktMapping);
-    redshiftCalcFktMapping.put("Grouping",   new String[]{"N", "ISNULL(", "", ")", "I"});
     redshiftCalcFktMapping.put("Concat",     new String[]{"N",  "(",     " || ", ")", "N"}); // Redshift needs spaces for ||?||
 
     //---------------------------------------

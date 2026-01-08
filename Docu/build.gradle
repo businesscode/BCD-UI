@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -112,6 +112,34 @@ task bcduiDocuJsApiStubs ( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
              "--query", "files="+files.join(',') ]
 }
 
+//******************************
+// Generate Typescript types .d.ts files from api stubs generated above
+task bcduiTypescriptDefs ( type: NodeTask, dependsOn: bcduiDocuJsApiStubs ) {
+
+  def outputDir = layout.buildDirectory.dir("tsTypes/node_modules/@types/bcdui/")
+
+  inputs.dir layout.buildDirectory.dir("jsApiStubs")
+  outputs.dir outputDir
+
+  workingDir = file("$bcduiDocuJsApiStubs.outputs.files.asPath/bcdui")
+  script = file("$sharedBuildFilesRoot/.gradle/nodejs/node_modules/typescript/bin/tsc")
+  args   = ["-p", "$sharedBuildFilesRoot/Docu/gradle/jsdoc-toolkit/templates/bcduiApiStubs/tsconfig.json"]
+
+  // tsc generation cleanup
+  doLast {
+    // Overwrite with a fix index.d.ts as entry for our library
+    // Because it references other files, we rename it here at its target place only to prevent IDEs from complaining
+    copy {
+      from "$sharedBuildFilesRoot/Docu/gradle/jsdoc-toolkit/templates/bcduiApiStubs/index.d.ts_template"
+      into outputDir
+      rename { "index.d.ts" }
+    }
+    // Make typedefs available as ambient global types
+    def typedefFile = file(outputDir.get().asFile.path+"/typedefs.d.ts")
+    def nl = System.lineSeparator()
+    typedefFile.text = "// Make globally available${nl}declare global {${nl}${nl}${typedefFile.text}${nl}}${nl}${nl}export{};"
+  }
+}
 
 //******************************
 // Java doc. We skip JAXB generated, as JAXB does produce invalid output in terms of javadoc (xml-parts in its docu)
@@ -154,5 +182,5 @@ task bcduiClean( type: Delete ) {
 task bcduiBuildDocu {
   group "bcd-ui"
   description "Build docu, see Docu/build, including jsdoc and javadoc."
-  dependsOn bcduiHtmlDocs, bcduiDocuJsApiStubs
+  dependsOn bcduiHtmlDocs, bcduiTypescriptDefs
 }

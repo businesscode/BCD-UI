@@ -110,7 +110,7 @@
   };
 
   /**
-   * @typedef {string} QuickEdit.CallbackHandlerType
+   * @typedef {string} Type_Quickedit_CallbackHandler_TYPE
    * @description
    * Defined callback handler types:
    * "DISPOSE" - this type is called when disposing the widget, either on explicit close or via destruction.
@@ -156,9 +156,9 @@
   bcdui.widgetNg.QuickEdit = class  {
     /**
      * This callback is displayed as part of the Requester class.
-     * @callback QuickEdit~callbackHandler
-     * @param {QuickEdit} instance - the QuickEdit instance
-     * @param {QuickEdit.CallbackHandlerType} type - a string specifying the type of callback
+     * @callback Type_Quickedit_CallbackHandler
+     * @param {bcdui.widgetNg.QuickEdit} instance - the QuickEdit instance
+     * @param {Type_Quickedit_CallbackHandler_TYPE} type - a string specifying the type of callback
      * @param {object} args - arguments specific to the type
      */
 
@@ -169,7 +169,7 @@
      * @param {string} args.rowId - the rowId to edit, the row with such ID must exist in the document already
      * @param {targetHtmlRef} args.targetHtml - the targetHtml to render UI
      * @param {object} [args.columnTypeWidgetRendererMap] - optional mapping for widget renderers mapped by 'type-name' of Wrs
-     * @param {QuickEdit~callbackHandler} [args.callbackHandler] - optional callback handler function.
+     * @param {Type_Quickedit_CallbackHandler} [args.callbackHandler] - optional callback handler function.
      *                                                             It is recommended to provide a handler to at least handle "DISPOSE" type,
      *                                                             otherwise we just hide the widget and clean its targetHtml if user clicks on "close" button.
      */
@@ -267,7 +267,7 @@
     }
 
     /**
-     * @param {element} wrsRow - to render editor for
+     * @param {DomElement} wrsRow - to render editor for
      * @private
      */
     _renderUi(wrsRow) {
