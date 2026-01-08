@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2024 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
   limitations under the License.
 -->
 <!--
-  Standard web.xml for BCD-UI 4 applications.
+  Standard web.xml for BCD-UI 5 applications.
   -->
 <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -25,7 +25,7 @@
   <display-name>ProjectName</display-name>
 
   <!--
-    BCD-UI 4 Filters
+    BCD-UI Filters
   -->
 
   <!-- http header security options -->
@@ -501,17 +501,6 @@
     <tracking-mode>COOKIE</tracking-mode>
   </session-config>
 
-  <!-- require SSL -->
-  <security-constraint>
-    <web-resource-collection>
-      <web-resource-name>SPNEGO AUTHENTICATION</web-resource-name>
-      <url-pattern>/*</url-pattern>
-    </web-resource-collection>
-    <user-data-constraint>
-      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-    </user-data-constraint>
-  </security-constraint>
-  
   <!-- welcome pages -->
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>

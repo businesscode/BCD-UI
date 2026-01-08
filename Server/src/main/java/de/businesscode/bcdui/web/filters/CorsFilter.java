@@ -32,6 +32,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * special filter to handle CORS, allows credentials to be sent, allows to be loaded from any origin and allow any http header and method.
+ * @deprecated 5.7 Deprecated, use bcdui4.HttpHeaderSecurity Servlet in web.xml for better control
  */
 public class CorsFilter implements Filter {
   private static Logger logger = LogManager.getLogger();

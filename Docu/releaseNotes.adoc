@@ -27,8 +27,13 @@ ___
 * autogrow attribute for textarea widget
 * Firefox v137.0.2 stopped supporting xslt document() function, extended our implementation to firefox
 * SideBySideChooser uses i18n tokens for source and target caption translations
+
 .Security:
+* Remove SPNEGO authentication mechanism as it is outdated, use oAuth instead
+* Deprecate bcdui4.Cors Filter for better CORS control using bcdui4.HttpHeaderSecurity
+
 .Development:
+
 .Bugfixes:
 * inputNg: consider value of "step" attribute for type="numeric"
 * WrsNextIdentifierServlet: fix counter creation with blockSize>1

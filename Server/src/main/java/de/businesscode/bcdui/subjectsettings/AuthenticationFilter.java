@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2025 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -19,14 +19,10 @@ import java.io.IOException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.AccessControlFilter;
 import org.apache.shiro.web.filter.authc.FormAuthenticationFilter;
 import org.apache.shiro.web.util.WebUtils;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,15 +36,7 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * <p>
  * uses {@link ExternalAuthenticationToken} which shall be supported by any of registered realm,
- * the default {@link JdbcRealm} supports such token. To enable SPNEGO you have also to attach
- * de.businesscode.bcdui.security.SpnegoValve to your context, i.e in context.xml:
- * <pre>
- * &lt;Context className="de.businesscode.bcdui.security.SpnegoValve">
- * </pre>
- * the implementation is provided by bcd-spnego.jar library located in externallib folder of BCD-UI,
- * that library has to be available to tomcat's common classloader, i.e. in TOMCAT_HOME/lib
- * </p>
- *
+ * the default {@link JdbcRealm} supports such token.
  * <p>
  * <b>Usage:</b>
  * override the default 'authc' filter by setting to this class in [main] section of Shiro configuration:
@@ -65,30 +53,6 @@ public class AuthenticationFilter extends FormAuthenticationFilter
 {
   private final Logger logger = LogManager.getLogger(getClass());
   public static final String X_BCD_LOCATION_HEADER = "X-BCD.Location";
-
-  /**
-   * handle explicit SPNEGO preauthentication
-   */
-  @Override
-  public void doFilterInternal(ServletRequest request, ServletResponse response, FilterChain chain) throws ServletException, IOException {
-    if (request instanceof HttpServletRequest) {
-      HttpServletRequest httpRequest = (HttpServletRequest) request;
-      String spnegoPrincipal = SpnegoUtil.getPrincipalName(httpRequest);
-      if (spnegoPrincipal != null) {
-        Subject subj = SecurityUtils.getSubject();
-        if (!subj.isAuthenticated()) {
-          logger.trace("implicitly authenticating:" + spnegoPrincipal);
-          try {
-            subj.login(new ExternalAuthenticationToken(spnegoPrincipal));
-          } catch (Exception e) {
-            logger.warn("failed to implicitly authenticate user", e);
-          }
-        }
-      }
-
-    }
-    super.doFilterInternal(request, response, chain);
-  }
 
   /**
    * implement response flow upon successful authentication, instead of responding http 301 we return the "X-BCD.Location" header to be evaluated by the login script.
