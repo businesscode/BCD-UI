@@ -12,7 +12,7 @@
      * inside the targetHtml.
      *
      * @param {targetHtmlRef} targetHtml - element to undergo widget validation, selector, element or jQuery object.
-     * @return {Promise} resolving to { isValid : true|false }
+     * @return {Promise<Object>} resolving to { isValid : true|false }
      * @example
      * const form = jQuery('.form');
      * bcdui.widgetNg.utils.validate(form).then((validationResult) => {
@@ -61,7 +61,7 @@
        * the widget value has been synced to the data model, 'memo' properties passed:
        *
        * - isValueEmpty {boolean}: if value is considered empty
-       * - value {String}: the value synced
+       * - value {string}: the value synced
        * - hasWritten {boolean}: if the value has been written or not, i.e. the value is not written if either invalid or value has not changed
        *
        * @static
@@ -87,12 +87,12 @@
      * thus resulting in error.
      *
      * @param {object}        args                        - arguments
-     * @param {string}        [args.prefixAutoId=autoId_] - the prefix for id generation, in case it is not provided in args
+     * @param {string}        [args.prefixAutoId="autoId_"] - the prefix for id generation, in case it is not provided in args
      * @param {string}        [args.targetHtmlElementId]  - possible legacy reference
      * @param {targetHtmlRef} [args.targetHtml]           - reference to target
      * @param {string}        [args.id]                   - the id to ensure on targetHtml element
      *
-     * @return {element} - the target html element; migrates the legacy .targetHtmlElementId to .targetHtml in args and removes the legacy.
+     * @return {DomElement} - the target html element; migrates the legacy .targetHtmlElementId to .targetHtml in args and removes the legacy.
      * @throws  will throw error if args.targetHtmlElementId and args.targetHtml are both defined; if targetHtml is not found, i.e. the lookup
      *          was done using CSS selector or ID reference but was not found in html document.
      *  
@@ -358,7 +358,7 @@
      * @param inputElement
      * @param checkDataModelValidity if true, additionally the model validity is taken into account
      *
-     * @return true in case of valid (OR element is not attached to DOM anymore) or false in case of invalid element status
+     * @return {boolean} true in case of valid (OR element is not attached to DOM anymore) or false in case of invalid element status
      *
      * @private
      */
@@ -516,7 +516,7 @@
      *        this also means that source model is not normalized. Te normalized model contains //Values/Value structure.
      *
      * @private
-     * @return true if patched, false otherwise.
+     * @return {boolean} true if patched, false otherwise.
      */
     _patchOptionsModel: function(args, config, controlElement, extraParams, dontPatchIfSingleModel){
       // this block currenty uses bcdui.widget._createWrapperModel() which needs currently manual handling
@@ -609,10 +609,10 @@
      * - a field validation is triggered after options have been reloaded
      * (TODO REMOVE)
      * paramter in args:
-     * @param args.htmlElementId {Object|String}
+     * @param args.htmlElementId {Object|string}
      * @param args.forEachFunc {Function} the callback function which is executed for each of found nodes according to .forEach() API
      * @param args.onReadyFunc {Function?} optional function to execute when we are ready iterating
-     * @param args.doSort {Boolean} default FALSE; if TRUE the options are sorted via bcdui.widgetNg.utils.sorting.node.cmpAlphaIgnoreCase comparator.
+     * @param args.doSort {boolean} default FALSE; if TRUE the options are sorted via bcdui.widgetNg.utils.sorting.node.cmpAlphaIgnoreCase comparator.
      * @private
      */
     _updateInternalOptions: function(args){

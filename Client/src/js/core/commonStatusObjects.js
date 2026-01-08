@@ -36,28 +36,44 @@ bcdui.core.status = bcdui.core.status || {};
 /**
  * Initial status status indicating that the status of the respective executable object has not yet been set, the object was just created.
  * Usually the object will change to InitializedStatus immediately.
- * @extends bcdui.core.Status 
+ * @extends bcdui.core.Status
  */
 bcdui.core.status.NullStatus = class extends bcdui.core.Status
-
 {
   constructor() {super();}
+  /**
+   * @inheritDoc
+   */
   getCode() { return "NULL"; }
+  /**
+   * @inheritDoc
+   */
   getDescription() { return "[NullStatus]"; }
+  /**
+   * @inheritDoc
+   */
   equals(status) { return status instanceof bcdui.core.status.NullStatus; }
 };
 
 /**
- * This status is reached as soon as the executable object has been initialized. 
+ * This status is reached as soon as the executable object has been initialized.
  * This is the standard stable status after object creation. DataProviders are now waiting for execute()
  * @extends bcdui.core.Status
  */
 bcdui.core.status.InitializedStatus = class extends bcdui.core.Status
-
 {
   constructor() {super();}
+  /**
+   * @inheritDoc
+   */
   getCode() { return "L0"; }
+  /**
+   * @inheritDoc
+   */
   getDescription() { return "[InitializedStatus]"; }
+  /**
+   * @inheritDoc
+   */
   equals(status) { return status instanceof bcdui.core.status.InitializedStatus; }
 };
 
@@ -67,12 +83,19 @@ bcdui.core.status.InitializedStatus = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.LoadingStatus = class extends bcdui.core.Status
-
 {
-
   constructor() {super();}
+  /**
+   * @inheritDoc
+   */
   getCode() { return "L1"; }
+  /**
+   * @inheritDoc
+   */
   getDescription() { return "[LoadingStatus]"; }
+  /**
+   * @inheritDoc
+   */
   equals(status) { return status instanceof bcdui.core.status.LoadingStatus; }
 };
 
@@ -81,11 +104,19 @@ bcdui.core.status.LoadingStatus = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.URLAvailableStatus = class extends bcdui.core.Status
-
 {
   constructor() {super();}
+  /**
+   * @inheritDoc
+   */
   getCode() { return "L2"; }
+  /**
+   * @inheritDoc
+   */
   getDescription() { return "[URLAvailableStatus]"; }
+  /**
+   * @inheritDoc
+   */
   equals(status) { return status instanceof bcdui.core.status.URLAvailableStatus; }
 };
 
@@ -97,8 +128,17 @@ bcdui.core.status.LoadedStatus = class extends bcdui.core.Status
 
 {
   constructor() {super();}
+  /**
+   * @inheritDoc
+   */
   getCode() { return "L3"; }
+  /**
+   * @inheritDoc
+   */
   getDescription() { return "[LoadedStatus]"; }
+  /**
+   * @inheritDoc
+   */
   equals(status) { return status instanceof bcdui.core.status.LoadedStatus; }
 };
 
@@ -110,8 +150,17 @@ bcdui.core.status.LoadFailedStatus = class extends bcdui.core.Status
 
 {
   constructor() {super();}
+  /**
+   * @inheritDoc
+   */
   getCode() { return "F0"; }
+  /**
+   * @inheritDoc
+   */
   getDescription() { return "[LoadFailedStatus]"; }
+  /**
+   * @inheritDoc
+   */
   equals(status) { return status instanceof bcdui.core.status.LoadFailedStatus; }
 };
 
@@ -120,11 +169,19 @@ bcdui.core.status.LoadFailedStatus = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.SavingStatus = class extends bcdui.core.Status
-
 {
   constructor() {super();}
+  /**
+   * @inheritDoc
+   */
   getCode() { return "S0"; }
+  /**
+   * @inheritDoc
+   */
   getDescription() { return "[SavingStatus]"; }
+  /**
+   * @inheritDoc
+   */
   equals(status) { return status instanceof bcdui.core.status.SavingStatus; }
 };
 
@@ -133,11 +190,19 @@ bcdui.core.status.SavingStatus = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.SavedStatus = class extends bcdui.core.Status
-
 {
   constructor() {super();}
+  /**
+   * @inheritDoc
+   */
   getCode() { return "S1"; }
+  /**
+   * @inheritDoc
+   */
   getDescription() { return "[SavedStatus]"; }
+  /**
+   * @inheritDoc
+   */
   equals(status) { return status instanceof bcdui.core.status.SavedStatus; }
 };
 
@@ -146,11 +211,19 @@ bcdui.core.status.SavedStatus = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.SaveFailedStatus = class extends bcdui.core.Status
-
 {
   constructor() {super();}
+  /**
+   * @inheritDoc
+   */
   getCode() { return "SF0"; }
+  /**
+   * @inheritDoc
+   */
   getDescription() { return "[SaveFailedStatus]"; }
+  /**
+   * @inheritDoc
+   */
   equals(status) { return status instanceof bcdui.core.status.SaveFailedStatus; }
 };
 
@@ -160,11 +233,19 @@ bcdui.core.status.SaveFailedStatus = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.ChainLoadedStatus = class extends bcdui.core.Status
-
 {
   constructor() {super();}
+  /**
+   * @inheritDoc
+   */
   getCode() { return "MW-1"; }
+  /**
+   * @inheritDoc
+   */
   getDescription() { return "[ChainLoadedStatus]"; }
+  /**
+   * @inheritDoc
+   */
   equals(status) { return status instanceof bcdui.core.status.ChainLoadedStatus; }
 };
 
@@ -174,11 +255,19 @@ bcdui.core.status.ChainLoadedStatus = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.WaitingForParametersStatus =class extends bcdui.core.Status
-
 {
   constructor() {super();}
+  /**
+   * @inheritDoc
+   */
   getCode() { return "MW-2"; }
+  /**
+   * @inheritDoc
+   */
   getDescription() { return "[WaitingForParametersStatus]"; }
+  /**
+   * @inheritDoc
+   */
   equals(status) { return status instanceof bcdui.core.status.WaitingForParametersStatus; }
 };
 
@@ -187,11 +276,19 @@ bcdui.core.status.WaitingForParametersStatus =class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.TransformingStatus = class extends bcdui.core.Status
-
 {
   constructor() {super();}
+  /**
+   * @inheritDoc
+   */
   getCode() { return "MW-3"; }
+  /**
+   * @inheritDoc
+   */
   getDescription() { return "[TransformingStatus]"; }
+  /**
+   * @inheritDoc
+   */
   equals(status) { return status instanceof bcdui.core.status.TransformingStatus; }
 };
 
@@ -200,11 +297,19 @@ bcdui.core.status.TransformingStatus = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.TransformFailedStatus = class extends bcdui.core.Status
-
 {
   constructor() {super();}
+  /**
+   * @inheritDoc
+   */
   getCode() { return "MW-8"; }
+  /**
+   * @inheritDoc
+   */
   getDescription() { return "[TransformFailedStatus]"; }
+  /**
+   * @inheritDoc
+   */
   equals(status) { return status instanceof bcdui.core.status.TransformFailedStatus; }
 };
 
@@ -213,11 +318,19 @@ bcdui.core.status.TransformFailedStatus = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.TransformedStatus = class extends bcdui.core.Status
-
 {
   constructor() {super();}
+  /**
+   * @inheritDoc
+   */
   getCode() { return "MW-4"; }
+  /**
+   * @inheritDoc
+   */
   getDescription() { return "[TransformedStatus]"; }
+  /**
+   * @inheritDoc
+   */
   equals(status) { return status instanceof bcdui.core.status.TransformedStatus; }
 };
 
@@ -226,11 +339,19 @@ bcdui.core.status.TransformedStatus = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.ChainLoadingFailed = class extends bcdui.core.Status
-
 {
   constructor() {super();}
+  /**
+   * @inheritDoc
+   */
   getCode() { return "F1"; }
+  /**
+   * @inheritDoc
+   */
   getDescription() { return "[ChainLoadingFailed]"; }
+  /**
+   * @inheritDoc
+   */
   equals(status) { return status instanceof bcdui.core.status.ChainLoadingFailed; }
 };
 
@@ -239,11 +360,19 @@ bcdui.core.status.ChainLoadingFailed = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.ChainStylesheetLoadingFailed = class extends bcdui.core.Status
-
 {
   constructor() {super();}
+  /**
+   * @inheritDoc
+   */
   getCode() { return "F2"; }
+  /**
+   * @inheritDoc
+   */
   getDescription() { return "[ChainStylesheetLoadingFailed]"; }
+  /**
+   * @inheritdoc
+   */
   equals(status) { return status instanceof bcdui.core.status.ChainStylesheetLoadingFailed; }
 };
 
@@ -253,11 +382,19 @@ bcdui.core.status.ChainStylesheetLoadingFailed = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.RefreshingModelUpdaters = class extends bcdui.core.Status
-
 {
   constructor() {super();}
+  /**
+   * @inheritdoc
+   */
   getCode() { return "MU-1"; }
+  /**
+   * @inheritdoc
+   */
   getDescription() { return "[RefreshingModelUpdaters]"; }
+  /**
+   * @inheritdoc
+   */
   equals(status) { return status instanceof bcdui.core.status.RefreshingModelUpdaters; }
 };
 
@@ -267,23 +404,39 @@ bcdui.core.status.RefreshingModelUpdaters = class extends bcdui.core.Status
  * @extends bcdui.core.Status
  */
 bcdui.core.status.RefreshingModelUpdatersCausedByExecute = class extends bcdui.core.Status
-
-    {
-      constructor() {super();}
-      getCode() { return "MU-2"; }
-      getDescription() { return "[RefreshingModelUpdatersCausedByExecute]"; }
-      equals(status) { return status instanceof bcdui.core.status.RefreshingModelUpdatersCausedByExecute; }
-    };
+{
+  constructor() {super();}
+  /**
+   * @inheritdoc
+   */
+  getCode() { return "MU-2"; }
+  /**
+   * @inheritdoc
+   */
+  getDescription() { return "[RefreshingModelUpdatersCausedByExecute]"; }
+  /**
+   * @inheritdoc
+   */
+  equals(status) { return status instanceof bcdui.core.status.RefreshingModelUpdatersCausedByExecute; }
+};
 
 /**
  * This status is activated when there are outstanding writes on the dataprovider
  * @extends bcdui.core.Status
  */
 bcdui.core.status.WaitingForUncomittedChanges = class extends bcdui.core.Status
-
-    {
-      constructor() {super();}
-      getCode() { return "MW-5"; }
-      getDescription() { return "[WaitingForUncomittedChanges]"; }
-      equals(status) { return status instanceof bcdui.core.status.WaitingForUncomittedChanges; }
-    };
+{
+  constructor() {super();}
+  /**
+   * @inheritdoc
+   */
+  getCode() { return "MW-5"; }
+  /**
+   * @inheritdoc
+   */
+  getDescription() { return "[WaitingForUncomittedChanges]"; }
+  /**
+   * @inheritdoc
+   */
+  equals(status) { return status instanceof bcdui.core.status.WaitingForUncomittedChanges; }
+};

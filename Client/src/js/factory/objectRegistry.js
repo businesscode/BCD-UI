@@ -285,7 +285,7 @@
   }
 
   /**
-   * @return {Array} The array of ids some listeners are waiting for, but which are
+   * @return {Array<bcdui.core.StatusListener>} The array of ids some listeners are waiting for, but which are
    * not yet registered.
    * @private
    */
@@ -294,7 +294,7 @@
   }
 
   /**
-   * @return {Array} The array of ids which are currently registered at this object
+   * @return {Array<string>} The array of ids which are currently registered at this object
    * registry.
    * @private
    */
@@ -303,7 +303,7 @@
   }
 
   /**
-   * @return {String} A string describing the current state of the object registry.
+   * @return {string} A string describing the current state of the object registry.
    */
   toString() {
     return "[ObjectRegistry. Waiting IDs: [" +

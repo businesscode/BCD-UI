@@ -27,7 +27,7 @@
   var XMLListener = class extends bcdui.widget.XMLDataUpdateListener
     {
       /**
-       * @member bcdui.widget.inputField.XMLListener
+       * @memberOf bcdui.widget.inputField.XMLListener
        */
       updateValue(){
         var widgetInstance = jQuery("#" + this.htmlElementId)._bcduiWidget();

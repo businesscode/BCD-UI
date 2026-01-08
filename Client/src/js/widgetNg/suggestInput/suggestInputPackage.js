@@ -758,7 +758,7 @@
   
     /**
      *
-     * @return {Boolean} true, if the options list is currently visible
+     * @return {boolean} true, if the options list is currently visible
      * @private
      */
     _cst_isOptionsListVisible: function(){
@@ -772,7 +772,7 @@
      * - mouseover: this handler is used to visualize the selection while hovering with mouse
      * - click: this handler changes widgets value to that of picked element
      *
-     * @return {Element} the datalist container element
+     * @return {DomElement} the datalist container element
      *
      * @private
      */
@@ -898,7 +898,7 @@
     /**
      * syncs current input value (or optionally given value) of the widget into model
      *
-     * @param {String?} optNewValue if this value is given, the input control will be updated by this value and then synced to model
+     * @param {string?} optNewValue if this value is given, the input control will be updated by this value and then synced to model
      *                              otherwise current controls value is synced to the model
      *
      * @private
@@ -947,7 +947,7 @@
      * widget.
      *
      * @param htmlElementId
-     * @return {String} ID of the renderer
+     * @return {string} ID of the renderer
      * @private
      */
     _cst_prepareOptionsRendererId: function(htmlElementId){

@@ -73,7 +73,7 @@ bcdui.i18n.MessageCatalog = class
    * @param {Object} args
    * @param args.msgid
    * @param args.interpolations
-   * @return translated message or empty String if did not find
+   * @return {string} translated message or empty String if did not find
    */
   translate(args) {
     // in debug mode the default translation is the message so in case no key is available the developer knows whats missing
@@ -130,11 +130,10 @@ bcdui.i18n.HTMLTranslator = class
 {
   /**
    * @constructs
-   * @member bcdui.i18n.HTMLTranslator
    * @param {Object} args
    * @param {bcdui.i18n.MessageCatalog} args.catalog
-   * @param {String} [args.translateAttrName]
-   * @param {String} [args.translateAttrsAttrName]
+   * @param {string} [args.translateAttrName]
+   * @param {string} [args.translateAttrsAttrName]
    * @private
    */
   constructor(args) {

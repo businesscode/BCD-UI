@@ -36,24 +36,24 @@ export const bcduiExport_CubeModel = bcdui.component.cube.CubeModel = class exte
    * @param {Object}                  [args.requestParameters] - An object, where each property holds a DataProvider, used as a transformation parameters.
    */
   constructor(args) {
-     
-    args = bcdui.factory._xmlArgs( args, bcdui.factory.validate.component._schema_createCubeModel_args );
+
+    args = bcdui.factory._xmlArgs(args, bcdui.factory.validate.component._schema_createCubeModel_args);
     bcdui.factory.validate.jsvalidation._validateArgs(args, bcdui.factory.validate.component._schema_createCubeModel_args);
 
-    const requestChain = args.requestChain || bcdui.contextPath+"/bcdui/js/component/cube/request.xslt";
+    const requestChain = args.requestChain || bcdui.contextPath + "/bcdui/js/component/cube/request.xslt";
     let requestParameters = args.requestParameters || {};
 
     args.id = args.id ? args.id : bcdui.factory.objectRegistry.generateTemporaryIdInScope("cubeModel");
     // param {bcdui.core.DataProvider} [args.chain=bcdui/component/cube/chain.xml] - Processing chain, usually the default chain does a good job and is required for support of cube-2.0.0.xsd
     args.chain = args.chain || new bcdui.core.SimpleModel( { id: args.id+"_bcdImpl_chain", url: bcdui.component.cube._cubeChain } );
     args.metaDataModel         = args.config || args.metaDataModel || new bcdui.core.SimpleModel( { id: args.id+"_bcdImpl_configuration", url: "cubeConfiguration.xml" } );
-    args.statusModel           = args.statusModel           || bcdui.wkModels.guiStatusEstablished;
-    args.enhancedConfiguration = args.enhancedConfiguration || new bcdui.core.ModelWrapper( {
-      id: args.id+"_bcdImpl_enhancedConfiguration", inputModel: args.metaDataModel,
+    args.statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
+    args.enhancedConfiguration = args.enhancedConfiguration || new bcdui.core.ModelWrapper({
+      id: args.id + "_bcdImpl_enhancedConfiguration", inputModel: args.metaDataModel,
       chain: [ function(doc) {Array.from(doc.selectNodes("//*[starts-with(@caption, '\uE0FF')]/@caption")).forEach(function(e) { e.text = bcdui.i18n.syncTranslateFormatMessage({msgid: e.text}) || e.text; })},
-               bcdui.contextPath+"/bcdui/js/component/cube/mergeLayout.xslt",
-               bcdui.contextPath+"/bcdui/js/component/cube/serverCalc.xslt",
-               bcdui.contextPath+"/bcdui/js/component/cube/configuration.xslt" ],
+        bcdui.contextPath + "/bcdui/js/component/cube/mergeLayout.xslt",
+        bcdui.contextPath + "/bcdui/js/component/cube/serverCalc.xslt",
+        bcdui.contextPath + "/bcdui/js/component/cube/configuration.xslt"],
       parameters: {cubeId: args.cubeId, statusModel: args.statusModel } } );
 
     // We start with an empty DataProviderHolder until we known, whether a server request is to be done, which we only know once enhancedConfiguration is ready
@@ -62,18 +62,18 @@ export const bcduiExport_CubeModel = bcdui.component.cube.CubeModel = class exte
 
     super( { id: args.id, inputModel: inputModel, chain: args.chain, parameters: { paramModel: args.enhancedConfiguration, statusModel: args.statusModel } } );
 
-    bcdui.factory.objectRegistry.withReadyObjects( args.enhancedConfiguration, function() {
+    bcdui.factory.objectRegistry.withReadyObjects(args.enhancedConfiguration, function () {
 
       const enhancedConfig = bcdui.factory.objectRegistry.getObject(args.enhancedConfiguration);
 
       // We only process a server request, if at least one measure or one dimension is selected, otherwise further execution is prevented
       var rqModel = null;
-      if( ! enhancedConfig.getData().selectSingleNode("/*/cube:Layout/cube:Measures//dm:MeasureRef | /*/cube:Layout/cube:Measures//dm:Measure")
-       && ! enhancedConfig.getData().selectSingleNode("/*/cube:Layout/cube:Dimensions//dm:LevelRef")
-          ) {
-        rqModel = new bcdui.core.StaticModel( "<Wrq xmlns='http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0'></Wrq>" );
+      if (!enhancedConfig.getData().selectSingleNode("/*/cube:Layout/cube:Measures//dm:MeasureRef | /*/cube:Layout/cube:Measures//dm:Measure")
+        && !enhancedConfig.getData().selectSingleNode("/*/cube:Layout/cube:Dimensions//dm:LevelRef")
+      ) {
+        rqModel = new bcdui.core.StaticModel("<Wrq xmlns='http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0'></Wrq>");
       } else {
-		    requestParameters["statusModel"] = args.statusModel;
+        requestParameters["statusModel"] = args.statusModel;
         rqModel = new bcdui.core.ModelWrapper( { id: args.id+"_bcdImpl_requestDoc", inputModel: args.enhancedConfiguration,
           parameters: requestParameters, chain: requestChain } );
       }
@@ -85,13 +85,13 @@ export const bcduiExport_CubeModel = bcdui.component.cube.CubeModel = class exte
       noCaptionsMsr = noCaptionsMsr.filter(function(e, idx){return noCaptionsMsr.indexOf(e) == idx});
       const binding = enhancedConfig.read("/*/wrq:BindingSet", "");
       if (binding != "" && noCaptionsMsr.length > 0) {
-        bcdui.util.getBindingInfo(binding, noCaptionsMsr, function(captionMap) {
-          noCaptionsMsr.forEach(function(id) {
-            Array.from(enhancedConfig.queryNodes("/*/cube:Layout/cube:Measures//dm:MeasureRef[@idRef='{{=it[0]}}']", [id])).forEach(function(m) {
+        bcdui.util.getBindingInfo(binding, noCaptionsMsr, function (captionMap) {
+          noCaptionsMsr.forEach(function (id) {
+            Array.from(enhancedConfig.queryNodes("/*/cube:Layout/cube:Measures//dm:MeasureRef[@idRef='{{=it[0]}}']", [id])).forEach(function (m) {
               const caption = m.getAttribute("caption") || (typeof captionMap[id] != "undefined" ? captionMap[id].caption : "") || id;
               m.setAttribute("caption", caption);
             });
-            Array.from(enhancedConfig.queryNodes("/*/cube:Layout/cube:Measures//dm:Measure[@id='{{=it[0]}}']", [id])).forEach(function(m) {
+            Array.from(enhancedConfig.queryNodes("/*/cube:Layout/cube:Measures//dm:Measure[@id='{{=it[0]}}']", [id])).forEach(function (m) {
               const caption = m.getAttribute("caption") || (typeof captionMap[id] != "undefined" ? captionMap[id].caption : "") || id;
               m.setAttribute("caption", caption);
             });
@@ -104,9 +104,13 @@ export const bcduiExport_CubeModel = bcdui.component.cube.CubeModel = class exte
         reqHolder.setSource(rqModel);
         reqHolder.execute();
       }
-    }.bind(this) );
+    }.bind(this));
   }
-  getClassName() {return  "bcdui.component.cube.CubeModel";}
+
+  /**
+   * @inheritDoc
+   */
+  getClassName() {return "bcdui.component.cube.CubeModel";}
 };
 
 //default layout renderer
@@ -276,6 +280,9 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
 
   }
 
+  /**
+   * @inheritDoc
+   */
   getClassName() {return "bcdui.component.cube.Cube";}
 
   /**
@@ -376,8 +383,8 @@ bcdui.component = Object.assign(bcdui.component,
    * @param {Object} args - The parameter map contains the following properties:
    * @param {string}                  args.id                                                     - Id of the created object
    * @param {targetHtmlRef}           args.targetHtml                                             - The target HTML element for the drag-and-drop matrix.
-   * @param {writableModelXPath}      [args.targetModelXPath=$guiStatus/guiStatus:Status/cube:Layout]  - Where to write the result
-   * @param {string|bcdui.core.DataProvider}  [args.config=./dimensionsAndMeasures.xml]           - DataProvider containing the configuration for the cube configurator, per defaulz ./dimensionsAndMeasures.xml is loaded
+   * @param {writableModelXPath}      [args.targetModelXPath="$guiStatus/guiStatus:Status/cube:Layout"]  - Where to write the result
+   * @param {string|bcdui.core.DataProvider}  [args.config="./dimensionsAndMeasures.xml"]         - DataProvider containing the configuration for the cube configurator, per defaulz ./dimensionsAndMeasures.xml is loaded
    * @param {string|bcdui.component.cube.Cube} args.cubeRenderer                                  - Cube we belong to
    * @param {boolean}                 [args.isRanking=false]                                      - Show ranking editor. This is an Enterprise Edition only feature.
    * @param {boolean}                 [args.isTemplate=false]                                     - Show template Editor true/false. This is an Enterprise Edition only feature.
@@ -394,8 +401,6 @@ bcdui.component = Object.assign(bcdui.component,
    * @param {string}                  [args.expandCollapseCells]                                  - When specified (with 'expand' or 'collapse' or 'collapse2nd'), cube turns on the expand/collapse mode. collapse2nd initially keeps level one open.
    * @param {boolean}                 [args.doSortOptions=false]                                  - When setting this to true, dimensions and measures lists are sorted by caption.
    *
-   * @return null.
-   *
    * @example
    *   new bcdui.core.SimpleModel({
    *    id:  "myDndOptions", // define ID explicitely
@@ -411,25 +416,24 @@ bcdui.component = Object.assign(bcdui.component,
    *     , rankingTargetHtmlElementId: "rankingDiv"
    *   });
    * @example
-   *  <div class='container_24 bcdCubeDndMatrix'>
-   *    <div class='grid_24'>
-   *      <div class='grid_3 omega bcdCurrentRowDimensionList alpha'></div>
-   *      <div class='grid_3 omega bcdCurrentColMeasureList'></div>
-   *      <div class='grid_3 omega'>
-   *        <div class='bcdCurrentColDimensionList'></div>
-   *        <div class='bcdCurrentMeasureList'></div>
-   *      </div>
-   *      <div class='grid_5 omega'>
-   *        <div class='bcdHeader'>Dimensions</div>
-   *        <div class='bcdDimensionList'></div>
-   *      </div>
-   *      <div class='grid_5 omega'>
-   *        <div class='bcdHeader'>Measures</div>
-   *        <div class='bcdMeasureList'></div>
-   *      </div>
-   *    </div>
-   *  </div>
-   *
+   *  &lt;div class='container_24 bcdCubeDndMatrix'>
+   *    &lt;div class='grid_24'>
+   *      &lt;div class='grid_3 omega bcdCurrentRowDimensionList alpha'>&lt;/div>
+   *      &lt;div class='grid_3 omega bcdCurrentColMeasureList'>&lt;/div>
+   *      &lt;div class='grid_3 omega'>
+   *        &lt;div class='bcdCurrentColDimensionList'>&lt;/div>
+   *        &lt;div class='bcdCurrentMeasureList'>&lt;/div>
+   *      &lt;/div>
+   *      &lt;div class='grid_5 omega'>
+   *        &lt;div class='bcdHeader'>Dimensions&lt;/div>
+   *        &lt;div class='bcdDimensionList'>&lt;/div>
+   *      &lt;/div>
+   *      &lt;div class='grid_5 omega'>
+   *        &lt;div class='bcdHeader'>Measures&lt;/div>
+   *        &lt;div class='bcdMeasureList'>&lt;/div>
+   *      &lt;/div>
+   *    &lt;/div>
+   *  &lt;/div>
    */
   createCubeConfigurator: function(/* Object */ args){
     bcdui.log.isTraceEnabled() && bcdui.log.trace("Creating DndMatrix");

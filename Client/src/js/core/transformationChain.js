@@ -29,7 +29,6 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
 {
 
   /**
-   * @class bcdui.core.TransformationChain
    * @description
    * The constructor for the TransformationChain class.
    */
@@ -45,7 +44,7 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
        * User can provide a inputModel
        * And/or a single or an array of data providers.
        * If no inputModel is given, the (first) dataProvider will be used as the inputModel
-       * @type Array
+       * @type {Array<bcdui.core.DataProvider>}
        * @private
        */
       this.dataProviders = undefined;
@@ -71,7 +70,7 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
       }
       /**
        * The data document offered by this model. Use getData() to read it.
-       * @type XMLDocument
+       * @type {XMLDocument}
        * @private
        */
       this.dataDoc = null;
@@ -109,7 +108,7 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
       /**
        * The id of the parameter denoting the primary model of the
        * transformation.
-       * @type String
+       * @type {string}
        * @private
        */
       this.modelParameterId = this.dataProviders[0].id;
@@ -127,7 +126,7 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
        * (optional) The ID of the HTML element and the html element itself getting the result of the final XSLT
        * transformation if it has output="html". If it creates XML this can be null.
        * this is set on first exectue
-       * @type string
+       * @type {string}
        * @private
        */
       if (this.setTargetHtml)
@@ -136,7 +135,7 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
       /**
        * chainParam: chain parameter. Can have many typey: xml, string, array etc. 
        * Will be translated to the internal format later and then stored in this.chain
-       * @type bcdui.core.Model
+       * @type {bcdui.core.DataProvider}
        * @private
        */
         this.chainParam = args.chain;
@@ -148,21 +147,21 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
 
       /**
        * This status is set when the constructor has set all parameters.
-       * @type bcdui.core.status.InitializedStatus
+       * @type {bcdui.core.status.InitializedStatus}
        * @constant
        */
       this.initializedStatus = new bcdui.core.status.InitializedStatus();
 
       /**
        * The status code activated as soon as the loading begins.
-       * @type bcdui.core.status.LoadingStatus
+       * @type {bcdui.core.status.LoadingStatus}
        * @constant
        */
       this.loadingStatus = new bcdui.core.status.LoadingStatus();
 
       /**
        * A status reached when the chain model is ready.
-       * @type bcdui.core.status.ChainLoadedStatus
+       * @type {bcdui.core.status.ChainLoadedStatus}
        * @constant
        */
       this.chainLoadedStatus = new bcdui.core.status.ChainLoadedStatus();
@@ -170,14 +169,14 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
       /**
        * This status is kept as long as the transformation chain is waiting
        * for parameters to load and when the chain has already loaded.
-       * @type bcdui.core.status.WaitingForParametersStatus
+       * @type {bcdui.core.status.WaitingForParametersStatus}
        * @constant
        */
       this.waitingForParametersStatus = new bcdui.core.status.WaitingForParametersStatus();
 
       /**
        * As long as this status is active the XSLT transformations are running.
-       * @type bcdui.core.status.TransformingStatus
+       * @type {bcdui.core.status.TransformingStatus}
        * @constant
        */
       this.transformingStatus = new bcdui.core.status.TransformingStatus();
@@ -186,7 +185,7 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
 
       /**
        * The status code is reached when a transformation failed and operation cannot proceed
-       * @type bcdui.core.status.TransformFailedStatus
+       * @type {bcdui.core.status.TransformFailedStatus}
        * @constant
        */
       this.transformFailedStatus = new bcdui.core.status.TransformFailedStatus();
@@ -195,7 +194,7 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
        * The status code is reached when everything is finished and the transformation
        * result is available. This is the final state of the TransformationChain process
        * if no error occurs.
-       * @type bcdui.core.status.TransformedStatus
+       * @type {bcdui.core.status.TransformedStatus}
        * @constant
        */
       this.transformedStatus = new bcdui.core.status.TransformedStatus();
@@ -203,14 +202,14 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
       /**
        * This (final) status is reached when an error occurs during the loading or
        * transformation process.
-       * @type bcdui.core.status.LoadFailedStatus
+       * @type {bcdui.core.status.LoadFailedStatus}
        * @constant
        */
       this.loadFailedStatus = new bcdui.core.status.LoadFailedStatus();
 
       /**
        * This (final) status is reached when the chain model could not be loaded.
-       * @type bcdui.core.status.ChainStylesheetLoadingFailed
+       * @type {bcdui.core.status.ChainStylesheetLoadingFailed}
        * @constant
        */
       this.chainLoadingFailed = new bcdui.core.status.ChainLoadingFailed();
@@ -218,7 +217,7 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
       /**
        * This (final) status is reached when the loading of a chain stylesheet has
        * failed.
-       * @type bcdui.core.status.ChainStylesheetLoadingFailed
+       * @type {bcdui.core.status.ChainStylesheetLoadingFailed}
        * @constant
        */
       this.chainStylesheetLoadingFailed = new bcdui.core.status.ChainStylesheetLoadingFailed();
@@ -258,7 +257,7 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
    * The global state transition listener. This listener is responsible for
    * executing the appropriate action based on a state transition.
    * @private
-   * @param {StatusEvent} statusEvent
+   * @param {bcdui.core.StatusEvent} statusEvent
    */
   _statusTransitionHandler(statusEvent)
     {
@@ -320,7 +319,7 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
    *          The output has been generated. (<b>ready</b>)
    *
    * </td></tr></table></p>
-   * @return {Status} The transformed status.
+   * @return {bcdui.core.Status} The transformed status.
    */
   getReadyStatus()
     {
@@ -349,7 +348,7 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
   /**
    * Gets the data providers attached to this object as hash map. This map can
    * be passed to the transformator functions to set the parameters
-   * @param {Array} [stylesheetParams] If stylesheetParams is given, only params for that stylesheet (the global ones plus the given local from the param) are returned
+   * @param {Array<Object>} [stylesheetParams] If stylesheetParams is given, only params for that stylesheet (the global ones plus the given local from the param) are returned
    *                 if not given, all dataproviders given to any stylesheet are included
    * @private
    */
@@ -376,7 +375,7 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
     }
 
   /**
-   * @param {String} name
+   * @param {string} name
    * @returns {bcdui.core.DataProvider} returns the parameter of the given name
    */
   getDataProviderByName(name)
@@ -731,7 +730,7 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
     }
 
   /**
-   * @return {String} String representation of the chain.
+   * @return {string} String representation of the chain.
    */
   toString()
     {
@@ -1009,23 +1008,23 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
 export const bcduiExport_Renderer = bcdui.core.Renderer = class extends bcdui.core.TransformationChain
 {
   /**
-   * @class bcdui.core.Renderer
    * @param {Object} args - An argument object with the following properties:
-   * @param {chainDef} args.chain - The definition of the transformation chain
+   * @param {bcdui.core.DataProvider} args.inputModel                       - The model with the data to be transformed in html
+   * @param {chainDef} [args.chain="/bcdui/xslt/renderer/htmlBuilder.xslt"] - The definition of the transformation chain
    * <ul>
-   *   <li>a single string with the URL of the transformation XSLT or doTjs template</li>
+   *   <li>Default is a WRS-to-table renderer, capable of row and column dimensions and aware of all Wrs format specifications like scale and @caption</li>
+   *   <li>But it can be a single string with the URL of the transformation XSLT or doTjs template</li>
    *   <li>or a JS transformator function</li>
    *   <li>or an array with a mixture of URLs and JS transformators</li>
    *   <li>or a DataProvider with an XML document following xsd http://www.businesscode.de/schema/bcdui/chain-1.0.0</li>
    * </ul>
-   * Make sure the last transformation outputs html, for example in case of XSLT set the last stylesheet to &lt;xsl:output method="html" 
-   * @param {bcdui.core.DataProvider} args.inputModel                       - The model with the data to be transformed in html
+   * Make sure the last transformation outputs html, for example in case of XSLT set the last stylesheet to &lt;xsl:output method="html"
    * @param {targetHtmlRef}           [args.targetHtml]                     - A reference to the HTML DOM Element where to put the output
    * @param {Object}                  [args.parameters]                     - An object, where each property holds a DataProvider as a transformation parameter
    * Once this Renderer is {@link bcdui.core.AbstractExecutable#execute executed}, it will check each parameter and execute it if it is not {@link bcdui.core.AbstractExecutable .isReady()} before executing itself.
    * @param {string}                  [args.id]                             - Globally unique id for use in declarative contexts
    * @param {boolean}                 [args.suppressInitialRendering=false] - If true, the renderer does not initially auto execute but waits for an explicit execute
-   * @param {function}                [args.postHtmlAttachProcess]          - synchronous js function called after attaching html fragment to dom (either partitially or fully)
+   * @param {function}                [args.postHtmlAttachProcess]          - synchronous js function called after attaching html fragment to dom (either partitially or fully). Note: custom elements will not be applied, wait for isRead() if you need that
    */
   constructor(args)
   {
@@ -1047,15 +1046,15 @@ export const bcduiExport_Renderer = bcdui.core.Renderer = class extends bcdui.co
    */
    
   /**
-   * @typedef {object} ExecuteParam
+   * @typedef {object} Type_RendererExecute_Args
    * @property {function} [fn] A function called once when the object becomes ready again. Called immediately if we are already ready && shouldRefresh==false
-   * @property {String} [partialHtmlTargets] Space separated list of html element ids. If given, only these elements within targetHmtlElement of the render
+   * @property {string} [partialHtmlTargets] Space separated list of html element ids. If given, only these elements within targetHmtlElement of the render
    *         are touched in the DOM tree, plus the chain gets the parameter bcdPartialHtmlTargets set to this value. Valid for this one call only, cleared after.
    * @property {boolean} [shouldRefresh] "false" if this method should do nothing when the object is already in the ready status. Default is "true"false".
    */
 
   /**
-   * @param {(boolean|ExecuteParam)} args either true for forced or parameter map
+   * @param {(boolean|Type_RendererExecute_Args)} args either true for forced or parameter map
    */
   execute( args)
   {
@@ -1136,7 +1135,6 @@ export const bcduiExport_Renderer = bcdui.core.Renderer = class extends bcdui.co
 export const bcduiExport_ModelWrapper = bcdui.core.ModelWrapper = class extends bcdui.core.TransformationChain
 {
   /**
-  * @class bcdui.core.ModelWrapper
   * @param {Object} args - An argument object with the following properties:
   * @param {chainDef} args.chain - The definition of the transformation chain
   * <ul>
@@ -1164,6 +1162,10 @@ export const bcduiExport_ModelWrapper = bcdui.core.ModelWrapper = class extends 
   {
     super(args);
   }
+
+  /**
+   * @inheritDoc
+   */
   getClassName() {return "bcdui.core.ModelWapper";}
 };
 
@@ -1177,7 +1179,6 @@ export const bcduiExport_ModelWrapper = bcdui.core.ModelWrapper = class extends 
 export const bcduiExport_ModelUpdater = bcdui.core.ModelUpdater = class extends bcdui.core.TransformationChain
 {
   /**
-   * @class bcdui.core.ModelUpdater
    * @param {Object} args - An argument object with the following properties:
    * @param {chainDef} args.chain - The definition of the transformation chain
    * <ul>
@@ -1215,5 +1216,9 @@ export const bcduiExport_ModelUpdater = bcdui.core.ModelUpdater = class extends 
 
     args.targetModel._addModelUpdater(this, args.autoUpdate);
   }
+
+  /**
+   * @inheritDoc
+   */
   getClassName() {return "bcdui.core.ModelUpdater";}
 };

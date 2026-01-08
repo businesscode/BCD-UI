@@ -97,7 +97,7 @@ bcdui.component.chart = Object.assign(bcdui.component.chart,
    * @param {string}                  [args.id]                - Renderer ID
    * @param {string}                  [args.chartRendererId]   - ID of chart renderer
    * @param {string}                  [args.elementStyle]      - Style for legend HTML element
-   * @return renderer that creates legend renderer
+   * @return {bcdui.core.Renderer} renderer that creates legend renderer
    */
   createChartLegend: function(args){
 

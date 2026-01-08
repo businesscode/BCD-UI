@@ -46,13 +46,13 @@ import java.sql.PreparedStatement;
 /**
  * Entry point for all data data upload related steps, supports POST and PUT
  * Add custom steps in web.xml in the following format:
- * <init-param>
-     <param-name>Steps</param-name>
-     <param-value>
+ * &lt;init-param>
+     &lt;param-name>Steps&lt;/param-name>
+     &lt;param-value>
        MY_STEP_NAME: de.my.package.ClassName;
        MY_STEP_NAME2: de.my.package.ClassName2;
-     </param-value>
-   </init-param -->
+     &lt;/param-value>&lt;
+   &lt;/init-para -->
    Such Steps
  *  - need a Constructor getting (UploadControl uc, String userId)
  *  - implement IUploadStep

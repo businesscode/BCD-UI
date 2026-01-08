@@ -78,7 +78,7 @@ bcdui.core.XMLLoader = class
    * @param {DomDocument} doc The document the xPointer is applied on.
    * @param {string} xPointer An xPointer selecting elements out of a document. If it
    * is null it is considered to be equal to "element(/1)".
-   * @return {Array} The list of elements matching the xPointer.
+   * @return {Array<element>} The list of elements matching the xPointer.
    * @private
    */
   _getDataFromXPointer( doc, xPointer)
@@ -106,7 +106,7 @@ bcdui.core.XMLLoader = class
    * @param {object} args
    * @param {DomElement} args.xinclude The XInclude to be replaced with its result.
    * @param {DomDocument} args.xincludeDoc The XML document loaded from the href denoted by the XInclude.
-   * @param {String} args.xincludeUrl The absolute URL the xincludeDoc has been loaded from. This is only for debugging.
+   * @param {string} args.xincludeUrl The absolute URL the xincludeDoc has been loaded from. This is only for debugging.
    * @param {Function?} args.preProcessFkt An optional callback which is executed on the content (each individual element) which is about to be included
    * @private
    */
@@ -191,7 +191,7 @@ bcdui.core.XMLLoader = class
 
   /**
    * @private
-   * @param {String}      args.xPath
+   * @param {string}      args.xPath
    * @param {DomDocument} args.doc
    * @param {function}    args.onSuccess
    * @param {function?}   args.onFailure Optional, called with a message as param, otherwise, an exception is thrown
@@ -293,7 +293,7 @@ bcdui.core.XMLLoader = class
    * either NULL (if no fault envelope found) or the result object with following properties:
    *
    * <ul>
-   *  <li>errorText{String}: code and reason as described by soap fault</li>
+   *  <li>errorText{string}: code and reason as described by soap fault</li>
    *  <li>wrsValidationResultNode{Node}: reference to the wrs:ValidationResult element, if any</li>
    * </ul>
    *
@@ -301,7 +301,7 @@ bcdui.core.XMLLoader = class
    *
    * @param {Object} args The parameter map must contain:
    * @param {DomDocument} args.doc
-   * @return null or result object (read above)
+   * @return {null|object} or result object (read above)
    * @private
    */
   _checkForSOAPFault( args )
@@ -323,12 +323,12 @@ bcdui.core.XMLLoader = class
    * it is finished or fails. The loading is done with a HTTP GET request and it
    * resolves all xincludes found in the document.
    * @param {Object} args The parameter map must contain:
-   * @param {String} args.url The URL the XML document comes from.
+   * @param {string} args.url The URL the XML document comes from.
    * @param {Function} args.onSuccess A function called when the request has finished
    *         loading. This function gets the XML document as argument.
    * @param {Function} [args.onFailure] Optional, called with the transport object as param, otherwise, an exception is thrown
    * @param {Function} [args.onComplete]  Optional, after onSuccess and onFailure
-   * @param {String} [args.method]  An optional http method, default is GET
+   * @param {string} [args.method]  An optional http method, default is GET
    * @param {boolean} [args.skipSoapFault] An optional, if true, no default Soap fault handling is done
    */
   load( args)
@@ -431,8 +431,8 @@ bcdui.core.XMLLoader = class
    * it is finished or fails. It also resolves XIncludes on the document returned,
    * but these includes are loaded via GET.
    * @param {Object} args The parameter map must contain:
-   * @param {String} args.url The URL the XML document comes from.
-   * @param {Boolean} args.isSync Set to FALSE / TRUE to enable sync/async request. Default is FALSE.
+   * @param {string} args.url The URL the XML document comes from.
+   * @param {boolean} args.isSync Set to FALSE / TRUE to enable sync/async request. Default is FALSE.
    * @param {DomDocument} args.doc The document to be posted to the server.
    * @param {Function}args.onSuccess A function called when the request has finished
    *         loading. This function gets the XML document as argument.
@@ -612,7 +612,7 @@ bcdui.core.XMLLoader = class
    * file with a different position. The hrefs should then be relative to the new position (=baseURL)
    * An absolute path is expected to begin below the contextPath
    * @param {DomDocument} doc The document to work on
-   * @param {String} baseURL, the new base URL to which all relative href in the doc should be calculated.
+   * @param {string} baseURL, the new base URL to which all relative href in the doc should be calculated.
    * @private
    */
   _translateRelativeXSLImportUrlsToAbsolute( doc, baseURL)
@@ -698,7 +698,7 @@ bcdui.core.XMLLoader = class
 /**
  * The singleton xmlLoader instance.
  * @constant
- * @type bcdui.core.XMLLoader
+ * @type {bcdui.core.XMLLoader}
  * @private
  */
 bcdui.core.xmlLoader = new bcdui.core.XMLLoader();

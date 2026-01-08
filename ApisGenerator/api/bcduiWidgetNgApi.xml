@@ -94,7 +94,7 @@
         <Param name="targetHtmlElementId" type="string" deprecated="4.6">
           <Doc>The ID of (!existing) HTML element this widget should be attached to. This is API of a factory! A widget is always created from HTML DOM element.</Doc>
         </Param>
-        <Param name="targetHtml" type="targetHtmlRef">
+        <Param name="targetHtml" type="targetHtmlRef" required="true">
           <Doc>An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.</Doc>
         </Param>
         <Param name="disabled" type="boolean" default="false">
@@ -194,7 +194,7 @@
           Date picker for temporal types supports native html5 widget and fallsback to custom implementation in case browser
           does not support it.
         </Doc>
-        <Param name="type" type="enum" value="date|yrMonth" default="date">
+        <Param name="type" type="enumString" value="date|yrMonth" default="date">
           <Doc>
             Select a calendar year and a month or a date.
             Uses HTML5 native if available. For other cases two or three single selects next to each other.
@@ -366,7 +366,7 @@
             The HTML oninput event.
           </Doc>
         </Param>
-        <Param name="type" type="enum" value="text|email|password|int|numeric|time|color" default="text">
+        <Param name="type" type="enumString" value="text|email|password|int|numeric|time|color" default="text">
           <Doc>
             a type of this input field. Following types are supported for validation:
             text: a simple text input
@@ -407,14 +407,15 @@
         <Param name="toUpper" type="boolean" required="false" default="false">
           <Doc>If true, all values are translated to uppercase.</Doc>
         </Param>
-        <Param name="pasteSeps" type="string" required="false" default=",; \|\t\n">
+        <Param name="pasteSeps" type="string" required="false" default=";|,| |\\t|\\n|\\|">
           <Doc>
-            Letters treated as separators between values when pasting.
-            Defaults: comma, semicolon, space, pipe, tab, newline.
+            Chars to be treated as separators between values when pasting.
+            Defaults to all off: comma, semicolon, space, tab, newline, pipe.
+            Make sure to escape backslashes so that the string contains \n and not the newline char.
           </Doc>
         </Param>
         <Param name="outSep" type="string" required="false" default=",">
-          <Doc>Letter treated as separators in the targetModel and also expected when reading in values from there, defaults to comma.</Doc>
+          <Doc>Char treated as separators in the targetModel and also expected when reading in values from there, defaults to comma.</Doc>
         </Param>
         <Param name="maxVals" type="integer" required="false" default="1000">
           <Doc>Only the first maxVals distinct values are used.</Doc>
@@ -455,7 +456,7 @@
 
 
       <Api name="hasOptionsFilter">
-        <Param name="wildcard" type="enum" value="contains|startswith|endswith" default="startswith">
+        <Param name="wildcard" type="enumString" value="contains|startswith|endswith" default="startswith">
           <Doc>
             The wildcards apply to filtering within the drop down list and for server side filters.
             This option applies only if bound to a f:Expression element and is ignored otherwise.
@@ -593,7 +594,7 @@
         <Param name="values" type="string" default="1|0">
           <Doc>A pipe separated value of two string which are used for a checked/unchecked state. By default this is 1 and 0.</Doc>
         </Param>
-        <Param name="skin" type="enum" value="checkbox|switch" default="checkbox">
+        <Param name="skin" type="enumString" value="checkbox|switch" default="checkbox">
           <Doc>Currently supporting checkbox (default) and switch style.</Doc>
         </Param>
       </Api>
@@ -602,7 +603,7 @@
         <Doc>
           Renders a browser does natively for select or radio.
         </Doc>
-        <Param name="skin" type="enum" value="combo" default="combo">
+        <Param name="skin" type="enumString" value="combo" default="combo">
           <Doc>Currently supporting combo style only</Doc>
         </Param>
         <Param name="doAutoSelectSolelyOption" type="boolean" default="false">
@@ -928,7 +929,7 @@
           Offers a user simple list of options able of multi-selection, it does not offer any input prompt. Additionally, this
           input provides number of skins (see skin attribute)
         </Doc>
-        <Param name="skin" type="enum" value="list|checkbox|sideBySide" default="list">
+        <Param name="skin" type="enumString" value="list|checkbox|sideBySide" default="list">
           <Doc>
           - list
             a simple HTML SELECT where user can select multiple entries
@@ -1111,7 +1112,7 @@ the data that is actually placed in XML.
           object containing information about how determine your hierarchy.
           i.e. { levelNodeName : 'far:Category', itemNodeName : 'far:Item', isDefaultCollapsed: true }
         </Doc>
-        <Param name="targetModelXPath" type="writableModelXPath" required="true" default="$guiStatus/guiStatus:Status">
+        <Param name="targetModelXPath" type="writableModelXPath" default="$guiStatus/guiStatus:Status">
           <Doc>
             Target xPath to write the far:ConfiguratorLayout configuration into.
           </Doc>
@@ -1156,7 +1157,7 @@ the data that is actually placed in XML.
       <Api name="universalFilter" extends="widget">
         <Doc>
         </Doc>
-        <Param name="targetModelXPath" type="writableModelXPath" required="true" default="$guiStatus/guiStatus:Status/f:Filter/f:And">
+        <Param name="targetModelXPath" type="writableModelXPath" default="$guiStatus/guiStatus:Status/f:Filter/f:And">
           <Doc>
             Target xPath for this filter to work with. This widget creates a filter compatible ( http://www.businesscode.de/schema/bcdui/filter-1.0.0 ) structure beyond given target element,
             and will use f:And, f:Or and f:Expression elements to represent the filter.

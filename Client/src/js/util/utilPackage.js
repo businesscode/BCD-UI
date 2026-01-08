@@ -38,8 +38,8 @@ bcdui.util =
 
   /**
    * Logic derived from PrototypeJs library to remove xml tags from a string.
-   * @param {String} str String to be stripped
-   * @returns {String}
+   * @param {string} str String to be stripped
+   * @returns {string}
    * @private
    */
   stripTags: function(str) { return str.replace(/<\w+(\s+("[^"]*"|'[^']*'|[^>])+)?>|<\/\w+>/gi, '') ;},
@@ -55,7 +55,7 @@ bcdui.util =
   /**
    * Logic derived from PrototypeJs library to "Parses a URI-like query string and returns an object composed of parameter/value pairs".
    * @param {string} url - URL with the parameters
-   * @param separator
+   * @param {string} separator
    * @returns {string} An object with the parameters of the url as properties
    */
   toQueryParams: function(url, separator) {
@@ -84,7 +84,7 @@ bcdui.util =
    * @param {HtmlElement} element - The element which is moved to the cloned position
    * @param {HtmlElement} source - The element of which the position is cloned
    * @param args
-   * @returns The moved target element
+   * @returns {DomElement} The moved target element
    * @private
    */
   clonePosition: function(element, source, args) {
@@ -121,7 +121,7 @@ bcdui.util =
   /**
    * Logic derived from PrototypeJs library to provide the offset of an element to its closed ancestor
    * @param {HtmlElement} element
-   * @returns Object with properties 'left' and 'top'
+   * @returns {Object} Object with properties 'left' and 'top'
    * @private
    */
   positionedOffset: function(element) {
@@ -148,7 +148,7 @@ bcdui.util =
   /**
    * Logic derived from PrototypeJs library to provide the offset of an element from the top left of document
    * @param {HtmlElement} element
-   * @returns Object with properties 'left' and 'top'
+   * @returns {object} Object with properties 'left' and 'top'
    * @private
    */
   cumulativeOffset: function(element) {
@@ -378,7 +378,7 @@ bcdui.util =
    * @param {Object|Element|string}   container                         The scrollable container containing a level-1 child 'scrollTo'.
    * @param {Object|Element|string}   scrollTo                          Level-1 child of the container.
    * @param {Object}                  [options]                         Options to apply, all the options are optional, valid options:
-   * @param {string}                  [options.snapTo=beginning]        snapTo can have following values: 'beginning': put the scrollTo-target on the top of container.
+   * @param {string}                  [options.snapTo="beginning"]      snapTo can have the following values: 'beginning': put the scrollTo-target on the top of container.
    *  'nearest': snap the element to the nearest edge of the container.
    * 
    * @return {boolean} - true if the container has been scrolled
@@ -439,7 +439,7 @@ bcdui.util =
    * @param {Object} args Parameter Object
    * @param {string|HtmlElement|jQuery} args.targetHtml A CSS selector, or a plain HtmlElement or a jQuery element list. If there are multiple matching elements, the id of the first is used.
    * @param {boolean} [args.doReturnElement=false]  Return an element instead of the ID, is only compatible when using args.targetHtml
-   * @returns The id of the targetHtml or the element if args.doReturnElement=true
+   * @returns {string|element} The id of the targetHtml or the element if args.doReturnElement=true
    * @private
    */
   _getTargetHtml: function(args, scope, doReturnElement) {
@@ -531,7 +531,7 @@ bcdui.util =
    *
    * @param {string}  id  Id of a container to create
    * @param {boolean} [show=false]  true if element should not be hidden
-   * @return jQuery object with craeted (or located) element.
+   * @return {object} jQuery object with craeted (or located) element.
    *
    * @private
    */
@@ -622,7 +622,7 @@ bcdui.util =
   /**
    * returns an object map holding information for a binding's items (id, description and type)
    * @param {string}    bindingSetId The id of the binding set
-   * @param {string|array}    bRefs    requested binding items. Can be a comma-separated value list or an array
+   * @param {string|Array<string>}    bRefs    requested binding items. Can be a comma-separated value list or an array
    * @param {function}  callback The function which is called after a successful call of the BindingInfo servlet and returns the collected data
   */
   getBindingInfo: (bindingSetId, bRefs, callback) => {

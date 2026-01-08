@@ -1150,8 +1150,8 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
 
   /**
    * Export an EChart as PNG
-   * @param targetHtml  - Html element where the chart is found
-   * @param name        - File name: name+".png"
+   * @param {targetHtmlRef} targetHtml  - Html element where the chart is found
+   * @param {string} name        - File name: name+".png"
    * @static
    */
   static saveAsImage(targetHtml, name) {
@@ -1243,10 +1243,17 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
   }
 
   /**
-   * @return definition DOM document
+   * @return {document} DOM document
    */
   getData(){
     return this.config.getData();
+  }
+
+  /**
+   * @inheritDoc
+   */
+  getClassName(){
+    return "bcdui.component.chart.ChartEchart";
   }
 
 };

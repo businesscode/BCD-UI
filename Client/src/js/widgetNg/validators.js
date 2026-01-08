@@ -60,8 +60,9 @@ bcdui.widgetNg.validation.validators.widget = Object.assign(bcdui.widgetNg.valid
 
 /**
  * validates on string length, params:
- * - value {String}, may be null
+ * - value {string}, may be null
  * - max {int}: maximum string length
+ * @private
  */
 bcdui.widgetNg.validation.validators.general.valueLengthValidator = function(args){
   if(args.value==null || args.value.length<=args.max)return null;
@@ -72,8 +73,8 @@ bcdui.widgetNg.validation.validators.general.valueLengthValidator = function(arg
 
 /**
  * validates the string against given regex pattern, params:
- * - value {String}, may be null
- * - pattern {String} regular expression
+ * - value {string}, may be null
+ * - pattern {string} regular expression
  */
 bcdui.widgetNg.validation.validators.general.patternValidator = function(args){
   if(args.value==null || !args.value.trim())return null;
@@ -118,7 +119,7 @@ bcdui.widgetNg.validation.validators.general.TYPE_VALIDATORS={
  *
  * @see implementation at bcdui.widgetNg.input.isFieldEmpty
  *
- * @return value of the field or "" if the field is empty
+ * @return {string} value of the field or "" if the field is empty
  */
 bcdui.widgetNg.validation.validators.widget.getValue = function(htmlElementId){
   var el = bcdui._migPjs._$(htmlElementId);
@@ -135,7 +136,7 @@ bcdui.widgetNg.validation.validators.widget.getValue = function(htmlElementId){
  * widget configuration API used:
  * - maxlength
  *
- * @return null if valid, validationMessageObject otherwise
+ * @return {Object|null} null if valid, validationMessageObject otherwise
  */
 bcdui.widgetNg.validation.validators.widget.valueLength = function(htmlElementId){
   var el = bcdui._migPjs._$(htmlElementId);
@@ -256,11 +257,11 @@ bcdui.widgetNg.validation.validators.widget.TYPE_VALIDATORS = {
  * to the user. Also resets the field to valid if neither customValidationMessages has been provided nor
  * native validation has returned negative result.
  *
- * @param {string|element}  htmlElementId                 validatable element
+ * @param {string|Element}  htmlElementId                 validatable element
  * @param {string[]}        customValidationMessages      An array of custom validation messages to display for this element (optional)
  * @param {boolean}         [skipNativeValidation=false]  If you want to skip implicit, native html5 validation on the element.
  *
- * @return TRUE if field has been validated and has no errors, false otherwise
+ * @return {boolean} TRUE if field has been validated and has no errors, false otherwise
  */
 bcdui.widgetNg.validation.validateField = function(htmlElementId, customValidationMessages, skipNativeValidation){
   var el = bcdui._migPjs._$(htmlElementId);
@@ -368,7 +369,7 @@ bcdui.widgetNg.validation.setCustomValidity = function(htmlElement, isValid){
  * by adding/removing particular CSS classes. The classes are always added, even in case
  * native validation is supported (via :invalid pseudo class)
  *
- * @return TRUE if validation message has been placed, so field is not valid, false otherwise.
+ * @return {boolean} TRUE if validation message has been placed, so field is not valid, false otherwise.
  */
 bcdui.widgetNg.validation.indicateFieldValidity = function(htmlElement){
 
@@ -395,7 +396,7 @@ bcdui.widgetNg.validation.indicateFieldValidity = function(htmlElement){
  * CSS case has to be considered because browsers native validation implementaion may
  * switch validity state so that we cannot detect the change without fully revalidating
  * the field.
- * @return true if valid, false otherwise
+ * @return {boolean} true if valid, false otherwise
  */
 bcdui.widgetNg.validation.hasValidStatus = function(htmlElement){
   return htmlElement.validity==null || (htmlElement.validity.valid && !bcdui._migPjs._$(htmlElement).hasClass("bcdInvalid"));

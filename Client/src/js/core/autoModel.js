@@ -40,7 +40,7 @@ export const bcduiExport_AutoModel = bcdui.core.AutoModel = class extends bcdui.
    * @param {boolean}                 [args.isAutoRefresh=false]          - If true, will reload when any (other) filter regarding a bRefs or the additionalFilterXPath change.
    *
    * @param {Object}                  [args.reqDocParameters]             - Optional parameters for a custom request document builder.
-   * @param {Array}                   [args.reqDocChain=['wrs/requestDocumentBuilder.xslt']] - Optional custom chain for request document builder.
+   * @param {Array<string>}           [args.reqDocChain=['wrs/requestDocumentBuilder.xslt']] - Optional custom chain for request document builder.
    * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatus] - the status model to resolve .filterBRefs against
    * @param {bcdui.core.DataProvider} [args.statusModelEstablished]       - the established status model to provide to ModelWrapper creating request document as 'statusModelEstablished' parameter
    * @param {string}                  [args.groupByBRefs]                 - Space separated list of bRefs for grouping. Is not effective when using .isDistinct=true parameter.   
@@ -54,7 +54,7 @@ export const bcduiExport_AutoModel = bcdui.core.AutoModel = class extends bcdui.
    * @param {function}                                      [args.saveOptions.onFailure]              - Callback on failure, is called if error occurs
    * @param {function}                                      [args.saveOptions.onWrsValidationFailure] - Callback on serverside validate failure, if omitted the onFailure is used in case of validation failures
    * @param {bcdui.core.DataProvider}                       [args.saveOptions.urlProvider]            - DataProvider holding the request url (by default taken from the underlying simple model url)
-   * @example
+  * @example
    * // Create a simple AutoModel, reading distinct bindingItems 'country', 'region' and 'city' from BindingSet 'md_geo'
    * var am = new bcdui.core.AutoModel({ bindingSetId: "md_geo", bRefs: "country region city", isDistinct: true, filterElement: "country='DE'" });
    */
@@ -187,7 +187,15 @@ export const bcduiExport_AutoModel = bcdui.core.AutoModel = class extends bcdui.
          }
        }
     }
+
+    /**
+     * @inheritDoc
+     */
     getClassName() { return "bcdui.core.AutoModel"}
+
+    /**
+     * @description Destroys the AutoModel and all sub-objects
+     */
     destroy() {
       // destroy those we created
       this.disposables.forEach(d => d.destroy());

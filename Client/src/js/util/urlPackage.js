@@ -67,8 +67,8 @@ translateRelativeURL: function( relativeBaseUrl,  relativeUrl)
 /**
  * Converts a relative URL (like ../Ziplet) to a full URL path (like
  * (/myApp/ZipLet), based on the current page location.
- * @param {String} url - The (relative or absolute) url to a full URL path.
- * @return {String} The full URL path which is the absolute URL
+ * @param {string} url - The (relative or absolute) url to a full URL path.
+ * @return {string} The full URL path which is the absolute URL
  * without the host/protocol/port part, starting with slash.
  */
 resolveToFullURLPathWithCurrentURL: function( url)

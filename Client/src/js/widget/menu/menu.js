@@ -26,8 +26,8 @@ bcdui.widget.menu.Menu = class
 {
   /**
    * @param args
-   * @param {String|HtmlElement} args.rootIdOrElement         root Node of the menu (ul)
-   * @param {String} args.name                                name of the variable that stores the result
+   * @param {string|HtmlElement} args.rootIdOrElement         root Node of the menu (ul)
+   * @param {string} args.name                                name of the variable that stores the result
    *                                                           of this constructor function
    * @param {function} args.customConfigFunction              optional config function to override the default settings
    *                                                          for an example see Menu.prototype.config
@@ -49,7 +49,10 @@ bcdui.widget.menu.Menu = class
     this.rootContainer = this._createMenuContainer(this.rootId, this);
   }
 
-  getClassName() {return "menu";}
+  /**
+   * @return {string} class name
+   */
+  getClassName() {return "bcdui.widget.menu.Menu";}
 
   /**
    * these two create methods make it possible to extend MenuContainer and MenuItem without
@@ -146,7 +149,11 @@ bcdui.widget.menu.Menu = class
     }
   }
 
-  getClassName() {return "menuContainer";}
+  /**
+   * @return {string} class name
+   */
+  getClassName() {return "bcdui.widget.menu.MenuContainer";}
+
   /**
    * @private
    */
@@ -269,7 +276,10 @@ bcdui.widget.menu.Menu = class
     }
   }
 
-  getClassName() {return "menuItem";}
+  /**
+   * @return {string} class name
+   */
+  getClassName() {return "bcdui.widget.menu.MenuItem";}
 
   /**
    * Open the item

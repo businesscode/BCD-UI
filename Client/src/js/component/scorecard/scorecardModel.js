@@ -116,6 +116,9 @@ export const bcduiExport_ScorecardModel = bcdui.component.scorecard.ScorecardMod
     this.setStatus(this.initializedStatus);
   }
 
+  /**
+   * @inheritDoc
+   */
   getClassName() {return "bcdui.component.scorecard.Scorecard";}
 
   /**
@@ -783,7 +786,7 @@ export const bcduiExport_ScorecardModel = bcdui.component.scorecard.ScorecardMod
   }
 
   /**
-   * @inheritdoc
+   * @inheritDoc
    */
   getReadyStatus()
   {

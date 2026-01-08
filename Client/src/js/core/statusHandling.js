@@ -29,7 +29,7 @@ bcdui.core.Status = class
   constructor() {}
 
   /**
-   * @return {String} A short code for the Status which can be used for debugging.
+   * @return {string} A short code for the Status which can be used for debugging.
    */
   getCode()
     {
@@ -37,7 +37,7 @@ bcdui.core.Status = class
     }
 
   /**
-   * @return {String} A longer description of the Status.
+   * @return {string} A longer description of the Status.
    */
   getDescription()
     {
@@ -48,6 +48,7 @@ bcdui.core.Status = class
    * Test the status for logical equivalence to another status object. Usually
    * this function should test if the target status is of the same class as
    * this status.
+   * @param {bcdui.core.Status} status The status object to compare with.
    * @return {boolean} True, if the specified status object represents the same
    * logical status as the current one.
    */
@@ -57,7 +58,7 @@ bcdui.core.Status = class
     }
 
   /**
-   * @return {String} A debug string summarizing this status object.
+   * @return {string} A debug string summarizing this status object.
    */
   toString() {
       return "[Status (" + this.getCode() + "): " + this.getDescription() + "]";
@@ -109,14 +110,14 @@ bcdui.core.StatusEvent = class
     }
 
   /**
-   * @return {Status} The new status of the source object.
+   * @return {bcdui.core.Status} The new status of the source object.
    */
   getStatus() {
       return this.status;
     }
 
   /**
-   * @return {String} A summary of the status event.
+   * @return {string} A summary of the status event.
    */
   toString()
     {
@@ -135,7 +136,7 @@ bcdui.core.StatusListener = class
   /**
    * This method is called when the status transition the listener is registered
    * for occurs.
-   * @param statusEvent The status event belonging to the status transition. This
+   * @param {bcdui.core.StatusEvent} statusEvent The status event belonging to the status transition. This
    * object must not be modified, because it is shared among all listeners.
    */
   handleStatusEvent(/* StatusEvent */ statusEvent)

@@ -20,7 +20,7 @@
  *
  */
 /**
- *   This class represents the standard case of a model where the loaded from a specified URL. Its document can be accessed
+ * This class represents the standard case of a model where the data is loaded from a specified URL. Its document can be accessed
  *   via {@link bcdui.core.SimpleModel#getData myModel.getData()}. Javascript and {@link bcdui.core.Modelupdater Modelupdaters} can modify the data.
  *   Data loading is triggered by {@link bcdui.core.AbstractExecutable#execute myModel.execute()}
  * The constructor of the model takes only one property besides the mandatory
@@ -31,9 +31,9 @@
  * If not text/plain, (derived or via mimeType), the data is parsed.
  *  <table>
  *    <tr><th>file extension</th><th>value</th><th>Result</th></tr>
- *    <tr><td>*.json</td><td>"application/json"</td><td>are turned into a js object</li>
- *    <tr><td>*.js</td><td>"application/javascript"</td><td>are loaded and executed</li>
- *    <tr><td>*.xml, .xsl, .xslt</td><td>"application/xml", "application/xslt+xml"</td><td>are parsed into DOM</li>
+ *    <tr><td>*.json</td><td>"application/json"</td><td>are turned into a js object</td></tr>
+ *    <tr><td>*.js</td><td>"application/javascript"</td><td>are loaded and executed</td></tr>
+ *    <tr><td>*.xml, .xsl, .xslt</td><td>"application/xml", "application/xslt+xml"</td><td>are parsed into DOM</td></tr>
  *  </table>
  *  All other content is just loaded as plain text.
  * @example
@@ -42,8 +42,15 @@
  * var renderer  = new bcdui.core.Renderer({ targetHtml: "booksDiv", chain: "renderer.xslt", inputModel: bookModel });
  * @example
  * // Load a model using a Wrs request document from Wrs servlet
- * var myModel = new bcdui.core.SimpleModel({ id  : "myModel", url : new bcdui.core.RequestDocumentDataProvider({ url: "requestDoc.xml"}) });
- * myModel.execute();
+ * // Provide data as a {@link bcdui.core.DataProvider DataProvider}
+ * var myModel = new bcdui.core.SimpleModel({ id: "dayModel", url: new bcdui.core.RequestDocumentDataProvider({ url: "requestDoc.xml"}) });
+ * // Reference by id
+ * bcdui.widgetNg.createSingleSelect({ targetHtml: "selectDayHtml", optionsModelXPath: "$dayModel/Values/V", targetModelXPath: "$guiStatus/guiStatus:Status/guiStatus:SelectedDay/@value" });
+ * // Note: Only if using in plain JS, execute the model to load the data. Renderers and Widgets do that for you automatically.
+ * myModel.onceReady({ executeIfNotReady: true, onSuccess: () => {
+ *   var myVal = myModel.getData().selectSingleNode("/wrs:Wrs/wrs:Data/wrs:R[1]/wrs:C[3]").nodeValue;
+ *   // ...
+ * });
  * @extends bcdui.core.AbstractUpdatableModel
 */
 export const bcduiExport_SimpleModel = bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
@@ -139,6 +146,7 @@ export const bcduiExport_SimpleModel = bcdui.core.SimpleModel = class extends bc
       /**
        * The model was created but no {@link bcdui.core.SimpleModel#execute myModel.execute()} was called explicitly or by a DataProvider or Renderer, having this as an input.
        * @constant
+       * @type {bcdui.core.Status}
        */
       this.initializedStatus = new bcdui.core.status.InitializedStatus();
       /**
@@ -164,6 +172,7 @@ export const bcduiExport_SimpleModel = bcdui.core.SimpleModel = class extends bc
       /**
        * Indicating the model is ready for access. Check via {@link bcdui.core.SimpleModel#isReady myModel.isReady()}
        * @constant
+       * @type {bcdui.core.Status}
        */
       this.transformedStatus = new bcdui.core.status.TransformedStatus();
 
@@ -179,7 +188,10 @@ export const bcduiExport_SimpleModel = bcdui.core.SimpleModel = class extends bc
       this.setStatus(this.initializedStatus);
     }
 
-    getClassName() {return "bcdui.core.SimpleModel";}
+  /**
+   * @inheritDoc
+   */
+  getClassName() {return "bcdui.core.SimpleModel";}
 
   /**
    * @private
@@ -401,7 +413,7 @@ export const bcduiExport_SimpleModel = bcdui.core.SimpleModel = class extends bc
 
   /**
    * Returns the list of status objects indicating that something has failed.
-   * @return {Array} The array of failure {@link bcdui.core.Status} objects.
+   * @return {Array<bcdui.core.Status>} The array of failure {@link bcdui.core.Status} objects.
    */
   getFailedStatus()
     {
@@ -421,7 +433,7 @@ export const bcduiExport_SimpleModel = bcdui.core.SimpleModel = class extends bc
     }
 
   /**
-   * @inheritdoc
+   * @inheritDoc
    */
   getData()
     {

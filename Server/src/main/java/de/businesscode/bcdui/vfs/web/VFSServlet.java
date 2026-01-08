@@ -120,7 +120,7 @@ public class VFSServlet extends HttpServlet {
    * multifile is NOT supported as the field-name is taken as uri (path),
    *
    * you may want to throw custom exception to process on client, you may do it throwing
-   * {@link PostException} from here or one subprocessing method
+   * {@link ServletException} from here or one subprocessing method
    *
    */
   @Override

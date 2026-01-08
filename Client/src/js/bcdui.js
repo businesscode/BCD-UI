@@ -398,7 +398,7 @@ bcdui = Object.assign(bcdui,
      *
      * @param uri array of uris or a string
      * @private
-     * @return array of strings (urls)
+     * @return {Array<string>} array of strings (urls)
      */
     _uriToUrl : function(uri){
       //if an uri is a string we convert into array
@@ -421,7 +421,7 @@ bcdui = Object.assign(bcdui,
      * extract and uncompresses the guiStatusGZ part from a given input string
      * @param url holding a guiStatusGz part
      * @private
-     * @return unpacked guiStatus as string
+     * @return {string} unpacked guiStatus as string
      */
     _unpackGuiStatusGz : function(url) {
       var unpackedGz = "";

@@ -37,13 +37,11 @@ if (typeof bcdui.widget == "undefined") {
  *   A use case for this event object is for example a delayed tooltip
  *   appearing for example 200 ms after the mouse over event has occurred.
  * </p>
- * @type {bcdui.widget.DetachedEvent}
  */
 bcdui.widget.DetachedEvent = class
 {
   /**
    * @constructs
-   * @member bcdui.widget.DetachedEvent
    * @param {Event} event The event object that should be the base for this
    * object.
    * @param {HtmlElement} [element] The source element of the event if it should
@@ -64,7 +62,7 @@ bcdui.widget.DetachedEvent = class
     /**
      * @private
      */
-    this._pointer = { x: event.pageX, y: event.pageY};
+    this._pointer = { x: event.pageX, y: event.pageY };
     /**
      * @private
      */
@@ -96,7 +94,7 @@ bcdui.widget.DetachedEvent = class
 
   /**
    * Getter for the coordinates the event has been triggered at.
-   * @return An object in the form \{ x: ##, y: ## \} holding the x and y position
+   * @return {{x: number, y: number }} An object in the form { x: ##, y: ## } holding the x and y position
    * where the event has been triggered.
    */
   pointer()
@@ -106,7 +104,7 @@ bcdui.widget.DetachedEvent = class
 
   /**
    * Getter for the X coordinate of the event.
-   * @return The X coordinate where the event has been triggered.
+   * @return {integer} The X coordinate where the event has been triggered.
    */
   pointerX()
     {
@@ -115,7 +113,7 @@ bcdui.widget.DetachedEvent = class
 
   /**
    * Getter for the Y coordinate of the event.
-   * @return The Y coordinate where the event has been triggered.
+   * @return {integer} The Y coordinate where the event has been triggered.
    */
   pointerY()
     {

@@ -55,31 +55,31 @@ bcdui.widget.detailView = Object.assign(bcdui.widget.detailView,
 
   /**
    * @param args
-   * @param {(String|Element)} args.targetHtmlElement  - to attach listener to
-   * @param {(String|bcdui.core.Renderer)} args.targetRenderer      - optional the target renderer, targetHtmlElement has precedence
-   * @param {Boolean} args.consumeEvent              - optional, default is: FALSE, consumes the event or allow propagation
+   * @param {(string|Element)} args.targetHtmlElement  - to attach listener to
+   * @param {(string|bcdui.core.Renderer)} args.targetRenderer      - optional the target renderer, targetHtmlElement has precedence
+   * @param {boolean} args.consumeEvent              - optional, default is: FALSE, consumes the event or allow propagation
    *
-   * @param {String} args.childElementSelector       - filter (jQuery) compatible for filtering on nested children, default is "tbody tr"
-   * @param {String} args.event            - event to attach on , default is 'dblclick'
+   * @param {string} args.childElementSelector       - filter (jQuery) compatible for filtering on nested children, default is "tbody tr"
+   * @param {string} args.event            - event to attach on , default is 'dblclick'
    * @param {Function} args.filterFunction - a filter function to check on target element if to pass, default is a filter
    *                                          function expecting targetElement to have 'bcdrowident' attribute
    *                                          this function shall return TRUE of FALSE, an argument is provided to the function
    *                                          containing following properties:
-   * @param args.filterFunction.eventContext.event - the event
-   * @param args.eventContext.targetElement - the target element where event has occurred
+   * @param {string} args.filterFunction.eventContext.event - the event
+   * @param {DomElement} args.eventContext.targetElement - the target element where event has occurred
    * @param {Function} args.renderViewContainerFunction  - a function which renders the view container, the default implementation is
-   * @param args.renderViewContainerFunction.renderDialogContainer(), please refer to docs for more infos, arguments passed to this function:
+   * @param {Function} args.renderViewContainerFunction.renderDialogContainer, please refer to docs for more infos, arguments passed to this function:
    * @param {Object} args.renderViewContainerFunction.factoryArgs              - the initial factory args which were provided attachDetailView() function, may be null
    * @param {Object} args.renderViewContainerFunction.eventContext.event          - the event object which triggered this function, may be null
-   * @param {Element} args.renderViewContainerFunction.eventContext.targetElement - the target element which event occurred, may be null
-   * @param {Element} args.renderViewContainerFunction.referenceElement           - is eventContext.targetElement
-   * @param {Element} args.renderViewContainerFunction.targetHtmlElement          - element to attach view container on
+   * @param {DomElement} args.renderViewContainerFunction.eventContext.targetElement - the target element which event occurred, may be null
+   * @param {DomElement} args.renderViewContainerFunction.referenceElement           - is eventContext.targetElement
+   * @param {DomElement} args.renderViewContainerFunction.targetHtmlElement          - element to attach view container on
    * @param {Function} args.renderViewContainerFunctionParamsFactory - factory for additional params which are mixed-in to the argument of renderViewContainerFunction()
    *                                                      available through extra.* property; this function gets same arguments as 'renderViewContainerFunction'
    * @param {Function} args.containerViewRenderedCb      - a function which is called by renderViewContainerFunction() once container is contructed
    *
    *
-   * @return args, additionally contains .unbind() function which stops this handler working; when called that function, you have to attachDetailView() again
+   * @return {Object|void} args, additionally contains .unbind() function which stops this handler working; when called that function, you have to attachDetailView() again
    */
   attachDetailView : function(args){
     // check if we are attached on a renderer
@@ -187,13 +187,12 @@ bcdui.widget.detailView = Object.assign(bcdui.widget.detailView,
    * renders a details view container for given element, this implementation renders jQuery.dialog,
    * you can override any attributes via extra.dialog object parameter
    *
-   * @param args
-   * @param args.targetHtmlElement                   - the target element this container is attached to
-   * @param {Element} args.referenceElement         - the the element this detail container is constructed for
-   * @param args.containerViewRenderedCb.             - the function which is called once target container is constructed and argument with
-   *                                        following properties is provided:
-   * @param {Element} args.containerViewRenderedCb.targetHtmlElement  - the element to render content into, this may be reused so ensure executing .empty() before adding content
-   * @param {Element} args.containerViewRenderedCb.referenceElement   - see above
+   * @param {object} args
+   * @param {DomElement} args.targetHtmlElement      - the target element this container is attached to
+   * @param {DomElement} args.referenceElement       - the element this detail container is constructed for
+   * @param {function} args.containerViewRenderedCb  - the function which is called once target container is constructed and argument with following properties is provided:
+   * @param {DomElement} args.containerViewRenderedCb.targetHtmlElement  - the element to render content into, this may be reused so ensure executing .empty() before adding content
+   * @param {DomElement} args.containerViewRenderedCb.referenceElement   - see above
    * ---
    * specific parameters, which are available in this function,
    * but is not API contract, i.e. in case you provide your custom
@@ -203,7 +202,7 @@ bcdui.widget.detailView = Object.assign(bcdui.widget.detailView,
    *  extra.dialog.disableCloseControl    - special param to remove the [close] control from standard ui-dialog bar, so close() can be issued via API/Event only
    *
    *
-   * @return jQuery object ( container element )
+   * @return {Object} jQuery object ( container element )
    */
   renderDialogContainer : function(args){
     // re-use container element

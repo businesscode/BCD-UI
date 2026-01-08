@@ -536,7 +536,7 @@
 
     /**
      * @param {string} nodeId to identify the node within target scope
-     * @return {element} from target identified by given nodeid, may return NULL no such node was found
+     * @return {DomElement} from target identified by given nodeid, may return NULL no such node was found
      */
     _getTargetNode : function(nodeId){
       if(!nodeId) throw "Missing .nodeId";

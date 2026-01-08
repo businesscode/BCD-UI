@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2024 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -31,10 +31,9 @@
  *   - Run "Gradle->Refresh Gradle Project" from context menu of the project and refresh "Gradle Task" view
  * 4. Run gradle task "wrapper" and refresh project with F5
  *
- * You can also use a locally build bcdui.jar in WEB-INF/lib, To do that::
- * - remove dependency on the jar from dependencies
- * - copy bcdui_dependencies.gradle next to build.grade
- * - add "apply from: 'bcdui_dependencies.gradle'" before the dependency block
+ * You can also use a locally build bcdui.jar in WEB-INF/lib, To do that:
+ * - copy bcdui_dependencies.gradle next to this build.gradle
+ *   and add "apply from: 'bcdui_dependencies.gradle'" before the dependency block
  ------------------------------------------------*/
 
 apply plugin: 'war'
@@ -60,15 +59,14 @@ dependencies {
       url "https://github.com/businesscode/maven-repo/raw/master"
     }
   }
-  implementation 'de.businesscode.bcdui:bcd-ui-core:5.5.0-SNAPSHOT'
-  implementation 'de.businesscode.bcdui:bcd-ui-theme-bcd:5.5.0-SNAPSHOT'
+  implementation 'de.businesscode.bcdui:bcd-ui-core:5.7.0-SNAPSHOT'
+  implementation 'de.businesscode.bcdui:bcd-ui-theme-bcd:5.7.0-SNAPSHOT'
 
   // Local files from WEB-INF/lib
   implementation fileTree(dir: "$webAppDirName/WEB-INF/lib", include: ['*.jar'])
 
-  // If necessary, any additional project dependencies like this
-  // implementation group: 'com.sun.mail', name: 'javax.mail', version: '1.6.2'
-  // implementation 'com.oracle.database.jdbc:ojdbc8:19.6.0.0'
+  // If necessary, any additional project dependencies like this:
+  // implementation 'com.oracle.database.jdbc:ojdbc11:23.26.0.0.0''
 }
 
 // We need WEB-INF/lib and WEB-INF/classes as compile dependencies

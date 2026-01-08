@@ -135,7 +135,7 @@ bcdui.widget.multiSelect = Object.assign(bcdui.widget.multiSelect,
     },
 
   /**
-   * @param {String} htmlElementId
+   * @param {string} htmlElementId
    * @method
    * @private
    */

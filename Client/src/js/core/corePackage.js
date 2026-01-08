@@ -81,7 +81,7 @@ bcdui.core = Object.assign(bcdui.core,
 
   /**
    * A boolean flag indicating if the core library is in debug mode or not.
-   * @type boolean
+   * @type {boolean}
    * @constant
    * @private
    */
@@ -90,7 +90,7 @@ bcdui.core = Object.assign(bcdui.core,
   /**
    * This constant specifies the name of the URL parameter holding the compressed
    * request document.
-   * @type String
+   * @type {string}
    * @constant
    * @private
    */
@@ -99,7 +99,7 @@ bcdui.core = Object.assign(bcdui.core,
   /**
    * A boolean value defining if the URL parameter "_requestDocumentParameterName"
    * should be appended as anchor or as regular parameter.
-   * @type Boolean
+   * @type {boolean}
    * @constant
    * @private
    */
@@ -107,14 +107,14 @@ bcdui.core = Object.assign(bcdui.core,
 
   /**
    * The full URL to the webRowSet servlet.
-   * @type String
+   * @type {string}
    * @constant
    */
   webRowSetServletPath: bcdui.contextPath + "/bcdui/servlets/WrsServlet",
 
   /**
    * The full URL to the webRowSet servlet at servletsSessionCached path
-   * @type String
+   * @type {string}
    * @constant
    */
   webRowSetServletPathSessionCached: bcdui.contextPath + "/bcdui/servletsSessionCached/WrsServlet",
@@ -425,10 +425,10 @@ bcdui.core = Object.assign(bcdui.core,
    *      [ "", "Root", "Item[@type = 1]", "Value" ]
    * The empty initial string comes from the first slash in the xPath. To omit it
    * the "skipStartingSlash" parameter should be set to "true".
-   * @param {String} xPath The XPath to be split.
-   * @param {Boolean} skipStartingSlash True to make the function ignore the leading slash
+   * @param {string} xPath The XPath to be split.
+   * @param {boolean} skipStartingSlash True to make the function ignore the leading slash
    * if the XPath has one.
-   * @return {Array} The parts the XPath consists of.
+   * @return {Array<string>} The parts the XPath consists of.
    * @private
    */
   splitXPath: function( xPath, skipStartingSlash)
@@ -515,8 +515,8 @@ bcdui.core = Object.assign(bcdui.core,
    * its parts, divided by the "and" conjunction. The result for the example is
    * the array [wrs:C[1]='abc', wrs:C[@x='y']='z']. It is an auxiliary function
    * for createElementWithPrototype.
-   * @param {String} str The string containing the XPath predicate.
-   * @return {Array} The xPath predicate split by the "and" conjunction.
+   * @param {string} str The string containing the XPath predicate.
+   * @return {Array<string>} The xPath predicate split by the "and" conjunction.
    * @private
    */
   splitXPathPredicate: function(str)
@@ -624,7 +624,7 @@ bcdui.core = Object.assign(bcdui.core,
    * @param {boolean} [enableWrsExtensions=true] Set this flag to "true" if the function should treat
    * wrs elements differently (like converting wrs:R to wrs:M or creating wrs:I
    * elements). It is "true" by default.
-   * @return {Element} The XML element to be found under the specified XPath.
+   * @return {DomElement} The XML element to be found under the specified XPath.
    */
   createElementWithPrototype: function(/* XMLDocument | XMLElement | DataProvider */ baseElement, /* String */ path, /* Boolean? */ enableWrsExtensions)
   {
@@ -965,8 +965,8 @@ bcdui.core = Object.assign(bcdui.core,
    * ; in both cases there is one item per value, but it is stored in the item text in the first
    * example and in the value attribute in the second one.
    * @param { DomDocument | bcdui.core.DataProvider} doc The document the targetXPath is based on.
-   * @param {String} targetXPath The XPath pointing to the elements to be synchronized with the values.
-   * @param {Array} values A string array containing the values to be stored in the elements under the
+   * @param {string} targetXPath The XPath pointing to the elements to be synchronized with the values.
+   * @param {Array<string>} values A string array containing the values to be stored in the elements under the
    * targetXPath.
    * @return {integer} The number of elements created, modified or deleted by this function.
    * @private

@@ -39,7 +39,7 @@ public interface ISqlGenerator {
 
   /**
    * getRequestedBindingSetNames
-   * the requested bindingSet or bindingGroup names from the request document in the form Map.Entry<BsName,bsAlias>
+   * the requested bindingSet or bindingGroup names from the request document in the form Map.Entry&lt;BsName,bsAlias>
    * This because neither the BindingSet nor the alias need to be unique really
    *
    * @return 

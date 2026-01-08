@@ -110,11 +110,6 @@ public class SendEmail
 
   /**
    * Reads email account settings from JNDI context
-   * @param host
-   * @param port
-   * @param sender
-   * @param user
-   * @param password
    * @throws AddressException
    * @throws NamingException 
    */
@@ -139,8 +134,7 @@ public class SendEmail
   /**
    * Create a Session object to represent a mail session with the specified properties.
    * Sessions do not need to be closed
-   * @param port
-   * @throws GeneralSecurityException 
+   * @throws GeneralSecurityException
    */
   protected void initSession() throws GeneralSecurityException 
   {
@@ -168,7 +162,7 @@ public class SendEmail
    * @param receipients semicolon separated
    * @param subject
    * @param body
-   * @param attachments may be null
+   * @param html may be null
    * @throws MessagingException
    */
   public void send(String receipients, String subject, String body, boolean html ) throws MessagingException 
@@ -181,7 +175,9 @@ public class SendEmail
    * @param receipients semicolon separated
    * @param subject
    * @param body
-   * @param attachments may be null
+   * @param attachmentName may be null
+   * @param attachment
+   * @param html
    * @throws MessagingException
    */
   public void send(String receipients, String subject, String body, String attachmentName, File attachment, boolean html) throws MessagingException 
@@ -197,7 +193,8 @@ public class SendEmail
    * @param receipients
    * @param subject
    * @param body
-   * @param attachments attachmentname - filename
+   * @param attachmentFilenames attachmentname - filename
+   * @param html
    * @throws MessagingException
    */
   public void sendWithFilenames(String receipients, String subject, String body, Map<String,String> attachmentFilenames, boolean html) throws MessagingException 
@@ -216,7 +213,8 @@ public class SendEmail
    * @param receipients semicolon separated
    * @param subject
    * @param body
-   * @param attachments attachmentname - file
+   * @param attachmentFiles attachmentname - file
+   * @param html
    * @throws MessagingException
    */
   public void sendWithFiles(String receipients, String subject, String body, Map<String,File> attachmentFiles, boolean html ) throws MessagingException 
@@ -246,10 +244,11 @@ public class SendEmail
   /**
    * Actually send an email to multiple receipients
    * @param receipients semicolon separated
-   * @param cc receipients semicolon separated
+   * @param receipientsCc receipients semicolon separated
    * @param subject
    * @param body
    * @param attachments
+   * @param html
    * @throws MessagingException
    */
   public void sendCC(String receipients, String receipientsCc, String receipientsBcc, String subject, String body, Map<String,DataSource> attachments, boolean html ) throws MessagingException 

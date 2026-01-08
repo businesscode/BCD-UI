@@ -86,8 +86,6 @@ public class I18n {
   /**
    * retrieve currently set locale for given session
    *
-   * @param session,
-   *          whch may be null
    * @param defaultLocale
    * @return currently set locale or the defaultLocale
    */
@@ -124,7 +122,6 @@ public class I18n {
   /**
    * set locale for given session
    *
-   * @param session
    * @param locale
    */
   public static void setLocale(Locale locale) {

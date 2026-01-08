@@ -182,7 +182,7 @@ task bcduiGensrcTld {
         tldFile.parentFile.mkdirs()
         tldFile.createNewFile()
 
-        tagFiles.matching({ include "*.tag"}).each{ tagFile ->
+        tagFiles.matching({ include "*.tag"}).sort().each{ tagFile ->
           tagList += "  <tag-file><name>${tagFile.name.split("\\.")[0]}</name><path>/$packageType/tags/bcdui/${value.tldDisplayName}/${tagFile.name}</path></tag-file>"+newLine
         }
         value["tagList"] = tagList
