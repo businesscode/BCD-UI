@@ -30,7 +30,7 @@
 
   <!-- http header security options -->
   <filter>
-    <filter-name>httpHeaderSecurity</filter-name>
+    <filter-name>bcdui4.HttpHeaderSecurity</filter-name>
     <filter-class>org.apache.catalina.filters.HttpHeaderSecurityFilter</filter-class>
     <init-param>
       <param-name>antiClickJackingEnabled</param-name>
@@ -66,20 +66,9 @@
     </init-param>
   </filter>
   <filter-mapping>
-    <filter-name>httpHeaderSecurity</filter-name>
+    <filter-name>bcdui4.HttpHeaderSecurity</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
-
-  <!-- CORS Filter, enable it if you want to allow cross origin resource sharing in your application. 
-  <filter>
-    <filter-name>CorsFilter</filter-name>
-    <filter-class>de.businesscode.bcdui.web.filters.CorsFilter</filter-class>
-  </filter>
-  <filter-mapping>
-    <filter-name>CorsFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
-  -->
 
   <!-- filter for identifying requests from MS Office applications like Word or Excel to not redirect to login page, enable if needed -->
   <!--
@@ -93,9 +82,9 @@
   </filter-mapping>
   -->
 
-  <!-- ensure utf8 character encoding, must be placed before shiro filter -->
+  <!-- Security filter for authentication and authorization, see https://shiro.apache.org/configuration.html -->
   <filter>
-    <filter-name>setCharacterEncodingFilter</filter-name>
+    <filter-name>bcdui4.SetCharacterEncodingFilter</filter-name>
     <filter-class>org.apache.catalina.filters.SetCharacterEncodingFilter</filter-class>
     <init-param>
       <param-name>encoding</param-name>
@@ -103,7 +92,7 @@
     </init-param>
   </filter>
   <filter-mapping>
-    <filter-name>setCharacterEncodingFilter</filter-name>
+    <filter-name>bcdui4.SetCharacterEncodingFilter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
 
@@ -273,7 +262,7 @@
     <url-pattern>/bcdui/servlets/SubjectPreferences/*</url-pattern>
   </servlet-mapping>
 
-<!--  Data Upload Servlet
+  <!--  Data Upload Servlet
   <servlet>
     <servlet-name>bcdui4.DataUploadServlet</servlet-name>
     <servlet-class>de.businesscode.bcdui.upload.data.UploadServlet</servlet-class>
@@ -288,11 +277,12 @@
     <servlet-name>bcdui4.DataUploadServlet</servlet-name>
     <url-pattern>/bcdui/servlets/DataUploadServlet/*</url-pattern>
   </servlet-mapping> 
--->
+  -->
 
-  <!-- Download servlet
+  <!-- Remote download Servlet for lazy mirroring remote SFTP files on server and providing a download link -->
+  <!--
   <servlet>
-    <servlet-name>bcdui4.SchedulerDownload</servlet-name>
+    <servlet-name>bcdui4.RemoteDownload</servlet-name>
     <servlet-class>de.businesscode.bcdui.toolbox.DownloadServlet</servlet-class>
     <init-param>
       <param-name>clearDaysFiles</param-name>
@@ -326,7 +316,13 @@
       <param-name>downloadPage</param-name>
       <param-value>your download html page for redirect</param-value>
     </init-param>
--->
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>bcdui4.RemoteDownload</servlet-name>
+    <url-pattern>/download/*</url-pattern>
+  </servlet-mapping>
+  -->
 
   <!-- Evaluates and executes WrsRequests to the database -->
   <servlet>

@@ -223,7 +223,7 @@ public class BindingItem extends SimpleBindingItem {
   }
 
   /**
-   * Default aggregator, when none is given in the Wrq
+   * Get the @aggr attribute set at BindingSet/C
    * @return
    */
   public String getAggr() {
