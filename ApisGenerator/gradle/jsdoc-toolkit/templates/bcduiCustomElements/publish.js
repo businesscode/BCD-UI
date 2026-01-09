@@ -44,7 +44,7 @@ function customElementsCore( taffyData, path )
 {
   var clazzes = taffyData( { kind: "class", longname: "bcdui.core.Renderer", undocumented: { "!is": true } } ).get();
   if( clazzes.length === 1 ) {
-    var result = "import \"../../modules/core.js\"" + newLine; 
+    var result = "import \"../modules/core.js\"" + newLine; 
     result += printCustomTag( "bcd-renderer", clazzes[0].memberof+"."+"RendererTag", clazzes[0].params, "bcdui.factory.createRenderer", "" );
     fs.mkPath( path );
     fs.writeFileSync( path+"/customElements.js", result, 'utf8');
