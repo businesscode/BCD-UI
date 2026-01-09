@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -660,6 +660,36 @@ bcdui.component = Object.assign(bcdui.component,
         templateRenderer.onReady(function(){
           jQuery(cube.getTargetHtml()).trigger("bcdui:cubeConfigurator:templateManagerRendered");
           jQuery(templateRenderer.getTargetHtml()).trigger("bcdui:cubeConfigurator:templateManagerRendered")
+
+          jQuery("#" + args.templateTargetHtmlElementId).find(".bcdReportTemplateList").off("click");
+          jQuery("#" + args.templateTargetHtmlElementId).find(".bcdReportTemplateList").on("click", ".bcdAction", function(event) {
+            
+            let htmlElement = jQuery(event.target);
+            if (! htmlElement.hasClass("bcdAction"))
+              htmlElement = jQuery(htmlElement).closest(".bcdAction");
+
+            const data = htmlElement.get(0).dataset;
+            if (data) {
+              const objectId = data.objectId || ""
+              const templateId = data.templateId || "";
+              const reportPath = data.reportPath || "";
+            
+              if (htmlElement.hasClass("apply") && objectId != "" && templateId != "")
+                bcdui.component.cube.templateManager._applyUserTemplate(objectId, templateId, htmlElement.get(0));            
+              if (htmlElement.hasClass("clear") && objectId != "")
+                bcdui.component.cube.templateManager.clearLayout(objectId);            
+
+              if (htmlElement.hasClass("toggle"))
+                bcdui.component.cube.templateManager._toggleElement('userTempEditor');
+              if (htmlElement.hasClass("save") && objectId != "" && reportPath != "")
+                bcdui.component.cube.templateManager.saveTemplates(reportPath, objectId);
+              if (htmlElement.hasClass("remove") && objectId != "" && templateId != "" && reportPath != "")
+                bcdui.component.cube.templateManager._updateTemplates(reportPath, null, templateId, objectId);
+            }
+            
+            event.stopPropagation();
+            
+          });
         });
         cube.getConfigModel().onChange(function() {templateRenderer.execute();}, "/*/cube:Layouts");
 

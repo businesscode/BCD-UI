@@ -19,7 +19,7 @@ import org.apache.shiro.authc.AuthenticationToken;
 
 /**
  * this token is used in conjunction to {@link AuthenticationFilter} which
- * authenticates a subject by any different scheme, i.e. SPNEGO
+ * authenticates a subject
  */
 public class ExternalAuthenticationToken implements AuthenticationToken {
   private static final long serialVersionUID = 1L;

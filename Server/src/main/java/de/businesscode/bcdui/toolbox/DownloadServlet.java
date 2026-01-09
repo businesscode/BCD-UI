@@ -57,8 +57,11 @@ class DownloadInfo
   public int download_count;
   public Date last_download;
 };
- 
 
+/**
+ * Supports lazy mirroring SFTP files to local folder for download
+ * Keeps track of download statistics and deletes files older than given days
+ */
 public class DownloadServlet extends HttpServlet {
   private static final long serialVersionUID = 1L;
 
@@ -111,7 +114,14 @@ public class DownloadServlet extends HttpServlet {
 
   }
 
-protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  /**
+   * Handles the HTTP <code>GET</code> method for a file and check if it is already local or needs to be mirrored from SFTP.
+   * @param request an {@link HttpServletRequest} object that contains the request the client has made of the servlet
+   * @param response an {@link HttpServletResponse} object that contains the response the servlet sends to the client
+   * @throws ServletException
+   * @throws IOException
+   */
+  protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
   
     boolean doDownload = request.getParameter("download") != null || DOWNLOAD_PAGE == null || DOWNLOAD_PAGE.isEmpty();
     
@@ -197,7 +207,13 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response) t
       ",  $k.download_count_ = $k.download_count_ + 1" +
       " WHERE" +
       "   $k.uuid_ = ?";
-  
+
+  /**
+   * Update download count
+   * @param d
+   * @return
+   * @throws Exception
+   */
   private DownloadInfo updateFileCount(DownloadInfo d) throws Exception {
     PreparedStatement stmt = null;
     Connection connection = getControlConnection();
@@ -215,8 +231,10 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response) t
 
     return d;
   }
-  
-  
+
+  /**
+   * Cleanup old files
+   */
   private final String cleanUpFilesSQL=
       " #set( $k = $bindings." + BCDFILESDOWNLOAD + " ) "+
       " SELECT" +

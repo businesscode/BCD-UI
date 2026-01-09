@@ -32,42 +32,42 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
    * @constant
    * @type {integer}
    */
-  static LINECHART= 1;
+  LINECHART= 1;
   /**
    * @constant
    * @type {integer}
    */
-  static AREACHART= 2;
+  AREACHART= 2;
   /**
    * @constant
    * @type {integer}
    */
-  static BARCHART=  3;
+  BARCHART=  3;
   /**
    * @constant
    * @type {integer}
    */
-  static PIECHART=  4;
+  PIECHART=  4;
   /**
    * @constant
    * @type {integer}
    */
-  static SCATTEREDCHART= 5;
+  SCATTEREDCHART= 5;
   /**
    * @constant
    * @type {integer}
    */
-  static POINTCHART= 6;
+  POINTCHART= 6;
   /**
    * @constant
    * @type {integer}
    */
-  static GAUGECHART= 7;
+  GAUGECHART= 7;
   /**
    * @constant
    * @type {integer}
    */
-  static MARIMEKKOCHART= 8;
+  MARIMEKKOCHART= 8;
   /**
    * @private
    * @constant
