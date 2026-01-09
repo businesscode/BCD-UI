@@ -106,10 +106,10 @@ bcdui.widget.menu.Menu = class
   init(idOrElement, parent) {
     this.element = bcdui._migPjs._$(idOrElement).get(0);
     this.parent = parent;
-    this.parentMenu = (this.type == "menuContainer") ? ((parent) ? parent.parent : null) : parent;
-    this.root = parent.type == "menu" ? parent : parent.root;
+    this.parentMenu = (this.type == "bcdui.widget.menu.MenuContainer") ? ((parent) ? parent.parent : null) : parent;
+    this.root = parent.type == "bcdui.widget.menu.Menu" ? parent : parent.root;
 
-    if (this.type == "menuContainer") {
+    if (this.type == "bcdui.widget.menu.MenuContainer") {
       if (bcdui._migPjs._$(this.element).hasClass("bcdLevel1")) this.menuType = "horizontal";
       else
         if (bcdui._migPjs._$(this.element).hasClass("bcdLevel2")) this.menuType = "dropdown";
@@ -136,7 +136,7 @@ bcdui.widget.menu.Menu = class
     for (var i = 0; i < childNodes.length; i++) {
       var node = childNodes[i];
       if (node.nodeType == 1) {
-        if (this.type == "menuContainer") {
+        if (this.type == "bcdui.widget.menu.MenuContainer") {
           if (node.tagName.toLowerCase() == "li") {
             this.menuItems.push( this.root._createMenuItem(node, this));
           }
