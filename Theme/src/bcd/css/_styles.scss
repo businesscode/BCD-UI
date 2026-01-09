@@ -1100,6 +1100,7 @@ $h6-font-size:                $bcd-font-size-base !default;
 /* column filter */
 
 .bcdFilterContainer { display: flex; align-items: center;}
+.bcdFilterContainer > bcd-inputfield { width: 100%; }
 .bcdFilterOriginal { width: 100%;}
 .bcdFilterButton {
   background: inherit;
@@ -1349,8 +1350,10 @@ table.bcd-far-configurator {
 
 /* Grid and Scheduler */
 
-.popupActionButtons .defaultButton {
+.popupActionButtons bcd-buttonng.defaultButton {
   margin: 0 0 0 1em;
+}
+.popupActionButtons bcd-buttonng.defaultButton a {
   padding: 0;
 }
 
