@@ -42,13 +42,13 @@ exports.publish = function(taffyData, opts, tutorials)
  */
 function customElementsCore( taffyData, path )
 {
-  var result = "";
-  var clazz = taffyData( { kind: "class", longname: "bcdui.core.Renderer", undocumented: { "!is": true } } ).get()[0];
-  result += "import \"../modules/core.js\"" + newLine;
-  result += printCustomTag( "bcd-"+clazz.name.toLowerCase(), clazz.memberof+"."+clazz.name+"Tag", clazz.params, "bcdui.factory.createRenderer", "");
-  
-  fs.mkPath( path );
-  fs.writeFileSync( path+"/customElements.js", result, 'utf8');
+  var clazzes = taffyData( { kind: "class", longname: "bcdui.core.Renderer", undocumented: { "!is": true } } ).get();
+  if( clazzes.length === 1 ) {
+    var result = "import \"../../modules/core.js\"" + newLine; 
+    result += printCustomTag( "bcd-renderer", clazzes[0].memberof+"."+"RendererTag", clazzes[0].params, "bcdui.factory.createRenderer", "" );
+    fs.mkPath( path );
+    fs.writeFileSync( path+"/customElements.js", result, 'utf8');
+  }
 }
 
 /**

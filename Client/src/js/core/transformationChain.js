@@ -25,7 +25,7 @@
    * @extends bcdui.core.DataProvider
    * @abstract
     */
-export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
+bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
 {
 
   /**
@@ -1005,7 +1005,7 @@ export const bcduiExport_TransformationChain = bcdui.core.TransformationChain = 
    * Renderer execute() automatically on creation, and as usual execute their dependencies (i.e. parameters) automatically.
    * @extends bcdui.core.TransformationChain
    */
-export const bcduiExport_Renderer = bcdui.core.Renderer = class extends bcdui.core.TransformationChain
+bcdui.core.Renderer = class extends bcdui.core.TransformationChain
 {
   /**
    * @param {Object} args - An argument object with the following properties:
@@ -1132,7 +1132,7 @@ export const bcduiExport_Renderer = bcdui.core.Renderer = class extends bcdui.co
    * A concrete subclass of {@link bcdui.core.TransformationChain TransformationChain}, being a DataProvider itself, providing the transformed input.
   * @extends bcdui.core.TransformationChain
    */
-export const bcduiExport_ModelWrapper = bcdui.core.ModelWrapper = class extends bcdui.core.TransformationChain
+bcdui.core.ModelWrapper = class extends bcdui.core.TransformationChain
 {
   /**
   * @param {Object} args - An argument object with the following properties:
@@ -1176,7 +1176,7 @@ export const bcduiExport_ModelWrapper = bcdui.core.ModelWrapper = class extends 
    * Technically, this is a bcdui.core.TransformationChain object but it should not be executed, fired, modified or read from directly.
    * @extends bcdui.core.TransformationChain
   */
-export const bcduiExport_ModelUpdater = bcdui.core.ModelUpdater = class extends bcdui.core.TransformationChain
+bcdui.core.ModelUpdater = class extends bcdui.core.TransformationChain
 {
   /**
    * @param {Object} args - An argument object with the following properties:
@@ -1222,3 +1222,8 @@ export const bcduiExport_ModelUpdater = bcdui.core.ModelUpdater = class extends 
    */
   getClassName() {return "bcdui.core.ModelUpdater";}
 };
+
+export const bcduiExport_TransformationChain = bcdui.core.TransformationChain;
+export const bcduiExport_Renderer = bcdui.core.Renderer;
+export const bcduiExport_ModelWrapper = bcdui.core.ModelWrapper;
+export const bcduiExport_ModelUpdater = bcdui.core.ModelUpdater;
