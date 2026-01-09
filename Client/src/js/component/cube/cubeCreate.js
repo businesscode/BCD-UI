@@ -686,6 +686,9 @@ bcdui.component = Object.assign(bcdui.component,
               if (htmlElement.hasClass("remove") && objectId != "" && templateId != "" && reportPath != "")
                 bcdui.component.cube.templateManager._updateTemplates(reportPath, null, templateId, objectId);
             }
+            
+            event.stopPropagation();
+            
           });
         });
         cube.getConfigModel().onChange(function() {templateRenderer.execute();}, "/*/cube:Layouts");
