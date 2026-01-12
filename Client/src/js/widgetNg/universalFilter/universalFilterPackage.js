@@ -300,9 +300,13 @@
         }.bind(null, !!args.targetNodeId, uiElement);
         createUiRenderer.execute();
         createUiRenderer.onReady(function() {
-          jQuery(self.createUiElement).find(".closeContainer").off("click");
-          jQuery(self.createUiElement).find(".closeContainer").on("click", function(event) {
-            jQuery(event.target).trigger('bcdui:universalFilter:closeCreateUi');
+          jQuery(self.createUiElement).off("click");
+          jQuery(self.createUiElement).on("click", ".bcdAction", function(event) {
+            const el = jQuery(event.target).hasClass("bcdAction") ? jQuery(event.target) : jQuery(event.target).closest(".bcdAction");
+            if (el.hasClass("add"))
+              el.trigger('bcdui:universalFilter:add')
+            if (el.hasClass("close"))
+              el.trigger('bcdui:universalFilter:closeCreateUi');
           });
           revealUi();
         });

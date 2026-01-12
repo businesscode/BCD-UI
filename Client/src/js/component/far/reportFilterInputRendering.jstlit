@@ -39,7 +39,6 @@
 <span></span>
 <span></span>
 <span>
-  <bcd-buttonng caption="OK" onClickAction="jQuery(this).trigger('bcdui:universalFilter:add')"></bcd-buttonng>
+  <bcd-buttonng caption="OK" class="bcdAction add"></bcd-buttonng>
 </span>
-<span class="${params.cssClassPrefix}creator-container-closer closeContainer">
-</span>
+<span class="${params.cssClassPrefix}creator-container-closer bcdAction close"></span>
