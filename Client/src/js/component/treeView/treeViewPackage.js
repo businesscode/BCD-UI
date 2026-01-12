@@ -22,6 +22,13 @@ export const bcduiExport_TreeView = bcdui.component.treeView = Object.assign(bcd
 /** @lends bcdui.component.treeView */
 {
 
+  _toggleAction: function() {
+    const levelId = jQuery(this).closest("*[levelId]").attr("levelId") || "";
+    const rendererId = jQuery(this).closest("*[rendererId]").attr("rendererId") || "";
+    const isExpanded = (jQuery(this).closest("*[isExpended]").attr("isExpended") || "false") == "true";
+    bcdui.component.treeView.expandCollapse(levelId, rendererId, ! isExpanded);
+  },
+
   /**
    * Expand or collapse a level for a treeView renderer
    * @param {string}  rendererId - Id of the treeView's renderer
