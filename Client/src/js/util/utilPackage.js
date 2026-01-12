@@ -309,6 +309,23 @@ bcdui.util =
   },
 
   /**
+   * Get a JS object given via a string
+   *
+   * @param {string}  jsRef object name
+   * @returns the found object or null
+   * @private
+   * */
+  _getJsObjectFromString: function(objName, dontThrow) {
+    const obj = objName.split(".").reduce(function(fkt, f) { return fkt && fkt[f]; }, window);
+    if (dontThrow)
+      return obj;
+    else if (! obj)
+      throw "not an object: " + objName;
+    else
+      return obj;
+  },
+
+  /**
    * Execute a JS function given via a string
    *
    * @param {string}  jsRef Function with parameters as string, either comma separated (e.g. alert, hello world) or function alert('hello world');
