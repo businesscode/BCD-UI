@@ -928,6 +928,7 @@ div.bcdUserMessages {
 /* column filter */
 
 .bcdFilterContainer { display: flex; align-items: center;}
+.bcdFilterContainer > bcd-inputfield { width: 100%; }
 .bcdFilterOriginal { width: 100%;}
 .bcdFilterButton {
   background: inherit;
