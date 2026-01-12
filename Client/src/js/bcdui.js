@@ -191,7 +191,8 @@ bcdui = Object.assign(bcdui,
         if (bcdui.config) {
 
           if(bcdui.config.clientLogAppenderJSClassName){
-            appender = eval("new " + bcdui.config.clientLogAppenderJSClassName + "()");
+            const app = bcdui.util._getJsObjectFromString(bcdui.config.clientLogAppenderJSClassName);
+            appender = new app();
           }
           //attach special appender
           else {
@@ -298,6 +299,19 @@ bcdui = Object.assign(bcdui,
                 jQuery(".bcdSysError").off("click");
                 jQuery(".bcdSysError").remove();
               });
+              const emailhref = bcdui.log._getBCDAppender()._createEmailHref();
+              const emailMessageLink = "<a class='bcdEmail' href='"+emailhref+"'>" + this.emailMessageLink + "</a>";
+              const addInfo = '<div class="bcdSysErrorBody"><p>--- Please copy/paste the text below into your email ---</p><textarea id="sysError">' + this._getDetailMessage() + '</textarea></div>';
+              const msg = "<div class='bcdSysError'><div><i class='bcdIconError'></i>" + this.errorMessageCaption + "<i class='bcdIconError'></i><i class='bcdIconClose'></i></div><p>" + this.emailMessageLine + "</p><p>" + emailMessageLink + addInfo + "</p></div>"
+              jQuery(".blockUI").remove()
+              jQuery("body").append(msg);
+              jQuery("#sysError").select()
+              jQuery(".bcdSysError").on("click", ".bcdIconClose", function() {
+                jQuery(".bcdSysError").off("click");
+                jQuery(".bcdSysError").remove();
+              });
+              if (jQuery.ui && jQuery.ui.draggable)
+                jQuery(".bcdSysError").draggable();
             }
           };
 

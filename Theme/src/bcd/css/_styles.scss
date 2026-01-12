@@ -2768,6 +2768,56 @@ input[type='color'] { width: 3em; height: 2em; padding: .1em .3em; margin: 0;}
   }
 }
 
+.bcdSysError {
+  font-size: .8rem;
+  min-width: 280px;
+  position: fixed;
+  top: 1em;
+  left: 35%;
+  z-index: 100000;
+  border: 2px solid #aa0000;
+  padding: 1em;
+  text-align: left;
+  background-color: #ffffff;
+  width: 30%;
+  box-shadow: 2px 3px 11px rgba(52,58,62,.3);
+
+  > div:first-child { 
+     text-transform: uppercase;
+     font-size: 1em;
+     font-weight: bold;
+     position: relative;
+     white-space: nowrap;
+     border-bottom: 1px solid #000;
+     padding-bottom: .5em;
+     margin-bottom: .5em;
+  }
+  textarea {
+    width: 100%;
+    height: 10em;
+    resize: none;
+    font-size: .8em;
+    font-family: 'Courier New', Courier, monospace;
+  }
+  p {
+    padding: 0 0 1em 0;
+    margin: 0;
+    text-align: center;
+  }
+  i.bcdIconClose {
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+  }
+  i.bcdIconClose:after {content: "\f00d"; }
+  i:after {
+    font-family: "Font Awesome 5 Free", Sans-serif;
+    font-weight: 600;
+    font-style: normal;
+  }
+}
+
 .bcd__header__credentials-widget nav.bcdMenu ul.credentials {
   border-radius: 1em;
   > li > a  { padding: .8em; display: inline-block; }

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -178,7 +178,9 @@ bcdui.component.grid.GridRenderer.bcduiHtmlRenderer = function(instance, td, row
     return txt.length == 60 ? txt + "..." : txt;
   }
   jQuery(td).text(itemsToString(value));
-  jQuery(td).html("<span class='bcdHtmlPreview'><a onclick='bcdui.component.grid.GridRenderer.previewHtml(\"" + gridArgs.targetHtml + "\",\"" + gridArgs.rowId + "\")' href='#'></a></span>"+td.innerHTML+"<span></span>");
+  jQuery(td).html("<span class='bcdHtmlPreview'><a class='preview'></a></span>"+td.innerHTML+"<span></span>");
+  jQuery(td).off("click");
+  jQuery(td).on("click", ".preview", function() { bcdui.component.grid.GridRenderer.previewHtml(gridArgs.targetHtml, gridArgs.rowId); });
   return td;
 };
 
