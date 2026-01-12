@@ -122,7 +122,7 @@ function printCustomTag( tagName, jsConstructorLongname, params, factory )
 
   result = "// " + tagName + " HTML custom element" + newLine;
   result += "bcdui.util.createCustomElement( '"+tagName+"', function() {" + newLine;
-  result += "  var args = { targetHtml: this };" + newLine;
+  result += "  var args = { targetHtml: this, bcdApi: 'CUST' };" + newLine;
 
   // Because HTML attributes are not case sensitive, we cannot generically derive param names from attribute names, instead we have to list them explicitly
   var allowedParamTypes = ["string", "boolean", "xPath", "i18nToken", "modelXPath", "writableModelXPath", "bcdui.core.DataProvider", "function", "chainDef", "enum", "enumString", "number", "integer", "stringList", "url"];

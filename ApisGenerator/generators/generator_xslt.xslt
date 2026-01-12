@@ -162,7 +162,8 @@
         <xsl:when test="$isWidgetNg and $gotImplementationPackage">
           <xsl:text>&#10;&#10;  </xsl:text><xsl:comment>htmlElement container start</xsl:comment><xsl:text></xsl:text>
           <xsl:text>&#10;  </xsl:text><xsla:element name="{$containerElement}">
-            <xsl:text>&#10;&#10;    </xsl:text><xsl:comment>convert each param to bcd attributes</xsl:comment><xsl:text></xsl:text>
+            <xsl:text>&#10;&#10;    </xsl:text><xsl:comment>convert each param to bcd attributes</xsl:comment><xsl:text></xsl:text><xsl:text>&#10;    </xsl:text>
+            <xsla:attribute name="bcdApi">XML</xsla:attribute>
             <xsl:for-each select="Api/Param">
               <xsl:variable name="bcdPrefix">
                 <xsl:call-template name="addPrefix">
@@ -170,26 +171,11 @@
                   <xsl:with-param name="prefix" select="'bcd'"/>
                 </xsl:call-template>
               </xsl:variable>
-              <xsl:choose>
-              <!-- need to provide a 'dummy' targetHtml attribute for xslt/xml api since validate options will moan about it -->
-              <xsl:when test="@name='targetHtml'">
-                <xsl:text>&#10;    </xsl:text><xsla:attribute name="{$bcdPrefix}">
-                <xsl:text>&#10;      </xsl:text><xsla:choose>
-                <xsl:text>&#10;        </xsl:text><xsla:when test="${@name}">
-                <xsl:text>&#10;          </xsl:text><xsla:value-of select="${@name}"/>
-                <xsl:text>&#10;        </xsl:text></xsla:when>
-                <xsl:text>&#10;        </xsl:text><xsla:otherwise>not used</xsla:otherwise>
-                <xsl:text>&#10;      </xsl:text></xsla:choose>
-                <xsl:text>&#10;    </xsl:text></xsla:attribute>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:text>&#10;    </xsl:text><xsla:if test="${@name}">
-                <xsl:text>&#10;      </xsl:text><xsla:attribute name="{$bcdPrefix}">
-                <xsl:text>&#10;        </xsl:text><xsla:value-of select="${@name}"/>
-                <xsl:text>&#10;      </xsl:text></xsla:attribute>
-                <xsl:text>&#10;    </xsl:text></xsla:if>
-              </xsl:otherwise>
-              </xsl:choose>
+              <xsl:text>&#10;    </xsl:text><xsla:if test="${@name}">
+              <xsl:text>&#10;      </xsl:text><xsla:attribute name="{$bcdPrefix}">
+              <xsl:text>&#10;        </xsl:text><xsla:value-of select="${@name}"/>
+              <xsl:text>&#10;      </xsl:text></xsla:attribute>
+              <xsl:text>&#10;    </xsl:text></xsla:if>
             </xsl:for-each>
             
             
@@ -395,7 +381,8 @@
                 </xsl:choose>
               </xsl:if>
             </xsl:for-each>
-    
+            <xsl:text>&#10;      </xsl:text>, bcdApi: 'XML'<xsl:text></xsl:text>
+
             <!-- transformation chain automatically adds parameters -->
 
             <xsl:if test="$extendsTransformationChain">
@@ -464,6 +451,7 @@
         </xsl:for-each>
         <xsl:text>&#10;  </xsl:text>
         <xsl:element name="{$containerElement}">
+          <xsl:attribute name="bcdApi">XML</xsl:attribute>
           <xsl:for-each select="Api/Param">
             <xsl:if test="not(@name='targetHtml' or contains(translate(@name, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'targethtmlelementid'))">
               <xsl:variable name="upperCaseName">
