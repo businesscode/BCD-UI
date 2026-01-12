@@ -173,7 +173,12 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
 
     // the actual renderer call
     // we add a hidden fileinput before the actual targetHtml
-    jQuery("#" + targetHtml).append("<input bcdRole='fileInput' type='file' accept='.zip,.csv,.xlsx,.txt,.pdf,.doc,.docx,.png,.jpg,.gif,.jpeg,.svg,.ppt' style='display: none' onChange='bcdui.component.docUpload._onFileInputChange(this);'></input><div class='bcdDocUploader'></div>");
+    jQuery("#" + targetHtml).append("<input bcdRole='fileInput' type='file' accept='.zip,.csv,.xlsx,.txt,.pdf,.doc,.docx,.png,.jpg,.gif,.jpeg,.svg,.ppt' style='display: none' ></input><div class='bcdDocUploader'></div>");
+
+    jQuery("#" + targetHtml).find("input").off("change");
+    jQuery("#" + targetHtml).find("input").on("change", function(event) {
+      bcdui.component.docUpload._onFileInputChange(event.target);
+    });
 
     var finalParams = {
       config: config
