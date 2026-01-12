@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -219,8 +219,8 @@
 
     var timeClass = isSecondSelectable ? "bcdTimeMiddle bcdMinute" : "bcdMinute";
     
-    caption1 = caption1 != "" || bcdui.config.settings.bcdui.legacyTheme === true ? "<a href='javascript:void(0)'>" + caption1 + "</a>" : "";
-    caption2 = caption2 != "" || bcdui.config.settings.bcdui.legacyTheme === true ? "<a href='javascript:void(0)'>" + caption2 + "</a>" : "";
+    caption1 = caption1 != "" || bcdui.config.settings.bcdui.legacyTheme === true ? "<a>" + caption1 + "</a>" : "";
+    caption2 = caption2 != "" || bcdui.config.settings.bcdui.legacyTheme === true ? "<a>" + caption2 + "</a>" : "";
 
     var buttoStyle = (containerHtmlElement.getAttribute("bcdSuppressButtons") == "true" ? "style='display:none'" : "");
 
@@ -271,10 +271,25 @@
               + "</span>"
             )): ""
           )
-        + (showPrevNextButtons ?("<br></br><a href='#' class='bcdPeriodChooserModLeft' onclick='bcdui.widget.periodChooser._incPeriod(-1, this);return false;'></a>&#160;<a href='#' class='bcdPeriodChooserModRight' onclick='bcdui.widget.periodChooser._incPeriod(1, this);return false;'></a>"): "")
+        + (showPrevNextButtons ?("<br></br><a href='#' class='bcdClickAction bcdPeriodChooserModLeft'></a>&#160;<a href='#' class='bcdClickAction bcdPeriodChooserModRight'></a>"): "")
         + (textInput ? ("<div class='bcdHr'><hr></hr></div><span class='bcdHint'>" + hint + "</span>") : "" )
     ).addClass("bcdPeriodChooser");
     bcdui.widget._bcdIdToDomId(containerHtmlElement);
+    
+    jQuery(containerHtmlElement).off("click");
+    if (showPrevNextButtons) {
+      jQuery(containerHtmlElement).on("click", ".bcdClickAction", function(event) {
+        if (jQuery(event.target).hasClass("bcdPeriodChooserModLeft")) {
+          bcdui.widget.periodChooser._incPeriod(-1, event.target);
+          return false;
+        }
+        if (jQuery(event.target).hasClass("bcdPeriodChooserModRight")) {
+          bcdui.widget.periodChooser._incPeriod(1, event.target);
+          return false;          
+        }
+      });
+    }
+    
     bcdui.widget.periodChooser._initElement(containerHtmlElement);
   },
 
