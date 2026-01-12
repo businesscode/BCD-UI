@@ -22,7 +22,7 @@
  * @global
  * @namespace
  */
-var bcdui = bcdui || new Object();
+var bcdui = window.bcdui || new Object();
 
 /**
  * local/session storage polyfills
@@ -191,7 +191,8 @@ bcdui = Object.assign(bcdui,
         if (bcdui.config) {
 
           if(bcdui.config.clientLogAppenderJSClassName){
-            appender = eval("new " + bcdui.config.clientLogAppenderJSClassName + "()");
+            const app = bcdui.util._getJsObjectFromString(bcdui.config.clientLogAppenderJSClassName);
+            appender = new app();
           }
           //attach special appender
           else {
@@ -251,14 +252,13 @@ bcdui = Object.assign(bcdui,
           function BCDAppender(args) {
             this.isEmailCreated=false;
             this.bufferedMessage="";
+            this.emailMessageLink    = (args && args.emailMessageLink)    ? args.emailMessageLink    : "Send email to technical support team";
             this.errorMessageCaption = (args && args.errorMessageCaption) ? args.errorMessageCaption : "An error occurred";
             this.emailContact        = (args && args.emailContact)        ? args.emailContact        : "Your local technical support";
             this.emailContactCC      = (args && args.emailContactCC)      ? args.emailContactCC      : "";
             this.subject             = (args && args.emailSubject)        ? args.emailSubject        : "An error occurred";
             this.emailBodyText       = (args && args.emailBodyText)       ? args.emailBodyText       : "Please copy/paste the detail information content here and give a short description of what you did.";
-            this.emailAction         = "bcdui.log._getBCDAppender()._createEmailHref();this.onmouseover=''";
             this.emailMessageLine    = (args && args.emailMessageLine1)   ? args.emailMessageLine1   : "Please provide a short description of what you did prior to the error by clicking the following email link.";
-            this.emailMessageLink    = "<a class='bcdEmail' href='#' onmouseover=\"this.href=" + this.emailAction + "\">" + ((args && args.emailMessageLink) ? args.emailMessageLink : "Send email to technical support team") + "</a>";
             this.separator           = (this.emailContact.indexOf("?") >= 0 ? "&" : "?");
           };
 
@@ -288,23 +288,19 @@ bcdui = Object.assign(bcdui,
               bcdui.debug.lastErrorUrl = location.href;
               bcdui.debug.lastErrorUnpackedGz = bcdui._unpackGuiStatusGz(this.bufferedMessage);
               bcdui.debug.lastErrorMessage = this.bufferedMessage;
-
-              var addInfo = '<div class="bcdSysErrorBody"><p>--- Please copy/paste the text below into your email ---</p><br><center><textarea id="sysError" cols="80" rows="10">' + this._getDetailMessage() + '</textarea></center></div>';
-
-              // If we call bcdui.widget.showModalBox too early, we will get a ModalBox related error instead of the real error
-              bcdui.core.ready( function() {
-                jQuery.unblockUI();
-                bcdui.widget.showModalBox({
-                  title: this.errorMessageCaption
-                  , message: "<div class='bcdSysError'>" + this.emailMessageLine + "<br/>" + this.emailMessageLink + addInfo + "</div>"
-                  , modalBoxType: bcdui.widget.modalBoxTypes.plainText
-                  , position: {my: "center center", at: "center center"}
-                , height: 330
-                , width: 570
-                , resizable: false
-                });
-                jQuery("#sysError").select()
-              }.bind(this));
+              const emailhref = bcdui.log._getBCDAppender()._createEmailHref();
+              const emailMessageLink = "<a class='bcdEmail' href='"+emailhref+"'>" + this.emailMessageLink + "</a>";
+              const addInfo = '<div class="bcdSysErrorBody"><p>--- Please copy/paste the text below into your email ---</p><textarea id="sysError">' + this._getDetailMessage() + '</textarea></div>';
+              const msg = "<div class='bcdSysError'><div><i class='bcdIconError'></i>" + this.errorMessageCaption + "<i class='bcdIconError'></i><i class='bcdIconClose'></i></div><p>" + this.emailMessageLine + "</p><p>" + emailMessageLink + addInfo + "</p></div>"
+              jQuery(".blockUI").remove()
+              jQuery("body").append(msg);
+              jQuery("#sysError").select()
+              jQuery(".bcdSysError").on("click", ".bcdIconClose", function() {
+                jQuery(".bcdSysError").off("click");
+                jQuery(".bcdSysError").remove();
+              });
+              if (jQuery.ui && jQuery.ui.draggable)
+                jQuery(".bcdSysError").draggable();
             }
           };
 

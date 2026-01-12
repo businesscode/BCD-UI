@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -201,6 +201,15 @@ bcdui.widget.tab = Object.assign(bcdui.widget.tab,
       });
       // initially sync
       renderer.onceReady(function(){
+
+        jQuery("#" + args.targetHTMLElementId + " .isClickable").off("click");
+        jQuery("#" + args.targetHTMLElementId + " .isClickable").on("click", function(event) {
+          const bcdAction = jQuery(event.target).attr("bcdAction") || "";
+          if (bcdAction != "")
+            bcdui.util._executeJsFunctionFromString(bcdAction);
+          bcdui.util._executeJsFunctionFromString(_handlerVariableName + ".handleTabAction", null, [event, settingsNode]);
+        });
+
         bcdui.core.createElementWithPrototype(bcdui.wkModels.guiStatus.getData(), guiStatusTabXPath + "/Active").text = activeTab;
         bcdui.widget.tab._syncActiveTab(tabId, args.targetHTMLElementId, args.idOrElement, settingsNode);
       });

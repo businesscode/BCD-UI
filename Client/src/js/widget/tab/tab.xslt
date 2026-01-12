@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -79,19 +79,17 @@
   <xsl:template name="getLink">
     <xsl:param name="node"/>
     <xsl:variable name="isClickable" select="not($node[@disable = 'true' or @hide = 'true'])"/>
-    <a parentId="{$tabElementId}" id="{@id}" href="javascript:void(0)">
+    <a parentId="{$tabElementId}" id="{@id}">
       <xsl:attribute name="class">
+        <xsl:if test="$isClickable">isClickable </xsl:if>
         <xsl:if test="$node[@disable = 'true' or @hide = 'true']">
           <xsl:value-of select="substring(' bcdDisabled', 1 + 12 * number( boolean($node/@disable = 'false' or not($node/@disable)) ) )"></xsl:value-of>
           <xsl:value-of select="substring(' bcdHidden', 1 + 10 * number( boolean($node/@hide = 'false' or not($node/@hide)) ) )"></xsl:value-of>
         </xsl:if>
       </xsl:attribute>
 
-      <xsl:if test="$isClickable">
-        <xsl:attribute name="onclick">
-        <!-- extra check for pre-IE8 browser which add onclick as a function and not as a string. In this case, the function needs to be called -->
-          <xsl:if test="$node/@onclick"><xsl:value-of select="$node/@onclick"/></xsl:if> <xsl:if test="starts-with($node/@onclick, 'function onclick()')">onclick();</xsl:if> <xsl:value-of select="$handlerVariableName"/>.handleTabAction(jQuery.event.fix(event), '<xsl:value-of select="$settingsNode"/>');
-        </xsl:attribute>
+      <xsl:if test="$isClickable and $node/@onclick !=''">
+        <xsl:attribute name="bcdAction"><xsl:value-of select="$node/@onclick"/></xsl:attribute>
       </xsl:if>
 
       <xsl:if test="$node/@toolTip = ''">
