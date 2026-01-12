@@ -101,7 +101,7 @@
       <xsl:apply-templates select="." mode="jsDoc"/>
     </xsl:for-each>
 */<xsl:value-of select="concat('&#10;', $package, '.', $createName)"/> = function( args ) {
-  args = jQuery.extend(true, {}, args);
+  args = jQuery.extend(true, {bcdApi: "JS"}, args);
   var htmlE = jQuery(bcdui.widgetNg.utils._getAndFixTargetHtmlElement(args, "<xsl:value-of select="concat(@name, '_')"/>"));
   htmlE.prop("<xsl:value-of select="$ELEMENT_PROPERTY_PARAMS"/>", args);
 
@@ -192,8 +192,7 @@
 <xsl:value-of select="concat('&#10;', $package, '.')"/>impl.validateParams.<xsl:value-of select="@name"/>= function( params ) {
   <xsl:apply-templates select="Api/Param[contains(@type, 'enum')]" mode="jsValidateEnumParamBag"/>
   <xsl:apply-templates select="Api/Param[@required = 'true']" mode="jsValidateRequired"/>
-};
-  </xsl:template>
+};&#10;</xsl:template>
 
   <!-- 
     sets property to real boolean if content equals 'true' or 'false'
@@ -232,7 +231,12 @@
 
   <!-- Helper to validate required -->
   <xsl:template match="Api/Param" mode="jsValidateRequired">
-  if (params.<xsl:value-of select="@name"/> == null) throw new Error("Widget (id='"+params.id+"') init error: missing property '<xsl:value-of select="@name"/>'");
+    <xsl:choose>
+      <xsl:when test="@name='targetHtml'">
+  if (params.<xsl:value-of select="@name"/> == null &amp;&amp; params.bcdApi == "JS") throw new Error("Widget (id='"+params.id+"') init error: missing property '<xsl:value-of select="@name"/>'");</xsl:when>
+      <xsl:otherwise>
+  if (params.<xsl:value-of select="@name"/> == null) throw new Error("Widget (id='"+params.id+"') init error: missing property '<xsl:value-of select="@name"/>'");</xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <!--
