@@ -207,6 +207,8 @@ public class BCDUIConfig extends HttpServlet {
     writer.println("};");
     writer.println("");
 
+    writer.println("try {eval(\"const _bcduiEvalTest=42;\"); bcdui.config.unsafeEval = true; } catch (e) { bcdui.config.unsafeEval = false; }");
+
     writer.println("bcdui.core.xmlConstants = {");
     writer.println(StandardNamespaceContext.getInstance().getAsJs());
     writer.println("};");
