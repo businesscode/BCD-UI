@@ -2185,6 +2185,7 @@ jQuery.extend(bcdui.widget,
         const currentPage = jQuery(event.target).attr("currentPage") || "";
         const lastPage = jQuery(event.target).attr("lastPage") || "";
         const elementId = jQuery(event.target).attr("elementId") || "";
+        const paginatedAction = jQuery(event.target).attr("paginatedAction") || "";
         if (targetModelId != "" && targetModelXPath !="" && delta != "" && currentPage != "" && lastPage != "" && elementId != "") {
           bcdui.widget._pagingPanelChangePageNum({
             targetModelId: targetModelId
@@ -2194,7 +2195,8 @@ jQuery.extend(bcdui.widget,
           , lastPage: parseInt(lastPage, 10)
           , elementId: elementId
           });
-          bcdui.util._executeJsFunctionFromString(jQuery(event.target).attr("paginatedAction"));
+          if (paginatedAction)
+            bcdui.util._executeJsFunctionFromString();
         }
       });
       jQuery(el).off("change");
@@ -2209,7 +2211,8 @@ jQuery.extend(bcdui.widget,
             if (this.options[i].value == val)
               this.options[i].selected = 'selected';
           bcdui.factory.objectRegistry.getObject(targetModelId).fire();
-          bcdui.util._executeJsFunctionFromString(jQuery(event.target).attr("paginatedAction"));
+          if (paginatedAction)
+            bcdui.util._executeJsFunctionFromString(paginatedAction);
         }
       });
     },
