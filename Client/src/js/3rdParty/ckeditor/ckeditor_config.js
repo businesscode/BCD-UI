@@ -37,4 +37,5 @@ CKEDITOR.editorConfig = function( config ) {
   config.autoGrow_onStartup = true;
   config.height = 368;
   config.baseFloatZIndex = 20005;
+  config.versionCheck = false;
 };
