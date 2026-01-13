@@ -64,13 +64,13 @@
       };
       
       if(this.options.formatter_in){
-        this.context.formatter_in = eval(this.options.formatter_in);
+        this.context.formatter_in = bcdui.util._getJsObjectFromString(this.options.formatter_in);
       } else {
         this.context.formatter_in = asIsFormatter;
       }
 
       if(this.options.formatter_out){
-        this.context.formatter_out = eval(this.options.formatter_out);
+        this.context.formatter_out = bcdui.util._getJsObjectFromString(this.options.formatter_out);
       } else {
         this.context.formatter_out = asIsFormatter;
       }
