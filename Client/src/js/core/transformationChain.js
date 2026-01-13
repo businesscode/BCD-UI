@@ -905,7 +905,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
               /*
                * It can also be returned by a JS function.
                */
-              xsltModel = eval(stylesheet.getAttribute("jsFactoryExpression"));
+              xsltModel = bcdui.util._getJsObjectFromString(stylesheet.getAttribute("jsFactoryExpression"));
               xslt.transformerFactory = bcdui.core.browserCompatibility.asyncCreateXsltProcessor;
             } else if (stylesheet.getAttribute("jsProcFct") != null) {
               /*
@@ -915,7 +915,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
               var jsProcFct = jsProcFctName.split(".").reduce( function( fkt, f ) { return fkt[f] }, window );
               xsltModel = new bcdui.core.ConstantDataProvider( { value: jsProcFct } );
               xslt.transformerFactory = function( args ) { args.callBack( new bcdui.core.transformators.JsTransformator( args.model) ) };
-            } else if( stylesheet.selectSingleNode("./chain:JsProcFct") ) {
+            } else if( stylesheet.selectSingleNode("./chain:JsProcFct") && bcdui.config.unsafeEval ) {
               var jsSource = "";
               for( var child=stylesheet.selectSingleNode("./chain:JsProcFct").firstChild; child; child=child.nextSibling ) {
                 if( child.nodeType == 3 )
