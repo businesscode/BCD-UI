@@ -659,6 +659,26 @@ bcdui.util =
   },
 
   /**
+   * returns a function which resolves basic doT like placeholder expressions
+   * @param {string} str - string holding placeholders like {{=it[0]}} or {{=it.myProperty}}
+   * @return {function} function which can be called with an object to finally resolve the parameters
+   */
+  template: (str) => {
+    return function (it) {
+      return str.replace(/\{\{\s*=?\s*([^}]+)\s*\}\}/g, (_, expr) => {
+        // Resolve path like: it[0], it.a, it.a.b[2]
+        try {
+          return expr
+            .replace(/^it\.?/, '')        // remove leading "it" or "it."
+            .split(/\.|\[|\]/)            // split by dot or brackets
+            .filter(Boolean)              // remove all falsy values
+            .reduce((acc, key) => acc?.[key], it) ?? ''; // walk through nested properties
+        } catch { return ''; }
+      });
+    };
+  },
+
+  /**
    * transforms a xpath string with placeholders. A value with an apostrophe gets translated into a concat statement.
    * @param {string} xPath - xPath pointing to value (can include dot template placeholders which get filled with the given fillParams)
    * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions
@@ -677,7 +697,7 @@ bcdui.util =
           obj[p] = gotApos ? "Xconcat('" + fillParams[p].replace(/'/g, `', "'", '`) + "', ''X)" : fillParams[p];
         }
       }
-      x = doT.template(xPathClean)(obj);
+      x = bcdui.util.template(xPathClean)(obj);
     }
     
     // remove possibly existing outer quotes/apostrophe around the inserted concat to make a valid xPath expression
