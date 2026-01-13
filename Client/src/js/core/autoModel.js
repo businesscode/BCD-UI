@@ -22,7 +22,6 @@
 export const bcduiExport_AutoModel = bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
 {
   /**
-   * @class bcdui.core.AutoModel
    * @param {Object} args The parameter map contains the following properties. Most parameters only apply when using default wrq-stylesheet.
    * @param {string}                  args.bindingSetId                   - Id of BindingSet to read from.
    * @param {string}                  args.bRefs                          - Space separated list of bRefs to be loaded.

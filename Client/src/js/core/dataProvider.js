@@ -49,7 +49,6 @@
 export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
 {
   /**
-   * @class bcdui.core.DataProvider
    * @description
    * Calls the initializer of {@link bcdui.core.AbstractExecutable} and additionally sets
    * the name property. This property is filled from the "args" parameter

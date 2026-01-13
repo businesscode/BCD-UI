@@ -145,7 +145,6 @@ bcdui.core.transformators.IdentityTransformator = class
 export const bcduiExport_JsTransformator = bcdui.core.transformators.JsTransformator = class extends bcdui.core.transformators.IdentityTransformator
 {
   /**
-   * @class bcdui.core.transformators.JsTransformator
    * @param {(string|function)} procFkt - The js function to be used for processing. Either a real function or a string with JS code for eval.
    * @private
    */
@@ -180,7 +179,6 @@ export const bcduiExport_JsTransformator = bcdui.core.transformators.JsTransform
 export const bcduiExport_WebworkerTransformator = bcdui.core.transformators.WebworkerTransformator = class extends bcdui.core.transformators.IdentityTransformator
 {  
   /**
-   * @class bcdui.core.transformators.WebworkerTransformator
    * @param {Object} args The parameter map: contains Data to be transformed
    * @private
    */
@@ -217,7 +215,6 @@ export const bcduiExport_WebworkerTransformator = bcdui.core.transformators.Webw
 export const bcduiExport_DotJsTransformator = bcdui.core.transformators.DotJsTransformator = class extends bcdui.core.transformators.IdentityTransformator
 {
   /**
-   * @class bcdui.core.transformators.DotJsTransformator
    * @private
    */
   constructor(/* object */ procFkt)

@@ -33,7 +33,6 @@
 export const bcduiExport_StaticModel = bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
 {
   /**
-   * @class bcdui.core.StaticModel
    * @typedef {Object} StaticModelParam
    * @property {string}                 [id] - Globally unique id for use in declarative contexts, ignored if args.data is not set
    * @property {(string|Object|DomDocument)} data - An XML string, which is parsed, a DOM document </p>or a parameter map
