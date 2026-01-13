@@ -184,6 +184,8 @@ bcdui.widgetNg.validation.validators.widget.notEmptyValidator = function(htmlEle
 bcdui.widgetNg.validation.validators.widget.invalidModelDataValidator = function(htmlElementId){
   var el = bcdui._migPjs._$(htmlElementId);
   var config = el.data("_config_");
+  if (!config)
+    return null;
   var node = bcdui.factory.objectRegistry.getObject(config.target.modelId).getData().selectSingleNode(config.target.xPath);
   var bcdInvalidValue = null;
 

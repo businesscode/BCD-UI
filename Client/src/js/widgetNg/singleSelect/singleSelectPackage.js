@@ -128,13 +128,13 @@
 
       // add observers and listeners
       {
-        controlEl.on("change", bcdui.widgetNg.utils.updateValue.bind(undefined,controlEl.get(0).id));
+        controlEl.on("change", bcdui.widgetNg.utils.updateValue.bind(undefined, controlEl));
 
         // listen to updates on model
         this._setOnTargetModelChange(function(){
           try{
             if(!this._writingData){
-              bcdui.widgetNg.utils._syncValue(config.htmlElementId);
+              bcdui.widgetNg.utils._syncValue(controlEl);
             }
           } finally {
             this._writingData = false;
@@ -171,7 +171,7 @@
 //                bcdui.widgetNg.suggestInput._attachValidators(controlElement);
 
                 // add validator
-                bcdui.widgetNg.utils._addValidator(controlElement.id, bcdui.widgetNg.validation.validators.widget.existingValueValidator);
+                bcdui.widgetNg.utils._addValidator(controlElement, bcdui.widgetNg.validation.validators.widget.existingValueValidator);
 
                 // check for optional validationFunction
                 if(args.validationFunction){
@@ -179,18 +179,18 @@
                   if(!func){
                     throw new Error("custom validation function not found (is null): " + (bcdui.util.isString(args.validationFunction)?"name:" + args.validationFunction : ""));
                   }
-                  bcdui.widgetNg.utils._addValidator(config.htmlElementId, func);
+                  bcdui.widgetNg.utils._addValidator(controlElement, func);
                 }
 
                 // attach balloon displaying fly-over + ballon for the widget to display hints and validation
-                bcdui.widgetNg.commons.balloon.attach(config.htmlElementId, {noBalloon:!args.displayBalloon});
+                bcdui.widgetNg.commons.balloon.attach(controlElement, {noBalloon:!args.displayBalloon});
                 
                 // reset loadings status
-                bcdui.widgetNg.utils._setUnsetFieldLoadingStatus(controlElement.id, false);
+                bcdui.widgetNg.utils._setUnsetFieldLoadingStatus(controlElement, false);
                 // run explicit validation
                 bcdui.widgetNg.utils._validateElement(controlElement);
                 // sync the bound model value once
-                bcdui.widgetNg.utils._syncValue(config.htmlElementId);
+                bcdui.widgetNg.utils._syncValue(controlElement);
                 bcdui.log.isTraceEnabled() && bcdui.log.trace("initialized " + args.id);
 
                 // display after initialization (jqm workaround)
@@ -239,7 +239,7 @@
       var el = bcdui._migPjs._$(htmlElementId);
       var config = el.data("_config_");
       var args = el.data("_args_");
-      var dataListEl = bcdui._migPjs._$(config.dataListElementId).get(0);
+      var dataListEl = bcdui._migPjs._$(htmlElementId).get(0);
       var currentDataValue=bcdui.widgetNg.utils._readDataFromXML(htmlElementId).value;
 
       bcdui.log.isTraceEnabled() && bcdui.log.trace("(singleSelect._ntv_syncToOptionsProvider)updating the data list, current model value: " + currentDataValue);
@@ -358,8 +358,6 @@
       bcdui.log.isTraceEnabled() && bcdui.log.trace("native selectInput initialization");
       // TODO: use jq api (data)
       var config = el.data("_config_");
-      // datalist is THE native html SELECT element
-      config.dataListElementId = el.get(0).id;
 
       // update the data list initially
       this._ntv_syncToOptionsProvider(el.get(0));
