@@ -1,7 +1,7 @@
 <span class="${params.cssClassPrefix}conj-container">
   <!-- junction; only if not in update mode -->
   <div
-    bcdOnLoad="jQuery(this).trigger('bcdui:universalFilter:createJunction')"
+    bcdOnLoad="bcdui.widgetNg.universalFilter._createJunction"
     optionsModelXPath="${params.xPath_reference_junction}/@caption"
     optionsModelRelativeValueXPath=".."
     targetModelXPath="${params.xPath_junction}"
@@ -27,7 +27,7 @@
 </span>
 <span id="${params.instanceId}_operator_container" class="${params.cssClassPrefix}operator-container">
   <div
-    bcdOnLoad="jQuery(this).trigger('bcdui:universalFilter:createMultiValueInput')"
+    bcdOnLoad="bcdui.widgetNg.universalFilter._createMultiValueInput"
     targetModelXPath="${params.xPath_values}"
   ></div>
 </span>

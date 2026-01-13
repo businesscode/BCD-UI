@@ -68,8 +68,10 @@ bcdui.component.chart = Object.assign(bcdui.component.chart,
    * waits for metaDataModel being available
    * @private
    */
-  init: function( targetHTMLElement )
+  init: function( htmlElement )
   {
+    const targetHTMLElement = htmlElement || this;
+    
     jQuery("#" + targetHTMLElement.getAttribute("targetHTMLElementId")).addClass("bcdChart statusNotReady");
 
     // Wait until the metaDataModel is available and create the chart for the targetHTMLElement
@@ -131,7 +133,9 @@ bcdui.component.chart = Object.assign(bcdui.component.chart,
    * @param targetHTMLElement - Target Html Element
    * @private
    */
-  initChartLegend: function(targetHTMLElement ){
+  initChartLegend: function( htmlElement ){
+    
+    const targetHTMLElement = htmlElement || this; 
 
     var chartRendererId = bcdui._migPjs._$(targetHTMLElement).attr("chartRendererId");
     var targetHTMLElementId = bcdui._migPjs._$(targetHTMLElement).attr("targetHTMLElementId");

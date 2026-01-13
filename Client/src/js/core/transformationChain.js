@@ -394,12 +394,15 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
    *
    * @private
    */
-  _executeOnXAttributes( targetElement, attribute )
+  _executeOnXAttributes( targetElement, attribute, useEval )
     {
       jQuery(targetElement).find(" *["+attribute+"]").each(function(idx,onLoadElement) {
         var initCode = onLoadElement.getAttribute( attribute );
         if (initCode && initCode.trim().length!=0) {
-          (function() { eval(initCode); }.bind(onLoadElement))(); // No defer, keep order for bcdui.core.bcdParamBag
+          if (useEval && bcdui.config.unsafeEval)
+            (function() { eval(initCode); }.bind(onLoadElement))(); // No defer, keep order for bcdui.core.bcdParamBag
+          else
+	          bcdui.util._executeJsFunctionFromString(initCode, onLoadElement);
         }
         onLoadElement.removeAttribute( attribute );
       });
@@ -482,6 +485,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
               }
   
               this._executeOnXAttributes(targetElement, "bcdOnload");
+              this._executeOnXAttributes(targetElement, "bcdOnloadX", true);  //xslt api calls using eval
             }
           }
 

@@ -47,40 +47,27 @@
   Root template
  -->
 <xsl:template match="/*">
-  <table class="bcdReport" controllerVariableName="{$bcdControllerVariableName}">
-    <xsl:attribute name="bcdOnLoad">
-      <xsl:if test="$isExpandCollapseCells">bcdui.component.cube.expandCollapse._init(this);</xsl:if>
-      <xsl:if test="$inlineChart">
-        bcdui.component.cube.inlineChart._init({
-          targetHtml: this
-        , cubeId: '<xsl:value-of select="$bcdControllerVariableName"/>'
-        , chartType1: '<xsl:value-of select="$inlineChartType1"/>'
-        , chartType2: '<xsl:value-of select="$inlineChartType2"/>'
-        , minMaxRow: <xsl:value-of select="$inlineChartMinMaxRow"/>
-        });
-      </xsl:if>
-      <xsl:if test="$stickyEnabled">
-         const self = this;
-         setTimeout(function() { bcdui.widget.stickyTable({
-          targetHtml: self
-        , width: '<xsl:value-of select="$stickyWidth"/>'
-        , height: '<xsl:value-of select="$stickyHeight"/>'
-        , bcdDimension: <xsl:value-of select="$stickyDims"/>
-        , header: <xsl:value-of select="$stickyHeader"/>
-        , footer: <xsl:value-of select="$stickyFooter"/>
-        , nFirstCols: <xsl:value-of select="$stickyFirstCols"/>
-        , nFirstRows: <xsl:value-of select="$stickyFirstRows"/>
-        , nLastCols: <xsl:value-of select="$stickyLastCols"/>
-        , nLastRows: <xsl:value-of select="$stickyLastRows"/>
-        , disableMaxWH: <xsl:value-of select="$stickyDisableMaxWH"/>
-        }); });
-      </xsl:if>
-      <xsl:choose>
-        <xsl:when test="not($isCreateHeaderFilters) and $isCreateFixHeader">bcdui.widget._enableFixedTableHeader(this, '<xsl:value-of select="$bcdControllerVariableName"/>', true);</xsl:when>
-        <xsl:when test="$isCreateHeaderFilters and $isCreateFixHeader">bcdui.widget._enableFixedTableHeader(this, '<xsl:value-of select="$bcdControllerVariableName"/>', true, true);</xsl:when>
-        <xsl:when test="$isCreateHeaderFilters and not($isCreateFixHeader)">bcdui.widget.createFilterTableHeader({renderer: '<xsl:value-of select="$bcdControllerVariableName"/>'});</xsl:when>
-      </xsl:choose>
-    </xsl:attribute>
+  <table class="bcdReport" controllerVariableName="{$bcdControllerVariableName}"
+    data-is-expand-collapse-cells="{$isExpandCollapseCells}"
+    data-inline-chart="{$inlineChart}"
+    data-sticky-enabled="{$stickyEnabled}"
+    data-is-create-header-filters="{$isCreateHeaderFilters}"
+    data-is-create-fix-header="{$isCreateFixHeader}"
+    data-inline-chart-type-1="{$inlineChartType1}"
+    data-inline-chart-type-2="{$inlineChartType2}"
+    data-inline-chart-min-max-row="{$inlineChartMinMaxRow}"
+    data-sticky-width="{$stickyWidth}"
+    data-sticky-height="{$stickyHeight}"
+    data-sticky-dims="{$stickyDims}"
+    data-sticky-header="{$stickyHeader}"
+    data-sticky-footer="{$stickyFooter}"
+    data-sticky-first-cols="{$stickyFirstCols}"
+    data-sticky-first-rows="{$stickyFirstRows}"
+    data-sticky-last-cols="{$stickyLastCols}"
+    data-sticky-last-rows="{$stickyLastRows}"
+    data-sticky-disable-max-w-h="{$stickyDisableMaxWH}">
+    <xsl:attribute name="bcdOnLoad">bcdui.widget.effects.htmlBuilderOnLoad</xsl:attribute>
+
     <xsl:apply-templates select="wrs:Header/wrs:Columns"/>
     <xsl:apply-templates select="wrs:Data"/>
   </table>

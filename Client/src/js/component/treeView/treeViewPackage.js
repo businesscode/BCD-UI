@@ -102,7 +102,17 @@ bcdui.component.treeView = Object.assign(bcdui.component.treeView,
       }
     });
   },
-  
+
+  _init: function() {
+    const data = this.dataset;
+    if (data) {
+      const bcdOnLoad = data.bcdOnLoad || "";
+      bcdui.component.treeView._registerTreeViewListener(data.bcdControllerVariableName);
+      if (bcdOnLoad)
+        bcdui.util._executeJsFunctionFromString(bcdOnLoad, this);
+    }
+  },
+
   /**
    * @private
    */
