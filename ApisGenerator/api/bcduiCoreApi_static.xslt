@@ -57,7 +57,7 @@ xmlns:xapi="http://www.businesscode.de/schema/bcdui/xmlapi-1.0.0">
     </xsl:when>
     <xsl:otherwise>
       <span bcdComment="inlineModel">
-        <xsl:attribute name="bcdOnLoad">
+        <xsl:attribute name="bcdOnloadX">
           <xsl:value-of select="$onLoad"/>
         </xsl:attribute>
         <xsl:value-of select="*[false()]"/>
@@ -108,7 +108,7 @@ xmlns:xapi="http://www.businesscode.de/schema/bcdui/xmlapi-1.0.0">
     </xsl:when>
     <xsl:otherwise>
       <span bcdComment="onCoreReady">
-        <xsl:attribute name="bcdOnLoad">
+        <xsl:attribute name="bcdOnloadX">
           <xsl:value-of select="$onLoad"/>
         </xsl:attribute>
         <xsl:value-of select="*[false()]"/>
@@ -128,7 +128,7 @@ xmlns:xapi="http://www.businesscode.de/schema/bcdui/xmlapi-1.0.0">
     </xsl:when>
     <xsl:otherwise>
       <span bcdComment="onCoreReady">
-        <xsl:attribute name="bcdOnLoad">
+        <xsl:attribute name="bcdOnloadX">
           <xsl:value-of select="$onLoad"/>
         </xsl:attribute>
         <xsl:value-of select="*[false()]"/>
@@ -159,7 +159,7 @@ xmlns:xapi="http://www.businesscode.de/schema/bcdui/xmlapi-1.0.0">
     </xsl:when>
     <xsl:otherwise>
       <span bcdComment="onCoreReady">
-        <xsl:attribute name="bcdOnLoad">
+        <xsl:attribute name="bcdOnloadX">
           <xsl:value-of select="$onLoad"/>
         </xsl:attribute>
         <xsl:value-of select="*[false()]"/>
@@ -171,7 +171,7 @@ xmlns:xapi="http://www.businesscode.de/schema/bcdui/xmlapi-1.0.0">
 <xsl:template match="xapi:Javascript">
   <span>
     <xsl:copy-of select="@bcdComment"/>
-    <xsl:attribute name="bcdOnLoad">
+    <xsl:attribute name="bcdOnloadX">
       <xsl:copy-of select="./text()"/>
     </xsl:attribute>
     <xsl:value-of select="*[false()]"/>

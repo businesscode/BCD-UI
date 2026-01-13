@@ -77,21 +77,6 @@
   };
 
   /**
-   * jQuery BCD-UI bcdLoad plugin
-   *
-   * like jQuery.load(), but evaluates 'bcdOnLoad' attributes in loaded fragments.
-   */
-  jQuery.fn.bcdLoad = function(url, cb){
-    var self = this;
-    return this.load(url, function(){
-      self.find("[bcdonload]").each(function(i,e){
-        bcdui.util._execJs(jQuery(e).attr("bcdonload"), e, true);
-      });
-      cb&&cb();
-    });
-  };
-
-  /**
    * jQuery BCD-UI bcdRender plugin
    *
    * @param {object} bcdRendererArgs arguments to bcdui.core.Renderer

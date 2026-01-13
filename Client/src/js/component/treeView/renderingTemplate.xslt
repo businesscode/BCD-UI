@@ -67,8 +67,7 @@
   <xsl:template match="/">
     <xsl:choose>
       <xsl:when test="/*/wrs:Data/wrs:Level | /*/wrs:Data/wrs:R">
-        <xsl:variable name="onLoad" select="concat('bcdui.component.treeView._registerTreeViewListener(&quot;', $bcdControllerVariableName, '&quot;);', $bcdOnLoad)"/>
-        <div class="bcdTreeView" bcdOnLoad="{$onLoad}">
+        <div class="bcdTreeView" bcdOnLoad="bcdui.component.treeView._init" data-bcd-on-load="{$bcdOnLoad}" data-bcd-controller-variable-name="{$bcdControllerVariableName}">
           <table class="{concat('bcdReport bcdTreeReport',substring('Pi',0,1div(not($parentChildColIdx))))}">
 
             <!-- Create thead with htmlHeaderBuilderTemplate -->

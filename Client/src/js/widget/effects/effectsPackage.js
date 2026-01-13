@@ -124,5 +124,68 @@ bcdui.widget.effects = Object.assign(bcdui.widget.effects,
       elem.removeClass('bcdOpened');
       bcdui.widget.effects.blindUpDown(args);
     }
+  },
+  
+  htmlBuilderOnLoad: function() {
+    const htmlElement = this;
+    const data = htmlElement.dataset;
+    if (data) {
+      const args = {
+        isExpandCollapseCells: "true" == data.isExpandCollapseCells
+      , inlineChart: "true" == data.inlineChart
+      , stickyEnabled: "true" == data.stickyEnabled
+      , isCreateHeaderFilters: "true" == data.isCreateHeaderFilters
+      , isCreateFixHeader: "true" == data.isCreateFixHeader
+      , inlineChartType1: data.inlineChartType1 || ""
+      , inlineChartType2: data.inlineChartType2 || ""
+      , inlineChartMinMaxRow: data.inlineChartMinMaxRow
+      , stickyWidth: data.stickyWidth || "0" // can be px/em/etc, so keep it as string
+      , stickyHeight: data.stickyHeight  || "0" // can be px/em/etc, so keep it as string
+      , stickyDims: "true" == data.stickyDims
+      , stickyHeader: "true" == data.stickyHeader
+      , stickyFooter: "true" == data.stickyFooter
+      , stickyFirstCols: parseInt(data.stickyFirstCols||"0", 10)
+      , stickyFirstRows: parseInt(data.stickyFirstRows||"0", 10)
+      , stickyLastCols: parseInt(data.stickyLastCols||"0", 10)
+      , stickyLastRows: parseInt(data.stickyLastRows||"0", 10)
+      , stickyDisableMaxWH: "true" == data.stickyDisableMaxWH
+      , controllerVariableName: htmlElement.getAttribute("controllerVariableName") || ""
+      }
+  
+      if (args.isExpandCollapseCells)
+        bcdui.component.cube.expandCollapse._init(htmlElement);
+      if (args.inlineChart) {
+        bcdui.component.cube.inlineChart._init({
+          targetHtml: htmlElement
+        , cubeId:     args.controllerVariableName
+        , chartType1: args.inlineChartType1
+        , chartType2: args.inlineChartType2
+        , minMaxRow:  args.inlineChartMinMaxRow
+        });
+      }
+      if (args.stickyEnabled) {
+       setTimeout(function() {
+         bcdui.widget.stickyTable({
+           targetHtml:   htmlElement
+         , width:        args.stickyWidth
+         , height:       args.stickyHeight
+         , bcdDimension: args.stickyDims
+         , header:       args.stickyHeader
+         , footer:       args.stickyFooter
+         , nFirstCols:   args.stickyFirstCols
+         , nFirstRows:   args.stickyFirstRows
+         , nLastCols:    args.stickyLastCols
+         , nLastRows:    args.stickyLastRows
+         , disableMaxWH: args.stickyDisableMaxWH
+         });
+       });
+      }
+      if (!args.isCreateHeaderFilters && args.isCreateFixHeader)
+        bcdui.widget._enableFixedTableHeader(htmlElement, args.controllerVariableName, true);
+      else if (args.isCreateHeaderFilters && args.isCreateFixHeader)
+        bcdui.widget._enableFixedTableHeader(htmlElement, args.controllerVariableName, true, true);
+      else if (args.isCreateHeaderFilters && ! args.isCreateFixHeader)
+        bcdui.widget.createFilterTableHeader({renderer: args.controllerVariableName });
+    }
   }
 });

@@ -665,7 +665,15 @@ bcdui.widgetNg.universalFilter = Object.assign(bcdui.widgetNg.universalFilter,
    * @param htmlElement
    * @private
    */
-  init: function(htmlElement){
-    jQuery(htmlElement).bcduiUniversalFilterNg();
-  }
+  init: function(htmlElement){ jQuery(htmlElement).bcduiUniversalFilterNg(); },
+  /**
+   * @param htmlElement
+   * @private
+   */
+  _createJunction: function() { jQuery(this).trigger('bcdui:universalFilter:createJunction') },
+  /**
+   * @param htmlElement
+   * @private
+   */
+  _createMultiValueInput: function() { jQuery(this).trigger('bcdui:universalFilter:createMultiValueInput') }
 });

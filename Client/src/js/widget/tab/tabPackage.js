@@ -143,6 +143,21 @@ bcdui.widget.tab = Object.assign(bcdui.widget.tab,
      * @private
      *
      */
+    initFromHtml: function() {
+      const data = this.dataset;
+      if (data) {
+        let args = {
+            id: data.id
+          , rendererUrl: data.rendererUrl
+          , rendererId: data.rendererId
+          , handlerJsClassName: data.handlerJsClassName
+          , targetHTMLElementId: data.targetHtmlElementId
+          , idOrElement: data.idOrElement
+        }
+        bcdui.widget.tab.init(args);
+      }
+    },
+
     init:function(args)
     {
 
