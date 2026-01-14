@@ -266,8 +266,10 @@ bcdui.widget.dimensionChooser = Object.assign(bcdui.widget.dimensionChooser,
       multiSelect.attr("bcdMixedTargetModelXPath" , config.targetModelXPath );
       multiSelect.attr("bcdMixedOptionsModelId" , bcdui.wkModels.bcdDimensions.id );
       multiSelect.attr("bcdMixedDimensionName" , config.dimensionName );
-      multiSelect.attr("ondblclick","bcdui.widget.dimensionChooser._removeMultiSelect('"+  e.id  +"_multiSelectBox'"+ ");");
       bcdui.widget.dimensionChooser._initMultiSelect(e.id, targetModel, config.dimensionName, config);
+      multiSelect.on("dblclick", function() {
+        bcdui.widget.dimensionChooser._removeMultiSelect(e.id  +"_multiSelectBox");
+      });
 
       var visibleLevels = jQuery.makeArray(availLevels).map(function(e){return e.text});
       var hidden = jQuery.makeArray(optionsModelLevel.getData().selectNodes("/*/dm:Level[@visible='false']/@id")).map(function(e){return e.text;});
@@ -858,7 +860,6 @@ bcdui.widget.dimensionChooser = Object.assign(bcdui.widget.dimensionChooser,
           clearOption: config.clearOption,
           emptyValue: config.emptyValue,
           mandatory: true,
-          onEnterKey: ""
         };
 
         if (config.mandatory === 'false')
