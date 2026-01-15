@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -190,7 +190,8 @@ bcdui.component.far.Far = class
     if(this.enhancedConfig.query("/*/far:ContextMenu")){
       bcdui.widget.createContextMenu({
         targetHtml : this.gridRenderingTarget,
-        inputModel : new bcdui.core.SimpleModel(bcdui.config.libPath + "js/component/far/contextMenu.xml")
+        inputModel : new bcdui.core.SimpleModel(bcdui.config.libPath + "js/component/far/contextMenu.xml"),
+        clickResolver: bcdui.component.far.resolveContextMenu
       });
     }
     // enable report filter

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -368,6 +368,11 @@
             'true' brings default context menu, 'false' no context menu and any other string is a url to a custom context menu.
           </Doc>
         </Param>
+        <Param name="contextMenuResolver" type="function">
+          <Doc>
+            Function which gets a parameter bag with well known attributes and the dataset of the selected context menu entry. Should return false if action is not provided so that default functions are called.
+          </Doc>
+        </Param>
         <Param name="isDefaultHtmlLayout" type="boolean" default="false">
           <Doc>
             If true, a standard layout for dnd area, ranking, templates and summary is created. Separate targetHTMLElements will be obsolete then. If false, you need to provide containers with classes: bcdCurrentRowDimensionList, bcdCurrentColMeasureList, bcdCurrentColDimensionList, bcdCurrentMeasureList, bcdDimensionList, bcdMeasureList within an outer bcdCubeDndMatrix container.
@@ -495,6 +500,11 @@
         <Param name="contextMenu" type="string">
           <Doc>
             'true' brings default context menu, 'false' no context menu and any other string is a url to a custom context menu.
+          </Doc>
+        </Param>
+				<Param name="contextMenuResolver" type="function">
+          <Doc>
+            Function which gets a parameter bag with well known attributes and the dataset of the selected context menu entry. Should return false if action is not provided so that default functions are called.
           </Doc>
         </Param>
         <Param name="tooltipUrl" type="url">
@@ -651,6 +661,11 @@
             'true' brings default context menu, 'false' no context menu and any other string is a url to a custom context menu.
           </Doc>
         </Param>
+        <Param name="contextMenuResolver" type="function">
+          <Doc>
+            Function which gets a parameter bag with well known attributes and the dataset of the selected context menu entry. Should return false if action is not provided so that default functions are called.
+          </Doc>
+        </Param>
         <Param name="customSave" type="function">
           <Doc>
             Custom save function
@@ -759,6 +774,11 @@
         <Param name="contextMenu" type="string">
           <Doc>
             'true' brings default context menu, 'false' no context menu and any other string is a url to a custom context menu.
+          </Doc>
+        </Param>
+        <Param name="contextMenuResolver" type="function">
+          <Doc>
+            Function which gets a parameter bag with well known attributes and the dataset of the selected context menu entry. Should return false if action is not provided so that default functions are called.
           </Doc>
         </Param>
         <Param name="persistent" type="boolean" default="true">

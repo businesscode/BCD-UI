@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -176,6 +176,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   * @param {Object}                  [args.hotArgs]                                         - Arguments which are extended to handsontable creation
   * @param {string|chainDef}         [args.tooltipChain]                                    - To overwrite default tooltip chain. An empty string will disable tooltips, otherwise the default gridTooltip.xslt is used
   * @param {(boolean|string)}        [args.contextMenu=false]                               - If true, grid's default context menu is used, otherwise provide the url to your context menu xslt here.
+  * @param {(function|string)}       [args.contextMenuResolver]                             - Function which gets a parameter bag with well known attributes and the dataset of the selected context menu entry. Should return false if action is not provided so that default functions are called.
   * @param {function}                [args.customSave]                                      - Custom save function
   * @param {function}                [args.afterAddRow]                                     - Custom function(args) which is called after a row was added (args.rowNode, wrs row node which was added, args.headerMeta wrs header object)
   * @param {chainDef}                [args.saveChain]                                       - A chain definition which is used for the grid saving operation 
@@ -3249,7 +3250,21 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           , rowsSelected:  new bcdui.core.ConstantDataProvider({id: this.id + "_rowsSelected", name: "rowsSelected", value: ""})
           }
         });
-        bcdui.widget.createContextMenu({ targetRendererId: this.id, refreshMenuModel: true, tableMode: true, inputModel: this.contextMenu });
+
+        let contextMenuResolver = args.contextMenuResolver || function() { return false; };
+        if (typeof contextMenuResolver == "string")
+          contextMenuResolver = bcdui.util._toJsFunction(contextMenuResolver);
+
+        bcdui.widget.createContextMenu({
+          targetRendererId: this.id
+        , refreshMenuModel: true
+        , tableMode: true
+        , inputModel: this.contextMenu
+        , clickResolver: function(args) {
+          if (!contextMenuResolver(args))
+            bcdui.component.grid.resolveContextMenu(args);
+          }
+        });
       }
 
       // context menu actions
@@ -3812,6 +3827,7 @@ bcdui.component = Object.assign(bcdui.component,
    * @param {Object}                  [args.hotArgs]                                         - Arguments which are extended to handsontable creation
    * @param {string}                  [args.tooltipChain]                                    - To overwrite default tooltip chain. An empty string will disable tooltips, otherwise the default gridTooltip.xslt is used
    * @param {(boolean|string)}        [args.contextMenu=false]                               - If true, grid's default context menu is used, otherwise provide the url to your context menu xslt here.
+   * @param {(function|string)}       [args.contextMenuResolver]                             - Function which gets a parameter bag with well known attributes and the dataset of the selected context menu entry. Should return false if action is not provided so that default functions are called.
    * @param {function}                [args.customSave]                                      - custom save function
    * @param {function}                [args.afterAddRow]                                     - custom function(args) which is called after a row was added (args.rowNode, wrs row node which was added, args.headerMeta wrs header object)
    * @param {chainDef}                [args.saveChain]                                       - A chain definition which is used for the grid saving operation 
@@ -3854,6 +3870,7 @@ bcdui.component = Object.assign(bcdui.component,
         hotArgs:              args.hotArgs,
         tooltipChain:         args.tooltipChain,
         contextMenu:          args.contextMenu,
+        contextMenuResolver:  args.contextMenuResolver,
         customSave:           args.customSave,
         afterAddRow:          args.afterAddRow,
         saveChain:            bcdui.factory.objectRegistry.getObject(args.saveChain),
