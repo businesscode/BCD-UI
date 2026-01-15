@@ -25,4 +25,4 @@ bcdui.component.far.resolveContextMenu = function(args) {
       actionMap[args.bcdAction](args);
     else if (args.bcdAction)
       throw "clicked contextMenu action not available: " + args.bcdAction;
-}
+};
