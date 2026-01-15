@@ -26,6 +26,7 @@ import "../../3rdParty/jquery.blockUI.js"
 import "../../3rdParty/numbro.js"
 import "../../3rdParty/handsontable.js"
 import {bcduiExport_Grid as Grid, bcduiExport_GridModel as GridModel} from "../../component/grid/gridCreate.js"
+import "../../component/grid/contextMenuResolver.js"
 import "../../component/grid/gridEditor.js"
 
 export {Grid, GridModel};

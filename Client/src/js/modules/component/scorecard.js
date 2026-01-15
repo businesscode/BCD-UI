@@ -19,6 +19,7 @@ import "../widget/contextMenu.js"
 
 import {bcdScorebcduiExport_ScorecardModel as ScorecardModel} from "../../component/scorecard/scorecardModel.js"
 import {bcdScorebcduiExport_Scorecard as Scorecard} from "../../component/scorecard/scorecardCreate.js"
+import "../../component/scorecard/contextMenuResolver.js"
 import "../../component/scorecard/bcdAspects.js"
 
 import "../../component/scorecard/customElements.js"

@@ -26,6 +26,7 @@ import "../widgetNg/checkbox.js"
 import "../../component/far/configurator/farConfigurator.js"
 import {bcduiExport_FarModel as FarModel} from "../../component/far/farModel.js"
 import "../../component/far/far.js"
+import "../../component/far/contextMenuResolver.js"
 import {FbcduiExport_Far as Far} from "../../component/far/create.js"
 
 import "../../component/far/customElements.js"

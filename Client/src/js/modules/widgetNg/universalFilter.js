@@ -18,6 +18,7 @@ import "./widgetBase.js"
 
 import "../widget/contextMenu.js"
 import "../../widgetNg/universalFilter/universalFilterPackage.js"
+import "../../widgetNg/universalFilter/contextMenuResolver.js"
 
 import {UniversalFilter} from "../../widgetNg/widgetNgClasses.js"
 export {UniversalFilter};

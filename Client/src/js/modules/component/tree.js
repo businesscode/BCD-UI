@@ -18,5 +18,6 @@ import "./export.js"
 
 import "../widget/contextMenu.js"
 import {bcduiExport_Tree as Tree } from "../../component/tree/treeCreate.js"
+import "../../component/tree/contextMenuResolver.js"
 
 export {Tree};

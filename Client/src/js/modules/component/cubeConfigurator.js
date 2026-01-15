@@ -25,6 +25,7 @@ import "../widgetNg/connectable.js"
 import "../../3rdParty/jquery.blockUI.js"
 
 import {bcduiExport_CubeConfigurator as CubeConfigurator} from "../../component/cube/cubeConfigurator/cubeConfigurator.js"
+import "../../component/cube/cubeConfigurator/contextMenuResolver.js"
 import "../../component/cube/cubeConfigurator/cubeConfiguratorDND.js"
 import "../../component/cube/templateManager/templateManager.js"
 import "../../component/cube/rankingEditor/rankingEditor.js"
