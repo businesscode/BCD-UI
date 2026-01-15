@@ -27,6 +27,7 @@ ___
 * autogrow attribute for textarea widget
 * Firefox v137.0.2 stopped supporting xslt document() function, extended our implementation to firefox
 * SideBySideChooser uses i18n tokens for source and target caption translations
+* grid/cube/scorecard/far/tree get contextMenuResolver option to handle context menu options
 
 .Security:
 * Remove SPNEGO authentication mechanism as it is outdated, use oAuth instead
