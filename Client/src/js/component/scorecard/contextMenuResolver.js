@@ -29,7 +29,7 @@ bcdui.component.scorecard.resolveContextMenu = function(args) {
     actionMap[args.bcdAction](args);
   else if (args.bcdAction)
     throw "clicked contextMenu action not available: " + args.bcdAction;
-}
+};
 
 bcdui.component.scorecard.resolveContextMenuDnd = function(args) {
   const actionMap = {
@@ -54,4 +54,4 @@ bcdui.component.scorecard.resolveContextMenuDnd = function(args) {
     actionMap[args.bcdAction](args);
   else if (args.bcdAction)
     throw "clicked contextMenu action not available: " + args.bcdAction;
-}
+};
