@@ -293,6 +293,7 @@ bcdui.bcduiCeFiles =
         , "/js/3rdParty/ckeditor/ckeditor_jqueryPlugin.js"
         , "/js/component/grid/gridCreate.js"
         , "/js/component/grid/gridEditor.js"
+        , "/js/component/grid/contextMenuResolver.js"
         , "/js/widget/messages/bcduiHtmlEditor.js"
         , "/js/widget/messages/messagesEditor.js"
         , "/js/widget/messages/messagesViewer.js"
