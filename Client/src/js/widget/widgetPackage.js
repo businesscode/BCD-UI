@@ -1673,6 +1673,7 @@ jQuery.extend(bcdui.widget,
    *          and "bcdColIdent" parameters should be extracted from the HTML.
    * @param {integer} [args.offset] Offset value which is used to position the contextMenu
    *          relatively to the mouse pointer, if not given it's determined automatically
+   * @param {function} args.clickResolver function which is able to parse data-bcd-action tokens to run javascript actions
    * @private
    */
   _attachContextMenu: function(args)
@@ -1732,6 +1733,11 @@ jQuery.extend(bcdui.widget,
           bcdui.wkModels.bcdColIdent.setData( bcdui.widget._findAttribute( config.event.target, "bcdColIdent", bcdui._migPjs._$(args.identsWithin).get(0) ) || "" );
         }
 
+        if (args.clickResolver)
+          jQuery("#bcdContextMenuDiv").data("clickResolver", args.clickResolver);
+        else
+          jQuery("#bcdContextMenuDiv").removeData("clickResolver");
+
         // mark event target html element with an id
         var id = bcdui._migPjs._$(config.event.target).get(0).id || bcdui.factory.objectRegistry.generateTemporaryId();
         bcdui._migPjs._$(config.event.target).get(0).id = id;
@@ -1782,11 +1788,18 @@ jQuery.extend(bcdui.widget,
    * @param {string}         [args.identsWithin]      Id of an element. If given bcdColIdent and bcdRowIdent are set to the innermost values given between the event source and the element given here. bcdRow/ColIdent do not need to be set at the same element.
    * @param {boolean}        [args.tableMode=false]   This flag can be set to 'true' if the 'bcdRowIdent' and 'bcdColIdent' parameters should be extracted from the HTML and added as parameters on the tooltipRenderer. They are derived from 'bcdRowIdent' and 'bcdColIdent' attributes of tr rows and header columns (td or th).
    * @param {targetHtmlRef}  [args.targetHtml]        The HTML listeners are placed on this Element instead of the targetHtml of the given targetRendererId.
+   * @param {function|string} [args.actionHandler]    String (representing a function name) or function which handles the click events of the contextMenu
    */
   createContextMenu: function(args){
 
     args = bcdui.factory._xmlArgs( args, bcdui.factory.validate.widget._schema_createContextMenu_args );
     bcdui.factory.validate.jsvalidation._validateArgs(args, bcdui.factory.validate.widget._schema_createContextMenu_args);
+    
+    let actionHandler = args.actionHandler;
+    if (typeof actionHandler == "string" && actionHandler.trim() != "") {
+      const cp = bcdui.util._getJsObjectFromString(actionHandler);
+      actionHandler = new cp();
+    }
 
     if (args.targetHtml) {
       var targetId = bcdui.util._getTargetHtml({targetHtml: args.targetHtml}, "bcdContextMenu_");
@@ -1839,6 +1852,7 @@ jQuery.extend(bcdui.widget,
           , identsWithin         : args.identsWithin
           , refreshMenuModel     : args.refreshMenuModel
           , offset               : args.offset
+          , clickResolver        : args.clickResolver
         });
       }
     });

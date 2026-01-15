@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
+/*
   Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,9 +12,16 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
--->
-<ContextMenu xmlns="http://www.businesscode.de/schema/bcdui/contextMenu-1.0.0">
-  <Entry caption="Report Export" data-bcd-action="reportExport">
-    <JavaScriptAction>jQuery("#" + this.eventSrcElement).trigger("bcdui:far:reportExport")</JavaScriptAction>
-  </Entry>
-</ContextMenu>
+*/
+bcdui.component.tree.resolveContextMenu = function(args) {
+  const actionMap = {
+    fullDataExport: function(args) {
+      jQuery(args.bcdEventSourceElement).trigger("treeActions:fullDataExport");
+    }
+  };
+  if (typeof actionMap[args.bcdAction] == "function")
+    actionMap[args.bcdAction](args);
+  else if (args.bcdAction)
+    throw "clicked contextMenu action not available: " + args.bcdAction;
+}
+

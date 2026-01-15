@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -157,14 +157,15 @@
   <xsl:template match="ctx:Entry" mode="user">
     <xsl:choose>
       <xsl:when test="not(@isDisabled='true')">
-        <a class="bcdMenuitems" href="javascript:void(0)">
+        <a class="bcdMenuitems" href="#">
+          <xsl:copy-of select="@*"/>
           <xsl:apply-templates/>
           <xsl:attribute name="bcdTranslate"><xsl:value-of select="@caption"/></xsl:attribute>
           <xsl:value-of select="@caption"/>
         </a>
       </xsl:when>
       <xsl:otherwise>
-        <span class="bcdMenuitemsDisabled" href="javascript:void(0)">
+        <span class="bcdMenuitemsDisabled" href="#">
         <xsl:attribute name="bcdTranslate"><xsl:value-of select="@caption"/></xsl:attribute>
           <xsl:value-of select="@caption"/>
         </span>

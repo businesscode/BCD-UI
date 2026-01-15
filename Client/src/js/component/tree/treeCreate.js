@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2019 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ export const bcduiExport_Tree = bcdui.component.tree.Tree = class extends bcdui.
   * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id.
   * @param {boolean}                 [args.persistent=true]                                 - Tree expand/collapse status is stored
   * @param {(boolean|string)}        [args.contextMenu=false]                               - If true, tree's default context menu is used, otherwise provide the url to your context menu xslt here.
+  * @param {(function|string)}       [args.contextMenuResolver]                             - Function which gets a parameter bag with well known attributes and the dataset of the selected context menu entry. Should return false if action is not provided so that default functions are called.
   * @param {Object}                  [args.parameters]                                      - An object, where each property holds a DataProvider, used as a transformation parameters.
    */
   constructor(args) {
@@ -105,7 +106,21 @@ export const bcduiExport_Tree = bcdui.component.tree.Tree = class extends bcdui.
           , gotExport: "" + (typeof bcdui.component.exports != "undefined")
           }
         });
-        bcdui.widget.createContextMenu({ targetRendererId: this.id, refreshMenuModel: true, tableMode: true, inputModel: this.contextMenu });
+
+        let contextMenuResolver = args.contextMenuResolver || function() { return false; };
+        if (typeof contextMenuResolver == "string")
+          contextMenuResolver = bcdui.util._toJsFunction(contextMenuResolver);
+
+        bcdui.widget.createContextMenu({
+          targetRendererId: this.id
+        , refreshMenuModel: true
+        , tableMode: true
+        , inputModel: this.contextMenu
+        , clickResolver: function(args) {
+          if (!contextMenuResolver(args))
+            bcdui.component.tree.resolveContextMenu(args);
+          }
+        });
       }
 
       // add a row hover effect
@@ -426,6 +441,7 @@ bcdui.component = Object.assign(bcdui.component,
    * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id.
    * @param {boolean}                 [args.persistent=true]                                 - Tree expand/collapse status is stored
    * @param {(boolean|string)}        [args.contextMenu=false]                               - If true, tree's default context menu is used, otherwise provide the url to your context menu xslt here.
+   * @param {(function|string)}       [args.contextMenuResolver]                             - Function which gets a parameter bag with well known attributes and the dataset of the selected context menu entry. Should return false if action is not provided so that default functions are called.
    * @private
    */
   createTree: function( args )
@@ -438,6 +454,7 @@ bcdui.component = Object.assign(bcdui.component,
         statusModel:          bcdui.factory.objectRegistry.getObject(args.statusModel),
         id:                   args.id,
         contextMenu:          args.contextMenu,
+        contextMenuResolver:  args.contextMenuResolver,
         persistent:           args.persistent
       });
     });

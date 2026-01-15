@@ -393,6 +393,7 @@ bcdui.component = Object.assign(bcdui.component,
    * @param {string}                  [args.templateTargetHtmlElementId]                          - Custom location for template editor
    * @param {string}                  [args.summaryTargetHtmlElementId]                           - Custom location for summary display
    * @param {(boolean|string)}        [args.contextMenu=false]                                    - If true, cube's default context menu is used, otherwise provide the url to your context menu xslt here.
+   * @param {(function|string)}       [args.contextMenuResolver]                                  - Function which gets a parameter bag with well known attributes and the dataset of the selected context menu entry. Should return false if action is not provided so that default functions are called.
    * @param {(boolean|string)}        [args.tooltip=false]                                        - If true, cube's default tooltip is used, otherwise provide the url to your tooltip xslt here.
    * @param {boolean}                 [args.isDefaultHtmlLayout=false]                            - If true, a standard layout for dnd area, ranking, templates and summary is created. Separate targetHtmlElements will be obsolete then. If false, you need to provide containers with classes: bcdCurrentRowDimensionList, bcdCurrentColMeasureList, bcdCurrentColDimensionList, bcdCurrentMeasureList, bcdDimensionList, bcdMeasureList within an outer bcdCubeDndMatrix container. if your targetHtml got classes bcdDndBlindOpen or bcdDndBlindClosed, the actual dnd area is also put in collapsable boxes (either open or closed by default).
    * @param {boolean}                 [args.hasUserEditRole]                                      - Template Editor also has edit capability. If not given, bcdui.config.clientRights.bcdCubeTemplateEdit is used to determine state (either *(any) or cubeId to enable).
@@ -589,6 +590,10 @@ bcdui.component = Object.assign(bcdui.component,
       if ( !!args.contextMenu && args.contextMenu !== 'false'  && args.contextMenu !== false ) {
         var contextMenuUrl = args.contextMenu === 'true' || args.contextMenu === true ? bcdui.component.cube._contextMenuUrl : args.contextMenu;
 
+        let contextMenuResolver = args.contextMenuResolver || function() { return false; };
+        if (typeof contextMenuResolver == "string")
+          contextMenuResolver = bcdui.util._toJsFunction(contextMenuResolver);
+
         // try to attach clicked measure / dimension information which is reused in contextMenu
         var prepareContextMenu = function(doc, args) {
           var target = jQuery("#bcdContextMenuDiv").attr("bcdEventSourceElementId");
@@ -622,6 +627,10 @@ bcdui.component = Object.assign(bcdui.component,
           , inputModel      : contextMenu
           , tableMode       : true
           , refreshMenuModel: true
+          , clickResolver: function(args) {
+            if (!contextMenuResolver(args))
+              bcdui.component.cube.configurator.resolveContextMenu(args);
+            }
         });
       }
 
