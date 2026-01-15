@@ -249,6 +249,11 @@
             If not given, an auto-id is generated.
           </Doc>
         </Param>
+        <Param name="clickResolver" type="string">
+          <Doc>
+            Function which gets a parameter bag with well known attributes and the dataset of the selected context menu entry.
+          </Doc>
+        </Param>
         <Param name="targetRendererId" type="string" isJSPParent="true">
           <Doc>
             The renderer the tooltip is attached to. The HTML listeners are placed on the
