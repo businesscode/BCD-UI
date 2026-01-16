@@ -2914,10 +2914,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
   if (this.defaultButtons) {
       if (this.allowNewRows) 
-        buttonCell.append("<bcd-buttonNg class='gridAction' caption='"+bcdui.i18n.TAG+"bcd_Grid_RowAdd' onClickAction='bcdui.factory.objectRegistry.getObject(\""+this.id+"\").actionAddRow();'></bcd-buttonNg>");
-      buttonCell.append("<bcd-buttonNg class='gridAction' caption='"+bcdui.i18n.TAG + (this.isReadOnly ? "bcd_Edit_Reload" : "bcd_Edit_ResetAll") + "' onClickAction='bcdui.factory.objectRegistry.getObject(\""+this.id+"\").actionReset();'></bcd-buttonNg>");
+        buttonCell.append("<bcd-buttonNg class='gridAction' caption='"+bcdui.i18n.TAG+"bcd_Grid_RowAdd' data-id='"+this.id+"' data-action='actionAddRow' onClickAction='bcdui.component.grid.gridButtonAction'></bcd-buttonNg>");
+      buttonCell.append("<bcd-buttonNg class='gridAction' caption='"+bcdui.i18n.TAG + (this.isReadOnly ? "bcd_Edit_Reload" : "bcd_Edit_ResetAll") + "' data-id='"+this.id+"' data-action='actionReset' onClickAction='bcdui.component.grid.gridButtonAction'></bcd-buttonNg>");
       if (! this.isReadOnly)
-        buttonCell.append("<bcd-buttonNg class='gridAction' caption='"+bcdui.i18n.TAG+"bcd_Edit_Save'     onClickAction='bcdui.factory.objectRegistry.getObject(\""+this.id+"\").actionSave();'></bcd-buttonNg>");
+        buttonCell.append("<bcd-buttonNg class='gridAction' caption='"+bcdui.i18n.TAG+"bcd_Edit_Save' data-id='"+this.id+"' data-action='actionSave' onClickAction='bcdui.component.grid.gridButtonAction'></bcd-buttonNg>");
     }
     jQuery("#"+this.targetHtml).append(table);
 
@@ -3770,6 +3770,30 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     return this.enhancedConfiguration; 
   }
 }
+
+bcdui.component.grid = Object.assign(bcdui.component.grid,
+/** @lends bcdui.component.grid */
+{
+  gridButtonAction() {
+    const htmlElement = jQuery(this).hasClass("gridAction") ? this : jQuery(this).closest(".gridAction").get(0);
+    const gridRendererId = jQuery(htmlElement).closest("*[bcdRendererId]").attr("bcdRendererId") || "";
+    const data = htmlElement.dataset;
+    if (data && data.action) {
+       if (data.action == "actionAddRow" && data.id)
+         bcdui.factory.objectRegistry.getObject(data.id).actionAddRow();
+       if (data.action == "actionReset" && data.id)
+         bcdui.factory.objectRegistry.getObject(data.id).actionReset();
+       if (data.action == "actionSave" && data.id)
+         bcdui.factory.objectRegistry.getObject(data.id).actionSave();
+       if (data.action == "takeData")
+         bcdui.component.grid.GridEditor.bcduiHtmlEditor.takeData(htmlElement);
+       if (data.action == "clearData")
+         bcdui.component.grid.GridEditor.bcduiHtmlEditor.clearData(htmlElement);
+       if (data.action == "cancelData")
+         bcdui.component.grid.GridEditor.bcduiHtmlEditor.cancelData(htmlElement);
+    }
+  }
+});
 
 
 /************************

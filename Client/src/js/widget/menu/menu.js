@@ -267,12 +267,14 @@ bcdui.widget.menu.Menu = class
       this.text = linkTag.text;
     }
     if (this.subMenu) {
+      let self = this.subMenu;
       this.element.onmouseout = function() {
         if (menuItem.root.openDelayTimer) window.clearTimeout(menuItem.root.openDelayTimer);
         if (menuItem.root.closeDelayTimer) window.clearTimeout(menuItem.root.closeDelayTimer);
         const o = bcdui.util._getJsObjectFromString(menuItem.root.name);
         o["closingMenuItem"] = menuItem;
-        menuItem.root.closeDelayTimer = window.setTimeout(menuItem.root.name + ".closingMenuItem.subMenu._close()", menuItem.root.closeDelayTime);
+        const fkt = bcdui.util._toJsFunction(menuItem.root.name + ".closingMenuItem.subMenu._close").bind(self);
+        menuItem.root.closeDelayTimer = window.setTimeout(fkt, menuItem.root.closeDelayTime);
       }
     }
   }
