@@ -38,11 +38,12 @@
 	};
 
 	_globals = (function(){
-    try {
-      eval("const _evalTest=42;");
-      return this || (0,eval)("this");
-    } catch (e) { }
-    return this;
+    return (
+      typeof globalThis !== "undefined" ? globalThis :
+      typeof self !== "undefined" ? self :
+      typeof window !== "undefined" ? window :
+      typeof global !== "undefined" ? global :
+      {});
   }());
 
 	/* istanbul ignore else */
@@ -51,7 +52,7 @@
 	} else if (typeof define === "function" && define.amd) {
 		define(function(){return doT;});
 	} else {
-    if (_globals)
+    if (_globals && typeof bcdui != "undefined" && typeof bcdui.config != "undefined" && bcdui.config.unsafeEval)
 		  _globals.doT = doT;
 	}
 

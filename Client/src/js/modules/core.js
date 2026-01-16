@@ -17,7 +17,7 @@
 import "./3rdParty.js"
 
 import "../../bcdui.js?mode=module"
-
+import "../3rdParty/doT/doT.js"
 import "./util.js"
 
 import "../bcdui.js"
