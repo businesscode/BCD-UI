@@ -34296,10 +34296,13 @@ for (var collections = getKeys(DOMIterables), i = 0; i < collections.length; i++
     }
   };
 })(
-  // In sloppy mode, unbound `this` refers to the global object, fallback to
-  // Function constructor if we're in global strict mode. That is sadly a form
-  // of indirect eval which violates Content Security Policy.
-  (function() { return this })() || Function("return this")()
+  // Patched "(function() { return this })() || Function("return this")()"
+  // with the following to run in a non eval environment 
+  typeof globalThis !== "undefined" ? globalThis :
+  typeof self !== "undefined" ? self :
+  typeof window !== "undefined" ? window :
+  typeof global !== "undefined" ? global :
+  {}
 );
 
 
