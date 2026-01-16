@@ -266,14 +266,14 @@ bcdui.bcduiCeFiles =
       "id": "bcduiGrid",
       "required": "optional",
       "files": [
-          "/js/3rdParty/numbro.js"
-        , "/js/3rdParty/handsontable.js"
+          "/js/3rdParty/handsontable/numbro.js"
+        , "/js/3rdParty/handsontable/handsontable.js"
         , "/js/nonmodules/component/grid/gridCreate.js"
         , "/js/nonmodules/component/grid/gridEditor.js"
         , "/js/nonmodules/component/grid/contextMenuResolver.js"
       ],
       "css": [
-        "/js/3rdParty/handsontable.css"
+        "/js/3rdParty/handsontable/handsontable.css"
       ],
       "buildFolders": [
         "/js/nonmodules/component/grid"
@@ -283,7 +283,7 @@ bcdui.bcduiCeFiles =
       "id": "bcduiMessagesEditor",
       "required": "optional",
       "files": [
-          "/js/3rdParty/handsontable.js"
+          "/js/3rdParty/handsontable/handsontable.js"
         , "/js/3rdParty/ckeditor/ckeditorPackage/ckeditor.js"
         , "/js/3rdParty/ckeditor/ckeditor_jqueryPlugin.js"
         , "/js/nonmodules/component/grid/gridCreate.js"
@@ -294,7 +294,7 @@ bcdui.bcduiCeFiles =
         , "/js/nonmodules/widget/messages/messagesViewer.js"
       ],
       "css": [
-        "/js/3rdParty/handsontable.css"
+        "/js/3rdParty/handsontable/handsontable.css"
       ],
       "buildFolders": [
         "/js/nonmodules/component/grid"

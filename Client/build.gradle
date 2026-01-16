@@ -48,9 +48,9 @@ def js3rdPartyNpm = [
       "block-ui":       [ fn: "jquery.blockUI.js",     ofn: "block-ui/jquery.blockUI.js" ],
 //      "dot":            [ fn: "doT.js",                ofn: "dot/doT.js",                                    ofnm: "dot/doT.min.js"],
 //      "log4javascript": [ fn: "log4javascript.js",     ofn: "log4javascript/log4javascript_uncompressed.js", ofnm: "log4javascript/log4javascript.js"],
-      "handsontable":   [ [ fn: "handsontable.js",     ofn: "handsontable/dist/handsontable.js",             ofnm: "handsontable/dist/handsontable.min.js"],
-                          [ fn: "numbro.js",           ofn: "handsontable/dist/numbro/numbro.js"],
-                          [ fn: "handsontable.css",    ofn: "handsontable/dist/handsontable.min.css"] ],
+//      "handsontable":   [ [ fn: "handsontable.js",     ofn: "handsontable/dist/handsontable.js",             ofnm: "handsontable/dist/handsontable.min.js"],
+//                          [ fn: "numbro.js",           ofn: "handsontable/dist/numbro/numbro.js"],
+//                          [ fn: "handsontable.css",    ofn: "handsontable/dist/handsontable.min.css"] ],
       "nouislider":     [ fn: "nouislider.js",         ofn: "nouislider/distribute/nouislider.js"],
 //      "fileSaver":      [ fn: "fileSaver.js",          ofn: "fileSaver/dist/FileSaver.js",                   ofnm: "fileSaver/dist/FileSaver.min.js"],
       "d3-format":      [ fn: "d3-format.js",          ofn: "d3-format/dist/d3-format.js",                   ofnm: "d3-format/dist/d3-format.min.js"],
@@ -61,7 +61,7 @@ js3rdPartyNpm = js3rdPartyNpm.findAll { project.hasProperty('bcdui.3rdPartyJs.'+
 def copyUnmodified = ["xlsx.full.min.js": [ofn: "src/js/3rdParty/xlsx.full.min.js"]]
 
 // list 3rdParty folders (src/js/3rdPary) which should be taken 1:1 into the jar
-def unmodified3rdPartyFolders = ["ckeditor", "fileSaver", "log4javascript", "doT"]
+def unmodified3rdPartyFolders = ["ckeditor", "handsontable", "fileSaver", "log4javascript", "doT"]
 
 //**********************************
 // Install node modules for our runtime. Needed for the (client) distribution
