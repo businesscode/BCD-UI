@@ -23,13 +23,13 @@ import "../widget/contextMenu.js"
 import "../widgetNg/button.js"
 
 import "../../3rdParty/jquery.blockUI.js"
-import "../../3rdParty/numbro.js"
-import "../../3rdParty/handsontable.js"
+import "../../3rdParty/handsontable/numbro.js"
+import "../../3rdParty/handsontable/handsontable.js"
 import {bcduiExport_Grid as Grid, bcduiExport_GridModel as GridModel} from "../../component/grid/gridCreate.js"
 import "../../component/grid/contextMenuResolver.js"
 import "../../component/grid/gridEditor.js"
 
 export {Grid, GridModel};
 
-//import hotCss from '../../3rdParty/handsontable.css' with { type: 'css' };
+//import hotCss from '../../3rdParty/handsontable/handsontable.css' with { type: 'css' };
 //document.adoptedStyleSheets.push(hotCss);
