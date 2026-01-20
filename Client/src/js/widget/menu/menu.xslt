@@ -94,7 +94,7 @@
     
             <xsl:choose>
               <xsl:when test="$isCredentialMenu='true' and $depth=2 and $pos=1">
-                <a href="#" class="bcd__header_credentials_toggle">
+                <a class="bcd__header_credentials_toggle">
                   <span class="initials"><xsl:value-of select="substring(translate($userName, 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 1, 1)"/></span>
                   <span><xsl:value-of select="$userName"/></span>
                   <i class="fas fa-caret-down"></i>

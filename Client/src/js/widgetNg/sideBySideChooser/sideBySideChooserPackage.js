@@ -61,9 +61,9 @@
         `<tbody>`+
           `<tr>`+
             `<td class='bcdCol' id='${it.id}sbsLeft'></td>`+
-            `<td class='bcdCol2'><span class='bcd-sbs-controls'><span class='bcdButton bcdToMainTarget'><a href='#'></a></span><span class='bcdButton bcdToSource'><a href='#'></a></span></span></td>`+
+            `<td class='bcdCol2'><span class='bcd-sbs-controls'><span class='bcdButton bcdToMainTarget'><a></a></span><span class='bcdButton bcdToSource'><a></a></span></span></td>`+
             `<td class='bcdCol3' id='${it.id}sbsRight'></td>`+
-            `<td class='bcdCol4'><span class='bcd-sbs-controls'><span class='bcdButton bcdMoveUp'><a href='#'></a></span><span class='bcdButton bcdMoveDown'><a href='#'></a></span></span></td>`+
+            `<td class='bcdCol4'><span class='bcd-sbs-controls'><span class='bcdButton bcdMoveUp'><a></a></span><span class='bcdButton bcdMoveDown'><a></a></span></span></td>`+
            `</tr>`+
           `</tbody>`+
         `</table>`+

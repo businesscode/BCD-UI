@@ -271,7 +271,7 @@
               + "</span>"
             )): ""
           )
-        + (showPrevNextButtons ?("<br></br><a href='#' class='bcdClickAction bcdPeriodChooserModLeft'></a>&#160;<a href='#' class='bcdClickAction bcdPeriodChooserModRight'></a>"): "")
+        + (showPrevNextButtons ?("<br></br><a class='bcdClickAction bcdPeriodChooserModLeft'></a>&#160;<a class='bcdClickAction bcdPeriodChooserModRight'></a>"): "")
         + (textInput ? ("<div class='bcdHr'><hr></hr></div><span class='bcdHint'>" + hint + "</span>") : "" )
     ).addClass("bcdPeriodChooser");
     bcdui.widget._bcdIdToDomId(containerHtmlElement);

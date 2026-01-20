@@ -47,7 +47,6 @@ bcdui.widget.visualizeXml =
     jQuery(j).addClass("visXml_c");
     const k = j.firstChild;
     k.style.visibility="visible";
-    k.href="#";
   },
 
   /**
