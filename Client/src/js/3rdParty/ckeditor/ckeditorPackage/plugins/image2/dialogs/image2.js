@@ -1,4 +1,4 @@
-﻿/**
+﻿﻿/**
  * @license Copyright (c) 2003-2023, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
@@ -23,12 +23,16 @@ CKEDITOR.dialog.add( 'image2', function( editor ) {
 		lockResetStyle = 'margin-top:18px;width:40px;height:20px;',
 		lockResetHtml = new CKEDITOR.template(
 			'<div>' +
-				'<a href="javascript:void(0)" tabindex="-1" title="' + lang.lockRatio + '" class="cke_btn_locked" id="{lockButtonId}" role="checkbox">' +
+				'<a'+
+//			' href="javascript:void(0)"'+
+			' tabindex="-1" title="' + lang.lockRatio + '" class="cke_btn_locked" id="{lockButtonId}" role="checkbox">' +
 					'<span class="cke_icon"></span>' +
 					'<span class="cke_label">' + lang.lockRatio + '</span>' +
 				'</a>' +
 
-				'<a href="javascript:void(0)" tabindex="-1" title="' + lang.resetSize + '" class="cke_btn_reset" id="{resetButtonId}" role="button">' +
+				'<a'+
+//			' href="javascript:void(0)"'+
+			' tabindex="-1" title="' + lang.resetSize + '" class="cke_btn_reset" id="{resetButtonId}" role="button">' +
 					'<span class="cke_label">' + lang.resetSize + '</span>' +
 				'</a>' +
 			'</div>' ).output( {

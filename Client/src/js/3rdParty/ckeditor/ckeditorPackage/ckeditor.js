@@ -1,4 +1,4 @@
-﻿/*
+﻿﻿/*
 Copyright (c) 2003-2026, CKSource Holding sp. z o.o. All rights reserved.
 For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license/
 */
@@ -120,7 +120,7 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
          */
         basePath: (function() {
           // Find out the editor directory path, based on its <script> tag.
-          var path = window.CKEDITOR_BASEPATH || '';
+          var path = window.CKEDITOR_BASEPATH || bcdui.contextPath + "/bcdui/js/3rdParty/ckeditor/ckeditorPackage/" || '';
 
           if (!path) {
             var scripts = document.getElementsByTagName('script');
@@ -37839,7 +37839,7 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
           var labelId = CKEDITOR.tools.getNextId() + '_label';
           CKEDITOR.ui.dialog.uiElement.call(this, dialog, outerDefinition, htmlList, 'a', null, {
             style: elementDefinition.style,
-            href: 'javascript:void(0)', // jshint ignore:line
+            //					href: 'javascript:void(0)', // jshint ignore:line
             title: elementDefinition.label,
             hidefocus: 'true',
             'class': elementDefinition['class'],
@@ -37963,22 +37963,22 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
               ' class="cke_dialog_ui_input_file"' +
               ' role="presentation"' +
               ' id="', _.frameId, '"' +
-              ' title="', elementDefinition.label, '"' +
-              ' src="javascript:void('
+              ' title="', elementDefinition.label, '"'
+              //							+ ' src="javascript:void('
             ];
 
             // Support for custom document.domain on IE. (https://dev.ckeditor.com/ticket/10165)
-            html.push(CKEDITOR.env.ie ?
-              '(function(){' + encodeURIComponent(
-                'document.open();' +
-                '(' + CKEDITOR.tools.fixDomain + ')();' +
-                'document.close();'
-              ) + '})()'
-              :
-              '0'
-            );
-
-            html.push(')"></iframe>');
+            //					html.push( CKEDITOR.env.ie ?
+            //						'(function(){' + encodeURIComponent(
+            //							'document.open();' +
+            //							'(' + CKEDITOR.tools.fixDomain + ')();' +
+            //							'document.close();'
+            //						) + '})()'
+            //						:
+            //						'0'
+            //					);
+            // html.push(')"></iframe>');
+            html.push('></iframe>');
 
             return html.join('');
           };
@@ -38763,14 +38763,22 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
               '" />',
               '</form>',
               '</body></html>',
-              '<script>',
-              // Support for custom document.domain in IE.
-              CKEDITOR.env.ie ? '(' + CKEDITOR.tools.fixDomain + ')();' : '',
-
-              'window.parent.CKEDITOR.tools.callFunction(' + callNumber + ');',
-              'window.onbeforeunload = function() {window.parent.CKEDITOR.tools.callFunction(' + unloadNumber + ')}',
-              '</script>'
+//              '<script>',
+//              // Support for custom document.domain in IE.
+//              CKEDITOR.env.ie ? '(' + CKEDITOR.tools.fixDomain + ')();' : '',
+//
+//              'window.parent.CKEDITOR.tools.callFunction(' + callNumber + ');',
+//              'window.onbeforeunload = function() {window.parent.CKEDITOR.tools.callFunction(' + unloadNumber + ')}',
+//              '</script>'
             ].join(''));
+
+            const iframe = jQuery("#"+_.frameId);
+            iframe.on("load.ck", function() {
+              iframe.off("load.ck");
+              if (CKEDITOR.env.ie) CKEDITOR.tools.fixDomain();
+              window.parent.CKEDITOR.tools.callFunction(callNumber);
+              window.onbeforeunload = function() { window.parent.CKEDITOR.tools.callFunction(unloadNumber); }
+            });
 
             frameDocument.$.close();
 
@@ -39024,7 +39032,9 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
         '<tr><td role="presentation">' +
         '<div class="cke_dialog_body" role="presentation">' +
         '<div id="cke_dialog_title_{id}" class="cke_dialog_title" role="presentation"></div>' +
-        '<a id="cke_dialog_close_button_{id}" class="cke_dialog_close_button" href="javascript:void(0)" title="{closeTitle}" role="button"><span class="cke_label">X</span></a>' +
+        '<a id="cke_dialog_close_button_{id}" class="cke_dialog_close_button"' +
+        //' href="javascript:void(0)"'+
+        ' title="{closeTitle}" role="button"><span class="cke_label">X</span></a>' +
         '<div id="cke_dialog_tabs_{id}" class="cke_dialog_tabs" role="tablist"></div>' +
         '<table class="cke_dialog_contents" role="presentation">' +
         '<tr>' +
@@ -39064,7 +39074,7 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
           iframe = CKEDITOR.dom.element.createFromHtml('<iframe' +
             ' frameBorder="0"' +
             ' class="cke_iframe_shim"' +
-            ' src="' + src + '"' +
+//					  ' src="' + src + '"' +
             ' tabIndex="-1"' +
             '></iframe>');
         iframe.appendTo(body.getParent());
@@ -39832,6 +39842,8 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
           this.fireOnce('load', {});
           CKEDITOR.ui.fire('ready', this);
 
+          jQuery("body").trigger("ck:dialog_ready", ".cke_dialog_container." + this._.editor.id);
+
           this.fire('show', {});
           this._.editor.fire('dialogShow', this);
 
@@ -40089,7 +40101,7 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
             titleHtml,
             (!!contents.hidden ? ' style="display:none"' : ''),
             ' id="', tabId, '"',
-            env.gecko && !env.hc ? '' : ' href="javascript:void(0)"',
+            env.gecko && !env.hc ? '' : '', //' href="javascript:void(0)"',
             ' tabIndex="-1"',
             ' hidefocus="true"',
             ' role="tab">',
@@ -41067,7 +41079,7 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
           '<div' +
           ' class="cke_resizer' + direction + ' cke_resizer_' + editor.lang.dir + '"' +
           ' title="' + CKEDITOR.tools.htmlEncode(editor.lang.common.resize) + '"' +
-          ' onmousedown="CKEDITOR.tools.callFunction(' + mouseDownFn + ', event )">' +
+          ' data-mouse-down-fn="' + mouseDownFn + '" data-mouse-down-type="1" ckOnMouseDown="CKEDITOR.tools.callFunction(' + mouseDownFn + ', event )">' +
           // BLACK LOWER RIGHT TRIANGLE (ltr)
           // BLACK LOWER LEFT TRIANGLE (rtl)
           (editor.lang.dir == 'ltr' ? '\u25E2' : '\u25E3') +
@@ -41195,16 +41207,17 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
           html.push('<iframe' +
             ' hidefocus="true"' +
             ' frameborder="0"' +
-            ' id="cke_dialog_background_iframe"' +
-            ' src="javascript:');
+            ' id="cke_dialog_background_iframe"'
+            //					+ ' src="javascript:'
+          );
 
-          html.push('void((function(){' + encodeURIComponent(
-            'document.open();' +
-            // Support for custom document.domain in IE.
-            '(' + CKEDITOR.tools.fixDomain + ')();' +
-            'document.write( \'' + iframeHtml + '\' );' +
-            'document.close();'
-          ) + '})())');
+          //				html.push( 'void((function(){' + encodeURIComponent(
+          //					'document.open();' +
+          //					// Support for custom document.domain in IE.
+          //					'(' + CKEDITOR.tools.fixDomain + ')();' +
+          //					'document.write( \'' + iframeHtml + '\' );' +
+          //					'document.close();'
+          //				) + '})())' );
 
           html.push('"' +
             ' style="' +
@@ -42970,7 +42983,9 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
         notificationElement.append(notificationMessageElement);
 
         notificationCloseElement = CKEDITOR.dom.element.createFromHtml(
-          '<a class="cke_notification_close" href="javascript:void(0)" title="' + close + '" role="button" tabindex="-1">' +
+          '<a class="cke_notification_close"' +
+          //' href="javascript:void(0)"'+
+          ' title="' + close + '" role="button" tabindex="-1">' +
           '<span class="cke_label">X</span>' +
           '</a>');
         notificationElement.append(notificationCloseElement);
@@ -43559,7 +43574,7 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
   (function() {
     var template = '<a id="{id}"' +
       ' class="cke_button cke_button__{name} cke_button_{state} {cls}"' +
-      (CKEDITOR.env.gecko && !CKEDITOR.env.hc ? '' : ' href="javascript:void(\'{titleJs}\')"') +
+      (CKEDITOR.env.gecko && !CKEDITOR.env.hc ? '' : '') + //' href="javascript:void(\'{titleJs}\')"' ) +
       ' title="{title}"' +
       ' tabindex="-1"' +
       ' hidefocus="true"' +
@@ -43575,23 +43590,23 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
     // keypress.
     // TODO: Check if really needed.
     if (CKEDITOR.env.gecko && CKEDITOR.env.mac)
-      template += ' onkeypress="return false;"';
+      template += ' ckOnKeyPress="return false;"';
 
     // With Firefox, we need to force the button to redraw, otherwise it
     // will remain in the focus state.
     if (CKEDITOR.env.gecko)
-      template += ' onblur="this.style.cssText = this.style.cssText;"';
+      template += ' ckOnBlur="this.style.cssText = this.style.cssText;"';
 
     // IE and Edge needs special click handler based on mouseup event with additional check
     // of which mouse button was clicked (https://dev.ckeditor.com/ticket/188, #2565).
     var specialClickHandler = '';
     if (CKEDITOR.env.ie) {
-      specialClickHandler = 'return false;" onmouseup="CKEDITOR.tools.getMouseButton(event)==CKEDITOR.MOUSE_BUTTON_LEFT&&';
+      specialClickHandler = 'return false;" ckOnMouseUp="CKEDITOR.tools.getMouseButton(event)==CKEDITOR.MOUSE_BUTTON_LEFT&&';
     }
 
-    template += ' onkeydown="return CKEDITOR.tools.callFunction({keydownFn},event);"' +
-      ' onfocus="return CKEDITOR.tools.callFunction({focusFn},event);" ' +
-      'onclick="' + specialClickHandler + 'CKEDITOR.tools.callFunction({clickFn},this);return false;">' +
+    template += ' data-key-down-fn="{keydownFn}" data-key-down-type="1" ckOnKeyDown="return CKEDITOR.tools.callFunction({keydownFn},event);"' +
+      ' data-focus-fn="{focusFn}" data-focus-type="1" ckOnFocus="return CKEDITOR.tools.callFunction({focusFn},event);" ' +
+      ' data-click-fn="{clickFn}" data-click-type="1" ckOnClick="' + specialClickHandler + 'CKEDITOR.tools.callFunction({clickFn},this);return false;">' +
       '<span class="cke_button_icon cke_button__{iconName}_icon" style="{style}"';
 
 
@@ -44173,7 +44188,7 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
 
           var output = [
             '<span id="', labelId, '" class="cke_voice_label">', editor.lang.toolbar.toolbars, '</span>',
-            '<span id="' + editor.ui.spaceId('toolbox') + '" class="cke_toolbox" role="group" aria-labelledby="', labelId, '" onmousedown="return false;">'
+            '<span id="' + editor.ui.spaceId('toolbox') + '" class="cke_toolbox" role="group" aria-labelledby="', labelId, '" ckOnMouseDown="return false;">'
           ];
 
           var expanded = editor.config.toolbarStartupExpanded !== false,
@@ -44363,7 +44378,7 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
             if (!expanded)
               output.push(' cke_toolbox_collapser_min');
 
-            output.push('" onclick="CKEDITOR.tools.callFunction(' + collapserFn + ')">', '<span class="cke_arrow">&#9650;</span>', // BLACK UP-POINTING TRIANGLE
+            output.push('" data-click-fn="' + collapserFn + '" data-click-type="2" ckOnClick="CKEDITOR.tools.callFunction(' + collapserFn + ')">', '<span class="cke_arrow">&#9650;</span>', // BLACK UP-POINTING TRIANGLE
               '</a>');
           }
 
@@ -45508,6 +45523,9 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
           // Waiting for editor instance to be ready seems to be the most reliable way to
           // be sure that paste buttons are already created.
           editor.once('instanceReady', function() {
+
+            jQuery("body").trigger("ck:instance_ready", "." + this.id);
+
             if (!editor._.pasteButtons) {
               return;
             }
@@ -48617,13 +48635,15 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
       '{frame}' +
       '</div>');
 
-    var frameTpl = CKEDITOR.addTemplate('panel-frame', '<iframe id="{id}" class="cke_panel_frame" role="presentation" frameborder="0" src="{src}"></iframe>');
+    var frameTpl = CKEDITOR.addTemplate('panel-frame', '<iframe id="{id}" class="cke_panel_frame" role="presentation" frameborder="0"' +
+      //     'src="{src}"'+
+      '></iframe>');
 
     var frameDocTpl = CKEDITOR.addTemplate('panel-frame-inner', '<!DOCTYPE html>' +
       '<html class="cke_panel_container {env}" dir="{dir}" lang="{langCode}">' +
       '<head>{css}</head>' +
       '<body class="cke_{dir}"' +
-      ' style="margin:0;padding:0" onload="{onload}"></body>' +
+      ' style="margin:0;padding:0" data-load-fn="{onloadFn}" ckOnLoad="{onload}"></body>' +
       '<\/html>');
 
     /** @class CKEDITOR.ui.panel */
@@ -48671,7 +48691,8 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
 
               doc.write(frameDocTpl.output(CKEDITOR.tools.extend({
                 css: CKEDITOR.tools.buildStyleHtml(this.css),
-                onload: 'window.parent.CKEDITOR.tools.callFunction(' + onLoad + ');'
+                onload: 'window.parent.CKEDITOR.tools.callFunction(' + onLoad + ');',
+                onloadFn: onLoad
               }, data)));
 
               var win = doc.getWindow();
@@ -49035,6 +49056,8 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
       if (!panel) {
         panel = panels[key] = new CKEDITOR.ui.panel(doc, definition);
         panel.element = parentElement.append(CKEDITOR.dom.element.createFromHtml(panel.render(editor), doc));
+
+        jQuery("body").trigger("ck::iframe_ready", "#" + panel.id + "_frame");
 
         panel.element.setStyles({
           display: 'none',
@@ -50036,9 +50059,9 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
             output.push('<a class="cke_colorauto" _cke_focus=1 hidefocus=true',
               ' title="', lang.auto, '"',
               ' draggable="false"',
-              ' ondragstart="return false;"', // Draggable attribute is buggy on Firefox.
-              ' onclick="CKEDITOR.tools.callFunction(', clickFn, ',null\);return false;"',
-              ' href="javascript:void(\'', lang.auto, '\')"',
+              ' ckOnDragStart="return false;"', // Draggable attribute is buggy on Firefox.
+              ' data-click-fn="' + clickFn + '" data-click-type="3" ckOnClick="CKEDITOR.tools.callFunction(', clickFn, ',null\);return false;"',
+              //						' href="javascript:void(\'', lang.auto, '\')"',
               ' role="option" aria-posinset="1" aria-setsize="', total, '">',
               '<table role="presentation" cellspacing=0 cellpadding=0 width="100%">',
               '<tr>',
@@ -50057,9 +50080,10 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
               '<a class="cke_colormore" _cke_focus=1 hidefocus=true',
               ' title="', lang.more, '"',
               ' draggable="false"',
-              ' ondragstart="return false;"', // Draggable attribute is buggy on Firefox.
-              ' onclick="CKEDITOR.tools.callFunction(', clickFn, ',\'?\');return false;"',
-              ' href="javascript:void(\'', lang.more, '\')"', ' role="option" aria-posinset="', total,
+              ' ckOnDragStart="return false;"', // Draggable attribute is buggy on Firefox.
+              ' data-click-fn="' + clickFn + '" data-click-type="4" ckOnClick="CKEDITOR.tools.callFunction(', clickFn, ',\'?\');return false;"',
+              //									' href="javascript:void(\'', lang.more, '\')"',
+              ' role="option" aria-posinset="', total,
               '" aria-setsize="', total, '">', lang.more,
               '</a>',
               '</td>'); // </tr> is later in the code.
@@ -50166,10 +50190,10 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
           this.getElement().setHtml('<a class="cke_colorbox" _cke_focus=1 hidefocus=true' +
             ' title="' + this.label + '"' +
             ' draggable="false"' +
-            ' ondragstart="return false;"' + // Draggable attribute is buggy on Firefox.
-            ' onclick="CKEDITOR.tools.callFunction(' + this.clickFn + ',\'' + this.color + '\',\'' + this.label + '\', this);' +
+            ' ckOnDragStart="return false;"' + // Draggable attribute is buggy on Firefox.
+            ' data-click-fn="' + this.clickFn + '" data-click-type="5" data-click-color="' + this.color + '" data-click-label="' + this.label + '" ckOnClick="CKEDITOR.tools.callFunction(' + this.clickFn + ',\'' + this.color + '\',\'' + this.label + '\', this);' +
             ' return false;"' +
-            ' href="javascript:void(\'' + this.color + '\')"' +
+            //						' href="javascript:void(\'' + this.color + '\')"' +
             ' data-value="' + this.color + '"' +
             ' role="option">' +
             '<span class="cke_colorbox" style="background-color:#' + this.color + '"></span>' +
@@ -50846,13 +50870,13 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
     // keypress.
     // TODO: Check if really needed.
     if (CKEDITOR.env.gecko && CKEDITOR.env.mac)
-      menuItemSource += ' onkeypress="return false;"';
+      menuItemSource += ' ckOnKeyPress="return false;"';
 
     // With Firefox, we need to force the button to redraw, otherwise it
     // will remain in the focus state. Also we some extra help to prevent dragging (https://dev.ckeditor.com/ticket/10373).
     if (CKEDITOR.env.gecko) {
-      menuItemSource += (' onblur="this.style.cssText = this.style.cssText;"' +
-        ' ondragstart="return false;"');
+      menuItemSource += (' ckOnBlur="this.style.cssText = this.style.cssText;"' +
+        ' ckOnDragStart="return false;"');
     }
 
     // We must block clicking with right mouse button (#2858).
@@ -50861,9 +50885,9 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
     }
 
     // https://dev.ckeditor.com/ticket/188
-    menuItemSource += ' onmouseover="CKEDITOR.tools.callFunction({hoverFn},{index});"' +
-      ' onmouseout="CKEDITOR.tools.callFunction({moveOutFn},{index});"' +
-      ' onclick="' + specialClickHandler + 'CKEDITOR.tools.callFunction({clickFn},{index}); return false;"' +
+    menuItemSource += ' data-mouse-over-fn="{hoverFn}" data-mouse-over-type="1" data-mouse-over-index="{index}" ckOnMouseOver="CKEDITOR.tools.callFunction({hoverFn},{index});"' +
+      ' data-mouse-out-fn="{moveOutFn}" data-mouse-out-index="{index}" ckOnMouseOut="CKEDITOR.tools.callFunction({moveOutFn},{index});"' +
+      ' data-click-fn="{clickFn}" data-click-type="6" data-click-index="{index}" ckOnClick="' + specialClickHandler + 'CKEDITOR.tools.callFunction({clickFn},{index}); return false;"' +
       '>';
 
     menuItemSource +=
@@ -51757,25 +51781,25 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
     // keypress.
     // TODO: Check if really needed.
     if (CKEDITOR.env.gecko && CKEDITOR.env.mac)
-      extra += ' onkeypress="return false;"';
+      extra += ' ckOnKeyPress="return false;"';
 
     // With Firefox, we need to force the button to redraw, otherwise it
     // will remain in the focus state.
     if (CKEDITOR.env.gecko)
-      extra += ' onblur="this.style.cssText = this.style.cssText;"';
+      extra += ' ckOnBlur="this.style.cssText = this.style.cssText;"';
 
     var pathItemTpl = CKEDITOR.addTemplate('pathItem', '<a' +
       ' id="{id}"' +
-      ' href="{jsTitle}"' +
+      //		' href="{jsTitle}"' +
       ' tabindex="-1"' +
       ' class="cke_path_item"' +
       ' title="{label}"' +
       extra +
       ' hidefocus="true" ' +
       ' draggable="false" ' +
-      ' ondragstart="return false;"' + // Required by Firefox (#1191).
-      ' onkeydown="return CKEDITOR.tools.callFunction({keyDownFn},{index}, event );"' +
-      ' onclick="CKEDITOR.tools.callFunction({clickFn},{index}); return false;"' +
+      ' ckOnDragStart="return false;"' + // Required by Firefox (#1191).
+      ' data-key-down-fn="{keydownFn}" data-key-down-type="2" data-key-down-index="{index} ckOnKeyDown="return CKEDITOR.tools.callFunction({keyDownFn},{index}, event );"' +
+      ' data-click-fn="{clickFn}" data-click-type="6" data-click-index="{index} ckOnClick="CKEDITOR.tools.callFunction({clickFn},{index}); return false;"' +
       ' role="button" aria-label="{label}">' +
       '{text}' +
       '</a>');
@@ -53276,15 +53300,15 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
           '<a id="{id}_option" _cke_focus=1 hidefocus=true' +
           ' title="{title}"' +
           ' draggable="false"' +
-          ' ondragstart="return false;"' + // Draggable attribute is buggy on Firefox.
-          ' href="javascript:void(\'{val}\')" ' +
+          ' ckOnDragStart="return false;"' + // Draggable attribute is buggy on Firefox.
+          //					' href="javascript:void(\'{val}\')" ' +
           ' {language}' +
-          ' onclick="{onclick}CKEDITOR.tools.callFunction({clickFn},\'{val}\'); return false;"' + // https://dev.ckeditor.com/ticket/188
+          ' data-click-fn="{clickFn}" data-click-type="7" data-click-val="{val}" ckOnClick="{onclick}CKEDITOR.tools.callFunction({clickFn},\'{val}\'); return false;"' + // https://dev.ckeditor.com/ticket/188
           ' role="option">' +
           '{text}' +
           '</a>' +
           '</li>'),
-        listGroup = CKEDITOR.addTemplate('panel-list-group', '<h1 id="{id}" draggable="false" ondragstart="return false;" class="cke_panel_grouptitle" role="presentation" >{label}</h1>'),
+        listGroup = CKEDITOR.addTemplate('panel-list-group', '<h1 id="{id}" draggable="false" ckOnDragStart="return false;" class="cke_panel_grouptitle" role="presentation" >{label}</h1>'),
         reSingleQuote = /\'/g,
         escapeSingleQuotes = function(str) {
           return str.replace(reSingleQuote, '\\\'');
@@ -53363,7 +53387,7 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
               val: escapeSingleQuotes(CKEDITOR.tools.htmlEncodeAttr(value)),
               // Add check for left mouse button (#2857).
               onclick: CKEDITOR.env.ie ?
-                'return false;" onmouseup="CKEDITOR.tools.getMouseButton(event)===CKEDITOR.MOUSE_BUTTON_LEFT&&' : '',
+                'return false;" ckOnMouseUp="CKEDITOR.tools.getMouseButton(event)===CKEDITOR.MOUSE_BUTTON_LEFT&&' : '',
               clickFn: this._.getClick(),
               title: CKEDITOR.tools.htmlEncodeAttr(title || value),
               text: html || value,
@@ -53529,7 +53553,7 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
       ' role="presentation">' +
       '<span id="{id}_label" class="cke_combo_label">{label}</span>' +
       '<a class="cke_combo_button" title="{title}" tabindex="-1"' +
-      (CKEDITOR.env.gecko && !CKEDITOR.env.hc ? '' : ' href="javascript:void(\'{titleJs}\')"') +
+      (CKEDITOR.env.gecko && !CKEDITOR.env.hc ? '' : '') + //' href="javascript:void(\'{titleJs}\')"' ) +
       ' hidefocus="true"' +
       ' role="button"' +
       ' aria-labelledby="{id}_label"' +
@@ -53540,22 +53564,22 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
     // keypress.
     // TODO: Check if really needed.
     if (CKEDITOR.env.gecko && CKEDITOR.env.mac)
-      template += ' onkeypress="return false;"';
+      template += ' ckOnKeyPress="return false;"';
 
     // With Firefox, we need to force the button to redraw, otherwise it
     // will remain in the focus state.
     if (CKEDITOR.env.gecko)
-      template += ' onblur="this.style.cssText = this.style.cssText;"';
+      template += ' ckOnBlur="this.style.cssText = this.style.cssText;"';
 
     // In IE/Edge right click opens rich combo (#2845).
     if (CKEDITOR.env.ie) {
-      specialClickHandler = 'return false;" onmouseup="CKEDITOR.tools.getMouseButton(event)==CKEDITOR.MOUSE_BUTTON_LEFT&&';
+      specialClickHandler = 'return false;" ckOnMouseUp="CKEDITOR.tools.getMouseButton(event)==CKEDITOR.MOUSE_BUTTON_LEFT&&';
     }
 
     template +=
-      ' onkeydown="return CKEDITOR.tools.callFunction({keydownFn},event,this);"' +
-      ' onfocus="return CKEDITOR.tools.callFunction({focusFn},event);"' +
-      ' onclick="' + specialClickHandler + 'CKEDITOR.tools.callFunction({clickFn},this);return false;">' +
+      ' data-key-down-fn="{keydownFn}" data-key-down-type="3" ckOnKeyDown="return CKEDITOR.tools.callFunction({keydownFn},event,this);"' +
+      ' data-focus-fn="{focusFn}" data-focus-type="1" ckOnFocus="return CKEDITOR.tools.callFunction({focusFn},event);"' +
+      ' data-click-fn="{clickFn}" data-click-type="1" ckOnClick="' + specialClickHandler + 'CKEDITOR.tools.callFunction({clickFn},this);return false;">' +
       '<span id="{id}_text" class="cke_combo_text cke_combo_inlinelabel">{label}</span>' +
       '<span class="cke_combo_open">' +
       '<span class="cke_combo_arrow">' +
@@ -70768,7 +70792,9 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
             src = '';
           }
 
-          var iframe = CKEDITOR.dom.element.createFromHtml('<iframe src="' + src + '" frameBorder="0"></iframe>');
+          var iframe = CKEDITOR.dom.element.createFromHtml('<iframe'+
+           ' src="' + src +
+            '" frameBorder="0"></iframe>');
           iframe.setStyles({ width: '100%', height: '100%' });
           iframe.addClass('cke_wysiwyg_frame').addClass('cke_reset');
 
@@ -71299,7 +71325,7 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
                 '</script>';
             }
 
-            data = data.replace(/(?=\s*<\/(:?head)>)/, bootstrapCode);
+//            data = data.replace(/(?=\s*<\/(:?head)>)/, bootstrapCode);
 
             // Current DOM will be deconstructed by document.write, cleanup required.
             this.clearCustomData();
@@ -71313,9 +71339,11 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
             // defer it thanks to the async nature of this method.
             try {
               doc.write(data);
+              window.parent.CKEDITOR.tools.callFunction.apply(doc.getWindow().$, [this._.frameLoadedHandler,doc.getWindow().$]);
             } catch (e) {
               setTimeout(function() {
                 doc.write(data);
+                window.parent.CKEDITOR.tools.callFunction.apply(doc.getWindow().$, [this._.frameLoadedHandler,doc.getWindow().$]);
               }, 0);
             }
           }
