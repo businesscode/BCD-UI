@@ -39842,7 +39842,7 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
           this.fireOnce('load', {});
           CKEDITOR.ui.fire('ready', this);
 
-          jQuery("body").trigger("ck:dialog_ready", ".cke_dialog_container." + this._.editor.id);
+          jQuery("body").trigger("ck:dialog_ready", this.parts.dialog.$.parentElement);
 
           this.fire('show', {});
           this._.editor.fire('dialogShow', this);
@@ -45524,7 +45524,7 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
           // be sure that paste buttons are already created.
           editor.once('instanceReady', function() {
 
-            jQuery("body").trigger("ck:instance_ready", "." + this.id);
+            jQuery("body").trigger("ck:instance_ready", jQuery("."+this.id).get(0));
 
             if (!editor._.pasteButtons) {
               return;
@@ -49057,7 +49057,7 @@ For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
         panel = panels[key] = new CKEDITOR.ui.panel(doc, definition);
         panel.element = parentElement.append(CKEDITOR.dom.element.createFromHtml(panel.render(editor), doc));
 
-        jQuery("body").trigger("ck::iframe_ready", "#" + panel.id + "_frame");
+        jQuery("body").trigger("ck::iframe_ready", jQuery("#" + panel.id + "_frame").get(0));
 
         panel.element.setStyles({
           display: 'none',

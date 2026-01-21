@@ -80,10 +80,9 @@
       }.bind(this));
 
       const self = this;
-      jQuery("body").on("ck:dialog_ready", function(event, idOrClass) { self._initListeners(jQuery(idOrClass).get(0)); });
-      jQuery("body").on("ck:instance_ready", function(event, idOrClass) { self._initListeners(jQuery(idOrClass).get(0)); });
-      jQuery("body").on("ck::iframe_ready", function(event, idOrClass) {
-        const iframe = jQuery(idOrClass).get(0);
+      jQuery("body").on("ck:dialog_ready", function(event, htmlElement) { self._initListeners(htmlElement); });
+      jQuery("body").on("ck:instance_ready", function(event, htmlElement) { self._initListeners(htmlElement); });
+      jQuery("body").on("ck::iframe_ready", function(event, iframe) {
         jQuery(iframe).on('load', function() {
           const frameDoc = iframe.contentWindow.document;
           const htmlElement = jQuery(frameDoc).find("[ckOnLoad]").get(0);
