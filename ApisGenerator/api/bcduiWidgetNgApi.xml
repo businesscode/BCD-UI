@@ -361,11 +361,10 @@
             HTML autocomplete attribute. Can be on or off.
           </Doc>
         </Param>
-        <Param name="oninput" required="false" type="function">
-          <Doc>
-            The HTML oninput event.
-          </Doc>
-        </Param>
+
+        <Param name="oninput" required="false" type="function"><Doc>The HTML oninput event.</Doc></Param>
+        <Param name="onInputAction" required="false" type="function"><Doc>The HTML oninput event.</Doc></Param>
+        
         <Param name="type" type="enumString" value="text|email|password|int|numeric|time|color" default="text">
           <Doc>
             a type of this input field. Following types are supported for validation:
@@ -478,16 +477,10 @@
           onchange, onclick etc. This API provides them. But, this events behave like html events, so they are not triggered on
           model updates etc, they are really bound to html and the hanlding is passed over to the browser.
         </Doc>
-        <Param name="onchange" required="false" type="function">
-          <Doc>
-            the HTML onchange event
-          </Doc>
-        </Param>
-        <Param name="onclick" required="false" type="function">
-          <Doc>
-            the HTML onclick event
-          </Doc>
-        </Param>
+        <Param name="onchange" required="false" type="function"><Doc>the HTML onchange event</Doc></Param>
+        <Param name="onclick" required="false" type="function"><Doc>the HTML onclick event</Doc></Param>
+        <Param name="onChangeAction" required="false" type="function"><Doc>the HTML onchange event</Doc></Param>
+        <Param name="onClickAction" required="false" type="function"><Doc>the HTML onclick event</Doc></Param>
       </Api>
 
       <Api name="hasHtml5Support">
@@ -656,9 +649,10 @@
             receives property map: {element = the widget element, dir = one of bcdui.widgetNg.chipsChooser.CHANGE_DIRECTION.*, scope = object with .items to move, which can also be modified (i.e. remove items not eligible to move)}
          </Doc>       
         </Param>
-        <Param name="onChange" required="false" type="function">
-          <Doc>Handler function triggered after change</Doc>       
-        </Param>
+
+        <Param name="onChange" required="false" type="function"><Doc>Handler function triggered after change</Doc></Param>
+        <Param name="onChangeAction" required="false" type="function"><Doc>Handler function triggered after change</Doc></Param>
+
         <Param name="wrsInlineValueDelim" required="false" type="string">
           <Doc>Delimiter used for WRS read and write. Default is a slash.</Doc>       
         </Param>
@@ -793,11 +787,10 @@
             receives property map: {element = the widget element, dir = one of bcdui.widgetNg.sideBySideChooser.CHANGE_DIRECTION.*, scope = object with .items to move, which can also be modified (i.e. remove items not eligible to move)}
   	     </Doc>       
         </Param>
-        <Param name="onChange" required="false" type="function">
-          <Doc>
-            Handler function triggered after change
-          </Doc>       
-        </Param>
+
+        <Param name="onChange" required="false" type="function"><Doc>Handler function triggered after change</Doc></Param>
+        <Param name="onChangeAction" required="false" type="function"><Doc>Handler function triggered after change</Doc></Param>
+
         <Param name="wrsInlineValueDelim" required="false" type="string">
           <Doc>
             Delimiter used for WRS read and write. Default is a slash.
@@ -874,9 +867,10 @@
           <Doc>Handler function triggered before change of this box only, if false is returned, the change is rejected
             receives property map: {element = the widget element, dir = one of bcdui.widgetNg.connectable.CHANGE_DIRECTION.*, scope = object with .items to move, which can also be modified (i.e. remove items not eligible to move)}</Doc>       
         </Param>
-        <Param name="onChange" required="false" type="function">
-          <Doc>Handler function triggered after change. It's triggered on source AND destination of the change (e.g. source/target, target/source and target/target)</Doc>       
-        </Param>
+        
+        <Param name="onChange" required="false" type="function"><Doc>Handler function triggered after change. It's triggered on source AND destination of the change (e.g. source/target, target/source and target/target)</Doc></Param>
+        <Param name="onChangeAction" required="false" type="function"><Doc>Handler function triggered after change. It's triggered on source AND destination of the change (e.g. source/target, target/source and target/target)</Doc></Param>
+        
         <Param name="wrsInlineValueDelim" required="false" type="string">
           <Doc>Delimiter used for WRS read and write. Default is a slash.</Doc>       
         </Param>
