@@ -534,16 +534,12 @@
             If true, let this input field get focus after creation.
           </Doc>
         </Param>
-        <Param name="onFocus" type="string">
-          <Doc>
-            Handler function NAME triggered on focus event.
-          </Doc>
-        </Param>
-        <Param name="onBlur" type="string">
-          <Doc>
-            Handler function NAME triggered on blur event.
-          </Doc>
-        </Param>
+
+        <Param name="onFocus" type="string"><Doc>Handler function NAME triggered on focus event.</Doc></Param>
+        <Param name="onBlur" type="string"><Doc>Handler function NAME triggered on blur event.</Doc></Param>
+        <Param name="onFocusAction" type="string"><Doc>Handler function NAME triggered on focus event.</Doc></Param>
+        <Param name="onBlurAction" type="string"><Doc>Handler function NAME triggered on blur event.</Doc></Param>
+
         <Param name="tabIndex" type="string">
           <Doc>
             Tab index of html element.

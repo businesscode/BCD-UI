@@ -125,6 +125,7 @@
           // isDoubleClickTarget - we use the default (1st target)
           , onBeforeChange: this.options.onBeforeChange
           , onChange: this.options.onChange
+          , onChangeAction: this.options.onChangeAction
           , scope: this.options.id
           , showLasso: false
           // targetHtml - we rendered a tab, so we set our own ids now

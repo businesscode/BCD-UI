@@ -138,8 +138,8 @@
         });
       }
 
-      if (args.oninput)
-        jQuery(uiControl.control).on("input", args.oninput);
+      if (args.oninput || args.onInputAction)
+        jQuery(uiControl.control).on("input", args.oninput || args.onInputAction);
 
       // add listeners
       if(!args.readonly){

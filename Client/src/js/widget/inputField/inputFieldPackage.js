@@ -257,7 +257,7 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
         bcdui.widget.inputField._moveSelection( {htmlElementId: this.id, direction: 1, forceFirst: true, ignoreIfSelected: true } );
       }.bind(htmlElement));
     } else {
-      var onBlur = htmlElement.getAttribute("bcdOnBlur");
+      var onBlur = htmlElement.getAttribute("bcdOnBlur") || htmlElement.getAttribute("bcdOnBlurAction");
       if (onBlur) {
         bcdui._migPjs._$(htmlElement).on("blur", function() {
           bcdui.util._executeJsFunctionFromString(onBlur, htmlElement);
@@ -313,7 +313,7 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
         if( bcdui.util.isFunction(htmlElement.select) ){
           htmlElement.select();
         }
-        var onFocus = htmlElement.getAttribute("bcdOnFocus");
+        var onFocus = htmlElement.getAttribute("bcdOnFocus") || htmlElement.getAttribute("bcdOnFocusAction");
         if (onFocus) {
           bcdui.util._executeJsFunctionFromString(onFocus, htmlElement);
         }
