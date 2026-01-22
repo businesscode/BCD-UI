@@ -78,6 +78,195 @@
       bcdui.factory.objectRegistry.withReadyObjects(this.context.target.modelId, function(){
         this._createAndBind();
       }.bind(this));
+
+      const self = this;
+      jQuery("body").on("ck:dialog_ready", function(event, htmlElement) { self._initListeners(htmlElement); });
+      jQuery("body").on("ck:instance_ready", function(event, htmlElement) { self._initListeners(htmlElement); });
+      jQuery("body").on("ck::iframe_ready", function(event, iframe) {
+        jQuery(iframe).on('load', function() {
+          const frameDoc = iframe.contentWindow.document;
+          const htmlElement = jQuery(frameDoc).find("[ckOnLoad]").get(0);
+          const data = htmlElement.dataset;
+          if (data) {
+            self._initListeners(htmlElement);
+            window.parent.CKEDITOR.tools.callFunction.apply(htmlElement, [parseInt((data.loadFn || "-1"), 10), htmlElement]);
+          }
+        });
+      });
+    },
+
+    _removeListeners(container) {
+      jQuery(container).off('click.cke');
+      jQuery(container).off('focus.cke');
+      jQuery(container).off('mousedown.cke');
+      jQuery(container).off('mouseout.cke');
+      jQuery(container).off('mouseover.cke');
+      jQuery(container).off('blur.cke');
+      jQuery(container).off('dragstart.cke');
+      jQuery(container).off('keypress.cke');
+      jQuery(container).off('mouseup.cke');
+      jQuery(container).off('keydown.cke');
+    },
+
+    _initListeners(container) {
+      this._removeListeners(container);
+      jQuery(container).on('click.cke', '[ckOnClick]', function (event) {
+        const htmlElement = jQuery(event.target).attr("ckOnClick") ? jQuery(event.target).get(0) : jQuery(event.target).closest("[ckOnClick]").get(0);
+        let returnValue = false;
+        const data = htmlElement.dataset;
+        if (data) {
+          const clickType = parseInt((data.clickType || "-1"), 10);
+          const clickFn = parseInt((data.clickFn || "-1"), 10);
+          switch (clickType) {
+            case 1:
+              if (CKEDITOR.env.ie)
+                return false;
+              else
+                CKEDITOR.tools.callFunction.apply(htmlElement, [clickFn, htmlElement]);
+              break;
+            case 2:
+              CKEDITOR.tools.callFunction.apply(htmlElement, [clickFn]);
+              break;
+            case 3:
+              CKEDITOR.tools.callFunction.apply(htmlElement, [clickFn, null]);
+              break;
+            case 4:
+              CKEDITOR.tools.callFunction.apply(htmlElement, [clickFn, "?"]);
+              break;
+            case 5:
+              CKEDITOR.tools.callFunction.apply(htmlElement, [clickFn, data.clickColor, data.clickLabel, htmlElement]);
+              break;
+            case 6:
+              if (CKEDITOR.env.ie)
+                return false;
+              else
+                CKEDITOR.tools.callFunction.apply(htmlElement, [clickFn, data.clickIndex]);
+              break;
+            case 7:
+              CKEDITOR.tools.callFunction.apply(htmlElement, [clickFn, data.clickVal]);
+              break;
+          }
+        }
+        return returnValue;
+      });
+
+      jQuery(container).on('focus.cke', '[ckOnFocus]', function (event) {
+        const htmlElement = jQuery(event.target).attr("ckOnFocus") ? jQuery(event.target).get(0) : jQuery(event.target).closest("[ckOnFocus]").get(0);
+        let returnValue = false;
+        const data = htmlElement.dataset;
+        if (data) {
+          const focusType = parseInt((data.focusType || "-1"), 10);
+          const focusFn = parseInt((data.focusFn || "-1"), 10);
+          switch (focusType) {
+            case 1:
+              returnValue = CKEDITOR.tools.callFunction.apply(htmlElement, [focusFn, event]);
+              break;
+          }
+        }
+        return returnValue;
+      });
+
+      jQuery(container).on('mousedown.cke', '[ckOnMouseDown]', function (event) {
+        const htmlElement = jQuery(event.target).attr("ckOnMouseDown") ? jQuery(event.target).get(0) : jQuery(event.target).closest("[ckOnMouseDown]").get(0);
+        let returnValue = false;
+        const data = htmlElement.dataset;
+        if (data) {
+          const mouseDownType = parseInt((data.mouseDownType || "-1"), 10);
+          const mouseDownFn = parseInt((data.mouseDownFn || "-1"), 10);
+          switch (mouseDownType) {
+            case 1:
+              CKEDITOR.tools.callFunction.apply(htmlElement, [mouseDownFn, event]);
+              break;
+          }
+        }
+        return returnValue;
+      });
+      
+      jQuery(container).on('mouseout.cke', '[ckOnMouseOut]', function (event) {
+        const htmlElement = jQuery(event.target).attr("ckOnMouseOut") ? jQuery(event.target).get(0) : jQuery(event.target).closest("[ckOnMouseOut]").get(0);
+        let returnValue = false;
+        const data = htmlElement.dataset;
+        if (data) {
+          const mouseOutType = parseInt((data.mouseOutType || "-1"), 10);
+          const mouseOutFn = parseInt((data.mouseOutFn || "-1"), 10);
+          switch (mouseOutType) {
+            case 1:
+              CKEDITOR.tools.callFunction.apply(htmlElement, [mouseOutFn, data.mouseOutIndex]);
+              break;
+          }
+        }
+        return returnValue;
+      });
+
+      jQuery(container).on('mouseover.cke', '[ckOnMouseOver]', function (event) {
+        const htmlElement = jQuery(event.target).attr("ckOnMouseOver") ? jQuery(event.target).get(0) : jQuery(event.target).closest("[ckOnMouseOver]").get(0);
+        let returnValue = false;
+        const data = htmlElement.dataset;
+        if (data) {
+          const mouseOverType = parseInt((data.mouseOverType || "-1"), 10);
+          const mouseOverFn = parseInt((data.mouseOverFn || "-1"), 10);
+          switch (mouseOverType) {
+            case 1:
+              CKEDITOR.tools.callFunction.apply(htmlElement, [mouseOverFn, data.mouseOverIndex]);
+              break;
+          }
+        }
+        return returnValue;
+      });
+
+      jQuery(container).on('blur.cke', '[ckOnBlur]', function (event) {
+        const htmlElement = jQuery(event.target).attr("ckOnBlur") ? jQuery(event.target).get(0) : jQuery(event.target).closest("[ckOnBlur]").get(0);
+         htmlElement.style.cssText = htmlElement.style.cssText;
+      });
+
+      jQuery(container).on('dragstart.cke', '[ckOnDragStart]', function () { return false; });
+
+      if ( CKEDITOR.env.gecko && CKEDITOR.env.mac )
+        jQuery(container).on('keypress.cke', '[ckOnKeyPress]', function () { return false; });
+
+      if (CKEDITOR.env.ie) {
+        jQuery(container).on('mouseup.cke', '[ckOnMouseUp]', function (event) {
+          if (CKEDITOR.tools.getMouseButton(event)==CKEDITOR.MOUSE_BUTTON_LEFT) {
+            const htmlElement = jQuery(event.target).attr("ckOnClick") ? jQuery(event.target).get(0) : jQuery(event.target).closest("[ckOnClick]").get(0);
+            const data = htmlElement.dataset;
+            if (data) {
+              const clickType = parseInt((data.clickType || "-1"), 10);
+              const clickFn = parseInt((data.clickFn || "-1"), 10);
+              switch (clickType) {
+              case 1:
+                  CKEDITOR.tools.callFunction.apply(htmlElement, [clickFn, htmlElement]);
+                  break;
+              case 6:
+                  CKEDITOR.tools.callFunction.apply(htmlElement, [clickFn, data.clickIndex]);
+                  break;
+              }
+            }
+          }
+          return false;
+        });
+      }
+
+      jQuery(container).on('keydown.cke', '[ckOnKeyDown]', function (event) {
+        const htmlElement = jQuery(event.target).attr("ckOnKeyDown") ? jQuery(event.target).get(0) : jQuery(event.target).closest("[ckOnKeyDown]").get(0);
+        let returnValue = false;
+        const data = htmlElement.dataset;
+        if (data) {
+          const keyDownType = parseInt((data.keyDownType || "-1"), 10);
+          const keyDownFn = parseInt((data.keyDownFn || "-1"), 10);
+          switch (keyDownType) {
+            case 1:
+              returnValue = CKEDITOR.tools.callFunction.apply(htmlElement, [keyDownFn, event]);
+              break;
+            case 2:
+              returnValue = CKEDITOR.tools.callFunction.apply(htmlElement, [keyDownFn, data.keyDownIndex, event]);
+              break;
+            case 3:
+              returnValue = CKEDITOR.tools.callFunction.apply(htmlElement, [keyDownFn, event, this]);
+              break;
+          }
+        }
+        return returnValue;
+      });
     },
 
     /**

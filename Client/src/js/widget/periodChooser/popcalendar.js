@@ -291,13 +291,13 @@ function _initPopupCalendar()  {
         return bcdui.widget.periodChooser._closeCalendar({prevMonth:true});
 
       if (jQuery(event.target).hasClass("monthSelected"))
-        return bcdui.widget.periodChooser._constructCalendar({monthSelected : jQuery(event.target).attr("monthNow"), yearSelected : jQuery(event.target).attr("yearNow")});
+        return bcdui.widget.periodChooser._constructCalendar({monthSelected : parseInt(jQuery(event.target).attr("monthNow"), 10), yearSelected : parseInt(jQuery(event.target).attr("yearNow"), 10)});
       
       if (jQuery(event.target).hasClass("currentWeek"))
-        return bcdui.widget.periodChooser._closeCalendar({currentWeek: jQuery(event.target).attr("currentWeek"), weekIsSelected: 1, firstDay : jQuery(event.target).attr("datePointer")});
+        return bcdui.widget.periodChooser._closeCalendar({currentWeek: parseInt(jQuery(event.target).attr("currentWeek"), 10), weekIsSelected: 1, firstDay : parseInt(jQuery(event.target).attr("datePointer"), 10)});
 
       if (jQuery(event.target).hasClass("dateSelected"))
-        return bcdui.widget.periodChooser._closeCalendar({dateSelected : jQuery(event.target).attr("datePointer")});
+        return bcdui.widget.periodChooser._closeCalendar({dateSelected : parseInt(jQuery(event.target).attr("datePointer"), 10)});
     });
     
   }
