@@ -59,8 +59,8 @@ js3rdPartyNpm = js3rdPartyNpm.findAll { project.hasProperty('bcdui.3rdPartyJs.'+
 
 def copyUnmodified = ["xlsx.full.min.js": [ofn: "src/js/3rdParty/xlsx.full.min.js"]]
 
-// list 3rdParty folders (src/js/3rdPary) which should be taken 1:1 into the jar
-def unmodified3rdPartyFolders = ["ckeditor", "handsontable"]
+// list 3rdParty folders (src/js/3rdPary) which are kept locally (not minimized but modified)
+def local3rdPartyFolders = ["ckeditor", "handsontable"]
 
 //**********************************
 // Install node modules for our runtime. Needed for the (client) distribution
@@ -202,19 +202,6 @@ task bcduiClientCollectAll( type: Copy ) {
   exclude '**/bcduiLoader.js'
 
   doLast {
-
-    // copy js files from unmodified3rdPartyFolders 1:1 directly
-    unmodified3rdPartyFolders.each { folder ->
-      fileTree(dir: 'src/js/3rdParty/' + folder, include: ['**/*.js']).each { jsFile ->
-        def path = jsFile.path.replace("\\", "/");
-        def target = jsFile.path.substring(path.indexOf("src/js/3rdParty/") + "src/js/3rdParty/".length());
-        copy {
-          from jsFile.path
-          into "$clientCombinedDir/$jsDistDir/3rdParty/" + target.substring(0, target.indexOf(jsFile.name))
-        }
-      }
-    }
-
     //--------
     // Remove comments and empty lines from xml, xslt, add copyright
     fileTree(dir: destinationDir, exclude: "**/xslt/3rdParty/**", include: ['**/*.xml','**/*.xslt']).each { xmlSource ->
@@ -330,9 +317,9 @@ task bcduiClientJsFileGroups {
   bcduiFiles.groups.each { fileSet ->
     fileSet.files.findAll { it.contains("3rdParty") && it.endsWith('.js') }.each { fName ->
 
-      // ignore js files in folders which are listed in unmodified3rdPartyFolders (they are copied 1:1 via bcduiClientCollectAll)
+      // ignore js files in folders which are listed in local3rdPartyFolders (they are copied 1:1 via bcduiClientCollectAll)
       def skip = false;
-      unmodified3rdPartyFolders.each { ignore -> skip |= fName.startsWith("/js/3rdParty/" + ignore); }
+      local3rdPartyFolders.each { ignore -> skip |= fName.startsWith("/js/3rdParty/" + ignore); }
 
   	  if (! skip) {
         fName = fName.lastIndexOf('/').with {it != -1 ? fName[it+1..<fName.length()] : fName}
