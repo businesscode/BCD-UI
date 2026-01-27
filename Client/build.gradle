@@ -259,6 +259,29 @@ task bcduiClientJsFileGroups {
     }
   }
 
+  def minifiyTask = { String newTaskName, inputFile, outputFile ->
+    task(newTaskName, type: NodeTask) {
+      mustRunAfter 'bcduiClientCollectAll'
+      script = file("$nodeModulesDir/esbuild/bin/esbuild")
+      args = [
+        "${inputFile}",
+        "--minify",
+        "--outfile=${outputFile}"
+      ]
+      inputs.file(inputFile)
+      outputs.file(outputFile)
+    }
+  }
+  // minimize local 3rdParty ones with esbuild instead of babel (which causes issues) and take them over to the final package
+  local3rdPartyFolders.each { folder ->
+    fileTree(dir: 'src/js/3rdParty/' + folder, include: ['**/*.js']).eachWithIndex { jsFile, i ->
+      def path = jsFile.path.replace("\\", "/");
+      def target = jsFile.path.substring(path.indexOf("src/js/3rdParty/") + "src/js/3rdParty/".length()).replace("\\", "/");
+      def name = target.substring(target.lastIndexOf('/') + 1)
+      dependsOn += minifiyTask("$i-minimize-$name", path, "$clientCombinedDir/$jsDistDir/3rdParty/" + target)
+    }
+  }
+
   // All non 3rd-party files are handled here
   // Create one babel task and output file for all non-3rd-party files in a filegroup including ecma-6 transpiling
   bcduiFiles.groups.each { fileSet ->
