@@ -42,7 +42,7 @@ bcdui.bcduiCeFiles =
         , "/js/3rdParty/jquery.blockUI.js"
         , "/js/3rdParty/nouislider.js"
         , "/js/3rdParty/d3-format.js"
-        , "/js/3rdParty/saxonJs/SaxonJS2.js"
+        , "/js/3rdParty/SaxonJS2.js"
       ]
     },
     {
@@ -377,7 +377,7 @@ bcdui.bcduiCeFiles =
 if (!bcdui.config.useSaxonJs) {
   bcdui.bcduiCeFiles["groups"].forEach(function(group) {
     if (group["id"] == "3rdParty") {
-      group["files"] = group["files"].filter(function(file) { return file != "/js/3rdParty/saxonJs/SaxonJS2.js"; });
+      group["files"] = group["files"].filter(function(file) { return file != "/js/3rdParty/SaxonJS2.js"; });
     }
   });
 }

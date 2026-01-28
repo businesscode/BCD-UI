@@ -57,10 +57,13 @@ def js3rdPartyNpm = [
     ]
 js3rdPartyNpm = js3rdPartyNpm.findAll { project.hasProperty('bcdui.3rdPartyJs.'+it.key) }
 
-def copyUnmodified = ["xlsx.full.min.js": [ofn: "src/js/3rdParty/xlsx.full.min.js"]]
+def copyUnmodified = [
+  "xlsx.full.min.js": [ofn: "src/js/3rdParty/xlsx.full.min.js"]
+, "SaxonJS2.js": [ofn: "src/js/3rdParty/SaxonJS2.js"]
+]
 
 // list 3rdParty folders (src/js/3rdPary) which are kept locally (not minimized but modified)
-def local3rdPartyFolders = ["ckeditor", "handsontable", "saxonJs"]
+def local3rdPartyFolders = ["ckeditor", "handsontable"]
 
 //**********************************
 // Install node modules for our runtime. Needed for the (client) distribution
