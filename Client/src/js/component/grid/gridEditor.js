@@ -290,17 +290,6 @@ bcdui.component.grid.GridEditor.bcduiInputField.prototype.prepare = function(row
 /* ***************************************************************************************************************** */
 bcdui.component.grid.GridEditor.bcduiPeriodChooser = bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.extend();
 
-bcdui.component.grid.GridEditor.bcduiPeriodChooser.prototype.init = function() {
-
-  // move calendar from head to body (if not done yet)
-  if( jQuery("#bcdCalendar").parent()[0].nodeName == "HEAD" ) {
-    var bcdHolder = bcdui.util.getSingletonElement("bcdSingletonHolder", true);
-    jQuery(bcdHolder).prepend(jQuery("#bcdCalendar"));
-  }
-
-  bcdui.component.grid.GridEditor.bcduiWidgetBaseEditor.prototype.init.apply(this, arguments);
-}
-
 bcdui.component.grid.GridEditor.bcduiPeriodChooser.prototype.prepare = function(row, col, prop, td, originalValue, cellProperties) {
 
   this.objectId      = "bcduiPeriodChooser";
@@ -606,9 +595,9 @@ bcdui.component.grid.GridEditor.bcduiStatusModelEditor.prototype.open = function
   jQuery("body").append("<div style='display:none' class='bcdStatusModelEditor' title='" + this.title + "'>" +
         "<div class='bcdLoadContainer'></div>" +
         "<div class='bcdControls'>" +
-          "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_Ctrl_Ok' onClickAction='bcdui.component.grid.GridEditor.bcduiStatusModelEditor.takeData(this)'></bcd-buttonng>" +
-          "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_Ctrl_Clear' onClickAction='bcdui.component.grid.GridEditor.bcduiStatusModelEditor.clearData(this)'></bcd-buttonng>" +
-          "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_Ctrl_Cancel' onClickAction='bcdui.component.grid.GridEditor.bcduiStatusModelEditor.cancelData(this)'></bcd-buttonng>" +
+          "<bcd-buttonng class='gridAction' caption='" + bcdui.i18n.TAG + "bcd_Ctrl_Ok' data-action='takeData' onClickAction='bcdui.component.grid.gridButtonAction'></bcd-buttonng>" +
+          "<bcd-buttonng class='gridAction' caption='" + bcdui.i18n.TAG + "bcd_Ctrl_Clear' data-action='clearData' onClickAction='bcdui.component.grid.gridButtonAction'></bcd-buttonng>" +
+          "<bcd-buttonng class='gridAction' caption='" + bcdui.i18n.TAG + "bcd_Ctrl_Cancel' data-action='cancelData' onClickAction='bcdui.component.grid.gridButtonAction'></bcd-buttonng>" +
         "</div>" +
       "</div>");
   jQuery(".bcdStatusModelEditor").data("instance", this); // remember instance for button use

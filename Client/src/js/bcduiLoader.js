@@ -142,6 +142,7 @@ bcdui.bcduiCeFiles =
         , "/js/widgetNg/sideBySideChooser/sideBySideChooserPackage.js"
         , "/js/widgetNg/chipsChooser/chipsPackage.js"
         , "/js/widgetNg/universalFilter/universalFilterPackage.js"
+        , "/js/widgetNg/universalFilter/contextMenuResolver.js"
         , "/js/widgetNg/slider/sliderPackage.js"
         , "/js/widgetNg/slider/typedSliders.js"
         , "/js/widgetNg/quickEdit/quickEditPackage.js"
@@ -182,6 +183,7 @@ bcdui.bcduiCeFiles =
       "required": "backCompatibility",
       "files": [
           "/js/component/cube/cubeCreate.js"
+        , "/js/component/cube/cubeConfigurator/contextMenuResolver.js"
         , "/js/component/cube/cubeConfigurator/cubeConfigurator.js"
         , "/js/component/cube/cubeConfigurator/cubeConfiguratorDND.js"
         , "/js/component/cube/expandCollapseCells.js"
@@ -214,6 +216,7 @@ bcdui.bcduiCeFiles =
       "required": "optional",
       "files": [              
         "/js/component/far/configurator/farConfigurator.js"
+        ,"/js/component/far/contextMenuResolver.js"
         ,"/js/component/far/farModel.js"
         ,"/js/component/far/far.js"
         ,"/js/component/far/create.js"
@@ -240,6 +243,7 @@ bcdui.bcduiCeFiles =
       "files": [
           "/js/component/scorecard/scorecardModel.js"
         , "/js/component/scorecard/scorecardCreate.js"
+        , "/js/component/scorecard/contextMenuResolver.js"
         , "/js/component/scorecard/scorecardConfigurator.js"
         , "/js/component/scorecard/bcdAspects.js"
         , "/js/component/cube/templateManager/templateManager.js"
@@ -268,13 +272,14 @@ bcdui.bcduiCeFiles =
       "id": "bcduiGrid",
       "required": "optional",
       "files": [
-          "/js/3rdParty/numbro.js"
-        , "/js/3rdParty/handsontable.js"
+          "/js/3rdParty/handsontable/numbro.js"
+        , "/js/3rdParty/handsontable/handsontable.js"
         , "/js/component/grid/gridCreate.js"
         , "/js/component/grid/gridEditor.js"
+        , "/js/component/grid/contextMenuResolver.js"
       ],
       "css": [
-        "/js/3rdParty/handsontable.css"
+        "/js/3rdParty/handsontable/handsontable.css"
       ],
       "buildFolders": [
         "/js/component/grid"
@@ -284,17 +289,18 @@ bcdui.bcduiCeFiles =
       "id": "bcduiMessagesEditor",
       "required": "optional",
       "files": [
-          "/js/3rdParty/handsontable.js"
+          "/js/3rdParty/handsontable/handsontable.js"
         , "/js/3rdParty/ckeditor/ckeditorPackage/ckeditor.js"
         , "/js/3rdParty/ckeditor/ckeditor_jqueryPlugin.js"
         , "/js/component/grid/gridCreate.js"
         , "/js/component/grid/gridEditor.js"
+        , "/js/component/grid/contextMenuResolver.js"
         , "/js/widget/messages/bcduiHtmlEditor.js"
         , "/js/widget/messages/messagesEditor.js"
         , "/js/widget/messages/messagesViewer.js"
       ],
       "css": [
-        "/js/3rdParty/handsontable.css"
+        "/js/3rdParty/handsontable/handsontable.css"
       ],
       "buildFolders": [
         "/js/component/grid"
@@ -326,6 +332,7 @@ bcdui.bcduiCeFiles =
       "required": "optional",
       "files": [
         "/js/component/tree/treeCreate.js"
+      , "/js/component/tree/contextMenuResolver.js"
       ],
       "buildFolders": [
         "/js/component/tree"

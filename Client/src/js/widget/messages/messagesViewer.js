@@ -6,11 +6,11 @@ jQuery.extend(bcdui.widget, {
   /**
     * @param {Object} args The parameter map contains the following properties:
     * @param {(string|bcdui.core.RequestDocumentDataProvider)} [args.url] - optionally overwrite wrs servlet for getting data
-    * @param {String} [args.bindingSetId] - optionally overwrite bindingSetId
-    * @param {String} [args.dataStorage] - optionally use 'localStorage' or 'sessionStorage' to use browser cache instead of SubjectPreferences cookie
-    * @param {String} [args.mode] - optionally use 'icon' together with args.targetHtml to render a clickable icon, defaults to displaying new messages in a popup immediatly
-    * @param {String} [args.targetHtml] - optionally use this together with args.mode='icon', is not used otherwise
-    * @param {String} [args.popupOnNew] - optionally use this together with args.mode='icon' to show new messages immediatly
+    * @param {string} [args.bindingSetId] - optionally overwrite bindingSetId
+    * @param {string} [args.dataStorage] - optionally use 'localStorage' or 'sessionStorage' to use browser cache instead of SubjectPreferences cookie
+    * @param {string} [args.mode] - optionally use 'icon' together with args.targetHtml to render a clickable icon, defaults to displaying new messages in a popup immediatly
+    * @param {string} [args.targetHtml] - optionally use this together with args.mode='icon', is not used otherwise
+    * @param {string} [args.popupOnNew] - optionally use this together with args.mode='icon' to show new messages immediatly
    */
   messagesViewer: function(args) {
     // helper functions to store and fetch data, either from subjectPreferences or from local-/sessionStorage

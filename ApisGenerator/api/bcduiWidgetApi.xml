@@ -249,6 +249,11 @@
             If not given, an auto-id is generated.
           </Doc>
         </Param>
+        <Param name="clickResolver" type="string">
+          <Doc>
+            Function which gets a parameter bag with well known attributes and the dataset of the selected context menu entry.
+          </Doc>
+        </Param>
         <Param name="targetRendererId" type="string" isJSPParent="true">
           <Doc>
             The renderer the tooltip is attached to. The HTML listeners are placed on the
@@ -404,7 +409,7 @@
           </Example>
           <Example type="js"></Example>
         </Examples>
-        <Param name="caption" type="boolean">
+        <Param name="caption" type="string">
           <Doc>
             default '', it will be used as i18n key to translate the caption.
           </Doc>
@@ -529,16 +534,12 @@
             If true, let this input field get focus after creation.
           </Doc>
         </Param>
-        <Param name="onFocus" type="string">
-          <Doc>
-            Handler function NAME triggered on focus event.
-          </Doc>
-        </Param>
-        <Param name="onBlur" type="string">
-          <Doc>
-            Handler function NAME triggered on blur event.
-          </Doc>
-        </Param>
+
+        <Param name="onFocus" type="string"><Doc>Handler function NAME triggered on focus event.</Doc></Param>
+        <Param name="onBlur" type="string"><Doc>Handler function NAME triggered on blur event.</Doc></Param>
+        <Param name="onFocusAction" type="string"><Doc>Handler function NAME triggered on focus event.</Doc></Param>
+        <Param name="onBlurAction" type="string"><Doc>Handler function NAME triggered on blur event.</Doc></Param>
+
         <Param name="tabIndex" type="string">
           <Doc>
             Tab index of html element.
@@ -858,7 +859,7 @@
            A flag that can be set to 'true' if the target node should not be removed as soon as the value is empty.
           </Doc>
         </Param>
-        <Param name="skin" type="enum" value="radio|panel" default="radio">
+        <Param name="skin" type="enumString" value="radio|panel" default="radio">
           <Doc>Currently supporting radio (default) and panel style.</Doc>
         </Param>
       </Api>

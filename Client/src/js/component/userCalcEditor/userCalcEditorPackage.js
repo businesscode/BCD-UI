@@ -168,8 +168,8 @@ bcdui.component.userCalcEditor = Object.assign(bcdui.component.userCalcEditor,
         };
         bcdui.widget.showModalBox(params);
 
-        var tm = jQuery("#inputScale > input").attr("bcdTargetModelId");
-        var tx = jQuery("#inputScale > input").attr("bcdTargetModelXPath");
+        var tm = jQuery("#inputScale > .bcdInputField > input").attr("bcdTargetModelId");
+        var tx = jQuery("#inputScale > .bcdInputField > input").attr("bcdTargetModelXPath");
 
         // avoid an empty or illegal scale field
         if (tm != null && tx != null) {
@@ -222,11 +222,13 @@ bcdui.component.userCalcEditor = Object.assign(bcdui.component.userCalcEditor,
    * is called whenever a name is updated to validate against empty input and uniqueness check
    * @private
    */
-  _onNameUpdate : function(containerHtmlElement, formularHtmlContainer, inputEl){
-    var t = bcdui.component.userCalcEditor._getModelData(bcdui._migPjs._$(containerHtmlElement).get(0));
+  _onNameUpdate : function(){
+    const inputEl = this;
+    const containerHtmlElement = jQuery(inputEl).closest(".bcdUserCalcEditor").get(0);
+    var t = bcdui.component.userCalcEditor._getModelData(containerHtmlElement);
     var tempDataModel = bcdui.factory.objectRegistry.getObject(t.tempTargetModelId);
     var value = bcdui.widget._getDataFromXML(tempDataModel, t.tempTargetModelXPath + "/@caption");
-    var isEditMode = bcdui._migPjs._$(containerHtmlElement).get(0).isEditMode;
+    var isEditMode = containerHtmlElement.isEditMode;
 
     /**
      * @private
@@ -259,9 +261,9 @@ bcdui.component.userCalcEditor = Object.assign(bcdui.component.userCalcEditor,
       message = "Name is empty";
     }else{
       // skip uniqueness check if in editMode and the caption is still the original one
-      if(!isEditMode || value != bcdui._migPjs._$(containerHtmlElement).get(0).originalCaption){
+      if(!isEditMode || value != containerHtmlElement.originalCaption){
         if (t.uniqueOptionsModelXpath) {
-          var optionsModel = bcdui.factory.objectRegistry.getObject(bcdui._migPjs._$(formularHtmlContainer).attr("bcdoptionsmodelid"));
+          var optionsModel = bcdui.factory.objectRegistry.getObject(bcdui._migPjs._$(containerHtmlElement).attr("bcdoptionsmodelid"));
           // case insensitive check
           var isUnique = optionsModel.dataDoc.selectSingleNode(t.uniqueOptionsModelXpath+"[ translate(.,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz') = translate('"+value+"','ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')]") == null;
           if(!isUnique) {
@@ -380,11 +382,11 @@ bcdui.component.userCalcEditor = Object.assign(bcdui.component.userCalcEditor,
    * @param {HtmlElement} containerHtmlElement Widget container element.
    * @return The map contains the following properties:
    * <ul>
-   *   <li>targetModelId: {String} The identifier of target model.</li>
+   *   <li>targetModelId: {string} The identifier of target model.</li>
    *   <li>targetModel: {bcdui.core.DataProvider} The target model.</li>
-   *   <li>targetModelXPath: {String} The XPath in whole XML model data.</li>
+   *   <li>targetModelXPath: {string} The XPath in whole XML model data.</li>
    *   <li>doc: {DomDocument} The XML data of provider.</li>
-   *   <li>tempTargetModelId: {String} The identifier of temporary model.</li>
+   *   <li>tempTargetModelId: {string} The identifier of temporary model.</li>
    *   <li>tempTargetModelXPath: {bcdui.core.DataProvider} The XPath in whole temporary model.</li>
    * </ul>
    * @private

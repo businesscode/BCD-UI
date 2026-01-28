@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2024 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -211,6 +211,10 @@ public class BCDUIConfig extends HttpServlet {
 
     writer.println("};");
     writer.println("");
+
+    String unsafeEval = (String) (request.getAttribute("bcdUnsafeEval") != null ? request.getAttribute("bcdUnsafeEval") : "false");
+    if ("true".equals(unsafeEval))
+      writer.println("bcdui.config.unsafeEval = true;");
 
     writer.println("bcdui.core.xmlConstants = {");
     writer.println(StandardNamespaceContext.getInstance().getAsJs());

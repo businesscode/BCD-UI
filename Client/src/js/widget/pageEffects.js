@@ -619,9 +619,9 @@ bcdui.widget.pageEffects = Object.assign(bcdui.widget.pageEffects,
   /**
    * Returns the current status of the left or right sidebar and offers to expand/collapse it 
    * @param {Object} args The parameter map contains the following properties.
-   * @param {boolean} [args.side=left] - get or set status of left or right sidebar
+   * @param {string} [args.side="left"] - get or set status of 'left' or 'right' sidebar
    * @param {boolean} [args.visible] - set to false if the sidebar should collapse
-   * @return an object holding the current status of the selected sidebar  
+   * @return {{side: string, visible: boolean}} an object holding the current status of the selected sidebar
    */
   sideBarStatus: function(args) {
     args = args || {};

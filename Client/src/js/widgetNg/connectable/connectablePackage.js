@@ -25,7 +25,7 @@
   var XMLListener = class extends bcdui.widget.XMLDataUpdateListener
     {
       /**
-       * @member bcdui.widget.inputField.XMLListener
+       * @memberOf bcdui.widget.inputField.XMLListener
        */
       updateValue(){
         var identical = (this.listenerType == "target");
@@ -74,7 +74,7 @@
        * the widget value has been synced to the data model, 'memo' properties passed:
        *
        * - isValueEmpty {boolean}: if value is considered empty
-       * - value {String}: the value synced
+       * - value {string}: the value synced
        * - hasWritten {boolean}: if the value has been written or not, i.e. the value is not written if value has not changed
        *
        * @method
@@ -576,7 +576,7 @@
     },
 
     /**
-     * @return {array} an array with all selected values from all targets and returns as array
+     * @return {Array} an array with all selected values from all targets and returns as array
      * @private
      */
     _collectSelectedValues : function(){
@@ -833,7 +833,7 @@
       // setup our function handlers
       this.onBeforeChange = this.options.onBeforeChange || nop;
       this.onSelected = this.options.onSelected || nop;
-      this.onChange = this.options.onChange || nop;
+      this.onChange = this.options.onChange || this.options.onChangeAction || nop;
       this.generateItemHelperHtml = this.options.generateItemHelperHtml || function(event, item) {
         // custom helper rendering...we show up to 5 selected items (+ "..." if there are more)
         var selectedItems = this.container.children('.ui-selected').not(".ui-sortable-placeholder").add(item);
@@ -1528,6 +1528,12 @@
       this.cache={selector:{}};
     }
 
+    /**
+     * @param widgetInstance
+     * @param value
+     * @returns {*}
+     * @private
+     */
     _buildAncestorPath(widgetInstance, value){
       var elementInData = this._getOptionSelector(widgetInstance).valueNode(value);
       elementInData = elementInData.nodeType === 2 ? (elementInData.ownerElement || elementInData.selectSingleNode("parent::*")) : elementInData;

@@ -390,7 +390,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
    * wrs:R, wrs:I, wrs:M or wrs:D element. wrs:I rows are simply removed, wrs:R rows become wrs:D, wrs:D rows remain untouched
    * 
    * @param {DomElement} element - The wrs row to be deleted.
-   * @return {Boolean} True, if the element has been a valid wrs element
+   * @return {boolean} True, if the element has been a valid wrs element
    * which is applicable for this function (wrs:R, wrs:I, wrs:M or wrs:D) or
    * false otherwise.
    * @private
@@ -532,7 +532,8 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
     },
 
   /**
-   * Inserting rows
+   * Inserting empty wrs:I rows at the given location, respecting default values.
+   * Values can be filled in fn().
    * 
    * @param {Object} args - Parameter object with the following properties
    * @param {bcdui.core.DataProvider} args.model                   - Id of a DataProvider or the DataProvider itself (dp must be ready)
@@ -541,6 +542,12 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
    * @param {function}                [args.fn]                    - Callback function called after operation
    * @param {boolean}                 [args.insertBeforeSelection=true]
    * @param {boolean}                 [args.propagateUpdate=true]  - If false, model is not fired
+   *
+   * @example
+   *  bcdui.wrs.wrsUtil.insertRow({model: model, propagateUpdate: false, rowStartPos:1, rowEndPos:1, fn: function(){
+   *    bcdui.wrs.wrsUtil.setCellValue(model, 1, "comment_text", conf.comment);
+   *    bcdui.wrs.wrsUtil.setCellValue(model, 1, "scope", conf.scope);
+   *  });
    */
   insertRow: function(args)
   {
@@ -623,11 +630,11 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
    * @param {Object} args - Parameter object with the following properties
    * @param {string}                    validationId                            - 'bcdValidationId' attribute in ValidationResult/Wrs yields this value
    * @param {(string|bcdui.core.DataProvider)} args.model                       - Id of a DataProvider or the DataProvider itself (dp must be ready)
-   * @param {url}                       [args.stylesheetUrl=defauldValidation]  - URL to validation stylesheet, defaults to 'xslt/validate/validateWrs.xslt'
+   * @param {string}                    [args.stylesheetUrl="defauldValidation-stypesheet"]  - URL to validation stylesheet, defaults to 'xslt/validate/validateWrs.xslt'
    * @param {bcdui.core.DataProvider[]} args.dataProviders                      - additional data providers as parameters
    * @param {function}                  [args.fn]                               - callback function called after validation done, gets object as parameter, containig properties: validationResult: the wrs:ValidationResult node of resulting transformation, may be null
    * 
-   * @return  created transformation chain for the validation, it can be reused via bcdui.core.reExecute(_validatorTrafo, callBackFn);
+   * @return  {bcdui.core.TransformationChain} created transformation chain for the validation, it can be reused via bcdui.core.reExecute(_validatorTrafo, callBackFn);
    *          the data can be accessed via _validatorTrafo.getData() which returns wrs:ValidationResult or null or ValidationResult with empty wrs:Data
    */
   validateModel: function(args){
@@ -688,7 +695,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
    *                                                                            returns either NULL (valid) or { validationMessage:String }
    * @param {function}                            args.cellValidation.bRefSelector - function taking wrs:Header element and returns node-set of wrs:Columns/wrs:C to get validated
    * 
-   * @return wrsDoc
+   * @return {DomDocument} wrsDoc
    */
   wrsValidation : function(args){
     args=args||{cellValidation:{}};
@@ -815,7 +822,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
   /**
    * Convenience method to return error count in current document (possibly validated by validateWrs.xml)
    * @param {string|bcdui.core.DataProvider} wrs - Id of a DataProvider or the DataProvider itself (dp must be ready)
-   * @return -2: if no validation has been performed, -1: if the data provider is not ready yet, otherwise the number of errors found is returned
+   * @return {integer} -2: if no validation has been performed, -1: if the data provider is not ready yet, otherwise the number of errors found is returned
    */
   getValidationErrorCount: function(wrs){
     if(!wrs)return -1;
@@ -1011,7 +1018,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
    * @param {string}     validationId                        - validationId
    * @param {boolean}    doCreate                            - optional, in case no wrs:ValidationResult/wrs:Wrs exists, create one (empty)
    * 
-   * @return {Node} wrs:ValidationResult/wrs:Wrs or NULL if none exists and doCreate=false
+   * @return {DomNode} wrs:ValidationResult/wrs:Wrs or NULL if none exists and doCreate=false
    */
   getValidationResult : function(wrs, validationId, doCreate){
 
@@ -1090,7 +1097,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
    * @param {string|number}                   columnIdOrPos      ID or 1-based position of column
    * @param {string}                          [value=null]  If NULL then wrs:null node is appended to column
    *
-   * @return true if value has been set, false otherwise
+   * @return {boolean} true if value has been set, false otherwise
    */
   setCellValue : function(wrs, rowId, columnIdOrPos, value){
     var dataProvider = null;
@@ -1182,7 +1189,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
    * @param {string}                  rowId                   - Id of row to be deleted
    * @param {boolean}                 [propagateUpdate=false] - If true, fire after change
    *
-   * @return true if given row has been modified and converted to wrs:D or false
+   * @return {boolean} true if given row has been modified and converted to wrs:D or false
    */
   deleteRow : function(model, rowId, propagateUpdate){
     var model = (typeof model == "string") ? bcdui.factory.objectRegistry.getObject(model) : model;
@@ -1209,8 +1216,8 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
    * delete rows identified by the column value(s)
    * 
    * @param {DomDocument|DomElement}  wrs    the Wrs document
-   * @param {number|string}     colIdOrPos  column id or position
-   * @param {array}             values      array of string values to lookup
+   * @param {number|string}           colIdOrPos  column id or position
+   * @param {Array<string>}           values      array of string values to lookup
    */
   deleteRowByColumnValue : function(wrs, colIdOrPos, values){
     if(!Array.isArray(values)){
@@ -1246,7 +1253,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
    * @param {string}                  rowId                   - Id of row to be deleted
    * @param {boolean}                 [propagateUpdate=false] - If true, fire after change
    *
-   * @return true if given row has been restored or false if row is not wrs:M nor wrs:D
+   * @return {boolean} true if given row has been restored or false if row is not wrs:M nor wrs:D
    */
   restoreRow : function(model, rowId, propagateUpdate){
     var model = (typeof model == "string") ? bcdui.factory.objectRegistry.getObject(model) : model;
@@ -1438,7 +1445,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
   /**
    * applies number rounding at defined wrs:Header/wrs:Columns/wrs:C/@scale
    * @param {DomDocument} wrsDoc - the Wrs document to apply changes on
-   * @return wrsDoc
+   * @return {DomDocument} wrsDoc
    */
   applyScale : wrsDoc => {
     Array.from(wrsDoc.selectNodes("/*/wrs:Header/wrs:Columns/wrs:C[@scale]")).forEach(function(headerCol) {
@@ -1500,7 +1507,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
      * @param {string} xPath - xPath pointing to value (can include dot template placeholders which get filled with the given params)
      * @param {Object} [params] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions 
      * @param {string} [defaultValue] - default value in case xPath value does not exist
-     * @return text value stored at xPath (or null if no text was found and no defaultValue supplied)
+     * @return {string} text value stored at xPath (or null if no text was found and no defaultValue supplied)
      */
   read(doc, xPath, params, defaultValue) {
     var def = (typeof params == "string") ? params : defaultValue;
@@ -1525,7 +1532,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
    *     Example: bcdui.wkModels.guiStatus.write("/guiStatus:Status/guiStatus:ClientSettings/guiStatus:Test[@caption='{{=it[0]}}' and @caption2='{{=it[1]}}']", ["china's republic", "drag\"n drop"])
    * @param {string}  [value]      - Optional value which should be written, for example to "/n:Root/n:MyElem/@attr" or with "/n:Root/n:MyElem" as the element's text content.
    *    If not provided, the xPath contains all values like in "/n:Root/n:MyElem[@attr='a' and @attr1='b']" or needs none like "/n:Root/n:MyElem" 
-   * @return {Node} the resulting element (either newly created or existing one)
+   * @return {DomNode} the resulting element (either newly created or existing one)
    */
   write(doc, xPath, params, value) {
     const v = (typeof params != "object") ? params : typeof value != "undefined" ? value : null;

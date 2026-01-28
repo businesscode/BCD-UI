@@ -141,7 +141,7 @@ public class ErrorLogEvent extends LogEventBase {
   }
 
   /**
-   * @return the requestUrl as of {@link HttpServletRequest#getRequestURL() see #getRequestUrl(HttpServletRequest)
+   * @return the requestUrl as of {@link HttpServletRequest#getRequestURL()} see #getRequestUrl(HttpServletRequest)
    */
   public String getRequestUrl() {
     return requestUrl;

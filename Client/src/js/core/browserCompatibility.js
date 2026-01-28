@@ -85,8 +85,8 @@ bcdui.core.browserCompatibility = {
 
       /**
        * removes obsolete namespace declarations and moves used ones to the root element
-       * @param doc The document (doc or string) which should be cleaned
-       * @returns {String} The serialized and namespace-cleaned representation of the doc
+       * @param {string|document} doc The document (doc or string) which should be cleaned
+       * @returns {string} The serialized and namespace-cleaned representation of the doc
        */
     removeObsoleteNS: function(serializedDoc)
       {
@@ -361,8 +361,8 @@ Element.prototype.__defineSetter__("text", function(txt)
  * 1) An xsl is embedded in another document and extracted, serialized and used to create a new static model like scorecard aspects,
  * the serializers do not include namespace declarations then, which are only within attributes like match or select
  * 2) Same applies for gecko and webkit for xslt generation
- * @param {String} serializedDoc The doc to work on
- * @return {String} The serialized doc with the updated root element.
+ * @param {string} serializedDoc The doc to work on
+ * @return {string} The serialized doc with the updated root element.
  * @private
  */
 bcdui.core.browserCompatibility._addDefaultNamespacesToDocumentElement = function(serializedDoc)

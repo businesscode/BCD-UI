@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
 {
   /**
   * @param {Object} args The parameter map contains the following properties:
-  * @param {bcdui.core.DataProvider} [args.config=./gridConfiguration.xml]                  - The model containing the grid configuration data. If it is not present a SimpleModel with the url  './gridConfiguration.xml' is created.
+  * @param {bcdui.core.DataProvider} [args.config="./gridConfiguration.xml"]                - The model containing the grid configuration data. If it is not present a SimpleModel with the url  './gridConfiguration.xml' is created.
   * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the GridModel registers itself at {@link bcdui.factory.objectRegistry}
   * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel, containing the filters as /SomeRoot/f:Filter
   * @param {chainDef}                [args.saveChain]                                       - The definition of the transformation chain
@@ -58,7 +58,7 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
   * @param {Object}                  [args.serverSidedPagination=false]                     - Set to true if you want to enable server sided pagination
   * @param {bcdui.core.DataProvider} [args.pagerModel=bcdui.wkModels.guiStatus]             - StatusModel of the pagination information
   * @param {chainDef}                [args.requestPostChain]                                - The definition of the transformation chain
-  * @param {modelUrl}                [args.modelUrl=WrsServlet]                             - This is a string or string- DataProvider with the URL which to send the requestModel result to
+  * @param {string|bcdui.core.DataProvider} [args.modelUrl='WrsServlet']                    - This is a string or string- DataProvider with the URL which to send the requestModel result to
  */
   constructor(args) {
     // Evaluate default parameters
@@ -154,11 +154,14 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
     this.validationChain = args.validationChain;
     this.validationParameters = args.validationParameters;
   }
+  /**
+   * @inheritDoc
+   */
   getClassName() {return "bcdui.component.grid.GridModel";}
 }
 
 /**
- * Creates a grid front end based on given data or a configuration
+ * Creates a grid UI based on given data or a configuration allowing to edit the data
  * @extends bcdui.core.Renderer
 */
 bcdui.component.grid.Grid = class extends bcdui.core.Renderer
@@ -166,13 +169,14 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   /**
   * @param args The parameter map contains the following properties:
   * @param {targetHtmlRef}           args.targetHtml                                        - A reference to the HTML DOM Element where to put the output
-  * @param {bcdui.core.DataProvider} [args.config=./gridConfiguration.xml]                  - The model containing the grid configuration data. If it is not present a SimpleModel with the url  './gridConfiguration.xml' is created.
+  * @param {bcdui.core.DataProvider} [args.config="./gridConfiguration.xml"]                - The model containing the grid configuration data. If it is not present a SimpleModel with the url  './gridConfiguration.xml' is created.
   * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel (default is 'guiStatusEstablished'), containing the filters as /SomeRoot/f:Filter
   * @param {bcdui.core.DataProvider} [args.inputModel]                                      - WRS or GridModel which is used, if not provided, it is generated out of the config. If provided, config is ignored unless it is set explicitly
   * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the Grid registers itself at {@link bcdui.factory.objectRegistry}
   * @param {Object}                  [args.hotArgs]                                         - Arguments which are extended to handsontable creation
   * @param {string|chainDef}         [args.tooltipChain]                                    - To overwrite default tooltip chain. An empty string will disable tooltips, otherwise the default gridTooltip.xslt is used
   * @param {(boolean|string)}        [args.contextMenu=false]                               - If true, grid's default context menu is used, otherwise provide the url to your context menu xslt here.
+  * @param {(function|string)}       [args.contextMenuResolver]                             - Function which gets a parameter bag with well known attributes and the dataset of the selected context menu entry. Should return false if action is not provided so that default functions are called.
   * @param {function}                [args.customSave]                                      - Custom save function
   * @param {function}                [args.afterAddRow]                                     - Custom function(args) which is called after a row was added (args.rowNode, wrs row node which was added, args.headerMeta wrs header object)
   * @param {chainDef}                [args.saveChain]                                       - A chain definition which is used for the grid saving operation 
@@ -197,7 +201,9 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   * @param {integer}                 [args.paginationSize=20]                               - Set pagination page size (and enable pagination)
   * @param {boolean}                 [args.paginationAllPages=false]                        - Set pagination show all option (and enable pagination)
   * @param {chainDef}                [args.requestPostChain]                                - The definition of the transformation chain
-  * @param {modelUrl}                [args.modelUrl=WrsServlet]                             - This is a string or string- DataProvider with the URL which to send the requestModel result to
+  * @param {string|bcdui.core.DataProvider} [args.modelUrl='WrsServlet']                    - This is a string or string- DataProvider with the URL which to send the requestModel result to
+  * @param {string}                  [args.exportFileName]                                  - Filename for grid export
+  * @param {boolean}                 [args.disableExport=false]                             - Disable export functionality.
   */
   constructor(args) {
     var id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("grid");
@@ -296,6 +302,8 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     this.serverSidedPagination = args.serverSidedPagination;
     this.pageBuffer = {};
     this.validationResultPageBuffer = {};
+    this.exportFileName = args.exportFileName;
+    this.disableExport = args.disableExport;
 
     // limitation for now, since we need to update rowStart/rowEnd in the gridModel request, we disallow external wrs for the moment 
     if (args.inputModel)
@@ -374,6 +382,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     this.isReadOnlyCell = args.isReadOnlyCell || function(){return false;}
     this.actionSave = args.customSave || this.save;
     this.customAfterAddRow = args.afterAddRow;
+    /** @private */
     this.afterAddRow = function(argsAddRow) {
   
       // fill new cell with value if column is mandatory and the optionsmodel only got one value
@@ -826,12 +835,15 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
       }.bind(this));
     }.bind(this) );
   }
-  
+
+  /**
+   * @inheritDoc
+   */
   getClassName() {return "bcdui.component.grid.Grid";}
 
   /**
-   *  helper function for codeCaption mapping and rowDependencies
-   * @return object
+   * Helper function for codeCaption mapping and rowDependencies
+   * @return {string}
    * @private
    */
   _getRefValue(references, rowId, lookUp) {
@@ -1188,7 +1200,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   /**
    * function which is put in front of a renderer which renders a cell with references
    * returns the caption instead of the code and adds an error in case the referenced value is not available
-   * @return code from caption
+   * @return {string} code from caption
    * @private
    */
   _renderByReference(rowIdx, col, value) {
@@ -2902,10 +2914,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
   if (this.defaultButtons) {
       if (this.allowNewRows) 
-        buttonCell.append("<bcd-buttonNg class='gridAction' caption='"+bcdui.i18n.TAG+"bcd_Grid_RowAdd' onClickAction='bcdui.factory.objectRegistry.getObject(\""+this.id+"\").actionAddRow();'></bcd-buttonNg>");
-      buttonCell.append("<bcd-buttonNg class='gridAction' caption='"+bcdui.i18n.TAG + (this.isReadOnly ? "bcd_Edit_Reload" : "bcd_Edit_ResetAll") + "' onClickAction='bcdui.factory.objectRegistry.getObject(\""+this.id+"\").actionReset();'></bcd-buttonNg>");
+        buttonCell.append("<bcd-buttonNg class='gridAction' caption='"+bcdui.i18n.TAG+"bcd_Grid_RowAdd' data-id='"+this.id+"' data-action='actionAddRow' onClickAction='bcdui.component.grid.gridButtonAction'></bcd-buttonNg>");
+      buttonCell.append("<bcd-buttonNg class='gridAction' caption='"+bcdui.i18n.TAG + (this.isReadOnly ? "bcd_Edit_Reload" : "bcd_Edit_ResetAll") + "' data-id='"+this.id+"' data-action='actionReset' onClickAction='bcdui.component.grid.gridButtonAction'></bcd-buttonNg>");
       if (! this.isReadOnly)
-        buttonCell.append("<bcd-buttonNg class='gridAction' caption='"+bcdui.i18n.TAG+"bcd_Edit_Save'     onClickAction='bcdui.factory.objectRegistry.getObject(\""+this.id+"\").actionSave();'></bcd-buttonNg>");
+        buttonCell.append("<bcd-buttonNg class='gridAction' caption='"+bcdui.i18n.TAG+"bcd_Edit_Save' data-id='"+this.id+"' data-action='actionSave' onClickAction='bcdui.component.grid.gridButtonAction'></bcd-buttonNg>");
     }
     jQuery("#"+this.targetHtml).append(table);
 
@@ -3124,7 +3136,12 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           if (typeof grid.wrsHeaderMeta[argsTooltip.bcdColIdent] != "undefined")
             isDocument = grid.getEnhancedConfiguration().query("/*/grid:Columns/grid:C[position()='" + grid.wrsHeaderMeta[argsTooltip.bcdColIdent].pos + "']").getAttribute("isDocument") === "true";
           doc.selectSingleNode("/*/wrs:Data").setAttribute("isDocument", "" + isDocument);
-          
+
+          var isHtml = false;
+          if (typeof grid.wrsHeaderMeta[argsTooltip.bcdColIdent] != "undefined")
+            isHtml = grid.getEnhancedConfiguration().query("/*/grid:Columns/grid:C[position()='" + grid.wrsHeaderMeta[argsTooltip.bcdColIdent].pos + "']").getAttribute("isHtml") === "true";
+          doc.selectSingleNode("/*/wrs:Data").setAttribute("isHtml", "" + isHtml);
+
           var references = grid.optionsModelInfo[argsTooltip.bcdColIdent];
           if (references) {
             var index = grid.wrsHeaderMeta[argsTooltip.bcdColIdent].pos;
@@ -3233,12 +3250,26 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           , allowSorting: "" + this.columnSorting
           , gridModel: this.gridModel
           , gridId: this.id
-          , gotExport: "" + (typeof bcdui.component.exports != "undefined" && typeof bcdui.component.exports.exportToExcelTemplate == "function")
+          , gotExport: "" + (typeof bcdui.component.exports != "undefined" && typeof bcdui.component.exports.exportToExcelTemplate == "function") && !this.disableExport
           , rowIsDisabled: new bcdui.core.ConstantDataProvider({id: this.id + "_rowIsDisabled", name: "rowIsDisabled", value: ""})
           , rowsSelected:  new bcdui.core.ConstantDataProvider({id: this.id + "_rowsSelected", name: "rowsSelected", value: ""})
           }
         });
-        bcdui.widget.createContextMenu({ targetRendererId: this.id, refreshMenuModel: true, tableMode: true, inputModel: this.contextMenu });
+
+        let contextMenuResolver = args.contextMenuResolver || function() { return false; };
+        if (typeof contextMenuResolver == "string")
+          contextMenuResolver = bcdui.util._toJsFunction(contextMenuResolver);
+
+        bcdui.widget.createContextMenu({
+          targetRendererId: this.id
+        , refreshMenuModel: true
+        , tableMode: true
+        , inputModel: this.contextMenu
+        , clickResolver: function(args) {
+          if (!contextMenuResolver(args))
+            bcdui.component.grid.resolveContextMenu(args);
+          }
+        });
       }
 
       // context menu actions
@@ -3406,8 +3437,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
       var theGrid = this;
       jQuery("#" + this.targetHtml).on("gridActions:fullDataExport", function(evt){
+        if (this.disableExport)
+          return;
         if (typeof bcdui.component.exports != "undefined" && typeof bcdui.component.exports.exportToExcelTemplate == "function") {
-          bcdui.component.exports.exportToExcelTemplate({inputModel: 
+          bcdui.component.exports.exportToExcelTemplate({fileName: this.exportFileName, inputModel: 
             new bcdui.core.ModelWrapper({
               inputModel: this.gridModel
             , chain: function(doc) {
@@ -3718,6 +3751,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
     }
   }
 
+  /**
+   * @private
+   * @param memo
+   */
   actionAddRow(memo) {
     jQuery("#" + this.htTargetHtmlId).trigger("gridActions:rowAdd", memo);
   }
@@ -3739,6 +3776,30 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   }
 }
 
+bcdui.component.grid = Object.assign(bcdui.component.grid,
+/** @lends bcdui.component.grid */
+{
+  gridButtonAction() {
+    const htmlElement = jQuery(this).hasClass("gridAction") ? this : jQuery(this).closest(".gridAction").get(0);
+    const gridRendererId = jQuery(htmlElement).closest("*[bcdRendererId]").attr("bcdRendererId") || "";
+    const data = htmlElement.dataset;
+    if (data && data.action) {
+       if (data.action == "actionAddRow" && data.id)
+         bcdui.factory.objectRegistry.getObject(data.id).actionAddRow();
+       if (data.action == "actionReset" && data.id)
+         bcdui.factory.objectRegistry.getObject(data.id).actionReset();
+       if (data.action == "actionSave" && data.id)
+         bcdui.factory.objectRegistry.getObject(data.id).actionSave();
+       if (data.action == "takeData")
+         bcdui.component.grid.GridEditor.bcduiHtmlEditor.takeData(htmlElement);
+       if (data.action == "clearData")
+         bcdui.component.grid.GridEditor.bcduiHtmlEditor.clearData(htmlElement);
+       if (data.action == "cancelData")
+         bcdui.component.grid.GridEditor.bcduiHtmlEditor.cancelData(htmlElement);
+    }
+  }
+});
+
 
 /************************
  * Glue-ware for declarative environments, not to be used directly
@@ -3748,7 +3809,7 @@ bcdui.component = Object.assign(bcdui.component,
 {
   /**
    * Helper for jsp and XAPI and custom HTMLElements. First waits for all dependencies to be available
-   * @param {bcdui.core.DataProvider} [args.config=./gridConfiguration.xml]                  - The model containing the grid configuration data. If it is not present a SimpleModel with the url  './gridConfiguration.xml' is created.
+   * @param {bcdui.core.DataProvider} [args.config="./gridConfiguration.xml"]                - The model containing the grid configuration data. If it is not present a SimpleModel with the url  './gridConfiguration.xml' is created.
    * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the GridModel registers itself at {@link bcdui.factory.objectRegistry}
    * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel, containing the filters as /SomeRoot/f:Filter
    * @param {chainDef}                [args.saveChain]                                       - The definition of the transformation chain
@@ -3788,13 +3849,14 @@ bcdui.component = Object.assign(bcdui.component,
   /**
    * Helper for jsp and XAPI and custom HTMLElements. First waits for all dependencies to be available
    * @param {targetHtmlRef}           args.targetHtml                                        - A reference to the HTML DOM Element where to put the output
-   * @param {bcdui.core.DataProvider} [args.config=./gridConfiguration.xml]                  - The model containing the grid configuration data. If it is not present a SimpleModel with the url  './gridConfiguration.xml' is created.
+   * @param {bcdui.core.DataProvider} [args.config="./gridConfiguration.xml"]                "- The model containing the grid configuration data. If it is not present a SimpleModel with the url  './gridConfiguration.xml' is created.
    * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel (default is 'guiStatusEstablished'), containing the filters as /SomeRoot/f:Filter
    * @param {bcdui.core.DataProvider} [args.inputModel]                                      - WRS or GridModel which is used, if not provided, it is generated out of the config. If provided, config is ignored unless it is set explicitly
    * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the Grid registers itself at {@link bcdui.factory.objectRegistry}
    * @param {Object}                  [args.hotArgs]                                         - Arguments which are extended to handsontable creation
    * @param {string}                  [args.tooltipChain]                                    - To overwrite default tooltip chain. An empty string will disable tooltips, otherwise the default gridTooltip.xslt is used
    * @param {(boolean|string)}        [args.contextMenu=false]                               - If true, grid's default context menu is used, otherwise provide the url to your context menu xslt here.
+   * @param {(function|string)}       [args.contextMenuResolver]                             - Function which gets a parameter bag with well known attributes and the dataset of the selected context menu entry. Should return false if action is not provided so that default functions are called.
    * @param {function}                [args.customSave]                                      - custom save function
    * @param {function}                [args.afterAddRow]                                     - custom function(args) which is called after a row was added (args.rowNode, wrs row node which was added, args.headerMeta wrs header object)
    * @param {chainDef}                [args.saveChain]                                       - A chain definition which is used for the grid saving operation 
@@ -3819,6 +3881,8 @@ bcdui.component = Object.assign(bcdui.component,
    * @param {boolean}                 [args.forceAddAtBottom=false]                          - Always add a new row at the bottom, no matter if topMode or pagination
    * @param {boolean}                 [args.disableDeepKeyCheck=false]                       - Set this to true if you really want to disable the deep key check which is active if your grid is only a subset of the underlying table
    * @param {boolean}                 [args.ignoreKeyCase=false]                             - Set this to true if the key test should not be case sensitive
+   * @param {modelUrl}                [args.exportFileName]                                  - Filename for grid export
+   * @param {boolean}                 [args.disableExport=false]                             - Disable export functionality.
    * @private
    */
   createGrid: function( args )
@@ -3835,6 +3899,7 @@ bcdui.component = Object.assign(bcdui.component,
         hotArgs:              args.hotArgs,
         tooltipChain:         args.tooltipChain,
         contextMenu:          args.contextMenu,
+        contextMenuResolver:  args.contextMenuResolver,
         customSave:           args.customSave,
         afterAddRow:          args.afterAddRow,
         saveChain:            bcdui.factory.objectRegistry.getObject(args.saveChain),
@@ -3852,6 +3917,9 @@ bcdui.component = Object.assign(bcdui.component,
         forceAddAtBottom:     args.forceAddAtBottom,
         disableDeepKeyCheck:  args.disableDeepKeyCheck,
         ignoreKeyCase:        args.ignoreKeyCase,
+        modelUrl:             args.modelUrl,
+        exportFileName:       args.exportFileName,
+        disableExport:        args.disableExport,
         columnFiltersGetCaptionForColumnValue: args.columnFiltersGetCaptionForColumnValue,
         columnFiltersCustomFilter:             args.columnFiltersCustomFilter,
         defaultButtons:                        args.defaultButtons,

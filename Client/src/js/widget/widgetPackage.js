@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -24,8 +24,9 @@ jQuery.extend(bcdui.widget,
   /**
    * well known html dom events, which are fired by widgets at given circumstances,
    * these events are fired by widgets using jQuery.trigger() and can be consumed by
-   * jQuery.on()
-   *
+   * jQuery.on(). Values: writeValueToModel
+   * @readonly
+   * @enum {string}
    */
   events : {
     /**
@@ -35,8 +36,8 @@ jQuery.extend(bcdui.widget,
   },
 
   /**
-   * Creates a field where the user can enter a value or select it from a list of
-   * pre-defined values. These values are copied to a target model under a specified
+   * Creates a field where the user can enter a value or select it from a list of pre-defined values.
+   * These values are copied to a target model under a specified
    * target XPath. When there is a list of allowed values the inputField can also
    * apply a caption-value translation so that the displayed values can differ from
    * the data that is actually placed in XML.This function creates an input field in
@@ -137,7 +138,7 @@ jQuery.extend(bcdui.widget,
    * @param {string}        [args.url]                            The URL the model is loaded from. This URL can be extended with a compressed request document if a requestDocument parameter is provided. If omitted the WrsServlet is taken.
    * @param {string}        [args.multiSelect=false]              Make a multi selected dimension chooser. Can be 'true'|'false'|'check', 'false' is default.
    * @param {boolean}       [args.allowMixedSelect=false]         Allow heterogene selection in multi select chooser.
-   * @param {string}        [args.checkBoxCaption=MultiSelect]    Caption of checkbox to turn on and of the multiselect.
+   * @param {string}        [args.checkBoxCaption="MultiSelect"]  Caption of checkbox to turn on and of the multiselect.
    * @param {string}        [args.clearOption=false]              If != 'false', an additional option to clear the level selection is shown in the drop-down box. If 'true' bcd_autoCompletionBox_clearOption is used for the text, otherwise this is the i18n key.
    * @param {string}        [args.clearOptionLevel=false]         See clearOption. This value is for the level selector input box only. If not specified, clearOption is used.
    * @param {string}        [args.emptyValue=false]               If != 'false', a text is displayed if no level is selected. If 'true' bcd_autoCompletionBox_emptyValue is used for the text, otherwise this is the i18n key.
@@ -259,7 +260,7 @@ jQuery.extend(bcdui.widget,
    * @param {string}        [args.widgetCaption]                  A caption which is used as prefix for navPath generation for this widget.
    * @param {boolean}       [args.enableNavPath]                  Set to true if widget should not be added to navpath handling.
    * @param {string}        [args.label]                          If provided, renders label element to this widget
-   * @param {string}        [args.skin=radio]                     Decide between radio or panel skin.
+   * @param {string}        [args.skin="radio"]                   Decide between radio or panel skin.
    */
   createSingleSelect: function(args)
     {
@@ -466,7 +467,7 @@ jQuery.extend(bcdui.widget,
    * @param {string}        [args.optionsModelRelativeValueXPath] xPath expression relative to 'optionsModelXPath' providing values for options to display, if this is defined, values referenced by optionsModelXPath are treated as captions. Wins over @caption and @ignoreCaption param.
    * @param {boolean}       [args.validate=true]                  Turn on-off the validation of the formula.
    * @param {boolean}       [args.validateVariableNamesCheckbox=false] Show or hide checkbox for validate variables option.
-   * @param {string}        [args.skipValidationCaption=Skip check of values] Caption to be shown for skipping validation. Default is 'Skip check of values'.
+   * @param {string}        [args.skipValidationCaption="Skip check of values"] Caption to be shown for skipping validation. Default is 'Skip check of values'.
    * @param {boolean}       [args.skipServerSidedFunctions=false] Set to true to disable usage of server sided functions like CntDist. Default is false.
    * @param {string}        [args.widgetCaption]                  A caption which is used as prefix for navPath generation for this widget.
    * @param {boolean}       [args.enableNavPath]                  Set to true if widget should not be added to navpath handling.
@@ -596,7 +597,7 @@ jQuery.extend(bcdui.widget,
     },
     /**
      * this method replace always < with &lt; and if the value is for an attribute targetxpath single and double quotes will be replaced as well
-     * @param {String} value
+     * @param {string} value
      * @private
      */
 
@@ -610,7 +611,7 @@ jQuery.extend(bcdui.widget,
     },
     
     /**
-     * @param {String} value
+     * @param {string} value
      * @private
      */
     _unescapeText: function( targetXpath, value){
@@ -623,12 +624,12 @@ jQuery.extend(bcdui.widget,
     },
     /**
      * @param {bcdui.core.DataProvider} targetModel
-     * @param {String} targetModelXPath
-     * @param {String} value
-     * @param {Boolean} [keepEmptyValueExpression]
+     * @param {string} targetModelXPath
+     * @param {string} value
+     * @param {boolean} [keepEmptyValueExpression]
      * @param {func} cbBeforeCommit func to execute before commit
      * @private
-     * @return true in case the target document was changed
+     * @return {boolean} true in case the target document was changed
      */
     _copyDataFromHTMLElementToTargetModel: function( targetModel, targetModelXPath, value,  keepEmptyValueExpression, isRadio, cbBeforeCommit){
       return bcdui.widget._copyDataAndCaptionFromHTMLElementToTargetModel( targetModel, targetModelXPath, value, null, keepEmptyValueExpression, isRadio, cbBeforeCommit );
@@ -638,11 +639,11 @@ jQuery.extend(bcdui.widget,
    * @private
    * @param {bcdui.core.DataProvider} targetModel
    * @param {bcdui.core.DataProvider} targetModelXPath
-   * @param {String} value
-   * @param {String} caption
-   * @param {Boolean} [keepEmptyValueExpression]
+   * @param {string} value
+   * @param {string} caption
+   * @param {boolean} [keepEmptyValueExpression]
    * @param {func} cbBeforeCommit - func to execute before commit
-   * @return true in case the target document was changed
+   * @return {boolean} true in case the target document was changed
    */
   _copyDataAndCaptionFromHTMLElementToTargetModel: function(targetModel, targetModelXPath,  value,  caption, keepEmptyValueExpression, isRadio, cbBeforeCommit)
     {
@@ -788,7 +789,9 @@ jQuery.extend(bcdui.widget,
       }
     },
   /**
-  * Enumeration with modalbox types
+  * Enumeration with modalBox types. Values: ok | ‚warning | error | plainText
+  * @readonly
+  * @enum {number}
   */
   modalBoxTypes : { ok : 0, warning: 1, error: 2, plainText: 3},
 
@@ -832,17 +835,16 @@ jQuery.extend(bcdui.widget,
         args.onclick = '';
       if (typeof args.resizable == 'undefined')
         args.resizable = false;
-      var onclick = "bcdui.widget.hideModalBox();";
 
       var text = "";
       if (args.modalBoxType == bcdui.widget.modalBoxTypes.plainText)
         text = args.message;
       else if (args.modalBoxType == bcdui.widget.modalBoxTypes.ok)
-        text = '<div class="bcdModalMessage" ><div class="bcdSuccess"><center><b>' + args.message + '</b></center><div class="bcdButton"><a id="MB_OkButton" href="javascript:void(0)" onclick="' + onclick + '"> OK </a></div></div></div>';
+        text = '<div class="bcdModalMessage" ><div class="bcdSuccess"><center><b>' + args.message + '</b></center><div class="bcdButton"><a class="action" id="MB_OkButton"> OK </a></div></div></div>';
       else if (args.modalBoxType == bcdui.widget.modalBoxTypes.warning)
-        text = '<div class="bcdModalMessage" ><div class="bcdWarning"><center><b>' + args.message + '</b></center><div class="bcdButton"><a id="MB_WarningButton" href="javascript:void(0)" onclick="' + onclick + '"> OK </a></div></div></div>';
+        text = '<div class="bcdModalMessage" ><div class="bcdWarning"><center><b>' + args.message + '</b></center><div class="bcdButton"><a class="action" id="MB_WarningButton"> OK </a></div></div></div>';
       else if (args.modalBoxType == bcdui.widget.modalBoxTypes.error)
-        text = '<div class="bcdModalMessage" ><div class="bcdError"><center><b>' + args.message + '</b></center><div class="bcdButton"><a id="MB_ErrorButton" href="javascript:void(0)" onclick="' + onclick + '"> OK </a></div></div></div>';
+        text = '<div class="bcdModalMessage" ><div class="bcdError"><center><b>' + args.message + '</b></center><div class="bcdButton"><a class="action" id="MB_ErrorButton"> OK </a></div></div></div>';
 
       // take over either created html text or prepared html via id
       bcdui.util.getSingletonElement("bcdModalBoxDiv")
@@ -861,6 +863,9 @@ jQuery.extend(bcdui.widget,
           , closeText: "\u2716"
           , title: args.title
           , open: function() {
+            
+            jQuery("#bcdModalBoxDiv").find("a.action").off("click");
+            jQuery("#bcdModalBoxDiv").find("a.action").on("click", bcdui.widget.hideModalBox);
 
             // set auto width/height again since upper method does not seem to work on all browsers and jQuery seems to calculate a px value
             if (args.width == "auto") jQuery('#bcdModalBoxDiv').css('width','auto');
@@ -883,7 +888,7 @@ jQuery.extend(bcdui.widget,
             if (typeof args.onclick == "function")
               args.onclick();
             else if (args.onclick != "")
-              eval(args.onclick);
+              bcdui.util._executeJsFunctionFromString(args.onclick);
           }
         }
       );
@@ -968,10 +973,22 @@ jQuery.extend(bcdui.widget,
           , targetHtml: args.targetHtml
         });
         renderer.onceReady(function() {
+
+          jQuery("#" + args.targetHtml + " .isClickable").off("click");
+          jQuery("#" + args.targetHtml + " .isClickable").on("click", function(event) {
+            const bcdAction = jQuery(event.target).attr("bcdAction") || "";
+            if (bcdAction != "")
+              bcdui.util._executeJsFunctionFromString(bcdAction);
+          });
+
           jQuery("#" + args.targetHtml + " .bcdMenu").show();
           if (_menuHandlerClassName) {
-            var strVal = "window." + _menuHandlerVarName + " = new "+_menuHandlerClassName + "({name:'" + _menuHandlerVarName+"'" + ", customConfigFunction:function configMenu(){this.closeDelayTime = 300;}" + ",rootIdOrElement:'"+_menuRootElementId+"'});";
-            eval(strVal);
+            const o = bcdui.util._getJsObjectFromString(_menuHandlerClassName);
+            window[_menuHandlerVarName] = new o({
+              name: _menuHandlerVarName
+            , customConfigFunction: function configMenu(){this.closeDelayTime = 300;}
+            , rootIdOrElement: _menuRootElementId
+            });
           }
         });
       });
@@ -1010,7 +1027,7 @@ jQuery.extend(bcdui.widget,
     /**
      * extracts unique model names from modelXPath, including $ tokens
      *
-     * @return Array with models or null
+     * @return {Array<bcdui.core.DataProvider>} Array with models or null
      * @private
      */
     _extractModelsFromModelXPath : function(modelXPath){
@@ -1181,8 +1198,8 @@ jQuery.extend(bcdui.widget,
       },
 
    /**
-    * @param {String} htmlElementId
-    * @param {String} caption
+    * @param {string} htmlElementId
+    * @param {string} caption
     * @private
     */
    _getValueOfCaption: function( htmlElementId, caption)
@@ -1214,7 +1231,7 @@ jQuery.extend(bcdui.widget,
 
      /**
       * @private
-      * @param {String} htmlElementId
+      * @param {string} htmlElementId
       * @return an 2dim array containining caption/value array or NULL if no caption mapping available (i.e. values=caption), the array is of items with size 2
       */
      _getCaptionValueArray: function(htmlElementId)
@@ -1241,8 +1258,8 @@ jQuery.extend(bcdui.widget,
      },
 
    /**
-    * @param {String} htmlElementId
-    * @param {String} value
+    * @param {string} htmlElementId
+    * @param {string} value
     * @private
     */
    _getCaptionOfValue: function( htmlElementId, value)
@@ -1269,9 +1286,9 @@ jQuery.extend(bcdui.widget,
 
      /**
       * @private
-      * @param {String} htmlElementId
-      * @param {String} value
-      * @return String The input-value if found in optsionModel or if no options model is given (==all values allowed), otherwise an empty string
+      * @param {string} htmlElementId
+      * @param {string} value
+      * @return {string} String The input-value if found in optsionModel or if no options model is given (==all values allowed), otherwise an empty string
       */
      _findValueInOptionsModel: function( htmlElementId, value)
      {
@@ -1343,9 +1360,9 @@ jQuery.extend(bcdui.widget,
     * @param {targetHtmlRef} args.targetHtml              An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.
     * @param {string}        [args.id]                    ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable. If not given, an auto-id is generated.
     * @param {string}        [args.caption]               Caption shown in the blindUpDown Header.
-    * @param {string}        [args.defaultState=closed]   'closed' or empty String for opened, default is closed.
+    * @param {string}        [args.defaultState="closed"] 'closed' or empty String for opened, default is closed.
     * @param {number}        [args.duration=0.2]          The duration of the blind effect, valid values are from 0 to 1.0 as decimal.
-    * @param {writableModelXPath} [args.targetModelXPath=$guiStatus/guiStatus:Status/guiStatus:ClientSettings/BlindUpDown]  The xPath pointing to the root-node this input widget will place entered selected items into. with attribute status=open/closed
+    * @param {writableModelXPath} [args.targetModelXPath="$guiStatus/guiStatus:Status/guiStatus:ClientSettings/BlindUpDown"]  The xPath pointing to the root-node this input widget will place entered selected items into. with attribute status=open/closed
     * @param {boolean}       [args.noEffect=false]        True for a simple show/hide without blind effect (blind can influence charts gradients on IE
     */
    createBlindUpDownArea:function(args){
@@ -1535,16 +1552,16 @@ jQuery.extend(bcdui.widget,
    * of the targetRenderer's contentDiv is left.
    *
    * @param args The parameter map contains the following properties:
-   * @param {String} args.tooltipRendererId The renderer responsible
+   * @param {string} args.tooltipRendererId The renderer responsible
    *          for generating the tooltip content. When the "tableMode" parameter
    *          is true this renderer will get two additional parameters "bcdRowIdent"
    *          and "bcdColIdent". These parameters come from the table cell the mouse
    *          is placed over in the targetRenderer.
    * @param {HtmlElement} args.targetHtmlElement The HtmlElement we are attached to.
-   * @param  {String} [args.filter] An optional filter on the tag name where the
+   * @param  {string} [args.filter] An optional filter on the tag name where the
    *          tooltip should appear. In "tableMode" it is recommended to set it
    *          on "td" or "th|td".
-   * @param {Boolean} [args.tableMode] This flag can be set to "true" if the "bcdRowIdent"
+   * @param {boolean} [args.tableMode] This flag can be set to "true" if the "bcdRowIdent"
    *          and "bcdColIdent" parameters should be extracted from the HTML and added
    *          as parameters on the tooltipRenderer.
    * @param {integer} [args.delay] The delay in Milliseconds that the tooltip should wait
@@ -1625,9 +1642,9 @@ jQuery.extend(bcdui.widget,
    * Finds the inner most occurrence of an attribute
    * starting at the startElement following its anchestor axis to maximal endElement
    * @param {HtmlElement} startElement
-   * @param {String} attrName
+   * @param {string} attrName
    * @param {HtmlElement} endElement
-   * @return value of the attribute, null if attribute was not found
+   * @return {string} value of the attribute, null if attribute was not found
    * @private
    */
   _findAttribute: function( startElement, attrName,  endElement)
@@ -1648,14 +1665,15 @@ jQuery.extend(bcdui.widget,
    * to the attachTooltipRenderer function, but it is triggered with onClick and it
    * provides the contextId parameter to the stylesheet.
    * @param args The parameter map
-   * @param {String|bcdui.core.DataProvider} args.contextMenuRendererId The renderer responsible
+   * @param {string|bcdui.core.DataProvider} args.contextMenuRendererId The renderer responsible
    *          for generating the context menu. Usually the HTML rendering is done
    *          by the default contextMenu.xslt stylesheet.
-   * @param {String|bcdui.core.DataProvider} args.targetHtmlElement The renderer the context menu is to be attached to. (or give targetRendererId)</li>
-   * @param {Boolean} [args.tableMode] This flag can be set to "true" if the "bcdRowIdent"
+   * @param {string|bcdui.core.DataProvider} args.targetHtmlElement The renderer the context menu is to be attached to. (or give targetRendererId)</li>
+   * @param {boolean} [args.tableMode] This flag can be set to "true" if the "bcdRowIdent"
    *          and "bcdColIdent" parameters should be extracted from the HTML.
    * @param {integer} [args.offset] Offset value which is used to position the contextMenu
    *          relatively to the mouse pointer, if not given it's determined automatically
+   * @param {function} args.clickResolver function which is able to parse data-bcd-action tokens to run javascript actions
    * @private
    */
   _attachContextMenu: function(args)
@@ -1715,6 +1733,11 @@ jQuery.extend(bcdui.widget,
           bcdui.wkModels.bcdColIdent.setData( bcdui.widget._findAttribute( config.event.target, "bcdColIdent", bcdui._migPjs._$(args.identsWithin).get(0) ) || "" );
         }
 
+        if (args.clickResolver)
+          jQuery("#bcdContextMenuDiv").data("clickResolver", args.clickResolver);
+        else
+          jQuery("#bcdContextMenuDiv").removeData("clickResolver");
+
         // mark event target html element with an id
         var id = bcdui._migPjs._$(config.event.target).get(0).id || bcdui.factory.objectRegistry.generateTemporaryId();
         bcdui._migPjs._$(config.event.target).get(0).id = id;
@@ -1765,11 +1788,16 @@ jQuery.extend(bcdui.widget,
    * @param {string}         [args.identsWithin]      Id of an element. If given bcdColIdent and bcdRowIdent are set to the innermost values given between the event source and the element given here. bcdRow/ColIdent do not need to be set at the same element.
    * @param {boolean}        [args.tableMode=false]   This flag can be set to 'true' if the 'bcdRowIdent' and 'bcdColIdent' parameters should be extracted from the HTML and added as parameters on the tooltipRenderer. They are derived from 'bcdRowIdent' and 'bcdColIdent' attributes of tr rows and header columns (td or th).
    * @param {targetHtmlRef}  [args.targetHtml]        The HTML listeners are placed on this Element instead of the targetHtml of the given targetRendererId.
+   * @param {function|string} [args.clickResolver]    String (representing a function name) or function which handles the click events of the contextMenu
    */
   createContextMenu: function(args){
 
     args = bcdui.factory._xmlArgs( args, bcdui.factory.validate.widget._schema_createContextMenu_args );
     bcdui.factory.validate.jsvalidation._validateArgs(args, bcdui.factory.validate.widget._schema_createContextMenu_args);
+
+    let clickResolver = args.clickResolver;
+    if (typeof clickResolver == "string")
+      clickResolver = bcdui.util._toJsFunction(clickResolver);
 
     if (args.targetHtml) {
       var targetId = bcdui.util._getTargetHtml({targetHtml: args.targetHtml}, "bcdContextMenu_");
@@ -1822,6 +1850,7 @@ jQuery.extend(bcdui.widget,
           , identsWithin         : args.identsWithin
           , refreshMenuModel     : args.refreshMenuModel
           , offset               : args.offset
+          , clickResolver        : clickResolver
         });
       }
     });
@@ -2033,8 +2062,8 @@ jQuery.extend(bcdui.widget,
      * The model should be ready.
      *
      * @param {bcdui.core.DataProvider} targetModel
-     * @param {String} targetModelXPath
-     * @return String - the calculated @mandatory xPath
+     * @param {string} targetModelXPath
+     * @return {string} - the calculated @mandatory xPath
      *
      * @private
      */
@@ -2068,7 +2097,7 @@ jQuery.extend(bcdui.widget,
     /**
      * Checks WRS mode.
      * @param {DomDocument} doc The XML document.
-     * @returns {Boolean} True in WRS mode.
+     * @returns {boolean} True in WRS mode.
      * @private
      */
     _isWrs: function(doc)
@@ -2079,8 +2108,8 @@ jQuery.extend(bcdui.widget,
     /**
      * Extracts and returns the row and column indexes from WRS xpath.
      * @param {bcdui.core.DataProvider} targetModel The target model.
-     * @param {String} targetModelXPath The XPath in whole XML model data.
-     * @return The map contains the following properties:
+     * @param {string} targetModelXPath The XPath in whole XML model data.
+     * @return {Object} The map contains the following properties:
      * <ul>
      *   <li>row: {integer} Row index.</li>
      *   <li>col: {integer} Column index.</li>
@@ -2151,6 +2180,53 @@ jQuery.extend(bcdui.widget,
         });
         return;
       }
+    },
+    
+    /**
+     *
+     * @param el - htmlElement of the pagingPanel table calling this via bcdOnLoad
+     * @private
+     */
+    _pagingPanelInit : function() {
+      const el = this;
+      jQuery(el).off("click");
+      jQuery(el).on("click", ".bcdPagingButton", function(event) {
+        const targetModelId = jQuery(event.target).attr("targetModelId") || "";
+        const targetModelXPath = jQuery(event.target).attr("targetModelXPath") || "";
+        const delta = jQuery(event.target).attr("delta") || "";
+        const currentPage = jQuery(event.target).attr("currentPage") || "";
+        const lastPage = jQuery(event.target).attr("lastPage") || "";
+        const elementId = jQuery(event.target).attr("elementId") || "";
+        const paginatedAction = jQuery(event.target).attr("paginatedAction") || "";
+        if (targetModelId != "" && targetModelXPath !="" && delta != "" && currentPage != "" && lastPage != "" && elementId != "") {
+          bcdui.widget._pagingPanelChangePageNum({
+            targetModelId: targetModelId
+          , targetModelXPath: targetModelXPath
+          , delta: parseInt(delta, 10)
+          , currentPage: currentPage
+          , lastPage: parseInt(lastPage, 10)
+          , elementId: elementId
+          });
+          if (paginatedAction)
+            bcdui.util._executeJsFunctionFromString();
+        }
+      });
+      jQuery(el).off("change");
+      jQuery(el).on("change", "select", function(event) {
+        const targetModelId = jQuery(event.target).attr("targetModelId") || "";
+        const targetModelXPath = jQuery(event.target).attr("targetModelXPath") || "";
+        const paginatedAction = jQuery(event.target).attr("paginatedAction") || "";
+        if (targetModelId != "" && targetModelXPath !="") {
+          const val = event.target.value;
+          bcdui.core.createElementWithPrototype(bcdui.factory.objectRegistry.getObject(targetModelId).dataDoc, targetModelXPath).text = val;
+          for (let i = 0; i < this.options.length; i++ )
+            if (this.options[i].value == val)
+              this.options[i].selected = 'selected';
+          bcdui.factory.objectRegistry.getObject(targetModelId).fire();
+          if (paginatedAction)
+            bcdui.util._executeJsFunctionFromString(paginatedAction);
+        }
+      });
     },
 
     /**
@@ -2483,18 +2559,18 @@ jQuery.extend(bcdui.widget,
                 "<div><input type='checkbox'></input><span class='bcdShowAll' bcdTranslate='bcd_widget_filter_showAll'></span></div>" +
                 "<p>&nbsp;</p>" +
                 "<div class='form-row'>" +
-                  "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_selectAll' onClickAction='bcdui.widget._setFilterStatus(this, true)'></bcd-buttonng></div>" +
-                  "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_clear' onClickAction='bcdui.widget._setFilterStatus(this, false)'></bcd-buttonng></div>" +
-                  "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_reset' onClickAction='bcdui.widget._setFilterStatus(this, false, true)'></bcd-buttonng></div>" +
+                  "<div class='col-sm-auto'><bcd-buttonng bcdActionId='selectAll' caption='" + bcdui.i18n.TAG + "bcd_widget_filter_selectAll' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>" +
+                  "<div class='col-sm-auto'><bcd-buttonng bcdActionId='clear' caption='" + bcdui.i18n.TAG + "bcd_widget_filter_clear' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>" +
+                  "<div class='col-sm-auto'><bcd-buttonng bcdActionId='reset' caption='" + bcdui.i18n.TAG + "bcd_widget_filter_reset' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>" +
                 "</div>"+
               "</div>" +
               "<div class='bcdFilterMultiSelect'></div>"+
               "<p><span class='bcdCount'></span>&nbsp;<span bcdTranslate='bcd_widget_filter_itemsSelected'></span></p>"+
             "</div>"+
             "<div class='form-row'>" +
-              "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_apply' onClickAction='bcdui.widget._applyFilter(this)'></bcd-buttonng></div>" +
-              "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_remove' onClickAction='bcdui.widget._removeFilter(this)'></bcd-buttonng></div>" +
-              "<div class='col-sm-auto'><bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_widget_filter_cancel' onClickAction='bcdui.widget._cancelFilter(this)'></bcd-buttonng></div>" +
+              "<div class='col-sm-auto'><bcd-buttonng bcdActionId='apply' caption='" + bcdui.i18n.TAG + "bcd_widget_filter_apply' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>" +
+              "<div class='col-sm-auto'><bcd-buttonng bcdActionId='remove' caption='" + bcdui.i18n.TAG + "bcd_widget_filter_remove' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>" +
+              "<div class='col-sm-auto'><bcd-buttonng bcdActionId='cancel' caption='" + bcdui.i18n.TAG + "bcd_widget_filter_cancel' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>" +
         		"</div>" +
           "</div>");
           bcdui.i18n.syncTranslateHTMLElement({elementOrId: jQuery(".bcdFilterDialog").get(0)});
@@ -2694,6 +2770,22 @@ jQuery.extend(bcdui.widget,
      */
     _getTooltipFilterOption: function(inputText) {
       return inputText;
+    },
+    
+    _filterClickAction: function() {
+      const action = jQuery(this).closest("*[bcdActionId]").attr("bcdActionId") || "";
+      if (action == "selectAll")
+        bcdui.widget._setFilterStatus(this, true);
+      if (action == "clear")
+        bcdui.widget._setFilterStatus(this, false);
+      if (action == "reset")
+        bcdui.widget._setFilterStatus(this, false, true);
+      if (action == "apply")
+        bcdui.widget._applyFilter(this);
+      if (action == "remove")
+        bcdui.widget._removeFilter(this);
+      if (action == "cancel")
+        bcdui.widget._cancelFilter(this);
     },
 
     /**
@@ -3050,7 +3142,7 @@ jQuery.extend(bcdui.widget,
      * @param htmlElement 
      * @param {string} bcdAttribute - bcdAttribute to read
      * @param {string} domAttribute - domAttribute to write
-     * @return string with attribute and value or empty string if value is empty or wrong attribute
+     * @return {string} string with attribute and value or empty string if value is empty or wrong attribute
      * @private
       */
      _domFromBcdAttribute: function(htmlElement, bcdAttribute, domAttribute) {
@@ -3063,7 +3155,7 @@ jQuery.extend(bcdui.widget,
       * gets value from given attribute
       * @param htmlElement 
       * @param {string} bcdAttribute - bcdAttribute to read
-      * @return value or empty string if wrong attribute
+      * @return {string} value or empty string if wrong attribute
       * @private
        */
       _getBcdAttributeValue: function(htmlElement, bcdAttribute) {
@@ -3100,7 +3192,7 @@ jQuery.extend(bcdui.widget,
      /**
       * initiatialises a label element for given control with given contents
       *
-      * @param {element} labelElement - the label element to modify
+      * @param {DomElement} labelElement - the label element to modify
       * @param {string} controlId - the id of control this label is for, can be null, then no for-attribute is created on a label
       * @param {string} label - as text or i18n key
       *
@@ -3141,8 +3233,8 @@ jQuery.extend(bcdui.widget,
 
      /**
       * Get widgetCaption information from the given target
-      * @param {element|string} elOrId An existing HTML element or its id representing a widget targetHtml
-      * @return string of found widgetCaption or empty string 
+      * @param {HtmlElement|string} elOrId An existing HTML element or its id representing a widget targetHtml
+      * @return {string} string of found widgetCaption or empty string
       */
      getWidgetCaption : function( elOrId ) {
        var el = jQuery.bcdFindById( elOrId );
@@ -3160,8 +3252,8 @@ jQuery.extend(bcdui.widget,
      /**
       * Writes navpath widget information to the given target and updates this information changes
       * @param {Object}        [args]                The parameter map contains the following properties.
-      * @param {targetHtmlRef} [args.targetHtml=bcdNavPath] An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.
-      * @param {string}        [args.title=Report]   A title string which is used during filename generation for exports 
+      * @param {targetHtmlRef} [args.targetHtml="#bcdNavPath"] An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.
+      * @param {string}        [args.title="Report"] A title string which is used during filename generation for exports
       * @param {string}        [args.values]         A space separated string which lists the ordered targetIds of the widgets which should be queried 
       * @param {string}        [args.separator]      A string used for delimiter between single widget navpath values, default is ' ' (space)
       */
@@ -3286,7 +3378,7 @@ jQuery.extend(bcdui.widget,
       * Get current navpath widget information for the given widget targets.
       * @param {string}        [values]         A space separated string which lists the ordered targetIds of the widgets which should be queried (or empty for all)
       * @param {string}        [separator=" "]  A string used for delimiter between single widget navpath values
-      * @return string containing the current navPath for your selected values 
+      * @return {string} string containing the current navPath for your selected values
       */
      getCurrentNavPath: function(values, separator) {
        return bcdui.widget._navPathPrint(values, separator, false);
@@ -3329,7 +3421,7 @@ jQuery.extend(bcdui.widget,
       * @param {string}        [values]            A space separated string which lists the ordered targetIds of the widgets which should be queried (or empty for all)
       * @param {string}        [separator=" "]     A string used for delimiter between single widget navpath values
       * @param {boolean}       [doFormat=false]    true if you want a span with className around the widgetCaption
-      * @return string containing the current navPath for your selected values
+      * @return {string} string containing the current navPath for your selected values
       * @private 
       */
      _navPathPrint: function(values, separator, doFormat) {
@@ -3488,7 +3580,7 @@ jQuery.extend(bcdui.widget,
       * @param {string} [args.title] - dialog title
       * @param {number} [args.width=640] - dialog width; > 1 means absolute size <= 1 means percentage of the current view-port size, i.e. .75 = 75% of view-port size 
       * @param {number} [args.width=320] - dialog height; > 1 means absolute size <= 1 means percentage of the current view-port size, i.e. .75 = 75% of view-port size
-      * @return {Promise} resolving with value provided from 'dialog-close' event, when dialog is closed.
+      * @return {Promise<string>} resolving with value provided from 'dialog-close' event, when dialog is closed.
       * @example
       * bcdui.widget.openDialog({
       *   open : (args) => {
@@ -3815,13 +3907,13 @@ bcdui.widget.validationToolTip = class
 
   /**
    * Initializing tooltip widget
-   * @param args
-   * @param args.id - option widget identifier
-   * @param args.targetModelId - identifier of model that should be tracked
-   * @param args.targetModelXPath - xpath of model that should be tracked
-   * @param args.containerHtmlElement - html container with binded control
-   * @param args.validateWrapperUrl - xstl transformation which implement concrete validation logic
-   * @param args.validateWrapperParameters - parameters that should be passed to validateWrapper
+   * @param {Object} args
+   * @param {string} args.id - option widget identifier
+   * @param {string} args.targetModelId - identifier of model that should be tracked
+   * @param {xPath} args.targetModelXPath - xpath of model that should be tracked
+   * @param {DomElement} args.containerHtmlElement - html container with binded control
+   * @param {url} args.validateWrapperUrl - xstl transformation which implement concrete validation logic
+   * @param {object} args.validateWrapperParameters - parameters that should be passed to validateWrapper
    * */
   constructor(args)
   {

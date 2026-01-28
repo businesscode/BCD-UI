@@ -54,29 +54,29 @@ bcdui.component.exports.PDFExport = class
    * Creates a new PDFExport instance.
    * @constructs
    * @param {Object} args - The constructor argument map offers the following properties:
-   * @param {(HtmlElement|HtmlElement[]|String)} args.rootElement - The HTML element to be exported either
+   * @param {(HtmlElement|HtmlElement[]|string)} args.rootElement - The HTML element to be exported either
    *         given as the element itself or its HTML ID. In the latter case the element
    *         does not need to exist before the execute() method is called.
    *         OR a space separated list of ids OR an array with ids or elements or a mixture,
    *         which are then included in the export in the given order.
-   * @param {HtmlElement | String} [args.form] - The HTML Form element used for sending the
+   * @param {HtmlElement | string} [args.form] - The HTML Form element used for sending the
    *         export request to the server. 
    *         It must use POST because the logic is restricted to POST due to security considerations.
    *         If omitted an appropriate Form is created by this class.</li>
-   * @param {Array} [args.css] An array of URLs containing CSS files to be loaded by the
+   * @param {Array<string>} [args.css] An array of URLs containing CSS files to be loaded by the
    *         server.
-   * @param {Boolean} [args.orientationLandscape] - Set this flag to true to make the PDF
+   * @param {boolean} [args.orientationLandscape] - Set this flag to true to make the PDF
    *         appear in landscape page orientation. The default value is "false".</li>
-   * @param {String} [args.dimension] - Output size, like LETTER or A5. The default value
+   * @param {string} [args.dimension] - Output size, like LETTER or A5. The default value
    *         is "A4".
-   * @param {String} [args.format] - This can be "pdf", "jpg", "png", "gif", "bmp" to determine the output type.
+   * @param {string} [args.format] - This can be "pdf", "jpg", "png", "gif", "bmp" to determine the output type.
    *         The default value is "pdf".
-   * @param {String} [args.title] - The title of the HTML fragment sent to the server.
+   * @param {string} [args.title] - The title of the HTML fragment sent to the server.
    *         This is for future use.
-   * @param {String} [args.htmlWidth] - Determines the scaling. That width in px is scaled to fill the full width of the selected dimension.
+   * @param {string} [args.htmlWidth] - Determines the scaling. That width in px is scaled to fill the full width of the selected dimension.
    *         For example if the widh of the div you export is with is 500px and dimension is A5, then in the output the content of that
    *         width is scaled to the width of A5. Default is the width of the (first) args.rootElement.
-   * @param {String} [args.fileName] - Name of the file send by the server as the response.
+   * @param {string} [args.fileName] - Name of the file send by the server as the response.
    * @private
    */
   constructor(args)
@@ -91,7 +91,7 @@ bcdui.component.exports.PDFExport = class
 
       /**
        * An array of URLs containing CSS files to be loaded by the server.
-       * @type Array
+       * @type {Array<string>}
        */
       this.css = [];
       if( args.css && Array.isArray(args.css) )
@@ -101,14 +101,14 @@ bcdui.component.exports.PDFExport = class
 
       /**
        * The title of the HTML fragment sent to the server.
-       * @type String
+       * @type {string}
        */
       this.title = "Report";
       this.title = args.title || this.title;
 
       /**
        * The output format for the conversion servlet.
-       * @type String
+       * @type {string}
        * @default pdf
        */
       this.format = "pdf";
@@ -116,7 +116,7 @@ bcdui.component.exports.PDFExport = class
 
       /**
        * The HTML element(s) to be exported.
-       * @type HTMLElement
+       * @type {HTMLElement}
        */
       this.rootElementArray = null;
       if( bcdui.util.isString(args.rootElement) )
@@ -130,7 +130,7 @@ bcdui.component.exports.PDFExport = class
 
       /**
        * True, if the orientation is landscape and false otherwise.
-       * @type Boolean
+       * @type {boolean}
        * @default false
        */
       this.orientationLandscape = false; // For Eclipse / JSDoc
@@ -138,7 +138,7 @@ bcdui.component.exports.PDFExport = class
 
       /**
        * Output size
-       * @type String
+       * @type {string}
        * @default A4
        */
       this.dimension = "A4";
@@ -146,7 +146,7 @@ bcdui.component.exports.PDFExport = class
 
       /**
        * The form sending the data to the servlet.
-       * @type HTMLElement
+       * @type {HTMLElement}
        */
       this.form = null;
 
@@ -163,7 +163,7 @@ bcdui.component.exports.PDFExport = class
    * The form then gets the specified formId, but if there is already a form with
    * this ID it does not create a new form, but takes this form.
    * @private
-   * @param {String} formId The ID of the new form. If there is already an element with this
+   * @param {string} formId The ID of the new form. If there is already an element with this
    * ID this element is taken.
    */
   _createForm(formId)
@@ -185,7 +185,7 @@ bcdui.component.exports.PDFExport = class
   /**
    * Converts the array of CSS file URLs (in this.css) into one string that can be
    * put into the HTML head section to load these CSS files.
-   * @return {String} An HTML fragment containing Link elements for all CSS files.
+   * @return {string} An HTML fragment containing Link elements for all CSS files.
    * @private
    */
   _generateCSSLinkElements()

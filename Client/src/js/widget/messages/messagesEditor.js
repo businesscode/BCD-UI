@@ -75,7 +75,11 @@ jQuery.extend(bcdui.widget, {
         return doc;
       }.bind(this)
 
-      // prefill new rows with hidden id, information severity and current date as valid from
+      /**
+       * prefill new rows with hidden id, information severity and current date as valid from
+       * @private
+       * @param {Object} args
+       */
       , afterAddRow: function(args) {
           args.rowNode.selectSingleNode("wrs:C[" + args.headerMeta.message_id.pos +"]").text = bcdui.util.getUuid();
           args.rowNode.selectSingleNode("wrs:C[" + args.headerMeta.severity.pos +"]").text = "3";
@@ -84,5 +88,9 @@ jQuery.extend(bcdui.widget, {
         }
       , hotArgs: hotArgs
     });
+  },
+
+  _initCkEditor : function() {
+    jQuery(this).ckeditor();
   }
 });

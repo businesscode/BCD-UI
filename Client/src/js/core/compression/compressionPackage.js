@@ -33,7 +33,7 @@ bcdui.core.compression = {
    * decoded has server-side compression or when the encoding process on the client
    * is not effective enough.
    * @private
-   * @type String
+   * @type {string}
    */
   _zipLetURL: bcdui.config.libPath+"servlets/ZipLet",
 
@@ -50,7 +50,7 @@ bcdui.core.compression = {
    * @see #_decodeString
    * @see #_encodeStringWithAlphabetMapping
    * @see #_decodeStringWithAlphabetMapping
-   * @type string
+   * @type {string}
    * @constant
    * @private
    */
@@ -377,7 +377,7 @@ bcdui.core.compression = {
   /**
    * Serializes the specified DOM document and removes all comments from it.
    * @param {DomDocument} doc The document to be serialized without comments.
-   * @return The string representation of the XML document.
+   * @return {string} The string representation of the XML document.
    * @see #compressDOMDocument
    * @private
    */
@@ -496,6 +496,7 @@ bcdui.core.compression = {
    * client or on the server dependent on the encoding type.
    * @param {string} compressedXmlString The encoded and compressed XML document to
    * be reconstructed.
+   * @param {string} id id the model will get, a random one i set otherwise
    * @return {bcdui.core.DataProvider} A DataProvider instance holding the
    * uncompressed data when it is in the Ready state.
    */

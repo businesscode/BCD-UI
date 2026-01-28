@@ -33,11 +33,11 @@
 
   /**
    * @typedef {object} BcdScrollToParamOptions
-   * @property {string}                [snapTo=beginning] snapTo can have following values: 'beginning': put the scrollTo-target on the top of container.
+   * @property {string}                [snapTo="beginning"] snapTo can have following values: 'beginning': put the scrollTo-target on the top of container.
    */
 
    /**
-   * @param {(object|element|string)}  target  Target to scroll the container to, must be a level-1 child of the container. Can be a jQuery object, an Element or jQuery compatible selector.
+   * @param {(Object|HtmlElement|string)}  target  Target to scroll the container to, must be a level-1 child of the container. Can be a jQuery object, an Element or jQuery compatible selector.
    * @param {BcdScrollToParamOptions}  [options] Options to apply, all the options are optional
    *
    * @returns {object} jQuery object
@@ -73,21 +73,6 @@
   jQuery.fn.bcdTranslate = function(){
     return this.each(function(){
       bcdui.i18n.syncTranslateHTMLElement({ elementOrId : this });
-    });
-  };
-
-  /**
-   * jQuery BCD-UI bcdLoad plugin
-   *
-   * like jQuery.load(), but evaluates 'bcdOnLoad' attributes in loaded fragments.
-   */
-  jQuery.fn.bcdLoad = function(url, cb){
-    var self = this;
-    return this.load(url, function(){
-      self.find("[bcdonload]").each(function(i,e){
-        bcdui.util._execJs(jQuery(e).attr("bcdonload"), e, true);
-      });
-      cb&&cb();
     });
   };
 

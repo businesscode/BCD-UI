@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -119,8 +119,8 @@
   /**
    * Switch periodchooser to a different period_type
    * by replacing the bRef attributes and the bcdPostfix attribute
-   * @param {String} id id of the period chooser widget
-   * @param period_type {String} new period_type
+   * @param {string} id id of the period chooser widget
+   * @param period_type {string} new period_type
    */
   switchPostfix: function(id, period_type, alreadyReplaced) {
     var containerHtmlElement = jQuery("#" + id).get(0);
@@ -219,8 +219,8 @@
 
     var timeClass = isSecondSelectable ? "bcdTimeMiddle bcdMinute" : "bcdMinute";
     
-    caption1 = caption1 != "" || bcdui.config.settings.bcdui.legacyTheme === true ? "<a href='javascript:void(0)'>" + caption1 + "</a>" : "";
-    caption2 = caption2 != "" || bcdui.config.settings.bcdui.legacyTheme === true ? "<a href='javascript:void(0)'>" + caption2 + "</a>" : "";
+    caption1 = caption1 != "" || bcdui.config.settings.bcdui.legacyTheme === true ? "<a>" + caption1 + "</a>" : "";
+    caption2 = caption2 != "" || bcdui.config.settings.bcdui.legacyTheme === true ? "<a>" + caption2 + "</a>" : "";
 
     var buttoStyle = (containerHtmlElement.getAttribute("bcdSuppressButtons") == "true" ? "style='display:none'" : "");
 
@@ -271,10 +271,25 @@
               + "</span>"
             )): ""
           )
-        + (showPrevNextButtons ?("<br></br><a href='#' class='bcdPeriodChooserModLeft' onclick='bcdui.widget.periodChooser._incPeriod(-1, this);return false;'></a>&#160;<a href='#' class='bcdPeriodChooserModRight' onclick='bcdui.widget.periodChooser._incPeriod(1, this);return false;'></a>"): "")
+        + (showPrevNextButtons ?("<br></br><a class='bcdClickAction bcdPeriodChooserModLeft'></a>&#160;<a class='bcdClickAction bcdPeriodChooserModRight'></a>"): "")
         + (textInput ? ("<div class='bcdHr'><hr></hr></div><span class='bcdHint'>" + hint + "</span>") : "" )
     ).addClass("bcdPeriodChooser");
     bcdui.widget._bcdIdToDomId(containerHtmlElement);
+    
+    jQuery(containerHtmlElement).off("click");
+    if (showPrevNextButtons) {
+      jQuery(containerHtmlElement).on("click", ".bcdClickAction", function(event) {
+        if (jQuery(event.target).hasClass("bcdPeriodChooserModLeft")) {
+          bcdui.widget.periodChooser._incPeriod(-1, event.target);
+          return false;
+        }
+        if (jQuery(event.target).hasClass("bcdPeriodChooserModRight")) {
+          bcdui.widget.periodChooser._incPeriod(1, event.target);
+          return false;          
+        }
+      });
+    }
+    
     bcdui.widget.periodChooser._initElement(containerHtmlElement);
   },
 
@@ -600,7 +615,7 @@
   /**
    * Checks WRS mode.
    * @param {DomDocument} doc The XML document.
-   * @returns {Boolean} True in WRS mode.
+   * @returns {boolean} True in WRS mode.
    * @private
    */
   _isWrs: function(doc)
@@ -611,7 +626,7 @@
   /**
    * Is output result should be formatted as period
    * @param {HtmlElement} containerHtmlElement
-   * @returns {Boolean} True if results will be periods.
+   * @returns {boolean} True if results will be periods.
    * @private
    */
   _isOutputPeriodType: function(containerHtmlElement){
@@ -622,11 +637,11 @@
    * Retrieves the common target data.
    * @private
    * @param {HtmlElement} containerHtmlElement Widget container element.
-   * @return The map contains the following properties:
+   * @return {object} The map contains the following properties:
    * <ul>
-   *   <li>targetModelId: {String} The identifier of target model.</li>
+   *   <li>targetModelId: {string} The identifier of target model.</li>
    *   <li>targetModel: {bcdui.core.DataProvider} The target model.</li>
-   *   <li>targetModelXPath: {String} The XPath in whole XML model data.</li>
+   *   <li>targetModelXPath: {string} The XPath in whole XML model data.</li>
    *   <li>doc: {DomDocument} The XML data of provider.</li>
    * </ul>
    */
@@ -732,9 +747,9 @@
   /**
    * Updates the WRS XML model data ("To date" not supported).
    * @private
-   * @param {String} fromDate The "from" period value.
+   * @param {string} fromDate The "from" period value.
    * @param {bcdui.core.DataProvider} targetModel The target model.
-   * @param {String} targetModelXPath The XPath in whole XML model data.
+   * @param {string} targetModelXPath The XPath in whole XML model data.
    */
   _updateWrsXMLDoc: function(fromDate, targetModel, targetModelXPath)
     {
@@ -782,16 +797,16 @@
   /**
    * Updates the XML model data.
    * @private
-   * @param {String} fromDate The "from" period value.
-   * @param {String} toDate The "to" period value.
+   * @param {string} fromDate The "from" period value.
+   * @param {string} toDate The "to" period value.
    * @param pcConfig
-   * @param {String} pcConfig.targetModelId  The identifier of target model.
-   * @param {String} pcConfig.targetModelXPath  The XPath in whole XML model data.
-   * @param {Boolean} pcConfig.outputPeriodType  if output of periodChooser produced as periodType.
-   * @param {Boolean} pcConfig.isWeekSelectable
-   * @param {Boolean} pcConfig.isYearSelectable
-   * @param {Boolean} pcConfig.isQuarterSelectable
-   * @param {Boolean} pcConfig.isMonthSelectable
+   * @param {string} pcConfig.targetModelId  The identifier of target model.
+   * @param {string} pcConfig.targetModelXPath  The XPath in whole XML model data.
+   * @param {boolean} pcConfig.outputPeriodType  if output of periodChooser produced as periodType.
+   * @param {boolean} pcConfig.isWeekSelectable
+   * @param {boolean} pcConfig.isYearSelectable
+   * @param {boolean} pcConfig.isQuarterSelectable
+   * @param {boolean} pcConfig.isMonthSelectable
    *
    */
   _updateXMLDoc: function(fromDate, toDate, pcConfig)
@@ -969,8 +984,8 @@
   /**
    * Fills the certain date field (year, month or day) if field value isn't equals calculated date value.
    * @private
-   * @param {HtmlElement} field The one of date field - year, month or day.
-   * @param {Array} date The array of strings with date's elements - year, month or day.
+   * @param {HtmlElement}   field The one of date field - year, month or day.
+   * @param {Array<string>} date The array of strings with date's elements - year, month or day.
    * @param {integer} i Index to access to the date array.
    */
   _fillDateFieldIfNeeded: function(field, date, i)
@@ -985,8 +1000,8 @@
     /**
      * Fills the certain time field (hour, minute or second) if field value isn't equals calculated date value.
      * @private
-     * @param {HtmlElement} field The html input element of the date field - hour, minute or seconds.
-     * @param {Array} time The array of strings with time elements - hour, minute or seconds.
+     * @param {HtmlElement}   field The html input element of the date field - hour, minute or seconds.
+     * @param {Array<string>} time The array of strings with time elements - hour, minute or seconds.
      * @param {integer} i Index of the time field array to get filled
      */
     _fillTimeFieldIfNeeded: function(field, time, i)
@@ -1002,8 +1017,8 @@
   /**
    * @private
    * @param {DomDocument} doc The target model.
-   * @param {String} xPath The XPath to concrete date in whole XML model data.
-   * @returns {String} "from" or "to" date from model (date which specified in xPath).
+   * @param {string} xPath The XPath to concrete date in whole XML model data.
+   * @returns {string} "from" or "to" date from model (date which specified in xPath).
    */
   _getDateFromAttr: function(doc, xPath)
     {
@@ -1184,7 +1199,7 @@
     },
 
     /**
-     * @param {String} firstSelectableDay The first selectable day value (if given)
+     * @param {string} firstSelectableDay The first selectable day value (if given)
      * @private
      */
   _getNow: function(firstSelectableDay) {
@@ -1421,13 +1436,13 @@
    * @private
    * @param {integer} value The delta value.
    * @param pcConfig
-   * @param pcConfig.targetModelId {String} The identifier of target model.
-   * @param pcConfig.targetModelXPath {String} The XPath in whole XML model data.
-   * @param pcConfig.outputPeriodType {Boolean} if output of periodChooser produced as periodType.
-   * @param pcConfig.isWeekSelectable {Boolean}
-   * @param pcConfig.isYearSelectable {Boolean}
-   * @param pcConfig.isQuarterSelectable {Boolean}
-   * @param pcConfig.isMonthSelectable {Boolean}
+   * @param pcConfig.targetModelId {string} The identifier of target model.
+   * @param pcConfig.targetModelXPath {string} The XPath in whole XML model data.
+   * @param pcConfig.outputPeriodType {boolean} if output of periodChooser produced as periodType.
+   * @param pcConfig.isWeekSelectable {boolean}
+   * @param pcConfig.isYearSelectable {boolean}
+   * @param pcConfig.isQuarterSelectable {boolean}
+   * @param pcConfig.isMonthSelectable {boolean}
    */
   _increasePeriod: function(value, pcConfig)
     {
@@ -1472,8 +1487,8 @@
    * @param args.mo {Integer} the mo information.
    * @param args.cw {Integer} the cw information.
    * @param args.cwyr {Integer} the cwyr information.
-   * @param args.dy {String} the dy information.
-   * @return attributes: from and to for calculated range
+   * @param args.dy {string} the dy information.
+   * @return {{from: string, to: string}} attributes: from and to for calculated range
    */
   _periodToISORange: function( args )
   {
@@ -1574,8 +1589,8 @@
    * @private
    * @param args
    * @param args.value {Integer} Positive size of the range.
-   * @param args.targetModelId {String|object} Target model.
-   * @param args.targetModelXPath {String} The XPath in whole XML model data.
+   * @param args.targetModelId {string|object} Target model.
+   * @param args.targetModelXPath {string} The XPath in whole XML model data.
    */
 
   _periodToRange: function( args )
@@ -1670,7 +1685,7 @@
    * with the given date or range end as the end and keeping the input period type
    * @param parameters
    * @param parameters.rangeSize {integer} Size of the range.
-   * @param parameters.targetModelXPath {String} The xPath pointing to the period filter within the transformed document.
+   * @param parameters.targetModelXPath {string} The xPath pointing to the period filter within the transformed document.
    */
   periodToRangeTransformator: function( doc, parameters )
   {
@@ -1790,8 +1805,8 @@
    * Extracts and returns the row and column indexes from WRS xpath.
    * @private
    * @param {bcdui.core.DataProvider} targetModel The target model.
-   * @param {String} targetModelXPath The XPath in whole XML model data.
-   * @return The map contains the following properties or null if data is not available
+   * @param {string} targetModelXPath The XPath in whole XML model data.
+   * @return {{row: integer, col: integer}|null} The map contains the following properties or null if data is not available
    * <ul>
    *   <li>row: {Integer} Row index.</li>
    *   <li>col: {Integer} Column index.</li>
@@ -2067,7 +2082,7 @@
 
   /**
    * @param {integer} code Key code.
-   * @returns {Boolean} "True" if key code represents printable symbol.
+   * @returns {boolean} "True" if key code represents printable symbol.
    * @private
    */
   _isInput: function(code)
@@ -2136,7 +2151,7 @@
 
     /**
      * Get the Date from a combination of yr/qr, yr/mo or cwyr/cw
-     * @return \{ dataFrom, dataTo \}
+     * @return {{ dataFrom: Date, dataTo: Date }}
      * @private
      */
     _getDateFromToQMC: function( args )

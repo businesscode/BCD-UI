@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ bcdui.component.far.Far = class
    * @param {object}                    args                    The parameter map contains the following properties:
    * @param {targetHtmlRef}             args.targetHtml         A reference to the HTML DOM Element where to render the output.
    * @param {bcdui.core.DataProvider}   args.config             Configuration document from http://www.businesscode.de/schema/bcdui/far-1.0.0
-   * @param {string}                    [args.componentId=far]  An ID for the component, 'far' is the default. This is not the data provider's technical identifier,
+   * @param {string}                    [args.componentId="far"] An ID for the component, 'far' is the default. This is not the data provider's technical identifier,
    *                                                            this ID is used as component identifer to support multiple components on single page, i.e. reuse same configuration.
    * @param {bcdui.core.DataProvider}   [args.statusModel=bcdui.wkModels.guiStatusEstablished]  The StatusModel, containing the filters at /SomeRoot/f:Filter
    */
@@ -190,7 +190,8 @@ bcdui.component.far.Far = class
     if(this.enhancedConfig.query("/*/far:ContextMenu")){
       bcdui.widget.createContextMenu({
         targetHtml : this.gridRenderingTarget,
-        inputModel : new bcdui.core.SimpleModel(bcdui.config.libPath + "js/component/far/contextMenu.xml")
+        inputModel : new bcdui.core.SimpleModel(bcdui.config.libPath + "js/component/far/contextMenu.xml"),
+        clickResolver: bcdui.component.far.resolveContextMenu
       });
     }
     // enable report filter
@@ -343,7 +344,7 @@ bcdui.component.far.enhancer = Object.assign(bcdui.component.far.enhancer,
    *
    * @param {object}                    args                    The arguments
    * @param {bcdui.core.DataProvider}   args.config             Configuration document from http://www.businesscode.de/schema/bcdui/far-1.0.0
-   * @param {string}                    [args.componentId=far]  An ID for the component, 'far' is the default. This is not the data provider's,
+   * @param {string}                    [args.componentId="far"] An ID for the component, 'far' is the default. This is not the data provider's,
    *                                                            this ID is used as component identifer to support multiple components on single page
    * @param {bcdui.core.DataProvider}   [args.statusModel=bcdui.wkModels.guiStatusEstablished]  StatusModel, containing the filters at /SomeRoot/f:Filter,
    *                                                                                            far:Far/far:ConfiguratorLayout element, etc. default is 'guiStatusEstablished'

@@ -31,7 +31,7 @@ bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
    * Constructor of bcdui.component.XmlChart, called by prototype.
    * @param {Object} args Parameter object
    * @param {targetHtmlRef}           args.targetHtml                       - Where to place the chart
-   * @param {bcdui.core.DataProvider} args.config                           - Definition if the chat according to Model with the chart definition according to XSD http://www.businesscode.de/schema/bcdui/charts-1.0.0
+   * @param {bcdui.core.DataProvider}  args.config                          - Definition of the chart according to XSD http://www.businesscode.de/schema/bcdui/charts-1.0.0
    * @param {boolean}                 [args.suppressInitialRendering=false] - If true, the renderer does not initially auto execute but waits for an explicit execute
    * @param {string}                  [args.id]                             - Page unique id for used in declarative contexts. If provided, the chart will register itself
    * @param {boolean}                 [args.showAxes=true]                  - If false, no axes will be shown
@@ -51,6 +51,9 @@ bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
     }}))
   }
 
+  /**
+   * @inheritDoc
+   */
   getClassName() {return "bcdui.component.chart.XmlChart";}
 
   /**
@@ -203,7 +206,8 @@ bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
         colorProvider = new bcdui.component.chart.TypeColorProviderFixedList(colArray);
       }
       else if( provType != null && provType.text != '' ){
-        eval(" colorProvider = new " + provType.text + "();");
+        const cp = bcdui.util._getJsObjectFromString(provType.text);
+        colorProvider = new cp();
       }
       else if ( extDoc != null){
         var res = new Array();
@@ -294,7 +298,7 @@ bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
 
   /**
    * Cleans XAxis Node, deletes children Value nodes
-   * @return count of removed nodes or null
+   * @return {void} count of removed nodes or null
    * @private
    */
   _cleanXAxisValues(){
@@ -302,7 +306,7 @@ bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
       var xpath = "/*/chart:XAxis/"
         + ( this.xAxis.categoriesGiven == true ? "chart:Categories" : "chart:XValues") + "/chart:Value";
 
-      return ;//bcdui.core.removeXPath(this.defDoc, xpath);
+      return ;//bcdui.core.removeXPath(this.defDoc, xpath); // TODO
     }
     return null;
   }
@@ -317,7 +321,7 @@ bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
   _cleanSeriesYDataValues(args){
     if( this.defDoc != null ){
       var xpath = "/*/chart:Series/chart:Series[" + args.seriesInd + "]/chart:YData/chart:Value";
-      return; // bcdui.core.removeXPath(this.defDoc, xpath);
+      return; // bcdui.core.removeXPath(this.defDoc, xpath); // TODO
     }
     return null;
   }
@@ -435,14 +439,14 @@ bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
 
   
   /**
-   * @return definition DOM document
+   * @return {document} DOM document
    */
   getData(){
     return this.defDoc;
   }
 
   /**
-   * @return model that render to
+   * @return {bcdui.core.DataProvider} model with the chart data
    */
   getPrimaryModel(){
     return this.chartDefModel;

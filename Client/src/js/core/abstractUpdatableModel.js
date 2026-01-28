@@ -43,7 +43,7 @@ bcdui.core.AbstractUpdatableModel = class extends bcdui.core.DataProvider
           /**
            * The modelUpdaters attached to this class. The elements of the array are of the
            * type "ModelUpdaterReference".
-           * @type Array
+           * @type {Array<bcdui.core.ModelUpdater>}
            * @private
            */
           this._modelUpdaters = [];
@@ -56,7 +56,7 @@ bcdui.core.AbstractUpdatableModel = class extends bcdui.core.DataProvider
           /**
            * A boolean value that becomes "true" as soon as there is a modelUpdate which
            * can make an auto update.
-           * @type Boolean
+           * @type {boolean}
            * @private
            */
           this._hasAutoUpdateModelUpdater = false;
@@ -85,7 +85,10 @@ bcdui.core.AbstractUpdatableModel = class extends bcdui.core.DataProvider
       }}))
     }
 
-    getClassName() {return "bcdui.core.AbstractUpdatableModel";}
+  /**
+   * @inheritDoc
+   */
+  getClassName() {return "bcdui.core.AbstractUpdatableModel";}
 
   /**
    * This function can be called directly to announce that a model updater will be added
@@ -93,7 +96,7 @@ bcdui.core.AbstractUpdatableModel = class extends bcdui.core.DataProvider
    * model will not become ready. This function is useful when we do not know the time of
    * declaration of the model updater yet, for example when the model tag and the
    * modelUpdater tag are executed in an unknown order due to their internal dependencies.
-   * @param {String} id The model updated id that will be added later with _addModelUpdater.
+   * @param {string} id The model updated id that will be added later with _addModelUpdater.
    * @private
    */
   _waitForModelUpdaterToBeAdded(id)
@@ -193,7 +196,7 @@ bcdui.core.AbstractUpdatableModel = class extends bcdui.core.DataProvider
    * XML before it is ready.
    * @param {TransformationChain} updater - The transformation that should run on the model XML before it
    * reaches its ready state.
-   * @param {Boolean} [autoUpdate]
+   * @param {boolean} [autoUpdate]
    * @private
    */
   _addModelUpdater(updater, autoUpdate)
@@ -238,7 +241,7 @@ bcdui.core.ModelUpdaterReference = class
       /**
        * The model updater object (transformation chain) being referenced by
        * this object.
-       * @type bcdui.core.TransformationChain
+       * @type {bcdui.core.TransformationChain}
        * @constant
        */
       this.updater = updater;
@@ -246,7 +249,7 @@ bcdui.core.ModelUpdaterReference = class
       /**
        * True, if the updater should be triggered automatically when the containing
        * model is executed again.
-       * @type Boolean
+       * @type {boolean}
        * @default true
        * @constant
        */
@@ -288,6 +291,9 @@ bcdui.core._ModelBeingUpdated = class extends bcdui.core.DataProviderAlias
     }}));
   }
 
+  /**
+   * @inheritDoc
+   */
   getClassName() {return "bcdui.core._ModelBeingUpdated";}
 
   /**

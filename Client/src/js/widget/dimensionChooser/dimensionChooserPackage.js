@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ bcdui.widget.dimensionChooser = Object.assign(bcdui.widget.dimensionChooser,
     jQuery(htmlElement).append(
       "<table><tr" + ((multiSelect != "check") ? " style='display:none'>" : ">")
     + "<td id='" + id + "_expandMulti'><span class='bcdMultiSelect'><span class='radio'><form><span>"
-    + "<input type='checkbox' title='" + caption + "' onclick='bcdui.widget.dimensionChooser._toggleMulti(this);'></input>"
+    + "<input type='checkbox' title='" + caption + "' class='bcdAction toggle'></input>"
     + "<span>" + caption + "</span></span></form></span></span></td></tr>"
     + "<tr" + ((multiSelect != "true") ? " style='display:none'>" : ">")
     + "<td id='" + id + "_multiSelectBox'"
@@ -82,11 +82,11 @@ bcdui.widget.dimensionChooser = Object.assign(bcdui.widget.dimensionChooser,
     + "></span>"
 
     + "</td></tr><tr" + ((multiSelect != "true") ? " style='display:none'" : "") + ((htmlElement.getAttribute("bcdAllowMixedSelect") != "true") ? " class='bcdNonMixed'" : "class='bcdMixed'") +  "><td>"
-    + "<span id='" + id + "_addButton_cell' class='bcdButton bcdAdd'><a onclick='this.className=&quot;bcdClicked&quot;; bcdui.widget.dimensionChooser._addMultiSelect(&quot;" + id + "_multiSelectBox\&quot;, false, false); this.className=&quot;&quot;;' href='javascript:void(0)' id='" + id + "_addButton' title='Add'>Incl.</a></span>"
+    + "<span id='" + id + "_addButton_cell' class='bcdButton bcdAdd'><a class='bcdAction add' id='" + id + "_addButton' title='Add'>Incl.</a></span>"
 
-    + (htmlElement.getAttribute("bcdAllowMixedSelect") == "true" ? ("<span id='" + id + "_excludeButton_cell'class='bcdButton bcdExclude'><a onclick='this.className=&quot;bcdClicked&quot;; bcdui.widget.dimensionChooser._addMultiSelect(&quot;" + id + "_multiSelectBox\&quot;, false, true); this.className=&quot;&quot;;' href='javascript:void(0)' id='" + id + "_excludeButton' title='Exclude'>Excl.</a></span>") : "")
+    + (htmlElement.getAttribute("bcdAllowMixedSelect") == "true" ? ("<span id='" + id + "_excludeButton_cell'class='bcdButton bcdExclude'><a  class='bcdAction addExclude' id='" + id + "_excludeButton' title='Exclude'>Excl.</a></span>") : "")
 
-    + "<span id='" + id + "_removeButton_cell'class='bcdButton bcdRemove'><a onclick='this.className=&quot;bcdClicked&quot;; bcdui.widget.dimensionChooser._removeMultiSelect(&quot;" + id + "_multiSelectBox\&quot;); this.className=&quot;&quot;;' href='javascript:void(0)' id='" + id + "_removeButton' title='Remove'>Remove</a></span>"
+    + "<span id='" + id + "_removeButton_cell'class='bcdButton bcdRemove'><a  class='bcdAction remove' id='" + id + "_removeButton' title='Remove'>Remove</a></span>"
     + "</td></tr><tr><td><div class='bcdChooserCaptionFixed' style='margin-top: 7px;'>Level</div>"
 
     + "<span id='" + id + "_levelContainer' bcdId='" +  id + "_level' bcdKeepEmptyValueExpression='false' bcdIsSortOptions='false'"
@@ -101,6 +101,18 @@ bcdui.widget.dimensionChooser = Object.assign(bcdui.widget.dimensionChooser,
     + "</td></tr></table>"        
     ).addClass("bcdDimensionChooser");
     
+    jQuery(htmlElement).find("table").off("click");
+    jQuery(htmlElement).find("table").on("click", ".bcdAction", function(event){
+      if (jQuery(event.target).hasClass("toggle"))
+        return bcdui.widget.dimensionChooser._toggleMulti(event.target);
+      if (jQuery(event.target).hasClass("add"))
+        return bcdui.widget.dimensionChooser._addMultiSelect(id + "_multiSelectBox", false, false);
+      if (jQuery(event.target).hasClass("addExclude"))
+        return bcdui.widget.dimensionChooser._addMultiSelect(id + "_multiSelectBox", false, true);
+      if (jQuery(event.target).hasClass("remove"))
+        return bcdui.widget.dimensionChooser._removeMultiSelect(id + "_multiSelectBox");
+    });
+
     // level selector widget needs a distinct level model
     var distinctWrapper = new bcdui.core.ModelWrapper({
       inputModel: bcdui.wkModels.bcdDimensions
@@ -254,8 +266,10 @@ bcdui.widget.dimensionChooser = Object.assign(bcdui.widget.dimensionChooser,
       multiSelect.attr("bcdMixedTargetModelXPath" , config.targetModelXPath );
       multiSelect.attr("bcdMixedOptionsModelId" , bcdui.wkModels.bcdDimensions.id );
       multiSelect.attr("bcdMixedDimensionName" , config.dimensionName );
-      multiSelect.attr("ondblclick","bcdui.widget.dimensionChooser._removeMultiSelect('"+  e.id  +"_multiSelectBox'"+ ");");
       bcdui.widget.dimensionChooser._initMultiSelect(e.id, targetModel, config.dimensionName, config);
+      multiSelect.on("dblclick", function() {
+        bcdui.widget.dimensionChooser._removeMultiSelect(e.id  +"_multiSelectBox");
+      });
 
       var visibleLevels = jQuery.makeArray(availLevels).map(function(e){return e.text});
       var hidden = jQuery.makeArray(optionsModelLevel.getData().selectNodes("/*/dm:Level[@visible='false']/@id")).map(function(e){return e.text;});
@@ -846,7 +860,6 @@ bcdui.widget.dimensionChooser = Object.assign(bcdui.widget.dimensionChooser,
           clearOption: config.clearOption,
           emptyValue: config.emptyValue,
           mandatory: true,
-          onEnterKey: ""
         };
 
         if (config.mandatory === 'false')
@@ -1128,7 +1141,7 @@ bcdui.widget.dimensionChooser = Object.assign(bcdui.widget.dimensionChooser,
   /**
    * checks if container html still exists, if not, listeners, filters and client area is cleaned
    * @param {object} config the dimchooser config object
-   * @returns boolean true when chooser is not existing anymore
+   * @returns {boolen} boolean true when chooser is not existing anymore
    * @private
    */
   , _cleanupListener: function(config) {

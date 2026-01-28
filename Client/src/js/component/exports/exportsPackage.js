@@ -51,7 +51,7 @@ bcdui.component.exports = Object.assign(bcdui.component.exports,
                          "text-align"],
   /**
    * Converts a subset of the css styles assigned by the browser into inline styles because Excel does not have the full css logic
-   * @return {Element} A clone of the element tree to be exported enriched with inline styles.
+   * @return {DomElement} A clone of the element tree to be exported enriched with inline styles.
    * @private
    */
   _doInlineCss: function(origParent, newParent) {
@@ -97,7 +97,7 @@ bcdui.component.exports = Object.assign(bcdui.component.exports,
 
   /**
    * Convert HtmlElements to string
-   * @return {String} HTML String
+   * @return {string} HTML String
    * @private
    */
   _html2String: function(targetElementOrArrayOfElements) {
@@ -130,7 +130,7 @@ bcdui.component.exports = Object.assign(bcdui.component.exports,
   
   /**
    * get navpath and return a table which contains it
-   * @return {Element}
+   * @return {DomElement}
    * @private
    */
   _generateNavPathTable: function() {
@@ -190,7 +190,7 @@ bcdui.component.exports = Object.assign(bcdui.component.exports,
    * Produces a WYSIWYG Excel export of a windows.document subtree
    * @param {Object} args The parameter map contains the following properties:
    * @param {(string|HtmlElement)}  args.rootElement                  - The id of or the root element itself
-   * @param {string}                [args.fileName=export(_timestamp).xsl] - The name of the returned Excel document
+   * @param {string}                [args.fileName="export(_timestamp).xsl"] - The name of the returned Excel document
    */
   exportWysiwygAsExcel: function( args )
   {
@@ -259,6 +259,16 @@ bcdui.component.exports = Object.assign(bcdui.component.exports,
     args.servletBaseUrl = args.servletBaseUrl || bcdui.component.exports._html2PdfServletUrl;
     args.fileName = args.fileName || "export."+args.format;
     new bcdui.component.exports.PDFExport( args ).execute();
+  },
+
+  _clickActionExport:function() {
+    bcdui.component.exports._prepareExport(this);
+  },
+  _clickActionSave:function() {
+    bcdui.component.exports._prepareExport(this, true);
+  },
+  _clickActionCancel:function() {
+    jQuery(this).closest(".bcdExportColumnsDialog").dialog("close");
   },
 
   /**
@@ -424,9 +434,9 @@ bcdui.component.exports = Object.assign(bcdui.component.exports,
             "<div>" +
               "<bcd-sideBySideChooserng doSortOptions='false' targetModelXPath='$" + targetModel.id + "/*/wrq:C/@bRef' optionsModelXPath='$" + optionsModel.id + "/*/Item/@caption' optionsModelRelativeValueXPath='../.' sourceCaption='" + bcdui.i18n.TAG + "bcd_ExportAvailableColumns' targetCaption='" + bcdui.i18n.TAG + "bcd_ExportSelectedColumns'></bcd-sideBySideChooserng>" +
             "</div>"+
-            "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_ExportRunExport' onClickAction='bcdui.component.exports._prepareExport(this)'></bcd-buttonng>" +
-            (config.allowSave ? "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_ExportSaveRunExport' onClickAction='bcdui.component.exports._prepareExport(this, true)'></bcd-buttonng>" : "") +
-            "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_ExportCancelExport' onClickAction='jQuery(this).closest(\".bcdExportColumnsDialog\").dialog(\"close\");'></bcd-buttonng>" +
+            "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_ExportRunExport' onClickAction='bcdui.component.exports._clickActionExport'></bcd-buttonng>" +
+            (config.allowSave ? "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_ExportSaveRunExport' onClickAction='bcdui.component.exports._clickActionSave'></bcd-buttonng>" : "") +
+            "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_ExportCancelExport' onClickAction='bcdui.component.exports._clickActionCancel'></bcd-buttonng>" +
            "</div>"
           );
 
@@ -446,7 +456,7 @@ bcdui.component.exports = Object.assign(bcdui.component.exports,
    * @param {Object} args The argument map with the following properties
    * @param {(string|bcdui.core.DataProvider)} args.wrq                         - Model containing the wrs request according to XSD http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0
    * @param {string}                           [args.type=slk]                  - Can be "slk" or "csv" or "xlsx". slk is efficient as csv and preserves numbers, use "xlsx" to preserve non-latin characters in addition
-   * @param {string}                           [args.fileName=export_(timestamp).(csv|xls)] - Name of the response file, depending on type, can also be provided via /wrq:WrsRequest/@bcdFileName from within the request
+   * @param {string}                           [args.fileName="export_(timestamp).(csv|xls)"] - Name of the response file, depending on type, can also be provided via /wrq:WrsRequest/@bcdFileName from within the request
    * @param {string}                           [args.vfsFilename]               - when using vfs stored export lists, you can define a vfs path name here, if not, it is generated out of url/user information
    * @param {string}                           [args.exportMode=full]           - full - using the wrq as it is, show - always showing a column selector, silent - use stored column information (at least 1 column specified) if available, otherwise full 
    * @param {boolean}                          [args.allowSave=false]           - ability to save to vfs, ensure that vfs binding and user rights are available when turned on

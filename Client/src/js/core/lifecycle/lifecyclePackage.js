@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -55,7 +55,10 @@ bcdui.core._GuiEstDataProvider = class extends bcdui.core.StaticModel {
       else
         this._setReady = true;
     }
-    
+
+    /**
+     * @inheritDoc
+     */
     getClassName() {return "bcdui.core._GuiEstDataProvider";}
   };
 
@@ -69,7 +72,7 @@ bcdui.core._GuiEstDataProvider = class extends bcdui.core.StaticModel {
  * The guiStatus document must satisfy the XSD for the NamespaceURI:  <br/>
  *    http://www.businesscode.de/schema/bcdui/guiStatus-1.0.0
  * </p>
- * @type bcdui.core.DataProvider
+ * @type {bcdui.core.DataProvider}
  */
 bcdui.wkModels.guiStatus = null;
 
@@ -123,6 +126,7 @@ bcdui.core.lifecycle =
    */
   applyAction: function(args)
     {
+      args = args || {};
       args = bcdui.factory._xmlArgs( args, bcdui.factory.validate.core._schema_applyAction_args);
       bcdui.factory.validate.jsvalidation._validateArgs(args, bcdui.factory.validate.core._schema_applyAction_args);
 
@@ -154,7 +158,7 @@ bcdui.core.lifecycle =
     /**
      * Jumps to another url optionally setting status document, this function is executed asynchronously.
      *
-     * @param {url} href - target URL to jump to.
+     * @param {string} href - target URL to jump to.
      * @param {DomDocument} [statusDocument] - status document to pass as guiStatusGZ parameter to href.
      */
     jumpTo: function(href, statusDocument) {
@@ -205,7 +209,13 @@ bcdui.core.lifecycle =
         url = url.substring(0, url.indexOf("?")) + "?";
         url += "guiStatusGZ=" + compressedDoc;
         jQuery("#bcdBookmark").remove();
-        jQuery("body").append("<button style='display:none' id='bcdBookmark' name='book' type='button' value='book' onclick='bcdui.core.lifecycle._generateBookmark(\"" + args.proposedName + "\", \"" + url + "\");'></button>");
+        jQuery("body").append("<button style='display:none' id='bcdBookmark' name='book' type='button' value='book'></button>");
+        
+        jQuery("#bcdBookmark").off("click");
+        jQuery("#bcdBookmark").on("click", function(event){
+          bcdui.core.lifecycle._generateBookmark(args.proposedName, url);
+        });
+
         jQuery("#bcdBookmark").click();
         jQuery("#bcdBookmark").remove();
       }
@@ -255,7 +265,7 @@ bcdui.core.lifecycle =
             titleTranslate: "bcd_ExpiredURLTitle"
           , messageTranslate: "bcd_ExpiredURL"
           , modalBoxType: bcdui.widget.modalBoxTypes.error
-          , onclick: "bcdui.core.lifecycle.switchToMainUrl()"
+          , onclick: bcdui.core.lifecycle.switchToMainUrl
           });
         });
         return;

@@ -40,7 +40,7 @@ import org.apache.logging.log4j.LogManager;
  * This worker has a Timer which is triggers queue-processing every queueDelayMs after a queue has been populated
  * via {@link #process(Object)} or {@link #process(Collection)}, you implement the {@link #processObjects(Collection)}
  * method to process batched objects gathered into the queue during queueDelayMs. In a container environment you can
- * gracefully {@link #shutdownQueues()} all queues by calling the method i.e. from context listener, in a standalone
+ * gracefully {@link #shutdownQueues(boolean)} all queues by calling the method i.e. from context listener, in a standalone
  * application you can do it via a shutdown hook or you can {@link #shutdown(boolean)} s single instance.
  * </p>
  * 

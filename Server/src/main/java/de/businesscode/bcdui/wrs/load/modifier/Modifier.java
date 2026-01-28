@@ -27,7 +27,6 @@ public interface Modifier {
   /**
    * Take the WrsRequest document as send by the client
    * @param wrq
-   * @return
    * @throws ParserConfigurationException
    */
   void process( Element wrq ) throws ParserConfigurationException;

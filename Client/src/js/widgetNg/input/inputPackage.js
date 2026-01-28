@@ -33,7 +33,7 @@
        * the widget value has been synced to the data model, 'memo' properties passed:
        *
        * - isValueEmpty {boolean}: if value is considered empty
-       * - value {String}: the value synced
+       * - value {string}: the value synced
        * - hasWritten {boolean}: if the value has been written or not, i.e. the value is not written if either invalid or value has not changed
        *
        * @static
@@ -109,15 +109,15 @@
           return;
         }
         // initial sync only when no data was injected yet or is color type
-        if (args.type == "color" || jQuery("#" + config.inputElementId).val() == "")
-          this._syncValue(config.inputElementId);
+        if (args.type == "color" || jQuery(uiControl.control).val() == "")
+          this._syncValue(uiControl.control);
       }.bind(this));
 
       // listen to updates on model
       this._setOnTargetModelChange(function(){
         try{
           if(!this._writingData){
-            this._syncValue(config.inputElementId);
+            this._syncValue(uiControl.control);
           }
         } finally {
           this._writingData = false;
@@ -133,13 +133,13 @@
       // add custom placeholder if not supported natively
       if(args.placeholder && !bcdui.browserCompatibility._hasFeature("input.placeholder") && !config.extendedConfig.hasCustomPlaceholderHandler){
         this._on(uiControl.control , {
-          focus : this._setUnsetPlaceholder.bind(this,config.inputElementId, false),
-          blur : this._setUnsetPlaceholder.bind(this,config.inputElementId, true)
+          focus : this._setUnsetPlaceholder.bind(this,uiControl.control, false),
+          blur : this._setUnsetPlaceholder.bind(this,uiControl.control, true)
         });
       }
 
-      if (args.oninput)
-        jQuery(uiControl.control).on("input", args.oninput);
+      if (args.oninput || args.onInputAction)
+        jQuery(uiControl.control).on("input", args.oninput || args.onInputAction);
 
       // add listeners
       if(!args.readonly){
@@ -156,7 +156,7 @@
           // before target is ready
           bcdui.factory.objectRegistry.withReadyObjects(config.target.modelId, function(){
             this._on( uiControl.control , {
-              blur : this.updateValue.bind(this,config.inputElementId),
+              blur : this.updateValue.bind(this,uiControl.control),
 
               // firefox does not focus the inputfield when clicking on up/down arrows in type=int input field. As a result, the blur event is not fired
               // so focus the input field in any case when clicking
@@ -167,7 +167,7 @@
 
         if(args.setCursorPositionAtEnd || args.isTextSelectedOnFocus){
           this._on( uiControl.control , {
-            blur : this._handleCursorPosition.bind(this,config.inputElementId)
+            blur : this._handleCursorPosition.bind(this,uiControl.control)
           });
         }
 
@@ -177,45 +177,45 @@
           rootContainer.append(resetControl);
           // add listener
           this._on( resetControl , {
-            click : this._clearValue.bind(this,config.inputElementId)
+            click : this._clearValue.bind(this,uiControl.control)
           });
         }
 
         // attach implicit validators
         if(args.maxlength){
-          this._addValidator(config.inputElementId, bcdui.widgetNg.validation.validators.widget.valueLength);
+          this._addValidator(uiControl.control, bcdui.widgetNg.validation.validators.widget.valueLength);
         }
         // attach our pattern validator in case not supported by browser
         if(args.pattern && !bcdui.browserCompatibility._hasFeature("input.pattern")){
-          this._addValidator(config.inputElementId, bcdui.widgetNg.validation.validators.widget.patternValidator);
+          this._addValidator(uiControl.control, bcdui.widgetNg.validation.validators.widget.patternValidator);
         }
         // check for required validator
         if(args.required && !bcdui.browserCompatibility._hasFeature("input.required")){
-          this._addValidator(config.inputElementId, bcdui.widgetNg.validation.validators.widget.notEmptyValidator);
+          this._addValidator(uiControl.control, bcdui.widgetNg.validation.validators.widget.notEmptyValidator);
         }
         // check for optional validationFunction
         if(args.validationFunction){
-          var func = bcdui.util.isString(args.validationFunction) ? eval(args.validationFunction) : args.validationFunction;
+          var func = bcdui.util.isString(args.validationFunction) ? bcdui.util._toJsFunction(args.validationFunction) : args.validationFunction;        
           if(!func){
             throw new Error("custom validation function not found (is null): " + (bcdui.util.isString(args.validationFunction)?"name:" + args.validationFunction : ""));
           }
-          this._addValidator(config.inputElementId, func);
+          this._addValidator(uiControl.control, func);
         }
 
 
         if(args.type=="int"){
-          this._addValidator(config.inputElementId, bcdui.widgetNg.validation.validators.widget.TYPE_VALIDATORS["int"]);
+          this._addValidator(uiControl.control, bcdui.widgetNg.validation.validators.widget.TYPE_VALIDATORS["int"]);
         }else if(args.type=="numeric"){
-          this._addValidator(config.inputElementId, bcdui.widgetNg.validation.validators.widget.TYPE_VALIDATORS["number"]);
+          this._addValidator(uiControl.control, bcdui.widgetNg.validation.validators.widget.TYPE_VALIDATORS["number"]);
         }else if(args.type=="email"){
-          this._addValidator(config.inputElementId, bcdui.widgetNg.validation.validators.widget.TYPE_VALIDATORS["email"]);
+          this._addValidator(uiControl.control, bcdui.widgetNg.validation.validators.widget.TYPE_VALIDATORS["email"]);
         }
       }else{
         bcdui.log.isTraceEnabled() && bcdui.log.trace("input IS read-only, dont attach modification listeners.");
       }
 
       // attach balloon displaying fly-over + ballon for the widget to display hints and validation
-      bcdui.widgetNg.commons.balloon.attach(config.inputElementId, {noTooltip: config.extendedConfig.noTooltip, noBalloon:!args.displayBalloon});
+      bcdui.widgetNg.commons.balloon.attach(uiControl.control, {noTooltip: config.extendedConfig.noTooltip, noBalloon:!args.displayBalloon});
 
       // apply disabled state
       if(this.options.disabled){
@@ -274,8 +274,8 @@
       else {
         this._validateElement(inputElementId, true)
         .then(() => {
-          // check if widget still exists
-          if (jQuery("#" + inputElementId).length > 0) {
+          // check if widget still exists by re-looking it up in the HTML DOM via ID
+          if (el.data("_config_") && jQuery("#" + el.data("_config_").inputElementId).length > 0) {
             if(!el.data("_config_").extendedConfig.hasCustomPlaceholderHandler){
               this._setUnsetPlaceholder(inputElementId, isValueEmpty);
             }
@@ -357,7 +357,7 @@
       bcdui.log.isTraceEnabled() && bcdui.log.trace("_readDataFromXML");
       var config = bcdui._migPjs._$(inputElementId).data("_config_");
       return {
-        value: bcdui.widget._getDataFromXML(bcdui.factory.objectRegistry.getObject(config.target.modelId),config.target.xPath)
+        value: ! config ? "" : bcdui.widget._getDataFromXML(bcdui.factory.objectRegistry.getObject(config.target.modelId),config.target.xPath)
       }
     },
 
@@ -377,7 +377,7 @@
      * @private
      */
     _validateElement: function(inputElementId, checkDataModelValidity, isSync){
-      var el = document.getElementById(inputElementId);
+      var el = bcdui._migPjs._$(inputElementId);
       var msg = this._getValidationMessages(inputElementId);
       bcdui.log.isTraceEnabled() && bcdui.log.trace("validation messages: " + msg);
 
@@ -442,7 +442,7 @@
       if(validators!=null){
         bcdui.log.isTraceEnabled() && bcdui.log.trace("found validators: " + validators.length);
         validators.forEach(function(v){
-          var res = v(inputElementId);
+          var res = v(bcdui._migPjs._$(inputElementId));
           if(res!=null){
             messages.push(res.validationMessage);
           }
@@ -588,7 +588,7 @@
 
       var triggerWrite = (hasWritten) => {
 
-        guiValue ? jQuery("#" + inputElementId).closest("*[data-bcdui-widget]").addClass("bcdActiveFilter") : jQuery("#" + inputElementId).closest("*[data-bcdui-widget]").removeClass("bcdActiveFilter");
+        guiValue ? inputEl.closest("*[data-bcdui-widget]").addClass("bcdActiveFilter") : inputEl.closest("*[data-bcdui-widget]").removeClass("bcdActiveFilter");
 
         inputEl.trigger(this.EVENT.SYNC_WRITE,{
           isValueEmpty : guiValue == "",

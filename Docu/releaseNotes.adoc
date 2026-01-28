@@ -27,8 +27,14 @@ ___
 * autogrow attribute for textarea widget
 * Firefox v137.0.2 stopped supporting xslt document() function, extended our implementation to firefox
 * SideBySideChooser uses i18n tokens for source and target caption translations
+* grid/cube/scorecard/far/tree get contextMenuResolver option to handle context menu options
+
 .Security:
+* Remove SPNEGO authentication mechanism as it is outdated, use oAuth instead
+* Deprecate bcdui4.Cors Filter for better CORS control using bcdui4.HttpHeaderSecurity
+
 .Development:
+
 .Bugfixes:
 * inputNg: consider value of "step" attribute for type="numeric"
 * WrsNextIdentifierServlet: fix counter creation with blockSize>1
@@ -53,6 +59,7 @@ ___
 * Remove msxsl namespace from preset namespaces
 * comment widget uses bcdUpdateBy/bcdUpdateStamp binding items as default "addBRefs". If using the default renderer and custom addBRefs, readd these bRefs
 * grid columns which use an optionsModel can be emptied via DEL. If empty values should not be allowed, ensure that the column is nullable=0
+* bcdOnLoad/bcdOnUnload html attributes can only contain one function name, not multiple ones, no parameters. Function context 'this' will be the html element.
 ___
 ==== Release 5_6_0
 

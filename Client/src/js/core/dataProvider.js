@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2024 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
       /**
        * The name of the data provider. It must not be unique in contrast to the
        * id.
-       * @type String
+       * @type {string}
        * @private
        */
       this.name = "";
@@ -96,7 +96,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
 
       /**
        * The listeners to be informed when the data changes.
-       * @type Array
+       * @type {Array<bcdui.core.StatusListener>}
        * @private
        */
       this.dataModificationListeners = [];
@@ -112,6 +112,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
       this.savingStatus = new bcdui.core.status.SavingStatus();
       /**
        * @constant
+       * @type {bcdui.core.Status}
        * @example
        * if( model.getStatus() === model.savedStatus )
        *   ...
@@ -119,6 +120,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
       this.savedStatus = new bcdui.core.status.SavedStatus();
       /**
        * @constant
+       * @type {bcdui.core.Status}
        */
       this.saveFailedStatus = new bcdui.core.status.SaveFailedStatus();
 
@@ -128,7 +130,10 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
         this.addStatusListener(this._statusTransitionHandlerDp.bind(this));
     }
 
-    getClassName() {return "bcdui.core.DataProvider";}
+  /**
+   * @inheritDoc
+   */
+  getClassName() {return "bcdui.core.DataProvider";}
 
   /**
    * @param statusEvent
@@ -430,7 +435,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    * @param {string} xPath - xPath pointing to value (can include dot template placeholders which get filled with the given fillParams)
    * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions 
    * @param {string} [defaultValue] - default value in case xPath value does not exist
-   * @return text value stored at xPath (or null if no text was found and no defaultValue supplied)
+   * @return {string} text value stored at xPath (or null if no text was found and no defaultValue supplied)
    */
   read(xPath, fillParams, defaultValue) {
     var def = (typeof fillParams == "string") ? fillParams : defaultValue;
@@ -457,7 +462,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    * @param {string[]} columns - positive list of column
    * @param {Object} xPathTemplate - xPath template which is used for reading (filtered) data (can have {{=it.}}) object references) 
    * @param {string} templateObj   - object holding the values for the placeholders in the xPathTemplate
-   * @return array holding objects with the read data
+   * @return {Array<Object>} holding objects with the read data
    * @private
    */
   _getDataFromTemplate(columns, xPathTemplate, templateObj) {
@@ -482,7 +487,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   /**
    * generate a filter xpath
    * @param {Object} filter - object holding requested filter conditions, e.g. { country: 'DE', flag: true } 
-   * @return wrs row filter condition as an xpath 
+   * @return {string} wrs row filter condition as an xpath
    * @private
    */
   _buildXPathTemplate(filter) {
@@ -505,10 +510,11 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
 
   /**
    * inserts a new row in the wrs data, values given as object
-   * @param {Object}  args.values      - object holding cell values which should be inserted, e.g. { country: 'DE', flag: true } 
+   * @param {Object}  args             - parameter bag
+   * @param {Object}  args.values      - object holding cell values which should be inserted, e.g. { country: 'DE', flag: true }
    * @param {boolean} [args.rmi=true]  - use wrs:I syntax when this is true, otherwise wrs:R is used, rmi=true also prefills default values
-   * @param {boolean} [args.fire=true] - fires dataprovider after insertion
-   * @return row id of newly inserted row 
+   * @param {boolean} [args.fire=true] - lets the listeners know, that the update was finished
+   * @return {string} row id of newly inserted row
    */
   tblInsert(args) {
     args = args || {};
@@ -529,13 +535,14 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   }
 
   /**
-   * updates wrs rows with given data. Either a single row (via rowId) or singel/multiple ones (via filter)
-   * @param {Object}  args.values      - object holding cell values which should be used for updating, e.g. { country: 'DE', flag: true } 
+   * updates wrs rows with given data. Either a single row (via rowId) or single/multiple ones (via filter)
+   * @param {Object}  args             - parameter bag
+   * @param {Object}  args.values      - object holding cell values which should be used for updating, e.g. { country: 'DE', flag: true }
    * @param {Object}  [args.filter]    - object holding cell values which should be used for selecting the rows for update, e.g. { country: 'DE', flag: true }
    * @param {boolean} [args.rmi=true]  - use wrs:M syntax when this is true, otherwise row columns element name is not touched
-   * @param {boolean} [args.fire=true] - fires dataprovider after insertion
-   * @param {string}  [args.rowId]     - id specifying row which should be update (or use filter) 
-   * @return number of updated rows 
+   * @param {boolean} [args.fire=true] - lets the listeners know, that the update was finished
+   * @param {string}  [args.rowId]     - id specifying row which should be updated (or use filter)
+   * @return {number} count of updated rows
    */
   tblUpdate(args) {
     args = args || {};
@@ -581,12 +588,13 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   }
 
   /**
-   * updates wrs rows with given data. Either a single row (via rowId) or singel/multiple ones (via filter)
+   * updates wrs rows with given data. Either a single row (via rowId) or single/multiple ones (via filter)
+   * @param {Object}  args             - parameter bag
    * @param {Object}  [args.filter]    - object holding cell values which should be used for selecting the rows for update, e.g. { country: 'DE', flag: true }
    * @param {boolean} [args.rmi=true]  - use wrs:M syntax when this is true, otherwise row columns element name is not touched
-   * @param {boolean} [args.fire=true] - fires dataprovider after insertion
+   * @param {boolean} [args.fire=true] - lets the listeners know, that the update was finished
    * @param {string}  [args.rowId]     - id specifying row which should be deleted (or use filter) 
-   * @return number of removed rows 
+   * @return {number} count of removed rows
    */
   tblDelete(args) {
     args = args || {};
@@ -603,9 +611,10 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
 
   /**
    * returns an array of requested data
+   * @param {Object}  args            - parameter bag
    * @param {Object}  [args.filter]   - object holding cell values which should be used for selecting the rows for update, e.g. { country: 'DE', flag: true }
-   * @param {Array}   [args.columns]  - string array of requested columns, if not given, all columns are returned 
-   * @return array of objects holding the requested data 
+   * @param {Array<string>}   [args.columns]  - string array of requested columns, if not given, all columns are returned
+   * @return {Array<Object>} Array of objects holding the requested data
    */
   tblSelect(args){
     args = args || {};
@@ -616,10 +625,11 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
 
   /**
    * returns one object representing the filtered data (either filter or rowId). In case of multiple filter matches, the first one is returned
-   * @param {Object}  [args.filter]  - object holding cell values which should be used for selecting the rows for update, e.g. { country: 'DE', flag: true }
-   * @param {string}  [args.rowId]   - rowId of row which should be queried (or use filter)
-   * @param {Array}   [args.columns] - string array of requested columns, if not given, all columns are returned 
-   * @return array of objects holding the requested data 
+   * @param {Object}  args                 - parameter bag
+   * @param {Object}        [args.filter]  - object holding cell values which should be used for selecting the rows for update, e.g. { country: 'DE', flag: true }
+   * @param {string}        [args.rowId]   - rowId of row which should be queried (or use filter)
+   * @param {Array<string>} [args.columns] - string array of requested columns, if not given, all columns are returned
+   * @return {Object} Array  of objects holding the requested data
    */
   tblSelectRow(args){
     args = args || {};
@@ -636,7 +646,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    * It will prefer extending an existing start-part over creating a second one.
    * After the operation the xPath (with the optional value) is guaranteed to exist (pre-existing or created or extended) and the addressed node is returned.
    * 
-   * @param {string}  xPath        - xPath pointing to the node which is set to the value value or plain xPath to be created if not there. 
+   * @param {string}  xPath        - xPath pointing to the node which is set to the value or plain xPath to be created if not there.
    *    It tries to reuse all matching parts that are already there. If you provide for example "/n:Root/n:MyElem/@attr2" and there is already "/n:Root/n:MyElem/@attr1", then "/n:Root/n:MyElem" will be "re-used" and get an additional attribute attr2.
    *    Many expressions are allowed, for example "/n:Root/n:MyElem[@attr1='attr1Value']/n:SubElem" is also ok.
    *    By nature, some xPath expressions are not allowed, for example using '//' or "/n:Root/n:MyElem/[@attr1 or @attr2]/n:SubElem" is obviously not unambiguous enough and will throw an error.
@@ -647,7 +657,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    * @param {string}  [value]      - Optional value which should be written, for example to "/n:Root/n:MyElem/@attr" or with "/n:Root/n:MyElem" as the element's text content.
    *    If not provided, the xPath contains all values like in "/n:Root/n:MyElem[@attr='a' and @attr1='b']" or needs none like "/n:Root/n:MyElem" 
    * @param {boolean} [fire=false] - If true a fire is triggered to inform data modification listeners
-   * @return The xPath's node or null if dataProvider isn't ready
+   * @return {DomNode} The xPath's node or null if dataProvider isn't ready
    */
   write(xPath, fillParams, value, fire) {
     if (this.getData() == null)
@@ -685,7 +695,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    * Reads a single node from a given xPath
    * @param {string} xPath - xPath to query 
    * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions 
-   * @return single node or null if query fails
+   * @return {DomNode|null} single node or null if query fails
    */
   query(xPath, fillParams) {
     if (this.getData() == null) return null;
@@ -697,7 +707,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    * Get node list from a given xPath
    * @param {string} xPath - xPath to query 
    * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions 
-   * @return node list or empty list if query fails
+   * @return {Array<DomNode>} node list or empty list if query fails
    */
   queryNodes(xPath, fillParams) {
     if (this.getData() == null) return [];
@@ -707,7 +717,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
 
   /**
    * Serialize dataprovider's data if available
-   * @return String containing the serialized data
+   * @return {string} String containing the serialized data
    */
   serialize() {
     if (this.getData() == null)
@@ -860,7 +870,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    * 1) in case stringValue is less than 96 characters - return that value
    * 2) otherwise compute hash
    *
-   * @return string hash value, null in case stringValue was null or empty string in case stringValue was empty
+   * @return {string} hash value, null in case stringValue was null or empty string in case stringValue was empty
    * @private
    */
   _hashValueForListener(xPath){
@@ -898,7 +908,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   }
 
   /**
-   * @param {Status} args
+   * @param {bcdui.core.Status} args
    */
   setStatus( args) {
     var stat = bcdui.core.AbstractExecutable.prototype.setStatus.call(this, args);
@@ -930,7 +940,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   /**
    * asynchronously fetch data for this data provider.
    *
-   * @return {Promise} resolving once data has been loaded, first argument is this instance
+   * @return {Promise<bcdui.core.DataProvider>} resolving once data has been loaded, first argument is this instance
    * @example
    * new bcdui.core.SimpleModel("data.xml").fetchData().then((dp)=>{ console.info(dp.getData()); })
    */

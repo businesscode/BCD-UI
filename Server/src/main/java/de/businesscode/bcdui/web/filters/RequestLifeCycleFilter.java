@@ -113,6 +113,8 @@ public class RequestLifeCycleFilter implements Filter {
       csp = before + nonce + after;
       request.setAttribute("bcdNonce", nonce);
     }
+    if (csp.contains("unsafe-eval"))
+      request.setAttribute("bcdUnsafeEval", "true");
 
     response.addHeader("Content-Security-Policy", csp);
 

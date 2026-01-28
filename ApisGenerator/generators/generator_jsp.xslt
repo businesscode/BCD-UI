@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2024 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@
       <xsl:sort select="concat(translate(substring(concat(@required,substring('false',0,1 div string-length(@required))), 1, 1), 'tf', '01'), @name)" order="ascending"/>
       <xsl:if test="not(@isJSPChild)">
         <xsl:value-of select="concat('&#10;&lt;%@ attribute name=',$qq,@name,$qq)"/>
-        <xsl:if test="@required='true'"> required="true"</xsl:if>
+        <xsl:if test="@required='true' and @name!='targetHtml'"> required="true"</xsl:if>
         <xsl:variable name="typeName">
           <xsl:choose>
             <xsl:when test="contains(@type, 'number')">Number</xsl:when>
@@ -114,7 +114,7 @@
           <xsl:text> description="&#10;</xsl:text>
           <xsl:choose>
             <xsl:when test="@deprecated!=''">Deprecated:</xsl:when>
-            <xsl:when test="@required='true'">Required:</xsl:when>
+            <xsl:when test="@required='true' and @name!='targetHtml'">Required:</xsl:when>
             <xsl:otherwise>Optional:</xsl:otherwise>
           </xsl:choose>
           <xsl:call-template name="printRowsNormalize">
@@ -278,7 +278,7 @@
       </xsl:variable>
 
       <xsl:text>&#10;&lt;%-- js implementation call with all parameters --%&gt;</xsl:text>
-      <xsl:text>&#10;&lt;webpage:script>&#10;  </xsl:text><xsl:value-of select="$functionCall"/><xsl:text>({bcdSyntaxDummy: null&#10;</xsl:text>
+      <xsl:text>&#10;&lt;webpage:script>&#10;  </xsl:text><xsl:value-of select="$functionCall"/><xsl:text>({bcdApi: 'JSP', bcdSyntaxDummy: null&#10;</xsl:text>
       <xsl:for-each select="Api/Param">
 
         <!--  get final js name, either name or overwrite from jsName -->

@@ -26,8 +26,8 @@ bcdui.widget.menu.Menu = class
 {
   /**
    * @param args
-   * @param {String|HtmlElement} args.rootIdOrElement         root Node of the menu (ul)
-   * @param {String} args.name                                name of the variable that stores the result
+   * @param {string|HtmlElement} args.rootIdOrElement         root Node of the menu (ul)
+   * @param {string} args.name                                name of the variable that stores the result
    *                                                           of this constructor function
    * @param {function} args.customConfigFunction              optional config function to override the default settings
    *                                                          for an example see Menu.prototype.config
@@ -49,7 +49,10 @@ bcdui.widget.menu.Menu = class
     this.rootContainer = this._createMenuContainer(this.rootId, this);
   }
 
-  getClassName() {return "menu";}
+  /**
+   * @return {string} class name
+   */
+  getClassName() {return "bcdui.widget.menu.Menu";}
 
   /**
    * these two create methods make it possible to extend MenuContainer and MenuItem without
@@ -103,10 +106,10 @@ bcdui.widget.menu.Menu = class
   init(idOrElement, parent) {
     this.element = bcdui._migPjs._$(idOrElement).get(0);
     this.parent = parent;
-    this.parentMenu = (this.type == "menuContainer") ? ((parent) ? parent.parent : null) : parent;
-    this.root = parent.type == "menu" ? parent : parent.root;
+    this.parentMenu = (this.type == "bcdui.widget.menu.MenuContainer") ? ((parent) ? parent.parent : null) : parent;
+    this.root = parent.type == "bcdui.widget.menu.Menu" ? parent : parent.root;
 
-    if (this.type == "menuContainer") {
+    if (this.type == "bcdui.widget.menu.MenuContainer") {
       if (bcdui._migPjs._$(this.element).hasClass("bcdLevel1")) this.menuType = "horizontal";
       else
         if (bcdui._migPjs._$(this.element).hasClass("bcdLevel2")) this.menuType = "dropdown";
@@ -133,7 +136,7 @@ bcdui.widget.menu.Menu = class
     for (var i = 0; i < childNodes.length; i++) {
       var node = childNodes[i];
       if (node.nodeType == 1) {
-        if (this.type == "menuContainer") {
+        if (this.type == "bcdui.widget.menu.MenuContainer") {
           if (node.tagName.toLowerCase() == "li") {
             this.menuItems.push( this.root._createMenuItem(node, this));
           }
@@ -146,7 +149,11 @@ bcdui.widget.menu.Menu = class
     }
   }
 
-  getClassName() {return "menuContainer";}
+  /**
+   * @return {string} class name
+   */
+  getClassName() {return "bcdui.widget.menu.MenuContainer";}
+
   /**
    * @private
    */
@@ -260,16 +267,22 @@ bcdui.widget.menu.Menu = class
       this.text = linkTag.text;
     }
     if (this.subMenu) {
+      let self = this.subMenu;
       this.element.onmouseout = function() {
         if (menuItem.root.openDelayTimer) window.clearTimeout(menuItem.root.openDelayTimer);
         if (menuItem.root.closeDelayTimer) window.clearTimeout(menuItem.root.closeDelayTimer);
-        eval(menuItem.root.name)["closingMenuItem"] = menuItem;
-        menuItem.root.closeDelayTimer = window.setTimeout(menuItem.root.name + ".closingMenuItem.subMenu._close()", menuItem.root.closeDelayTime);
+        const o = bcdui.util._getJsObjectFromString(menuItem.root.name);
+        o["closingMenuItem"] = menuItem;
+        const fkt = bcdui.util._toJsFunction(menuItem.root.name + ".closingMenuItem.subMenu._close").bind(self);
+        menuItem.root.closeDelayTimer = window.setTimeout(fkt, menuItem.root.closeDelayTime);
       }
     }
   }
 
-  getClassName() {return "menuItem";}
+  /**
+   * @return {string} class name
+   */
+  getClassName() {return "bcdui.widget.menu.MenuItem";}
 
   /**
    * Open the item

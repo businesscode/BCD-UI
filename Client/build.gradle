@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -47,9 +47,9 @@ def js3rdPartyNpm = [
       "block-ui":       [ fn: "jquery.blockUI.js",     ofn: "block-ui/jquery.blockUI.js" ],
       "dot":            [ fn: "doT.js",                ofn: "dot/doT.js",                                    ofnm: "dot/doT.min.js"],
       "log4javascript": [ fn: "log4javascript.js",     ofn: "log4javascript/log4javascript_uncompressed.js", ofnm: "log4javascript/log4javascript.js"],
-      "handsontable":   [ [ fn: "handsontable.js",     ofn: "handsontable/dist/handsontable.js",             ofnm: "handsontable/dist/handsontable.min.js"],
-                          [ fn: "numbro.js",           ofn: "handsontable/dist/numbro/numbro.js"],
-                          [ fn: "handsontable.css",    ofn: "handsontable/dist/handsontable.min.css"] ],
+//      "handsontable":   [ [ fn: "handsontable.js",     ofn: "handsontable/dist/handsontable.js",             ofnm: "handsontable/dist/handsontable.min.js"],
+//                          [ fn: "numbro.js",           ofn: "handsontable/dist/numbro/numbro.js"],
+//                          [ fn: "handsontable.css",    ofn: "handsontable/dist/handsontable.min.css"] ],
       "nouislider":     [ fn: "nouislider.js",         ofn: "nouislider/distribute/nouislider.js"],
       "fileSaver":      [ fn: "fileSaver.js",          ofn: "fileSaver/dist/FileSaver.js",                   ofnm: "fileSaver/dist/FileSaver.min.js"],
       "d3-format":      [ fn: "d3-format.js",          ofn: "d3-format/dist/d3-format.js",                   ofnm: "d3-format/dist/d3-format.min.js"],
@@ -60,7 +60,7 @@ js3rdPartyNpm = js3rdPartyNpm.findAll { project.hasProperty('bcdui.3rdPartyJs.'+
 def copyUnmodified = ["xlsx.full.min.js": [ofn: "src/js/3rdParty/xlsx.full.min.js"]]
 
 // list 3rdParty folders (src/js/3rdPary) which should be taken 1:1 into the jar
-def unmodified3rdPartyFolders = ["ckeditor", "saxonJs"]
+def local3rdPartyFolders = ["ckeditor", "handsontable", "saxonJs"]
 
 //**********************************
 // Install node modules for our runtime. Needed for the (client) distribution
@@ -254,19 +254,6 @@ task bcduiClientCollectAll( type: Copy ) {
   exclude '**/bcduiLoader.js'
 
   doLast {
-
-    // copy js files from unmodified3rdPartyFolders 1:1 directly
-    unmodified3rdPartyFolders.each { folder ->
-      fileTree(dir: 'src/js/3rdParty/' + folder, include: ['**/*.js']).each { jsFile ->
-        def path = jsFile.path.replace("\\", "/");
-        def target = jsFile.path.substring(path.indexOf("src/js/3rdParty/") + "src/js/3rdParty/".length());
-        copy {
-          from jsFile.path
-          into "$clientCombinedDir/$jsDistDir/3rdParty/" + target.substring(0, target.indexOf(jsFile.name))
-        }
-      }
-    }
-
     //--------
     // Remove comments and empty lines from xml, xslt, add copyright
     fileTree(dir: destinationDir, exclude: "**/xslt/3rdParty/**", include: ['**/*.xml','**/*.xslt']).each { xmlSource ->
@@ -321,6 +308,29 @@ task bcduiClientJsFileGroups {
         }
         outFile.text += newLine + ( is3rdParty ? '/* For license see THIRDPARTYLICENSEREADME.txt */' : "/* $bcdCopyRightText */" )
       }
+    }
+  }
+
+  def minifiyTask = { String newTaskName, inputFile, outputFile ->
+    task(newTaskName, type: NodeTask) {
+      mustRunAfter 'bcduiClientCollectAll'
+      script = file("$nodeModulesDir/esbuild/bin/esbuild")
+      args = [
+        "${inputFile}",
+        "--minify",
+        "--outfile=${outputFile}"
+      ]
+      inputs.file(inputFile)
+      outputs.file(outputFile)
+    }
+  }
+  // minimize local 3rdParty ones with esbuild instead of babel (which causes issues) and take them over to the final package
+  local3rdPartyFolders.each { folder ->
+    fileTree(dir: 'src/js/3rdParty/' + folder, include: ['**/*.js']).eachWithIndex { jsFile, i ->
+      def path = jsFile.path.replace("\\", "/");
+      def target = jsFile.path.substring(path.indexOf("src/js/3rdParty/") + "src/js/3rdParty/".length()).replace("\\", "/");
+      def name = target.substring(target.lastIndexOf('/') + 1)
+      dependsOn += minifiyTask("$i-minimize-$name", path, "$clientCombinedDir/$jsDistDir/3rdParty/" + target)
     }
   }
 
@@ -382,9 +392,9 @@ task bcduiClientJsFileGroups {
   bcduiFiles.groups.each { fileSet ->
     fileSet.files.findAll { it.contains("3rdParty") && it.endsWith('.js') }.each { fName ->
 
-      // ignore js files in folders which are listed in unmodified3rdPartyFolders (they are copied 1:1 via bcduiClientCollectAll)
+      // ignore js files in folders which are listed in local3rdPartyFolders (they are copied 1:1 via bcduiClientCollectAll)
       def skip = false;
-      unmodified3rdPartyFolders.each { ignore -> skip |= fName.startsWith("/js/3rdParty/" + ignore); }
+      local3rdPartyFolders.each { ignore -> skip |= fName.startsWith("/js/3rdParty/" + ignore); }
 
   	  if (! skip) {
         fName = fName.lastIndexOf('/').with {it != -1 ? fName[it+1..<fName.length()] : fName}

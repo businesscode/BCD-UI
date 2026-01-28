@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@
   <xsl:variable name="qq">"</xsl:variable>
   <!-- used to store/retrieve the costruction params on element via jQuery(el).prop(..) -->
   <xsl:variable name="ELEMENT_PROPERTY_PARAMS">bcduiWidgetParams</xsl:variable>
+  <xsl:variable name="isString">["string", "xPath", "i18nToken", "modelXPath", "writableModelXPath", "enumString", "stringList", "url"]</xsl:variable>
+
 
   <xsl:template match="BcdObject" mode="jsFactory">
    <xsl:variable name="createName">
@@ -52,7 +54,7 @@
       <xsl:apply-templates select="." mode="jsDoc"/>
     </xsl:for-each>
 */<xsl:value-of select="concat('&#10;', $package, '.', $createName)"/> = function( args ) {
-  args = jQuery.extend(true, {}, args);
+  args = jQuery.extend(true, {bcdApi: "JS"}, args);
   var htmlE = jQuery(bcdui.widgetNg.utils._getAndFixTargetHtmlElement(args, "<xsl:value-of select="concat(@name, '_')"/>"));
   htmlE.prop("<xsl:value-of select="$ELEMENT_PROPERTY_PARAMS"/>", args);
 
@@ -62,10 +64,22 @@
 
   <xsl:template match="Api/Param" mode="jsDoc">
     <xsl:if test="@name!='targetHTMLElementId' and @name!='targetHtmlElementId'">
-      <xsl:variable name="default"><xsl:if test="@default!=''">=<xsl:value-of select="@default"/></xsl:if></xsl:variable>
+      <xsl:variable name="default">
+        <xsl:choose>
+          <xsl:when test="@default and contains($isString,@type) and not(starts-with(@default,'&quot;') or starts-with(@default,'&amp;apos;'))">="<xsl:value-of select="@default"/>"</xsl:when>
+          <xsl:when test="@default">=<xsl:value-of select="@default"/></xsl:when>
+        </xsl:choose>
+      </xsl:variable>
       <xsl:variable name="required1"><xsl:if test="not(@required) or @required!='true'">[</xsl:if></xsl:variable>
       <xsl:variable name="required2"><xsl:if test="not(@required) or @required!='true'">]</xsl:if></xsl:variable>
-      <xsl:value-of select="concat('&#10;  * @param {', @type, '}  ', $required1, 'args.', @name, $default, $required2, '  ', normalize-space(Doc))"/>
+      <xsl:variable name="jsDocType">
+        <xsl:choose>
+          <xsl:when test="@type='stringList' or @type='enumString'">string</xsl:when>
+          <xsl:when test="@type='dataProvider'">bcdui.core.DataProvider</xsl:when>
+          <xsl:otherwise><xsl:value-of select="@type"/></xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+      <xsl:value-of select="concat('&#10;  * @param {', $jsDocType, '}  ', $required1, 'args.', @name, $default, $required2, '  ', normalize-space(Doc))"/>
     </xsl:if>
   </xsl:template>
 
@@ -131,8 +145,7 @@
 <xsl:value-of select="concat('&#10;', $package, '.')"/>impl.validateParams.<xsl:value-of select="@name"/>= function( params ) {
   <xsl:apply-templates select="Api/Param[contains(@type, 'enum')]" mode="jsValidateEnumParamBag"/>
   <xsl:apply-templates select="Api/Param[@required = 'true']" mode="jsValidateRequired"/>
-};
-  </xsl:template>
+};&#10;</xsl:template>
 
   <!-- 
     sets property to real boolean if content equals 'true' or 'false'
@@ -161,6 +174,7 @@
     <xsl:variable name="defaultValue">
       <xsl:choose>
         <xsl:when test="contains(@type,'number') or contains(@type,'integer')"><xsl:value-of select="@default"/></xsl:when>
+        <xsl:when test="contains($isString,@type) and (starts-with(@default,'&quot;') or starts-with(@default,$qq))"><xsl:value-of select="@default"/></xsl:when>
         <xsl:otherwise>"<xsl:value-of select="@default"/>"</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
@@ -170,7 +184,12 @@
 
   <!-- Helper to validate required -->
   <xsl:template match="Api/Param" mode="jsValidateRequired">
-  if (params.<xsl:value-of select="@name"/> == null) throw new Error("Widget (id='"+params.id+"') init error: missing property '<xsl:value-of select="@name"/>'");
+    <xsl:choose>
+      <xsl:when test="@name='targetHtml'">
+  if (params.<xsl:value-of select="@name"/> == null &amp;&amp; params.bcdApi == "JS") throw new Error("Widget (id='"+params.id+"') init error: missing property '<xsl:value-of select="@name"/>'");</xsl:when>
+      <xsl:otherwise>
+  if (params.<xsl:value-of select="@name"/> == null) throw new Error("Widget (id='"+params.id+"') init error: missing property '<xsl:value-of select="@name"/>'");</xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <!--

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -25,9 +25,9 @@ bcdui.core.HTML2XMLDataProvider = class extends bcdui.core.DataProvider
        * @constructs
        * @extends bcdui.core.DataProvider
        * @param {Object} args
-       * @param {String} args.id
-       * @param {String} args.name
-       * @param {(String|HtmlElement)} args.idOrElement
+       * @param {string} args.id
+       * @param {string} args.name
+       * @param {(string|HtmlElement)} args.idOrElement
        *
        */
       constructor(args)
@@ -85,13 +85,16 @@ bcdui.core.HTML2XMLDataProvider = class extends bcdui.core.DataProvider
           this.setStatus(newStatus);
         }
 
+      /**
+       * @inheritDoc
+       */
       getData()
         {
           return this.doc;
         }
 
       /**
-       * @return {status}
+       * @inheritDoc
        */
       getReadyStatus()
         {
@@ -140,6 +143,21 @@ bcdui.widget.tab = Object.assign(bcdui.widget.tab,
      * @private
      *
      */
+    initFromHtml: function() {
+      const data = this.dataset;
+      if (data) {
+        let args = {
+            id: data.id
+          , rendererUrl: data.rendererUrl
+          , rendererId: data.rendererId
+          , handlerJsClassName: data.handlerJsClassName
+          , targetHTMLElementId: data.targetHtmlElementId
+          , idOrElement: data.idOrElement
+        }
+        bcdui.widget.tab.init(args);
+      }
+    },
+
     init:function(args)
     {
 
@@ -198,6 +216,15 @@ bcdui.widget.tab = Object.assign(bcdui.widget.tab,
       });
       // initially sync
       renderer.onceReady(function(){
+
+        jQuery("#" + args.targetHTMLElementId + " .isClickable").off("click");
+        jQuery("#" + args.targetHTMLElementId + " .isClickable").on("click", function(event) {
+          const bcdAction = jQuery(event.target).attr("bcdAction") || "";
+          if (bcdAction != "")
+            bcdui.util._executeJsFunctionFromString(bcdAction);
+          bcdui.util._executeJsFunctionFromString(_handlerVariableName + ".handleTabAction", null, [event, settingsNode]);
+        });
+
         bcdui.core.createElementWithPrototype(bcdui.wkModels.guiStatus.getData(), guiStatusTabXPath + "/Active").text = activeTab;
         bcdui.widget.tab._syncActiveTab(tabId, args.targetHTMLElementId, args.idOrElement, settingsNode);
       });

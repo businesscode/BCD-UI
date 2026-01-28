@@ -97,7 +97,7 @@ bcdui.component.textnavigation.TextNavigation = class extends bcdui.core.Rendere
 
   /**
    * Interpret free text as filter settings and navigation
-   * @param {String} resultText - Interpret result text with the help of the options from setup
+   * @param {string} resultText - Interpret result text with the help of the options from setup
    * @private
    */
   interpret( resultText )
@@ -378,9 +378,9 @@ bcdui.component.textnavigation.TextNavigation = class extends bcdui.core.Rendere
 
   /**
    * Replace all single-digits in the text be the corresponding English word "1" -> "one"
-   * @param {String} text - Text in which to replace single digit words representing numbers
-   * @param {String} prefix - Optional prefix to make the words longer and less ambiguous in conains relations
-   * @return transformed text
+   * @param {string} text - Text in which to replace single digit words representing numbers
+   * @param {string} prefix - Optional prefix to make the words longer and less ambiguous in conains relations
+   * @return {string} transformed text
    */
   singleDigitToWord( text, prefix ) {
     let regex = RegExp(/\W\d\W/);

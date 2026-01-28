@@ -30,34 +30,42 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
   // Constants for available chart types
   /**
    * @constant
+   * @type {integer}
    */
   LINECHART= 1;
   /**
    * @constant
+   * @type {integer}
    */
   AREACHART= 2;
   /**
    * @constant
+   * @type {integer}
    */
   BARCHART=  3;
   /**
    * @constant
+   * @type {integer}
    */
   PIECHART=  4;
   /**
    * @constant
+   * @type {integer}
    */
   SCATTEREDCHART= 5;
   /**
    * @constant
+   * @type {integer}
    */
   POINTCHART= 6;
   /**
    * @constant
+   * @type {integer}
    */
   GAUGECHART= 7;
   /**
    * @constant
+   * @type {integer}
    */
   MARIMEKKOCHART= 8;
   /**
@@ -127,6 +135,9 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
     
   }
 
+  /**
+   * @inheritDoc
+   */
   getClassName() {return "bcdui.component.chart.Chart";}
 
   /**
@@ -223,8 +234,8 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
    * @param {string}   [args.caption]       - Axis caption
    * @param {string}   [args.unit]          - Unit like € or sec. If '%', values are shown as percent. Use '% ' to show percent without dividing by 100
    * @param {string}   [args.layoutFlow]    - css value
-   * @param {numeric}  [args.minValueUser]  - User set axis min value. Only used when below lowest actual value
-   * @param {numeric}  [args.maxValueUser]  - User set axis max value. Only used when above highest actual value
+   * @param {number}   [args.minValueUser]  - User set axis min value. Only used when below lowest actual value
+   * @param {number}   [args.maxValueUser]  - User set axis max value. Only used when above highest actual value
    * @param {boolean}  [args.showGrid=true] - If false, no horizontal grid is shown but only small lines next to the y-axis values
    */
   setYAxis1( args )
@@ -239,8 +250,8 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
    * @param {string}   [args.caption]       - Axis caption
    * @param {string}   [args.unit]          - Unit like € or sec. If '%', values are shown as percent. Use '% ' to show percent without dividing by 100
    * @param {string}   [args.layoutFlow]    - css value
-   * @param {numeric}  [args.minValueUser]  - User set axis min value. Only used when below lowest actual value
-   * @param {numeric}  [args.maxValueUser]  - User set axis max value. Only used when above highest actual value
+   * @param {number}   [args.minValueUser]  - User set axis min value. Only used when below lowest actual value
+   * @param {number}   [args.maxValueUser]  - User set axis max value. Only used when above highest actual value
    */
   setYAxis2( args )
   {
@@ -265,16 +276,16 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
    * Adds a data series to the chart
    * @param {Object} args - Parameter object
    * @param {integer}           [args.yAxis1Or2]                - 1 for left and 2 for right axis
-   * @param {numeric[]}         [args.yData]                    - Data array or provide yDataInfo
+   * @param {number[]}          [args.yData]                    - Data array or provide yDataInfo
    * @param {DomNodeSet}        [args.yDataInfo]                - XML nodeset with data
-   * @param {numeric[]}         [args.sizeData]                 - 2nd value for scattered charts
-   * @param {numeric[]}         [args.xValues]                  - For x-y charts
+   * @param {number[]}          [args.sizeData]                 - 2nd value for scattered charts
+   * @param {number[]}          [args.xValues]                  - For x-y charts
    * @param {(integer|string)}  [args.chartType]                - Either name or numeric value for chart type
    * @param {string}            [args.rgb]                      - Color
    * @param {string}            [args.dashstyle]                - Dash style
    * @param {string[]}          [args.baseColors]               - Colors defining the tones of the generated colors, for example in case of a pie chart
    * @param {string}            [args.caption]                  - Series caption
-   * @param {numeric}            [args.width]                    - Line width</li>
+   * @param {number}             [args.width]                    - Line width</li>
    * @param {(function|string)} [args.onClick]                  - Either a function or the name of a function
    * @param {boolean}           [args.toSeriesPercentage=false] - If true, each value is represented by its percentage value of the full series.
    */
@@ -1166,7 +1177,7 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
   }
 
   /**
-   * @member bcdui.component.Chart
+   * @memberOf bcdui.component.Chart
    * @private
    */
   _drawGridMainAxes()
@@ -1587,9 +1598,10 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
   {
     this.setStatus(this.loadingStatus);
   }
+
   /**
    * Not implemented for Chart
-   * @return null
+   * @return {document} will always be null
    */
   getData()
   {
@@ -1597,7 +1609,7 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
   }
 
   /**
-   * @inheritdoc
+   * @inheritDoc
    */
   getReadyStatus()
   {
@@ -1627,7 +1639,7 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
 
   /**
    * Not implemented for Chart
-   * @return null
+   * @return {bcdui.core.DataProvider} will always be null
    */
   getPrimaryModel(){
     return null;

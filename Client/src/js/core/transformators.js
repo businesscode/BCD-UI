@@ -28,7 +28,7 @@ bcdui.core.transformators =
    * For XSLT an XSLT stylesheet document is to be provided
    * For JS the function name or a function reference can be used
    * @param args The parameter map:
-   * @param {String|function} args.procFkt The js function to be used for processing.
+   * @param {string|function} args.procFkt The js function to be used for processing.
    * @param {function} args.callback Callback called once the processor is created
    * @private
    */
@@ -152,7 +152,7 @@ bcdui.core.transformators.JsTransformator = class extends bcdui.core.transformat
   {
     super( procFkt);
     if( typeof procFkt == "string" ) {
-      procFkt = eval(procFkt);
+      procFkt = bcdui.util._toJsFunction(procFkt);
     }
     this.procFkt = procFkt;
   }

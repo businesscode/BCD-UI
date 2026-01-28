@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2024 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -40,15 +40,18 @@ bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
   /**
    * @param {(string|StaticModelParam|DomDocument)} args - And XML string, which is parsed, an XML Document or a JSON object or any other kind of data
    * @example
-   * // Provide data as a {@link bcdui.core.DataProvider DataProvider}
-   * var myModel = new bcdui.core.StaticModel( "<Root myAttr='Test'></Root>" );
-   * myModel.execute();
-   * var myAttr = myModel.getData().selectSingleNode("/Root/@myAttr").nodeValue;
-   * @example
-   * // Provide data as a {@link bcdui.core.DataProvider DataProvider} with an id or use in a declarative context
-   * var myModel = new bcdui.core.StaticModel({ id: "dayModel", data: "<Values> <V>Mon</V> <V>Wed</V> </Values>" });
-   * myModel.execute();
+   * // Provide data as a {@link bcdui.core.DataProvider DataProvider} with an id or use in a declarative context by id
+   * var m = new bcdui.core.StaticModel({ id: "dayModel", data: "<Values> <V>Mon</V> <V>Wed</V> </Values>" });
    * bcdui.widgetNg.createSingleSelect({ targetHtml: "selectDayHtml", optionsModelXPath: "$dayModel/Values/V", targetModelXPath: "$guiStatus/guiStatus:Status/guiStatus:SelectedDay/@value" });
+   * @example
+   * Provide data as a {@link bcdui.core.DataProvider DataProvider}
+   * var myModel = new bcdui.core.StaticModel( "<Root myAttr='Test'></Root>" );
+   * // Widgets and Renderers automatically execute and wait for the model to be ready. If using it in plain JavaScript, do it yourself.
+   * myModel.onceReady({ executeIfNotReady: true, onSuccess: () => {
+   *   var myAttr = myModel.getData().selectSingleNode("/Root/@myAttr").nodeValue;
+   *   // ...
+   * }});
+   *
    * @description
    * Create a StaticModel and provide the data.
    */
@@ -81,10 +84,12 @@ bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
       }
 
       /**
+       * @type {bcdui.core.status.InitializedStatus}
        * @constant
        */
       this.initializedStatus = new bcdui.core.status.InitializedStatus();
       /**
+       * @type {bcdui.core.status.TransformedStatus}
        * @constant
        */
       this.transformedStatus = new bcdui.core.status.TransformedStatus();
@@ -125,7 +130,10 @@ bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
 
     }
 
-    getClassName() {return "bcdui.core.StaticModel";}
+  /**
+   * @inheritDoc
+   */
+  getClassName() {return "bcdui.core.StaticModel";}
 
   /**
    * @private

@@ -85,7 +85,7 @@
       <xsl:text>&#10;</xsl:text>
     </xsl:if>
 
-    <!-- generate bcdOnLoad script in case we got an implementation function  -->
+    <!-- generate bcdOnloadX script in case we got an implementation function  -->
 
     <xsl:if test="@implementationFunction!='' or $gotImplementationPackage">
       <xsl:text>&#10;</xsl:text>
@@ -162,7 +162,8 @@
         <xsl:when test="$isWidgetNg and $gotImplementationPackage">
           <xsl:text>&#10;&#10;  </xsl:text><xsl:comment>htmlElement container start</xsl:comment><xsl:text></xsl:text>
           <xsl:text>&#10;  </xsl:text><xsla:element name="{$containerElement}">
-            <xsl:text>&#10;&#10;    </xsl:text><xsl:comment>convert each param to bcd attributes</xsl:comment><xsl:text></xsl:text>
+            <xsl:text>&#10;&#10;    </xsl:text><xsl:comment>convert each param to bcd attributes</xsl:comment><xsl:text></xsl:text><xsl:text>&#10;    </xsl:text>
+            <xsla:attribute name="bcdApi">XML</xsla:attribute>
             <xsl:for-each select="Api/Param">
               <xsl:variable name="bcdPrefix">
                 <xsl:call-template name="addPrefix">
@@ -178,7 +179,7 @@
             </xsl:for-each>
             
             
-            <!-- and finally build bcdOnLoad to trigger the implementation function -->
+            <!-- and finally build bcdOnloadX to trigger the implementation function -->
             
             <xsl:variable name="x">
               <xsl:call-template name="lastIndexOf">
@@ -187,8 +188,8 @@
               </xsl:call-template>
             </xsl:variable>
 
-            <xsl:text>&#10;&#10;    </xsl:text><xsl:comment>bcdOnLoad attribute with js implementation call</xsl:comment><xsl:text></xsl:text>
-            <xsl:text>&#10;    </xsl:text><xsla:attribute name="bcdOnLoad"><xsl:value-of select="concat(substring(@implementationPackage, 1, number($x)),@name,'.init(this);')"/></xsla:attribute>
+            <xsl:text>&#10;&#10;    </xsl:text><xsl:comment>bcdOnloadX attribute with js implementation call</xsl:comment><xsl:text></xsl:text>
+            <xsl:text>&#10;    </xsl:text><xsla:attribute name="bcdOnloadX"><xsl:value-of select="concat(substring(@implementationPackage, 1, number($x)),@name,'.init(this);')"/></xsla:attribute>
             <xsl:text>&#10;    </xsl:text><xsla:value-of select="*[false()]"/>
           <xsl:text>&#10;&#10;  </xsl:text></xsla:element>
           <xsl:text>&#10;  </xsl:text><xsl:comment>htmlElement container end</xsl:comment><xsl:text>&#10;&#10;</xsl:text>
@@ -258,7 +259,7 @@
             </xsl:if>
           </xsl:for-each>
           
-          <!-- prepare bcdOnLoad attribute -->
+          <!-- prepare bcdOnloadX attribute -->
     
           <xsl:text>&#10;  </xsl:text><xsla:variable name="onLoad">
 
@@ -380,7 +381,8 @@
                 </xsl:choose>
               </xsl:if>
             </xsl:for-each>
-    
+            <xsl:text>&#10;      </xsl:text>, bcdApi: 'XML'<xsl:text></xsl:text>
+
             <!-- transformation chain automatically adds parameters -->
 
             <xsl:if test="$extendsTransformationChain">
@@ -408,15 +410,15 @@
 
           <xsl:text>&#10;&#10;  </xsl:text></xsla:variable>
 
-          <!-- write either bcdOnload or print out text depending if we're already a xapi child or not -->
-          <xsl:text>&#10;&#10;  </xsl:text><xsl:comment>write generated js source as bcdOnLoad or directly (xapi)</xsl:comment>
+          <!-- write either bcdOnloadX or print out text depending if we're already a xapi child or not -->
+          <xsl:text>&#10;&#10;  </xsl:text><xsl:comment>write generated js source as bcdOnloadX or directly (xapi)</xsl:comment>
           <xsl:text>&#10;  </xsl:text><xsla:choose>
           <xsl:text>&#10;    </xsl:text><xsla:when test="../self::xapi:*">
           <xsl:text>&#10;      </xsl:text><xsla:value-of select="$onLoad" />
           <xsl:text>&#10;    </xsl:text></xsla:when>
           <xsl:text>&#10;    </xsl:text><xsla:otherwise>
           <xsl:text>&#10;      </xsl:text><span bcdComment="{@name}">
-          <xsl:text>&#10;        </xsl:text><xsla:attribute name="bcdOnLoad">
+          <xsl:text>&#10;        </xsl:text><xsla:attribute name="bcdOnloadX">
           <xsl:text>&#10;          </xsl:text><xsla:value-of select="$onLoad"/>
           <xsl:text>&#10;        </xsl:text></xsla:attribute>
           <xsl:text>&#10;        </xsl:text><xsla:value-of select="*[false()]"/>
@@ -456,6 +458,7 @@
         </xsl:for-each>
         <xsl:text>&#10;  </xsl:text>
         <xsl:element name="{$containerElement}">
+          <xsl:attribute name="bcdApi">XML</xsl:attribute>
           <xsl:for-each select="Api/Param">
             <xsl:if test="not(@name='targetHtml' or contains(translate(@name, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'targethtmlelementid'))">
               <xsl:variable name="upperCaseName">
@@ -474,7 +477,7 @@
               <xsl:if test="@name='optionsModelXPath'"><xsl:attribute name="bcdOptionsModelId">{$optionsModelId}</xsl:attribute></xsl:if>
             </xsl:if>
           </xsl:for-each>
-          <xsl:attribute name="bcdOnLoad">
+          <xsl:attribute name="bcdOnloadX">
             <xsl:variable name="x">
               <xsl:call-template name="lastIndexOf">
                 <xsl:with-param name="s" select="@implementationPackage"/>

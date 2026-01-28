@@ -40,17 +40,13 @@
   <!-- id of/or HTML element where tabs are defined -->
   <xsl:param name="idOrElement"/>
 
-  <xsl:variable name="args">
-    {
-      id:'<xsl:value-of select="normalize-space($id)"/>'
-      ,rendererUrl:'<xsl:value-of select="normalize-space($rendererUrl)"/>'
-      ,rendererId:'<xsl:value-of select="normalize-space($rendererId)"/>'
-      ,handlerJsClassName:'<xsl:value-of select="normalize-space($handlerJsClassName)"/>'
-      ,targetHTMLElementId:'<xsl:value-of select="normalize-space($targetHTMLElementId)"/>'
-      ,idOrElement:'<xsl:value-of select="normalize-space($idOrElement)"/>'
-    }
-  </xsl:variable>
-  <div style="display: none;" bcdOnLoad="bcdui.widget.tab.init({$args})"> </div>
+  <div style="display: none;" bcdOnLoad="bcdui.widget.tab.initFromHtml"
+   data-id="{$id}"
+   data-renderer-url="{$rendererUrl}"
+   data-renderer-id="{$rendererId}"
+   data-handler-js-class-name="{$handlerJsClassName}"
+   data-target-html-element-id="{$targetHTMLElementId}"
+   data-id-or-element="{$idOrElement}"></div>
 </xsl:template>
 
 </xsl:stylesheet>

@@ -27,7 +27,7 @@
   var XMLListener = class extends bcdui.widget.XMLDataUpdateListener
     {
       /**
-       * @member bcdui.widget.inputField.XMLListener
+       * @memberOf bcdui.widget.inputField.XMLListener
        */
       updateValue(){
         var widgetInstance = jQuery("#" + this.htmlElementId)._bcduiWidget();
@@ -346,20 +346,6 @@
       }
     },
 
-    /**
-     * Executes an option intended to be a JS function passing over arguments from this function. The context
-     * of the executed function is always set to the Element from this.element.
-     *
-     * execJsOption("onClickAction",[arg1 [, arg2 ...])
-     * 
-     * @param {string}  optionId  The id of the option to execute
-     * 
-     * @return {object} return value of the function.
-     * @private
-     */
-    execJsOption : function(optionId){
-      return bcdui.util._execJs( this.options[optionId], this.element.get(0), false, arguments, 1 );
-    },
 
     /**
      * Provide selector to options (if widget has optionXPath defined)

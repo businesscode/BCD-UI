@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -157,7 +157,8 @@
           targetHtmlElement : this.element,
           tableMode : false,
           refreshMenuModel : true,
-          inputModel : new bcdui.core.SimpleModel({ url: bcdui.config.libPath + "js/widgetNg/universalFilter/contextMenu.xml"})
+          inputModel : new bcdui.core.SimpleModel({ url: bcdui.config.libPath + "js/widgetNg/universalFilter/contextMenu.xml"}),
+          clickResolver: bcdui.widget.resolveContextMenuUniversalFilter
         });
         
         var _getAnchorElement = function(targetElement){ // helper for getting an anchor element for UI, usually it is the element rendering f:Expression
@@ -299,7 +300,17 @@
           uiElement.show();
         }.bind(null, !!args.targetNodeId, uiElement);
         createUiRenderer.execute();
-        createUiRenderer.onReady(revealUi);
+        createUiRenderer.onReady(function() {
+          jQuery(self.createUiElement).off("click");
+          jQuery(self.createUiElement).on("click", ".bcdAction", function(event) {
+            const el = jQuery(event.target).hasClass("bcdAction") ? jQuery(event.target) : jQuery(event.target).closest(".bcdAction");
+            if (el.hasClass("add"))
+              el.trigger('bcdui:universalFilter:add')
+            if (el.hasClass("close"))
+              el.trigger('bcdui:universalFilter:closeCreateUi');
+          });
+          revealUi();
+        });
       })
       // trigger by create-ui
       .on("bcdui:universalFilter:closeCreateUi", function(event){
@@ -536,7 +547,7 @@
 
     /**
      * @param {string} nodeId to identify the node within target scope
-     * @return {element} from target identified by given nodeid, may return NULL no such node was found
+     * @return {DomElement} from target identified by given nodeid, may return NULL no such node was found
      */
     _getTargetNode : function(nodeId){
       if(!nodeId) throw "Missing .nodeId";
@@ -655,7 +666,15 @@ bcdui.widgetNg.universalFilter = Object.assign(bcdui.widgetNg.universalFilter,
    * @param htmlElement
    * @private
    */
-  init: function(htmlElement){
-    jQuery(htmlElement).bcduiUniversalFilterNg();
-  }
+  init: function(htmlElement){ jQuery(htmlElement).bcduiUniversalFilterNg(); },
+  /**
+   * @param htmlElement
+   * @private
+   */
+  _createJunction: function() { jQuery(this).trigger('bcdui:universalFilter:createJunction') },
+  /**
+   * @param htmlElement
+   * @private
+   */
+  _createMultiValueInput: function() { jQuery(this).trigger('bcdui:universalFilter:createMultiValueInput') }
 });

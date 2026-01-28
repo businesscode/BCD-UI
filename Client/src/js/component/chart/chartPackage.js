@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -68,8 +68,10 @@ bcdui.component.chart = Object.assign(bcdui.component.chart,
    * waits for metaDataModel being available
    * @private
    */
-  init: function( targetHTMLElement )
+  init: function( htmlElement )
   {
+    const targetHTMLElement = htmlElement || this;
+    
     jQuery("#" + targetHTMLElement.getAttribute("targetHTMLElementId")).addClass("bcdChart statusNotReady");
 
     // Wait until the metaDataModel is available and create the chart for the targetHTMLElement
@@ -97,7 +99,7 @@ bcdui.component.chart = Object.assign(bcdui.component.chart,
    * @param {string}                  [args.id]                - Renderer ID
    * @param {string}                  [args.chartRendererId]   - ID of chart renderer
    * @param {string}                  [args.elementStyle]      - Style for legend HTML element
-   * @return renderer that creates legend renderer
+   * @return {bcdui.core.Renderer} renderer that creates legend renderer
    */
   createChartLegend: function(args){
 
@@ -131,7 +133,9 @@ bcdui.component.chart = Object.assign(bcdui.component.chart,
    * @param targetHTMLElement - Target Html Element
    * @private
    */
-  initChartLegend: function(targetHTMLElement ){
+  initChartLegend: function( htmlElement ){
+    
+    const targetHTMLElement = htmlElement || this; 
 
     var chartRendererId = bcdui._migPjs._$(targetHTMLElement).attr("chartRendererId");
     var targetHTMLElementId = bcdui._migPjs._$(targetHTMLElement).attr("targetHTMLElementId");
@@ -154,6 +158,29 @@ bcdui.component.chart = Object.assign(bcdui.component.chart,
           ,inputModel: inModel
           ,targetHTMLElementId: targetHTMLElementId
           ,parameters: params
+        });
+        
+        bcdui.factory.objectRegistry.getObject(legendRendererId).onReady(function() {
+          jQuery("#" + targetHTMLElementId).off("click");
+          jQuery("#" + targetHTMLElementId).off("mouseover");
+          jQuery("#" + targetHTMLElementId).off("mouseout");
+
+          const clickAction = inModel.read("//chart:DrawSeriesLegend/@onClick", "");
+          const mouseOverAction = inModel.read("//chart:DrawSeriesLegend/@onMouseOver", "");
+          const mouseOutAction = inModel.read("//chart:DrawSeriesLegend/@onMouseOut", "");
+
+          if (clickAction != "")
+            jQuery("#" + targetHTMLElementId).on("click", ".bcdAction", function(event) {
+              bcdui.util._executeJsFunctionFromString(clickAction, null, [event]);
+          });
+          if (mouseOverAction != "")
+            jQuery("#" + targetHTMLElementId).on("mouseover", ".bcdAction", function(event) {
+              bcdui.util._executeJsFunctionFromString(mouseOverAction, null, [event]);
+          });
+          if (mouseOutAction != "")
+            jQuery("#" + targetHTMLElementId).on("mouseout", ".bcdAction", function(event) {
+            bcdui.util._executeJsFunctionFromString(mouseOutAction, null, [event]);
+          });
         });
       }
     });

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -47,7 +47,6 @@ bcdui.widget.visualizeXml =
     jQuery(j).addClass("visXml_c");
     const k = j.firstChild;
     k.style.visibility="visible";
-    k.href="#";
   },
 
   /**
@@ -99,7 +98,7 @@ bcdui.widget.visualizeXml =
    * @param {string}                  [args.idRef]        Id of the model to be visualized
    * @param {bcdui.core.DataProvider} [args.inputModel]   Instead of an id, the model can be provided directly
    * @param {boolean}                 [args.isAutoRefresh=true] Automatically redraw when model changes
-   * @param {string}                  [args.stylesheetUrl=/bcdui/js/widget/visualizeXml/visualizeXmlCaller.xslt] renderer stylesheet
+   * @param {string}                  [args.stylesheetUrl="/bcdui/js/widget/visualizeXml/visualizeXmlCaller.xslt"] renderer stylesheet
    * @param {function}                [args.onReady]      onReady function for renderer
    * @example
    * // Load, transform and visualize a model
@@ -118,7 +117,13 @@ bcdui.widget.visualizeXml =
 
     args.title = args.title || args.idRef || args.inputModel.id;
     jQuery("#" + args.targetHTMLElementId).append("<b>" + args.title + "</b>");
-    jQuery("#" + args.targetHTMLElementId).append('<pre id="' + id + '" class="bcdVisualizeXml" onClick="bcdui.widget.visualizeXml._handleClick(jQuery.event.fix(event))"></pre>');
+    jQuery("#" + args.targetHTMLElementId).append('<pre id="' + id + '" class="bcdVisualizeXml"></pre>');
+    
+    jQuery("#" + id).off("click");
+    jQuery("#" + id).on("click", function(event) {
+      bcdui.widget.visualizeXml._handleClick(jQuery.event.fix(event));
+    });
+    
 
     bcdui.factory.objectRegistry.withReadyObjects(args.idRef || args.inputModel, function() {
       var model = bcdui.factory.objectRegistry.getObject(args.idRef || args.inputModel);

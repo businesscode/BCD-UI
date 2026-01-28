@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -42,12 +42,12 @@ exports.publish = function(taffyData, opts, tutorials)
  */
 function customElementsCore( taffyData, path )
 {
-  var result = "";
-  var clazz = taffyData( { kind: "class", longname: "bcdui.core.Renderer", undocumented: { "!is": true } } ).get()[0];
-  result += printCustomTag( "bcd-"+clazz.name.toLowerCase(), clazz.memberof+"."+clazz.name+"Tag", clazz.params, "bcdui.factory.createRenderer" );
-  
-  fs.mkPath( path );
-  fs.writeFileSync( path+"/customElements.js", result, 'utf8');
+  var clazzes = taffyData( { kind: "class", longname: "bcdui.core.Renderer", undocumented: { "!is": true } } ).get();
+  if( clazzes.length === 1 ) {
+    var result = printCustomTag( "bcd-renderer", clazzes[0].memberof+".RendererTag", clazzes[0].params, "bcdui.factory.createRenderer");
+    fs.mkPath( path );
+    fs.writeFileSync( path+"/customElements.js", result, 'utf8');
+  }
 }
 
 /**
@@ -122,12 +122,12 @@ function printCustomTag( tagName, jsConstructorLongname, params, factory )
 
   result = "// " + tagName + " HTML custom element" + newLine;
   result += "bcdui.util.createCustomElement( '"+tagName+"', function() {" + newLine;
-  result += "  var args = { targetHtml: this };" + newLine;
+  result += "  var args = { targetHtml: this, bcdApi: 'CUST' };" + newLine;
 
   // Because HTML attributes are not case sensitive, we cannot generically derive param names from attribute names, instead we have to list them explicitly
-  var allowedParamTypes = ["string", "boolean", "xPath", "i18nToken", "modelXPath", "writableModelXPath", "bcdui.core.DataProvider", "function", "chainDef", "enum", "number", "integer", "stringList", "url"];
+  var allowedParamTypes = ["string", "boolean", "xPath", "i18nToken", "modelXPath", "writableModelXPath", "bcdui.core.DataProvider", "function", "chainDef", "enum", "enumString", "number", "integer", "stringList", "url"];
   // for default values we have to distinguish between literals and string values
-  var stringParamTypes = ["string", "xPath", "i18nToken", "modelXPath", "writableModelXPath", "enum", "stringList", "url"];
+  var stringParamTypes = ["string", "xPath", "i18nToken", "modelXPath", "writableModelXPath", "enumString", "stringList", "url"];
   params.filter( function( param ) {
     // id attribute refers to the html tag, not the object. Use objectId for that
     if( param.name.indexOf(".") === -1 || param.name === "args.id" )
@@ -171,11 +171,7 @@ function printCustomTag( tagName, jsConstructorLongname, params, factory )
     } else {
       var defaultValue = param.defaultvalue;
       if(defaultValue !== undefined){
-        if(isStringType){
-          defaultValue = " || " + JSON.stringify(defaultValue);
-        } else {
-          defaultValue = " || " + defaultValue;
-        }
+        defaultValue = " || " + defaultValue;
       } else {
         defaultValue = "";
       }
@@ -186,6 +182,8 @@ function printCustomTag( tagName, jsConstructorLongname, params, factory )
   result += "    args.id = this.getAttribute('objectId');" + newLine;
 
   result += "  " + factory + "( args );" + newLine;
+  result += "  this._bcdHtmlReady = true;" + newLine;
+  result += "  this.dispatchEvent(new CustomEvent('bcdHtmlReady', { bubbles: true }));" + newLine;
   result += "});" + newLine;
   return result;
 }

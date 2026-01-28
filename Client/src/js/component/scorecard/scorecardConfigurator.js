@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -104,7 +104,13 @@
         , inputModel: bcdui.wkModels.guiStatus
         , parameters: { scorecardId: args.scorecardId, bcdColIdent: bcdui.wkModels.bcdColIdent, bcdRowIdent: bcdui.wkModels.bcdRowIdent, sccConfig: args.config }
         });
-        bcdui.widget.createContextMenu({refreshMenuModel: true, targetHtml: args.targetHtml, inputModel: contextMenu, identsWithin: args.targetHtml});
+        bcdui.widget.createContextMenu({
+          refreshMenuModel: true
+        , targetHtml: args.targetHtml
+        , inputModel: contextMenu
+        , identsWithin: args.targetHtml
+        , clickResolver: bcdui.component.scorecard.resolveContextMenuDnd
+        });
         
         bcdui.widget.createTooltip({
             targetHtml: args.targetHtml
