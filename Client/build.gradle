@@ -59,7 +59,7 @@ js3rdPartyNpm = js3rdPartyNpm.findAll { project.hasProperty('bcdui.3rdPartyJs.'+
 
 def copyUnmodified = ["xlsx.full.min.js": [ofn: "src/js/3rdParty/xlsx.full.min.js"]]
 
-// list 3rdParty folders (src/js/3rdPary) which should be taken 1:1 into the jar
+// list 3rdParty folders (src/js/3rdPary) which are kept locally (not minimized but modified)
 def local3rdPartyFolders = ["ckeditor", "handsontable", "saxonJs"]
 
 //**********************************
