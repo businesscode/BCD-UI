@@ -17,7 +17,7 @@ package de.businesscode.bcdui.web.filters;
 
 import java.io.IOException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;

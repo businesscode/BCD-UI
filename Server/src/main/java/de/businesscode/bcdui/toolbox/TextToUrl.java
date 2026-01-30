@@ -31,7 +31,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -104,7 +104,7 @@ public class TextToUrl extends HttpServlet
 
       // print response
       resp.setContentType("text/xml");
-      resp.getWriter().print("<response><name>"+StringEscapeUtils.escapeXml(name)+"</name></response>");
+      resp.getWriter().print("<response><name>"+StringEscapeUtils.escapeXml11(name)+"</name></response>");
       resp.getWriter().close();
 
     } catch (SQLException e) {
@@ -137,9 +137,9 @@ public class TextToUrl extends HttpServlet
 
       resp.setContentType(mimeType);
       if( rs.next() )
-        resp.getOutputStream().print("<response><value>"+StringEscapeUtils.escapeXml(rs.getString(1))+"</value></response>");
+        resp.getOutputStream().print("<response><value>"+StringEscapeUtils.escapeXml11(rs.getString(1))+"</value></response>");
       else
-        resp.getOutputStream().print("<error>No text found for '"+StringEscapeUtils.escapeXml(name)+"' in scope '"+getInitParameter(INIT_SCOPE)+"'</error>");
+        resp.getOutputStream().print("<error>No text found for '"+StringEscapeUtils.escapeXml11(name)+"' in scope '"+getInitParameter(INIT_SCOPE)+"'</error>");
 
       resp.getOutputStream().close();
     } catch (SQLException e) {
