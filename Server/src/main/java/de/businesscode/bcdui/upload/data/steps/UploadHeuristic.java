@@ -14,7 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import de.businesscode.bcdui.binding.StandardBindingSet;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.BindingSet;

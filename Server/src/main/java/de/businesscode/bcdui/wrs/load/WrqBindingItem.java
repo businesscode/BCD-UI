@@ -28,7 +28,7 @@ import java.util.Set;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -561,7 +561,7 @@ public class WrqBindingItem implements WrsBindingItem
           if( isNumeric )
             from = Double.toString(Double.parseDouble(from));
           else
-            from = StringEscapeUtils.escapeSql( from );
+            from = from.replace("'", "''");
           pCEWithVdm.append(sep).append(q).append(from).append(q);
           sep = ",";
         }
@@ -570,7 +570,7 @@ public class WrqBindingItem implements WrsBindingItem
         if( isNumeric )
           to = Double.toString(Double.parseDouble(to));
         else
-          to = StringEscapeUtils.escapeSql( to );
+          to = to.replace("'", "''");
         pCEWithVdm.append(q).append(to).append(q);
       }
 
@@ -600,7 +600,7 @@ public class WrqBindingItem implements WrsBindingItem
         if( isNumeric )
           elseValue = Double.toString(Double.parseDouble(elseValue));
         else
-          elseValue = StringEscapeUtils.escapeSql( elseValue );
+          elseValue = elseValue.replace("'", "''");
         pCEWithVdm.append(q).append(elseValue).append(q);
       } else {
         // Because in CASE THEN and ELSE data types have to match, we cast the column to string if needed
@@ -614,7 +614,7 @@ public class WrqBindingItem implements WrsBindingItem
         if( isNumeric )
           elseValue = Double.toString(Double.parseDouble(elseValue));
         else
-          elseValue = StringEscapeUtils.escapeSql( elseValue );
+          elseValue = elseValue.replace("'", "''");
         plainColumnExpressionWithVdm = q+elseValue+q;
       } else
         plainColumnExpressionWithVdm = pCEWithVdm.toString();
