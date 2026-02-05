@@ -28,7 +28,7 @@ import org.apache.logging.log4j.LogManager;
 
 import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingException;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.vfs2.FileSystemException;
 import de.businesscode.bcdui.cache.CacheFactory;
 
@@ -73,7 +73,7 @@ public class CacheManager extends HttpServlet {
       }
     }
     finally{
-      resp.getWriter().write("<cache>"+StringEscapeUtils.escapeXml(returnMessage)+"</cache>");
+      resp.getWriter().write("<cache>"+StringEscapeUtils.escapeXml11(returnMessage)+"</cache>");
       resp.getWriter().close();
     }
   }

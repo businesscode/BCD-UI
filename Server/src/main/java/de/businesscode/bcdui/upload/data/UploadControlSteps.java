@@ -16,7 +16,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 import de.businesscode.sqlengine.SQLEngine;
 import de.businesscode.util.jdbc.Closer;
@@ -90,7 +90,7 @@ public class UploadControlSteps {
       writer.append("<C>").append(Integer.toString(step.rc)).append("</C>");
       writer.append("<C>");
       if(step.rcMessage != null)
-        writer.append(StringEscapeUtils.escapeXml(step.rcMessage));
+        writer.append(StringEscapeUtils.escapeXml11(step.rcMessage));
       writer.append("</C>");
       writer.append("</R>");
     }

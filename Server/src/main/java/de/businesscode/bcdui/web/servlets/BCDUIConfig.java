@@ -41,7 +41,7 @@ import jakarta.servlet.http.HttpSession;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.shiro.SecurityUtils;
@@ -122,13 +122,13 @@ public class BCDUIConfig extends HttpServlet {
 
       if(subject.isAuthenticated() ) {
         String userLogin = SecurityHelper.getUserLogin(subject);
-        userLogin = (userLogin == null) ? "null" : "'" + StringEscapeUtils.escapeJavaScript(userLogin) + "'";
+        userLogin = (userLogin == null) ? "null" : "'" + StringEscapeUtils.escapeEcmaScript(userLogin) + "'";
         String userId = SecurityHelper.getUserId(subject);
         String userName = SecurityHelper.getUserName(subject);
         String userEmail = SecurityHelper.getUserEmail(subject);
-        userId = (userId == null) ? "null" : "'" + StringEscapeUtils.escapeJavaScript(userId) + "'";
-        userName = (userName == null) ? "null" : "'" + StringEscapeUtils.escapeJavaScript(userName) + "'";
-        userEmail = (userEmail == null) ? "null" : "'" + StringEscapeUtils.escapeJavaScript(userEmail) + "'";
+        userId = (userId == null) ? "null" : "'" + StringEscapeUtils.escapeEcmaScript(userId) + "'";
+        userName = (userName == null) ? "null" : "'" + StringEscapeUtils.escapeEcmaScript(userName) + "'";
+        userEmail = (userEmail == null) ? "null" : "'" + StringEscapeUtils.escapeEcmaScript(userEmail) + "'";
         writer.println("  , isAuthenticated: true");
         writer.println("  , userName: " + userName ); // js null or js string with name; backwards compatible (in future may be removed; is to be replaced by .userLogin)
         writer.println("  , userLogin: " + userLogin ); // js null or js string with user login;
@@ -140,7 +140,7 @@ public class BCDUIConfig extends HttpServlet {
 
         // 'getRoles' triggers SubjectPreferences realm, too to get current settings
         writer.print(SecurityHelper.getRoles(subject).stream().map(s->{
-          return "\"" + StringEscapeUtils.escapeJavaScript(s) + "\" : 1";  // define property as true to enable lookup w/o .hasOwnProperty()
+          return "\"" + StringEscapeUtils.escapeEcmaScript(s) + "\" : 1";  // define property as true to enable lookup w/o .hasOwnProperty()
         }).collect(Collectors.joining(",")));
         writer.println("  }");
       }
