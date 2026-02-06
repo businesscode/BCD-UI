@@ -28,6 +28,11 @@
 
   <!-- no output if we dont have data -->
   <xsl:template match="/Empty"/>
+  <xsl:template match="/*">
+    <div>
+      <xsl:apply-templates select="node()"/>
+    </div>
+  </xsl:template>
 
   <xsl:template match="/BalloonData">
     <div class="bcdWidgetBalloon">

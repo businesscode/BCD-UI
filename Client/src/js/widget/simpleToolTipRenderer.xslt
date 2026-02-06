@@ -21,9 +21,7 @@
   <xsl:param name="message" select="''"/>
 
   <xsl:template match="/">
-    <xsl:if test="$message != ''">
-      <div><xsl:value-of select="$message"/></div>
-    </xsl:if>
+    <div><xsl:value-of select="$message"/></div>
   </xsl:template>
 
 </xsl:stylesheet>

@@ -49,13 +49,15 @@
   Overwrite this when specializing and importing this
  -->
 <xsl:template match="/">
-  <xsl:variable name="cell" select="/*/wrs:Data/wrs:*[@id=$bcdRowIdent]/wrs:C[$cellPos]"/>
-  <xsl:variable name="attrs" select="$cell/@*[local-name()=$cellHead/wrs:A/@id]"/>
+  <div>
+    <xsl:variable name="cell" select="/*/wrs:Data/wrs:*[@id=$bcdRowIdent]/wrs:C[$cellPos]"/>
+    <xsl:variable name="attrs" select="$cell/@*[local-name()=$cellHead/wrs:A/@id]"/>
 
-  <xsl:call-template name="showAttrs">
-    <xsl:with-param name="cell" select="$cell"/>
-    <xsl:with-param name="attrs" select="$attrs"/>
-  </xsl:call-template>
+    <xsl:call-template name="showAttrs">
+      <xsl:with-param name="cell" select="$cell"/>
+      <xsl:with-param name="attrs" select="$attrs"/>
+    </xsl:call-template>
+  </div>
 </xsl:template>
 
 <!--
