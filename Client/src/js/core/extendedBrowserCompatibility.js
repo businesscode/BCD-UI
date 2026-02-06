@@ -668,8 +668,11 @@ else {
       // for HTML it might be useful to check if serializing the output and returning a string is better
       // in the htmlbuilder case (see below in the stylesheetNode trafo) attaching it to the HMTL dom tree causes rendering issues since it seems that the
       // standard (html) namespace is not correctly used in that case
-      if (this.outputFormat == "html")
-        return result.principalResult;
+      if (this.outputFormat == "html") {
+        // need to serialize output here since attaching a document fragment here leads to weird rendering effects, most likely caused by
+        // standard namespace issues of the fragment versus the outer html
+        return new XMLSerializer().serializeToString(result.principalResult);
+      }
       else {
         const doc = bcdui.core.browserCompatibility.newDOMDocument();
         doc.append(result.principalResult);
