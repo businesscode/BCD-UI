@@ -243,7 +243,7 @@
                   <xsl:text>wrs:C[</xsl:text><xsl:value-of select="key('colHeadById',$bRef)/@pos"/><xsl:text>],'|'</xsl:text>
                 </xsl:when>
                 <xsl:otherwise>
-                  <xsl:text>wrs:C[</xsl:text><xsl:value-of select="key('colHeadById',$bRef)/@pos"/><xsl:text>],substring(concat('&#xE0F0;',wrs:C[</xsl:text><xsl:value-of select="key('colHeadById',$bRef)/@pos"/><xsl:text>]/@bcdGr),0,1 div string-length(wrs:C[</xsl:text><xsl:value-of select="key('colHeadById',$bRef)/@pos"/><xsl:text>])),'|'</xsl:text>
+                  <xsl:text>wrs:C[</xsl:text><xsl:value-of select="key('colHeadById',$bRef)/@pos"/><xsl:text>],substring(concat('&#xE0F0;',wrs:C[</xsl:text><xsl:value-of select="key('colHeadById',$bRef)/@pos"/><xsl:text>]/@bcdGr),1,string-length(concat('&#xE0F0;',wrs:C[</xsl:text><xsl:value-of select="key('colHeadById',$bRef)/@pos"/><xsl:text>]/@bcdGr)) * (number(string-length(wrs:C[</xsl:text><xsl:value-of select="key('colHeadById',$bRef)/@pos"/><xsl:text>]) = 0))),'|'</xsl:text>
                 </xsl:otherwise>
               </xsl:choose>
             </xsl:for-each>

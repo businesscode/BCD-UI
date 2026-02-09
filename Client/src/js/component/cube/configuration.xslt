@@ -198,7 +198,7 @@
                 <xsl:when test="/*/cube:Layout[@manualSort='true']">
                   <xsl:for-each select="/*/cube:Layout/cube:Dimensions/cube:Rows/*">
                     <xsl:if test="@sort">
-                      <wrs:C id="{@bRef}" sort="{@sort}" total="{concat(@total,substring('trailing',0,1 div string-length(@total)))}"/>
+                      <wrs:C id="{@bRef}" sort="{@sort}" total="{concat(@total, substring('trailing', 1, string-length('trailing') * (number(string-length(@total) = 0))))}"/>
                     </xsl:if>
                   </xsl:for-each>
                 </xsl:when>
@@ -207,8 +207,8 @@
                   <xsl:if test="/*/cube:Layout/cube:Dimensions/cube:Rows/*[@sort!='ascending' or @sortBy or @total!='trailing' or cube:VDM]
                               or (/*/cube:Layout/cube:Dimensions/cube:Columns/* and (/*/cube:Layout/cube:Dimensions//@sort or /*/cube:Layout/cube:Dimensions//@sortBy or /*/cube:Layout/cube:Dimensions//@total))">
                     <xsl:for-each select="/*/cube:Layout/cube:Dimensions/cube:Rows/*">
-                      <wrs:C id="{@bRef}" sort="{concat(@sort,substring('ascending',0,1 div string-length(@sort)))}"
-                             total="{concat(@total,substring('trailing',0,1 div string-length(@total)))}">
+                      <wrs:C id="{@bRef}" sort="{concat(@sort, substring('ascending',1,string-length('ascending') * (number(string-length(@sort) = 0))))}"
+                             total="{concat(@total,substring('trailing',1,string-length('trailing') * (number(string-length(@total) = 0))))}">
                         <xsl:copy-of select="@sortBy"/>
                       </wrs:C>
                     </xsl:for-each>
@@ -238,8 +238,8 @@
             <xp:ColDimsOrder>
               <wrs:Columns>
                 <xsl:for-each select="/*/cube:Layout/cube:Dimensions/cube:Columns/*">
-                  <wrs:C id="{@bRef}" sort="{concat(@sort,substring('ascending',0,1 div string-length(@sort)))}"
-                         total="{concat(@total,substring('trailing',0,1 div string-length(@total)))}">
+                  <wrs:C id="{@bRef}" sort="{concat(@sort, substring('ascending',1,string-length('ascending') * (number(string-length(@sort) = 0))))}"
+                         total="{concat(@total,substring('trailing',1,string-length('trailing') * (number(string-length(@total) = 0))))}">
                     <xsl:copy-of select="@sortBy"/>
                   </wrs:C>
                 </xsl:for-each>

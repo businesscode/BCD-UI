@@ -66,7 +66,7 @@
   </xsl:template>
 
   <xsl:template match="dm:LevelRef | dm:MeasureRef" mode="asItem">
-    <far:Item><xsl:value-of select="concat(substring(@bRef,0,1 div string-length(@idRef)),@idRef)"/></far:Item>
+    <far:Item><xsl:value-of select="concat(substring(@bRef,1,string-length(@bRef) * (number(string-length(@idRef) = 0))),@idRef)"/></far:Item>
   </xsl:template>
   <xsl:template match="dm:LevelRef | dm:MeasureRef" mode="asSortingItem">
     <xsl:variable name="catQualifier">
@@ -81,6 +81,6 @@
         <xsl:otherwise>A</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    <far:Item><xsl:value-of select="concat(normalize-space($catQualifier), $sortingItemSeparator, concat(substring(@bRef,0,1 div string-length(@idRef)),@idRef), $sortingItemSeparator, normalize-space($sortingSuffix))"/></far:Item>
+    <far:Item><xsl:value-of select="concat(normalize-space($catQualifier), $sortingItemSeparator, concat(substring(@bRef,1,string-length(@bRef) * (number(string-length(@idRef) = 0))),@idRef), $sortingItemSeparator, normalize-space($sortingSuffix))"/></far:Item>
   </xsl:template>
 </xsl:stylesheet>
