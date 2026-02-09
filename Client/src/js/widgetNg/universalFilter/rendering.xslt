@@ -12,13 +12,13 @@
   <xsl:param name="nodeIdAttribute" select="'bcd-univ-node-id'"/>
   <!-- OptionsDataProvider -->
   <xsl:param name="bRefModel"/>
+  <xsl:param name="OpsCaptions"/>
 
   <!--
     input: dataProviderWithXPathNodes: Root/[usersProvidedTarget]/*
    -->
   <!-- i.e. /Root/f:And -->
   <xsl:variable name="target" select="/*/*"/>
-  <xsl:variable name="OpsCaptions" select="document('widgetReferenceData.xml')"/>
 
 	<xsl:template match="/">
     <div contextId="default">
