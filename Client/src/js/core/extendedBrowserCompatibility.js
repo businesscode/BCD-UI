@@ -654,6 +654,11 @@ else {
 
   XSLTProcessor.prototype.transformToDocument = function(sourceDoc)
   {
+    // yes, it seems that saxonjs works with local-name xml:base and not namespace xml + base....
+    Array.from(sourceDoc.selectNodes("//*[@*[local-name() = 'xml:base']]")).forEach(function(x) {
+      x.removeAttribute("xml:base");
+    });
+
     // if no stylesheetNode is specified, we work on a 'standard' xslt transformation with an available sef.json file 
     if (!this.stylesheetNode) {
       const result =  SaxonJS.transform({
@@ -663,7 +668,7 @@ else {
         stylesheetParams: this.parameters
       });
       this.outputFormat = this.determineOutputFormat(result);
-      
+
       // depending on the output we either return a fragment or a document
       // for HTML it might be useful to check if serializing the output and returning a string is better
       // in the htmlbuilder case (see below in the stylesheetNode trafo) attaching it to the HMTL dom tree causes rendering issues since it seems that the
@@ -680,9 +685,38 @@ else {
       }
     }
     else {
-      // stylesheetNode is prepared, bcduicp:// and relative urls were resolved and made absolute already
-      // saxonJs needs to know a base URI for resolving uris in the sourceDoc, so we set xml:base to the application root 
+
+      // make imports absolute
+      const baseUrl = this.stylesheetNode.URL;
+      Array.from(this.stylesheetNode.selectNodes("//*[local-name()='import']")).forEach(function(e) {
+        let importPath = (e.getAttribute("href") || "")
+        if (importPath.startsWith("bcduicp://"))
+          importPath = bcdui.config.contextPath + "/" + importPath.substring(10);
+        const absoluteHref = new URL(importPath, importPath.startsWith(bcdui.contextPath)? window.location.origin : baseUrl).href;
+        e.setAttribute("href", absoluteHref);
+      }.bind(this));
+
+      // make documents absolute
+      const docRegex = /document\s*\(\s*(['"])(.*?)\1\s*\)/g;
+      Array.from(this.stylesheetNode.selectNodes("//@select | //@test | //@match | //@use")).forEach(function(attr) {
+        let value = attr.value;
+        value = value.replace(docRegex, (match, quote, uri) => {
+          if (!uri || uri.includes("{")) // Skip dynamic URIs
+            return match;
+          if (uri.startsWith("bcduicp://"))
+            uri = bcdui.config.contextPath + "/" + uri.substring(10);
+          const absoluteHref = new URL(uri, uri.startsWith(bcdui.contextPath)? window.location.origin : baseUrl).href;
+          return `document(${quote}${absoluteHref}${quote})`;
+        });
+        attr.value = value;
+      }.bind(this));
+
+      // now that all imports and documents are absolute, remove xml:base and set a valid one to window.location.origin    
+      Array.from(this.stylesheetNode.selectNodes("//*[@*[local-name() = 'xml:base']]")).forEach(function(x) {
+        x.removeAttribute("xml:base");
+      });
       this.stylesheetNode.selectSingleNode("/*").setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:base", window.location.origin);
+
       const result = SaxonJS.transform({
         stylesheetLocation: bcdui.contextPath + "/bcdui/sef/xslt/xslt_transform.sef.json"
       , destination: "document"
