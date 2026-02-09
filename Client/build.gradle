@@ -222,6 +222,10 @@ task bcduiProcessXslt {
     else
       dependsOn += copyXSLTTask( "copy-$i-$file.name", "src/", file )
   }
+  fileTree(dir: "src", include: "**/*.xml").eachWithIndex { file, i ->
+    if (file.name.endsWith("sqlTypes.xml"))
+      dependsOn += copyXSLTTask( "copy-$i-$file.name", "src/", file )
+  }
 
   // we need to copy the api generated xslt files, too
   // this needs to get skipped for DE/EE though
