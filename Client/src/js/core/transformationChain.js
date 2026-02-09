@@ -451,6 +451,9 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
               // Transformation can deliver HTML as DOM or as a string
               if( typeof result=="string" ) {
                 jQuery(targetElement).html( result ); // to support .destroy() mechanism of jQuery Widgets
+                if (typeof this.postHtmlAttachProcess == "function") {
+                  this.postHtmlAttachProcess(targetElement.lastChild, null);
+                }
               }
               // XSLT will deliver fragment
               // If we receive a document, we assume the last step did not provide any output to us, because in such cases
