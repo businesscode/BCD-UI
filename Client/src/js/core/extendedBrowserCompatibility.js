@@ -697,20 +697,23 @@ else {
         e.setAttribute("href", absoluteHref);
       }.bind(this));
 
-      // make documents absolute
+      // make document() URIs absolute — we assume that document(.. is only used with xsl:variable)
       const docRegex = /document\s*\(\s*(['"])(.*?)\1\s*\)/g;
-      Array.from(this.stylesheetNode.selectNodes("//@select | //@test | //@match | //@use")).forEach(function(attr) {
+      const origin   = window.location.origin;
+      const ctxPath  = bcdui.contextPath;
+      const base     = new URL(baseUrl, origin);
+      Array.from(this.stylesheetNode.selectNodes("//xsl:variable[contains(@select, 'document(')]/@select")).forEach(attr => {
         let value = attr.value;
         value = value.replace(docRegex, (match, quote, uri) => {
-          if (!uri || uri.includes("{")) // Skip dynamic URIs
-            return match;
-          if (uri.startsWith("bcduicp://"))
-            uri = bcdui.config.contextPath + "/" + uri.substring(10);
-          const absoluteHref = new URL(uri, uri.startsWith(bcdui.contextPath)? window.location.origin : baseUrl).href;
-          return `document(${quote}${absoluteHref}${quote})`;
+        if (!uri || uri.includes("{"))
+          return match;
+        if (uri.startsWith("bcduicp://"))
+          uri = ctxPath + "/" + uri.substring(10);
+        const baseForUrl = uri.startsWith(ctxPath) ? origin : base;
+        return `document(${quote}${new URL(uri, baseForUrl).href}${quote})`;
         });
         attr.value = value;
-      }.bind(this));
+      });
 
       // now that all imports and documents are absolute, remove xml:base and set a valid one to window.location.origin    
       Array.from(this.stylesheetNode.selectNodes("//*[@*[local-name() = 'xml:base']]")).forEach(function(x) {
