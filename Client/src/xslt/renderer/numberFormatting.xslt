@@ -129,7 +129,7 @@
          Sample (in US format) for 14990.404: scale 2 -> 14990.40, scale -2 -> 14990.4, scale 1000 -> 15,000, scale -1000 -> 15
          (Implementation note, we cannot use shorter number(@scale|$columnDefinition/@scale) because document order is wrong priority order)
      -->
-    <xsl:variable name="effectiveScale">
+    <xsl:variable name="effectiveScaleRaw">
       <xsl:choose>
         <xsl:when test="$scale">
           <xsl:value-of select="$scale"/>
@@ -142,6 +142,8 @@
         </xsl:when>
       </xsl:choose>
     </xsl:variable>
+
+    <xsl:variable name="effectiveScale" select="number($effectiveScaleRaw)"/>
 
     <xsl:choose>
       <xsl:when test="$effectiveScale > 10">
