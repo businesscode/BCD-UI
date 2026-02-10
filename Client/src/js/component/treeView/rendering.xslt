@@ -44,8 +44,8 @@
 
   <xsl:namespace-alias stylesheet-prefix="xsla" result-prefix="xsl"/>
 
-  <xsl:variable name="renderingTemplate" select="document('bcduicp://bcdui/js/component/treeView/renderingTemplate.xslt')"/>
-  <xsl:variable name="renderingTemplateInclude" select="document('bcduicp://bcdui/xslt/renderer/htmlHeaderBuilderTemplate.xslt')"/>
+  <xsl:variable name="renderingTemplate" select="document('renderingTemplate.xslt')"/>
+  <xsl:variable name="renderingTemplateInclude" select="document('../../../xslt/renderer/htmlHeaderBuilderTemplate.xslt')"/>
 
   <!--
     Root template
