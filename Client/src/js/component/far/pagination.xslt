@@ -45,12 +45,6 @@
   <xsl:variable name="paginate" select="/*/xp:Paginate"/>
 
   <xsl:template match="/">
-    <xsl:variable name="showAllOption">
-      <xsl:choose>
-        <xsl:when test="$paginate/xp:ShowAllOption='true'">true</xsl:when>
-        <xsl:otherwise>false</xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
     <div>
       <!-- render pagination if pagination is enabled and we have data in the model -->
       <xsl:if test="$paginate and $farModel/*/wrs:Data/wrs:*">
@@ -61,7 +55,7 @@
           <xsl:with-param name="page" select="$paginate/xp:PageNumber"/>
           <xsl:with-param name="targetModelId" select="$enhancedConfigModelId"/>
           <xsl:with-param name="targetModelXPath">/*/xp:Paginate/xp:PageNumber</xsl:with-param>
-          <xsl:with-param name="showAllOption" select="string($showAllOption)"/>
+          <xsl:with-param name="showAllOption" select="$paginate/xp:ShowAllOption"/>
           <xsl:with-param name="bcdControllerVariableName" select="$bcdControllerVariableName"/>
         </xsl:call-template>
       </xsl:if>

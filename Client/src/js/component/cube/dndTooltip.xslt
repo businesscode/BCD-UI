@@ -12,19 +12,18 @@
 <xsl:param name="cubeId"/>
 
 <xsl:output method="html" encoding="UTF-8" indent="yes"/>
+
   <xsl:template match="/">
-   <div>
-     <xsl:if test="$bcdRowIdent!=''">
-       <table class="bcdTooltip bcdCubeDndTooltip">
-         <xsl:variable name="node" select="$cubeConfig/*/dm:Dimensions/dm:LevelRef[@bRef=$bcdRowIdent]|$cubeConfig/*/dm:Measures/dm:Measure[@id=$bcdRowIdent]"/>
-         <tbody>
-           <xsl:if test="$node">
-             <tr><th><xsl:value-of select="$node/@caption"/></th></tr>
-             <tr><td class="bcdLeft"><xsl:value-of select="$node/@description" disable-output-escaping="yes"/></td></tr>
-           </xsl:if>
-         </tbody>
-       </table>
-     </xsl:if>
-   </div>
+    <xsl:if test="$bcdRowIdent!=''">
+      <table class="bcdTooltip bcdCubeDndTooltip">
+        <xsl:variable name="node" select="$cubeConfig/*/dm:Dimensions/dm:LevelRef[@bRef=$bcdRowIdent]|$cubeConfig/*/dm:Measures/dm:Measure[@id=$bcdRowIdent]"/>
+        <tbody>
+          <xsl:if test="$node">
+            <tr><th><xsl:value-of select="$node/@caption"/></th></tr>
+            <tr><td class="bcdLeft"><xsl:value-of select="$node/@description" disable-output-escaping="yes"/></td></tr>
+          </xsl:if>
+        </tbody>
+      </table>
+    </xsl:if>
  </xsl:template>
 </xsl:stylesheet>

@@ -676,7 +676,8 @@ else {
       if (this.outputFormat == "html") {
         // need to serialize output here since attaching a document fragment here leads to weird rendering effects, most likely caused by
         // standard namespace issues of the fragment versus the outer html
-        return new XMLSerializer().serializeToString(result.principalResult);
+        // a html transformation which returns nothing should at least return some valid but obsolete html 
+        return (result.principalResult != null) ? new XMLSerializer().serializeToString(result.principalResult) : "<template xmlns='http://www.w3.org/1999/xhtml' bcdComment='this is an empty html'/>";
       }
       else {
         const doc = bcdui.core.browserCompatibility.newDOMDocument();
@@ -733,7 +734,8 @@ else {
       if (this.outputFormat == "html") {
         // need to serialize output here since attaching a document fragment here leads to weird rendering effects, most likely caused by
         // standard namespace issues of the fragment versus the outer html
-        return new XMLSerializer().serializeToString(result.principalResult);
+        // a html transformation which returns nothing should at least return some valid but obsolete html
+        return (result.principalResult != null) ? new XMLSerializer().serializeToString(result.principalResult) : "<template xmlns='http://www.w3.org/1999/xhtml' bcdComment='this is an empty html'/>";
       }
       else {
         const doc = bcdui.core.browserCompatibility.newDOMDocument();
