@@ -687,28 +687,34 @@ else {
     }
     else {
 
+      // either we loaded a xslt from a file then this.stylesheetNode.URL is valid or
+      // we come here with a generated xslt. In this case this.stylesheetNode.URL is "about:blank"
+      // and cannot be used for resolving import & document uris. Ensure to use bcduicp:// prefix in
+      // import/document statements in such cases
+
       // make imports absolute
       const baseUrl = this.stylesheetNode.URL;
       Array.from(this.stylesheetNode.selectNodes("//*[local-name()='import']")).forEach(function(e) {
+
+        if (baseUrl == "about:blank" && ! (e.getAttribute("href") || "").startsWith(bcdui.contextPath))
+          throw new Error(`import '${e.getAttribute("href")}' in ${e._saxonBaseUri} needs to be prefixed with 'bcduicp://'`,{ cause: e });
+
         let importPath = (e.getAttribute("href") || "")
-        if (importPath.startsWith("bcduicp://"))
-          importPath = bcdui.config.contextPath + "/" + importPath.substring(10);
         const absoluteHref = new URL(importPath, importPath.startsWith(bcdui.contextPath)? window.location.origin : baseUrl).href;
         e.setAttribute("href", absoluteHref);
       }.bind(this));
 
-      // make document() URIs absolute — we assume that document(.. is only used with xsl:variable)
+      // make document() URIs absolute — we assume (for speed reasons) that document(.. is only used with xsl:variable)
       const docRegex = /document\s*\(\s*(['"])(.*?)\1\s*\)/g;
       const origin   = window.location.origin;
       const ctxPath  = bcdui.contextPath;
       const base     = new URL(baseUrl, origin);
       Array.from(this.stylesheetNode.selectNodes("//xsl:variable[contains(@select, 'document(')]/@select")).forEach(attr => {
+
         let value = attr.value;
         value = value.replace(docRegex, (match, quote, uri) => {
         if (!uri || uri.includes("{"))
           return match;
-        if (uri.startsWith("bcduicp://"))
-          uri = ctxPath + "/" + uri.substring(10);
         const baseForUrl = uri.startsWith(ctxPath) ? origin : base;
         return `document(${quote}${new URL(uri, baseForUrl).href}${quote})`;
         });
