@@ -20,8 +20,8 @@
   xmlns:xi="http://www.w3.org/2001/XInclude"
   xmlns:generator="urn(bcd-xsltGenerator)"
 >
-  <xsl:import href="include/rowRangeParams.xslt"/>
-  <xsl:import href="include/colRangeParams.xslt"/>
+  <xsl:import href="bcduicp://bcdui/xslt/wrs/include/rowRangeParams.xslt"/>
+  <xsl:import href="bcduicp://bcdui/xslt/wrs/include/colRangeParams.xslt"/>
 
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no" />
 
