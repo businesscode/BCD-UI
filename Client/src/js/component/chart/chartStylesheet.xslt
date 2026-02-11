@@ -26,7 +26,7 @@
     metaDataModel="{$metaDataModel}"
     chartRendererId="{$id}"
     targetHTMLElementId="{$targetHTMLElementId}"
-    bcdOnLoad="bcdui.component.chart.init(this)">
+    bcdOnLoad="bcdui.component.chart.init">
   </div>
 </xsl:template>
 
