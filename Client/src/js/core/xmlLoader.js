@@ -672,6 +672,11 @@ bcdui.core.XMLLoader = class
         args.xslt.intermediateDocuments.push( doc );
       }
 
+      // rememeber saxon stylesheet path for uri resolver      
+      const saxonStyleSheet = args.processor.stylesheetURL || "";
+      if (saxonStyleSheet)
+        doc.selectSingleNode("/*").setAttribute("saxonStyleSheet", window.location.origin + saxonStyleSheet.substring(0,saxonStyleSheet.lastIndexOf("/") + 1));
+
       // Apply the just generated XSLT and recurse into postpocessing (possible applying a generated XML output and so on)
       bcdui.core.browserCompatibility.asyncCreateXsltProcessor( { callerDebug: " generated xslt of "+args.stylesheetURL, model: doc, isGenerated: true, callBack: function(newProcessor) {
         var traceXsltProcTime = Date.now();
