@@ -1132,16 +1132,17 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
   _statusTransitionHandler(/* StatusEvent */ statusEvent)
   {
     if (statusEvent.getStatus().equals(this.waitingForParametersStatus) ) {
-
-      // Add models listed as @modelIds in chart def to our dataProviders
-      let modelIds = Array.prototype.slice.call( this.config.queryNodes("//@modelId") ).map((n)=>n.text).filter( (d, idx, modelIds) => { return modelIds.indexOf(d) === idx } );
-      // Resolve model-ids to their js dataProviders
-      bcdui.factory.objectRegistry.withObjects( modelIds, () => {
-        let dps = modelIds.map( (id) => bcdui.factory.objectRegistry.getObject(id) );
-        this.dataProviders = this.dataProviders.concat( dps );
-        var that = this;
-        this._synchronizedStatusTransition(this.transformingStatus, this.dataProviders.filter(function(dp){return !that.modelUpdaterTargetModel || dp.id !== that.modelUpdaterTargetModel.id}));
-      });
+      bcdui.factory.objectRegistry.withReadyObjects(this.config, function() {
+        // Add models listed as @modelIds in chart def to our dataProviders
+        let modelIds = Array.prototype.slice.call( this.config.queryNodes("//@modelId") ).map((n)=>n.text).filter( (d, idx, modelIds) => { return modelIds.indexOf(d) === idx } );
+        // Resolve model-ids to their js dataProviders
+        bcdui.factory.objectRegistry.withReadyObjects( modelIds, function() {
+          let dps = modelIds.map( (id) => bcdui.factory.objectRegistry.getObject(id) );
+          this.dataProviders = this.dataProviders.concat( dps );
+          var that = this;
+          this._synchronizedStatusTransition(this.transformingStatus, this.dataProviders.filter(function(dp){return !that.modelUpdaterTargetModel || dp.id !== that.modelUpdaterTargetModel.id}));
+        }.bind(this));
+      }.bind(this));
     }
     else
       super._statusTransitionHandler(statusEvent);
