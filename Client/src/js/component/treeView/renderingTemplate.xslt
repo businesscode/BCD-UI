@@ -99,6 +99,7 @@
   <xsl:template match="wrs:Level" mode="onRowStart">
     <xsl:param name="indent"/>
     <xsl:param name="is_expanded"/>
+    <xsl:comment>extension-point</xsl:comment>
   </xsl:template>
 
   <!--
@@ -123,6 +124,7 @@
    -->
   <xsl:template match="wrs:R" mode="onRowStart">
     <xsl:param name="indent"/>
+    <xsl:comment>extension-point</xsl:comment>
   </xsl:template>
 
   <!-- Create row for a leaf Level -->
