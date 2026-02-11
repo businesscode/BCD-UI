@@ -3790,12 +3790,18 @@ bcdui.component.grid = Object.assign(bcdui.component.grid,
          bcdui.factory.objectRegistry.getObject(data.id).actionReset();
        if (data.action == "actionSave" && data.id)
          bcdui.factory.objectRegistry.getObject(data.id).actionSave();
-       if (data.action == "takeData")
+       if (data.action == "takeDataHtml")
          bcdui.component.grid.GridEditor.bcduiHtmlEditor.takeData(htmlElement);
-       if (data.action == "clearData")
+       if (data.action == "clearDataHtml")
          bcdui.component.grid.GridEditor.bcduiHtmlEditor.clearData(htmlElement);
-       if (data.action == "cancelData")
+       if (data.action == "cancelDataHtml")
          bcdui.component.grid.GridEditor.bcduiHtmlEditor.cancelData(htmlElement);
+       if (data.action == "takeDataStatus")
+         bcdui.component.grid.GridEditor.bcduiStatusModelEditor.takeData(htmlElement);
+       if (data.action == "clearDataStatus")
+         bcdui.component.grid.GridEditor.bcduiStatusModelEditor.clearData(htmlElement);
+       if (data.action == "cancelDataStatus")
+         bcdui.component.grid.GridEditor.bcduiStatusModelEditor.cancelData(htmlElement);
     }
   }
 });
