@@ -670,7 +670,8 @@ else {
       // need to serialize output here since attaching a document fragment here leads to weird rendering effects, most likely caused by
       // standard namespace issues of the fragment versus the outer html
       // a html transformation which returns nothing should at least return some valid but obsolete html 
-      return (result.principalResult != null) ? new XMLSerializer().serializeToString(result.principalResult) : "<template xmlns='http://www.w3.org/1999/xhtml' bcdComment='this is an empty html'/>";
+      // we use Saxon's serializer here because it supports correct serialization of html specific rule, e.g. not self-close <span> or <i> etc.
+      return (result.principalResult != null) ? SaxonJS.serialize(result.principalResult, {method:"html", indent:false}) : "<template xmlns='http://www.w3.org/1999/xhtml' bcdComment='this is an empty html'/>";
     }
     else {
       const doc = bcdui.core.browserCompatibility.newDOMDocument();
