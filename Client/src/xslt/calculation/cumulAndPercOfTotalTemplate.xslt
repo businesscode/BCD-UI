@@ -77,7 +77,7 @@
     <xsl:copy><xsl:apply-templates select="@*|node()"/></xsl:copy>
   </xsl:template>
   <xsl:template match="@*|node()" mode="cellCalc">
-    <xsl:copy><xsl:apply-templates select="@*|node()"/></xsl:copy>
+    <xsl:copy><xsl:apply-templates select="@*|node()" mode="cellCalc"/></xsl:copy>
   </xsl:template>
 
   <xsl:template match="wrs:Columns/wrs:C">
@@ -145,84 +145,75 @@
   </xsl:template>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Calculate column cumulate / cumulate percentage of totals / percentage of totals
+    Calculate row/column cumulate / cumulate percentage of totals / percentage of totals
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-  <generator:isColCumul>
-    <xsl:template match="wrs:C[key('isColCumulKey',position()) and not(key('rowIsTotalKey',../@id))]" mode="cellCalc">
-      <xsl:param name="rowGroup"/>
-      <xsl:param name="currRowPos"/>
-      <xsl:copy>
-        <xsl:copy-of select="@*"/>
-        <xsl:variable name="currRowGenId" select="generate-id(..)"/>
-        <xsl:variable name="currColPos" select="position()"/>
-        <xsl:value-of select="sum($rowGroup[position()&lt;=$currRowPos]/wrs:C[position()=$currColPos and number()=number()])"/>
-      </xsl:copy>
-    </xsl:template>
-
-    <xsl:template match="wrs:C[key('isColCumulPercOfTotalKey',position()) and not(key('rowIsTotalKey',../@id))]" mode="cellCalc">
-      <xsl:param name="rowGroup"/>
-      <xsl:param name="currRowPos"/>
-      <xsl:copy>
-        <xsl:copy-of select="@*"/>
-        <xsl:attribute name="unit">%</xsl:attribute>
-        <xsl:variable name="currRowGenId" select="generate-id(..)"/>
-        <xsl:variable name="currColPos" select="position()"/>
-        <xsl:variable name="subTotal" select="sum($rowGroup/wrs:C[$currColPos])"/>
-        <xsl:value-of select="sum($rowGroup[position()&lt;=$currRowPos]/wrs:C[position()=$currColPos and number()=number()]) div $subTotal"/>
-      </xsl:copy>
-    </xsl:template>
-
-    <xsl:template match="wrs:C[key('isColPercOfTotalKey',position()) and not(key('rowIsTotalKey',../@id))]" mode="cellCalc">
-      <xsl:param name="rowGroup"/>
-      <xsl:param name="currRowPos"/>
-      <xsl:copy>
-        <xsl:copy-of select="@*"/>
-        <xsl:attribute name="unit">%</xsl:attribute>
-        <xsl:variable name="currColPos" select="position()"/>
-        <xsl:variable name="subTotal" select="sum($rowGroup/wrs:C[position()=$currColPos and number()=number()])"/>
-        <xsl:value-of select=". div $subTotal"/>
-      </xsl:copy>
-    </xsl:template>
-  </generator:isColCumul>
-
-  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Calculate row cumulate / cumulate percentage of totals / percentage of totals
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-  <generator:isRowCumul>
-    <xsl:template match="wrs:C[key('isRowCumulKey',position()) and not(contains(key('colHeadByPos',position())/@id,'&#xE0F0;1'))]" mode="cellCalc">
-      <xsl:copy>
-        <xsl:copy-of select="@*"/>
-        <xsl:variable name="currPos" select="position()"/>
-        <xsl:variable name="currPosGroupMember" select="$colPosGroup/*/*[@pos=$currPos]/@sameColGroup"/>
-        <xsl:variable name="currId" select="key('colHeadByPos',$currPos)/@id"/>
-        <xsl:value-of select="sum(../wrs:C[contains($currPosGroupMember,concat(';',position(),';')) and number()=number()])"/>
-      </xsl:copy>
-    </xsl:template>
-
-    <xsl:template match="wrs:C[key('isRowCumulPercOfTotalKey',position()) and not(contains(key('colHeadByPos',position())/@id,'&#xE0F0;1'))]" mode="cellCalc">
-      <xsl:copy>
-        <xsl:copy-of select="@*"/>
-        <xsl:attribute name="unit">%</xsl:attribute>
-        <xsl:variable name="currPos" select="position()"/>
-        <xsl:variable name="currId" select="key('colHeadByPos',$currPos)/@id"/>
-        <generator:currColKeyLookup/>
-        <xsl:variable name="cumulSum" select="sum(../wrs:C[key('colHeadByPos',position())/@pos=key('colDimsExclLastPlusValueIdKey',$currCumulDim) and position()&lt;=$currPos and number()=number()])"/>
-        <xsl:variable name="total"    select="$cumulSum + sum(../wrs:C[key('colHeadByPos',position())/@pos=key('colDimsExclLastPlusValueIdKey',$currCumulDim) and position()>$currPos and number()=number()])"/>
-        <xsl:value-of select="$cumulSum div $total"/>
-      </xsl:copy>
-    </xsl:template>
-
-    <xsl:template match="wrs:C[key('isRowPercOfTotalKey',position()) and not(contains(key('colHeadByPos',position())/@id,'&#xE0F0;1'))]" mode="cellCalc">
-      <xsl:copy>
-        <xsl:copy-of select="@*"/>
-        <xsl:attribute name="unit">%</xsl:attribute>
-        <xsl:variable name="currPos" select="position()"/>
-        <xsl:variable name="currId" select="key('colHeadByPos',$currPos)/@id"/>
-        <generator:currColKeyLookup/>
-        <xsl:variable name="total" select="sum(../wrs:C[key('colHeadByPos',position())/@pos=key('colDimsExclLastPlusValueIdKey',$currCumulDim) and position()&lt;=$currPos and number()=number()])"/>
-        <xsl:value-of select=". div $total"/>
-      </xsl:copy>
-    </xsl:template>
-  </generator:isRowCumul>
+  <xsl:template match="wrs:C" mode="cellCalc">
+    <xsl:param name="rowGroup"/>
+    <xsl:param name="currRowPos"/>
+    <xsl:choose>
+      <xsl:when test="$paramSet/xp:ColCumulate/wrs:C and key('isColCumulKey',position()) and not(key('rowIsTotalKey',../@id))">
+        <xsl:copy>
+          <xsl:copy-of select="@*"/>
+          <xsl:variable name="currRowGenId" select="generate-id(..)"/>
+          <xsl:variable name="currColPos" select="position()"/>
+          <xsl:value-of select="sum($rowGroup[position()&lt;=$currRowPos]/wrs:C[position()=$currColPos and number()=number()])"/>
+        </xsl:copy>
+      </xsl:when>
+      <xsl:when test="$paramSet/xp:ColCumulate/wrs:C and key('isColCumulPercOfTotalKey',position()) and not(key('rowIsTotalKey',../@id))">
+        <xsl:copy>
+          <xsl:copy-of select="@*"/>
+          <xsl:attribute name="unit">%</xsl:attribute>
+          <xsl:variable name="currRowGenId" select="generate-id(..)"/>
+          <xsl:variable name="currColPos" select="position()"/>
+          <xsl:variable name="subTotal" select="sum($rowGroup/wrs:C[$currColPos])"/>
+          <xsl:value-of select="sum($rowGroup[position()&lt;=$currRowPos]/wrs:C[position()=$currColPos and number()=number()]) div $subTotal"/>
+        </xsl:copy>
+      </xsl:when>
+      <xsl:when test="$paramSet/xp:ColCumulate/wrs:C and key('isColPercOfTotalKey',position()) and not(key('rowIsTotalKey',../@id))">
+        <xsl:copy>
+          <xsl:copy-of select="@*"/>
+          <xsl:attribute name="unit">%</xsl:attribute>
+          <xsl:variable name="currColPos" select="position()"/>
+          <xsl:variable name="subTotal" select="sum($rowGroup/wrs:C[position()=$currColPos and number()=number()])"/>
+          <xsl:value-of select=". div $subTotal"/>
+        </xsl:copy>
+      </xsl:when>
+      <xsl:when test="$paramSet/xp:RowCumulate/wrs:C and key('isRowCumulKey',position()) and not(contains(key('colHeadByPos',position())/@id,'&#xE0F0;1'))">
+        <xsl:copy>
+          <xsl:copy-of select="@*"/>
+          <xsl:variable name="currPos" select="position()"/>
+          <xsl:variable name="currPosGroupMember" select="$colPosGroup/*/*[@pos=$currPos]/@sameColGroup"/>
+          <xsl:variable name="currId" select="key('colHeadByPos',$currPos)/@id"/>
+          <xsl:value-of select="sum(../wrs:C[contains($currPosGroupMember,concat(';',position(),';')) and number()=number()])"/>
+        </xsl:copy>
+      </xsl:when>
+      <xsl:when test="$paramSet/xp:RowCumulate/wrs:C and key('isRowCumulPercOfTotalKey',position()) and not(contains(key('colHeadByPos',position())/@id,'&#xE0F0;1'))">
+        <xsl:copy>
+          <xsl:copy-of select="@*"/>
+          <xsl:attribute name="unit">%</xsl:attribute>
+          <xsl:variable name="currPos" select="position()"/>
+          <xsl:variable name="currId" select="key('colHeadByPos',$currPos)/@id"/>
+          <generator:currColKeyLookup/>
+          <xsl:variable name="cumulSum" select="sum(../wrs:C[key('colHeadByPos',position())/@pos=key('colDimsExclLastPlusValueIdKey',$currCumulDim) and position()&lt;=$currPos and number()=number()])"/>
+          <xsl:variable name="total"    select="$cumulSum + sum(../wrs:C[key('colHeadByPos',position())/@pos=key('colDimsExclLastPlusValueIdKey',$currCumulDim) and position()>$currPos and number()=number()])"/>
+          <xsl:value-of select="$cumulSum div $total"/>
+        </xsl:copy>
+      </xsl:when>
+      <xsl:when test="$paramSet/xp:RowCumulate/wrs:C and key('isRowPercOfTotalKey',position()) and not(contains(key('colHeadByPos',position())/@id,'&#xE0F0;1'))">
+        <xsl:copy>
+          <xsl:copy-of select="@*"/>
+          <xsl:attribute name="unit">%</xsl:attribute>
+          <xsl:variable name="currPos" select="position()"/>
+          <xsl:variable name="currId" select="key('colHeadByPos',$currPos)/@id"/>
+          <generator:currColKeyLookup/>
+          <xsl:variable name="total" select="sum(../wrs:C[key('colHeadByPos',position())/@pos=key('colDimsExclLastPlusValueIdKey',$currCumulDim) and position()&lt;=$currPos and number()=number()])"/>
+          <xsl:value-of select=". div $total"/>
+        </xsl:copy>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy><xsl:apply-templates select="@*|node()" mode="cellCalc"/></xsl:copy>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
 
 </xsl:stylesheet>
