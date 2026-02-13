@@ -193,6 +193,8 @@
     <url-pattern>*.ico</url-pattern>
     <url-pattern>*.css</url-pattern>
     <url-pattern>*.woff2</url-pattern>
+    <url-pattern>*.jstlit</url-pattern>
+    <url-pattern>*.json</url-pattern>
 
     <!-- Cache only content, which is not user dependent (for example no row-level security) -->
     <url-pattern>/bcdui/servletsCached/*</url-pattern>
