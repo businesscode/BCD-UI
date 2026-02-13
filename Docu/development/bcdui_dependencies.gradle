@@ -55,17 +55,17 @@ dependencies {
   implementation  ('org.apache.poi:poi-ooxml:5.5.1') { transitive = false }                    // AbstractExcelSheetWriter
   implementation  ('org.apache.poi:poi-ooxml-lite:5.5.1') { transitive = false }               // AbstractExcelSheetWriter
 
-  implementation  ('org.apache.shiro:shiro-core:2.0.6:jakarta') { transitive = false }         // SubjectFilters
-  implementation  ('org.apache.shiro:shiro-lang:2.0.6') { transitive = false }                 // Menus
-  implementation  ('org.apache.shiro:shiro-cache:2.0.6') { transitive = false }                // SubjectSettings
-  implementation  ('org.apache.shiro:shiro-crypto-hash:2.0.6') { transitive = false }          // SubjectSettings
-  implementation  ('org.apache.shiro:shiro-crypto-core:2.0.6') { transitive = false }          // SubjectSettings
-  implementation  ('org.apache.shiro:shiro-web:2.0.6:jakarta') { transitive = false }          // SubjectSettings
-  runtimeOnly     ('org.apache.shiro:shiro-crypto-cipher:2.0.6') { transitive = false }        // runtime only, needed during run
-  runtimeOnly     ('org.apache.shiro:shiro-config-core:2.0.6') { transitive = false }          // runtime only, needed during run
-  implementation  ('org.apache.shiro:shiro-event:2.0.6') { transitive = false }                // needed by shiro internal
-  runtimeOnly     ('org.apache.shiro:shiro-config-ogdl:2.0.6') { transitive = false }          // runtime only, needed during run
-  runtimeOnly     ('org.apache.shiro:shiro-ehcache:2.0.6') { transitive = false }              // runtime only, needed during run
+  implementation  ('org.apache.shiro:shiro-core:2.1.0:jakarta') { transitive = false }         // SubjectFilters
+  implementation  ('org.apache.shiro:shiro-lang:2.1.0') { transitive = false }                 // Menus
+  implementation  ('org.apache.shiro:shiro-cache:2.1.0') { transitive = false }                // SubjectSettings
+  implementation  ('org.apache.shiro:shiro-crypto-hash:2.1.0') { transitive = false }          // SubjectSettings
+  implementation  ('org.apache.shiro:shiro-crypto-core:2.1.0') { transitive = false }          // SubjectSettings
+  implementation  ('org.apache.shiro:shiro-web:2.1.0:jakarta') { transitive = false }          // SubjectSettings
+  runtimeOnly     ('org.apache.shiro:shiro-crypto-cipher:2.1.0') { transitive = false }        // runtime only, needed during run
+  runtimeOnly     ('org.apache.shiro:shiro-config-core:2.1.0') { transitive = false }          // runtime only, needed during run
+  implementation  ('org.apache.shiro:shiro-event:2.1.0') { transitive = false }                // needed by shiro internal
+  runtimeOnly     ('org.apache.shiro:shiro-config-ogdl:2.1.0') { transitive = false }          // runtime only, needed during run
+  runtimeOnly     ('org.apache.shiro:shiro-ehcache:2.1.0') { transitive = false }              // runtime only, needed during run
 
   implementation  ('com.google.code.gson:gson:2.13.2') { transitive = false }                  // OAuth2
   implementation  ('org.apache.velocity:velocity-engine-core:2.4.1') { transitive = false }      // SQLEngine
