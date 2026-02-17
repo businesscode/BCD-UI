@@ -81,6 +81,7 @@ bcdui.factory = Object.assign(bcdui.factory,
 
   /**
    * Creates a dataprovider from an xPath, its value is the evaluated xPath
+   * @param {Object} args The parameter map contains the same members as {@link bcdui.core.DataProviderWithXPath}
    */
   createDataProviderWithXPath: function(args) {
     if (typeof args.id == "undefined") {
@@ -119,7 +120,9 @@ bcdui.factory = Object.assign(bcdui.factory,
     return bcdui.factory._generateSymbolicLink(args);
   },
   /**
-   * creates a dataprovider the data is a list of elements found at xpath bundled below a artifical root node
+   * creates a {@link bcdui.core.DataProviderWithXPathNodes} the data is a list of elements found at xpath bundled below a artifical root node
+   * Waits for input DataProviders to exist (not just to be ready), if provided by id
+   * @param {Object} args The parameter map contains the same members as {@link bcdui.core.DataProviderWithXPathNodes}
    * @private
    */
   createDataProviderWithXPathNodes: function(args) {

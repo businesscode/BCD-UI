@@ -41,7 +41,7 @@
  * {@link bcdui.core.DataProviderHolder} &bull;
  * {@link bcdui.core.DataProviderAlias} &bull;
  * {@link bcdui.core.ConstantDataProvider} &bull;
- * {@link bcdui.core.PromptDataProvider} &bull;
+ * {@link bcdui.core.PromptDataProvider}
  *
  * @extends bcdui.core.AbstractExecutable
  * @abstract
