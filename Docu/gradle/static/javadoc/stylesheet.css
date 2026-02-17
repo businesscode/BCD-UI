@@ -1,8 +1,18 @@
 /*
- * Javadoc style sheet
- */
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
-@import url('resources/fonts/dejavu.css');
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ */
 
 /*
  * Styles for individual HTML elements.
@@ -68,13 +78,7 @@ ul {
 code, tt {
     font-family:'DejaVu Sans Mono', monospace;
 }
-:not(h1, h2, h3, h4, h5, h6) > code,
-:not(h1, h2, h3, h4, h5, h6) > tt {
-    font-size:14px;
-    padding-top:4px;
-    margin-top:8px;
-    line-height:1.4em;
-}
+
 dt code {
     font-family:'DejaVu Sans Mono', monospace;
     font-size:14px;
@@ -145,8 +149,7 @@ button {
 }
 .top-nav {
     /* bcd */
-    background-image: url(../images/headerBack.png);
-    background-repeat: no-repeat;
+    background-color: #369afb;
     background-size: 100%;
     color:#000;
     /* bcd */
@@ -160,7 +163,7 @@ button {
     font-size:12px;
 }
 .sub-nav {
-    background-color:#dee3e9;
+    background-color:#f8f8f8;
     float:left;
     width:100%;
     overflow:hidden;
@@ -269,10 +272,9 @@ body.module-declaration-page  .block-list h2 {
 body.class-declaration-page .summary h3,
 body.class-declaration-page .details h3,
 body.class-declaration-page .summary .inherited-list h2 {
-    background-color:#dee3e9;
-    border:1px solid #d0d9e0;
+    border-top:1px solid #d0d9e0;
     margin:0 0 6px -8px;
-    padding:7px 5px;
+    padding: 16px 0 0 0;
 }
 /*
  * Styles for page layout containers.
@@ -476,17 +478,6 @@ div.table-tabs > button.table-tab {
 .col-last {
     white-space:normal;
 }
-.col-first a:link, .col-first a:visited,
-.col-second a:link, .col-second a:visited,
-.col-first a:link, .col-first a:visited,
-.col-second a:link, .col-second a:visited,
-.col-constructor-name a:link, .col-constructor-name a:visited,
-.col-summary-item-name a:link, .col-summary-item-name a:visited,
-.constant-values-container a:link, .constant-values-container a:visited,
-.all-classes-container a:link, .all-classes-container a:visited,
-.all-packages-container a:link, .all-packages-container a:visited {
-    font-weight:bold;
-}
 .table-sub-heading-color {
     background-color:#EEEEFF;
 }
@@ -494,7 +485,7 @@ div.table-tabs > button.table-tab {
     background-color:#FFFFFF;
 }
 .odd-row-color, .odd-row-color .table-header {
-    background-color:#EEEEEF;
+    background-color:#F4F4F4;
 }
 /*
  * Styles for contents.
@@ -553,11 +544,6 @@ h1.hidden {
     display:block;
     margin:0 10px 5px 0;
     color:#474747;
-}
-.deprecated-label, .descfrm-type-label, .implementation-label, .member-name-label, .member-name-link,
-.module-label-in-package, .module-label-in-type, .override-specify-label, .package-label-in-type,
-.package-hierarchy-label, .type-name-label, .type-name-link, .search-tag-link, .preview-label {
-    font-weight:bold;
 }
 .deprecation-comment, .help-footnote, .preview-comment {
     font-style:italic;
@@ -639,6 +625,7 @@ ul.ui-autocomplete  li {
     position:relative;
     right:-18px;
     width:400px;
+    border: 1px solid #bbb
 }
 #reset-button {
     background-color: rgb(255,255,255);
@@ -683,12 +670,7 @@ ul.ui-autocomplete  li {
 section.class-description {
     line-height: 1.4;
 }
-.summary section[class$="-summary"], .details section[class$="-details"],
-.class-uses .detail, .serialized-class-details {
-    padding: 0px 20px 5px 10px;
-    border: 1px solid #ededed;
-    background-color: #f8f8f8;
-}
+
 .inherited-list, section[class$="-details"] .detail {
     padding:0 0 5px 8px;
     background-color:#ffffff;
