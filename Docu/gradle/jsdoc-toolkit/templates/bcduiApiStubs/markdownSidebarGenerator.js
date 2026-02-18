@@ -88,7 +88,8 @@ class MarkdownSidebarGenerator extends MarkdownBaseGenerator {
       this.current += value.classes.sort().join("");
     });
     let path = this.mdOutputElementsPath;
-    let fileName = "_sidebar.md";
+    // docsif default is _sidebar.md, but the underscore is hidden by Jekyll on github, so we use a custom name here
+    let fileName = "sidebar.md";
     fs.mkdirSync(path, { recursive: true });
 
     fs.writeFileSync( path + fileName, "* [Home](/)\n" );
