@@ -315,7 +315,7 @@ jQuery.extend(bcdui.widget,
    * @param {string}        [args.widgetCaption]                  A caption which is used as prefix for navPath generation for this widget.
    * @param {boolean}       [args.enableNavPath]                  Set to true if widget should not be added to navpath handling.
    * @param {boolean}       [args.doSortOptions=false]            Set to true if widget should sort options.
-   * @param {string}        [args.label]                          If provided, renders label element to this input, unless args.isCheckBox = true
+   * @param {string}        [args.label]                          If provided, renders label element to this input
    */
   createMultiSelect: function(args)
     {
@@ -341,7 +341,7 @@ jQuery.extend(bcdui.widget,
           widgetCaption:            args.widgetCaption,
           enableNavPath:           args.enableNavPath,
           doSortOptions:            args.doSortOptions || "false",
-          label :                   !args.isCheckBox ? args.label : null
+          label :                   args.label
       };
       if (bcdui.util.isString(args.optionsModelXPath) && !!args.optionsModelXPath.trim()) {
         var optionsModelParams = bcdui.factory._extractXPathAndModelId(args.optionsModelXPath);
