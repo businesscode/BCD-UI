@@ -114,8 +114,8 @@ bcdui.widgetNg.validation.validators.general.TYPE_VALIDATORS={
 // ### WIDGET VALIDATORS ###
 
 /**
- * this getter we have to use which is compliant to the non-native placeholder
- * feature
+ * Current value of the chooser.
+ * Use this instead of native value property as it understands our placeholder implementation.
  *
  * @see implementation at bcdui.widgetNg.input.isFieldEmpty
  *

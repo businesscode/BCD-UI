@@ -21,10 +21,8 @@
  */
 
 /** 
- * <p>
- *
- * This namespace encapsulates consists of the lower layer of BCDUI core
- * functionality. It is composed of three blocks of functionality:
+ * This package contains the BCDUI core components.
+ * It is composed of three blocks of functionality:
  *                                                                             <dl><dt>
  *   Core Classes                                                              </dt><dd><p>
  *         The core classes are the foundation for most BCDUI objects

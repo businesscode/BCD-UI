@@ -6,3 +6,12 @@
 /JspTaglib/.gitignore
 .project
 .settings
+
+# Mac
+.DS_Store
+
+# IntelliJ IDEA
+.idea/*
+!.idea/codeStyles
+!.idea/inspectionProfiles
+!.idea/runConfigurations

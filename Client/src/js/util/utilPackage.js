@@ -230,7 +230,7 @@ bcdui.util =
   },
   
   /**
-   * 
+   * Encode a URI
    * @param {string} string - Value to be encoded
    * @returns {string} encoded string 
    */
@@ -240,9 +240,9 @@ bcdui.util =
   },
 
   /**
-   * 
+   * Decode a URI
    * @param {string} string - Value to be decoded
-   * @returns {string} dencoded string 
+   * @returns {string} decoded string
    */
   decodeURI : function(string) {
     let decode = "";

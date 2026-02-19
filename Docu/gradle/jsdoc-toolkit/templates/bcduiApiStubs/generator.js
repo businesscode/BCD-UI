@@ -68,8 +68,7 @@ class Generator {
    */
   printCommentExamplesMandatories( method, clazz, atExample=true, always=false )
   {
-    if( ! method.params || (method.params.length < 2 && !method.params[0]?.name.includes(".")) )
-      if( !always ) return "";
+    if( (! method.params || method.params.filter(p=>!p.optional).length < 2) && !always ) return "";
 
     const defaults = {
       targetModelXPath: '"$guiStatus/cust:Elem/@value"',
@@ -82,18 +81,16 @@ class Generator {
 
     // generate a sample. VSC 16.3 will only show leading spaces for the first row, so we do not write them here at all TODO
     var instName = "my" + this.getAbbreviation(clazz.name);
-    var result = "````js"+nL();
-    result += "    // Usage"+nL();
-    if( method === clazz ) {
+    var result = "// Usage"+nL();
+    if( method.kind === "class" ) {
       if( clazz.virtual )
         return "";
-      result += "    var "+instName+" = new " + clazz.longname;
+      result += "var "+instName+" = new " + clazz.longname;
     } else if( method.scope !== "static" ) {
       if( method.returns )
-        result += "    var ret = ";
+        result += "var ret = ";
       result += instName + "." + method.name;
     } else  {
-      result += "    ";
       if( method.returns )
         result += "var ret = ";
       result += method.longname.replace("#","."); // Instance functions are separated with a # from classname in jsdoc, but her we want to see the dot
@@ -103,7 +100,6 @@ class Generator {
     var hasParamBag = method.params?.some( function(p) { return p.name.indexOf(".") !== -1; } );
 
     let mandParams = "";
-    let that = this;
     method.params?.filter( function(param) {
       // We do not want param bags here, only their parts
       return ! param.optional && ! (hasParamBag && param.name.split(".").length===1);
@@ -120,9 +116,11 @@ class Generator {
       result += mandParams + " ";
       if (hasParamBag) result += "}";
     }
-    result += ");"+nL()+"  ````";
+    result += ");";
 
     if(atExample) result = "  @example"+nL(1) + result + nL();
+    else result = "````js"+nL() + result + nL() + "  ````";
+
     return nL()+result+nL();
   }
 
@@ -169,7 +167,6 @@ class Generator {
    * Retrieve documentation from super classes if @inheritDoc is set
    * @param taffyData
    * @param doclet
-   * @param docu
    * @returns {object} docu including inherited docu
    */
   inheritDocu(taffyData, doclet) {
@@ -177,11 +174,20 @@ class Generator {
 
     const docu = { ...doclet };
     const hierarchy = taffyData({ longname: doclet.longname }).get();
-    for(let p = 1; p<hierarchy.length && 'inheritdoc' in hierarchy[p-1]; p++) {
-      for( const prop of propsToInherit ) {
-        docu[prop] = docu[prop] ?? hierarchy[p][prop];
+
+    function collect(hierarchy, docu) {
+      // We get all the methods of the ancestor classes, we collect docu
+      // Limitation: We assume that any docu will do, we do not enforce a priority along the inheritance chain here
+      for( let p = 0; p<hierarchy.length; p++ ) {
+        for( const prop of propsToInherit ) {
+          docu[prop] = docu[prop] ?? hierarchy[p][prop];
+        }
+        collect(taffyData({longname: [hierarchy[p].overrides, hierarchy[p].inherits]}).get(), docu);
       }
     }
+
+    collect(hierarchy, docu);
+
     return docu;
   }
 

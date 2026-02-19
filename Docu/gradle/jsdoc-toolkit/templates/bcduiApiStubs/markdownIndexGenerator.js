@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2025 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@
 const os = require('os')
 const fs = require('fs');
 
-const {Generator} = require('./generator');
+const {MarkdownBaseGenerator} = require('./markdownBaseGenerator');
 
 /**
  * Here we give a list of BCD-UI elements to give the LLM an overview of what exists.
  * Outputs a summary for the most important classes and functions.
  * auxiliaryElements are just listed by name, detail API can still be looked up
  */
-class MarkdownIndexGenerator extends Generator {
+class MarkdownIndexGenerator extends MarkdownBaseGenerator {
 
   docuIndex = {};
 
@@ -70,6 +70,7 @@ class MarkdownIndexGenerator extends Generator {
     summary = summary.split(/\r?\n|\r|\.\W|;/)[0];
     element.summary = summary;
     element.kind = functionOrClass.kind;
+    element.longname = functionOrClass.longname;
     let inheritsDP = this.inheritsFrom(this.taffyDb, functionOrClass.longname, "bcdui.core.DataProvider");
     let inheritsRenderer = this.inheritsFrom(this.taffyDb, functionOrClass.longname, "bcdui.core.Renderer");
     if( inheritsDP && !inheritsRenderer ) element.implements = ["DataProvider"];
@@ -90,7 +91,9 @@ class MarkdownIndexGenerator extends Generator {
       || functionOrClass.longname.includes("widgetNg.create");
 
     if( isCommon ) this.docuIndex[group].elements[name] = element;
-    else this.docuIndex[group].auxiliaryElements.push( functionOrClass.longname.split(".").slice(2).join(".") );
+    else this.docuIndex[group].auxiliaryElements.push(
+      { name: functionOrClass.longname.split(".").slice(2).join("."), longname: functionOrClass.longname }
+    );
   }
 
   /**
@@ -98,7 +101,7 @@ class MarkdownIndexGenerator extends Generator {
    * Write summary files, one per group core | component | widget | util
    */
   finish() {
-    let path = this.opts.destination+"/../md/index/";
+    let path = this.mdOutputIndexPath;
     fs.mkdirSync(path, { recursive: true });
 
     // One file per group
@@ -115,15 +118,16 @@ class MarkdownIndexGenerator extends Generator {
       fs.appendFileSync(fileName, `${os.EOL}${os.EOL} ## Elements` );
       fs.appendFileSync(fileName, `${os.EOL} | Name | Summary | Remark |` );
       fs.appendFileSync(fileName, `${os.EOL} |------|---------|--------|` );
-      for (const [key, value] of Object.entries(this.docuIndex[group].elements)) {
+      for (const [key, value] of Object.entries(this.docuIndex[group].elements).sort()) {
         // let name = (value.kind === "class" ? "class " : "") + key + (value.kind === "function" ? "()" : "");
         let implementsStr = value.implements ? "Is a " + value.implements?.join(", ") : "";
-        fs.appendFileSync(fileName, `${os.EOL} | ${key} | ${value.summary} | ${implementsStr} |` );
+        let link = `[${key}](../elements/${value.longname}.md)`;
+        fs.appendFileSync(fileName, `${os.EOL} | ${link} | ${value.summary} | ${implementsStr} |` );
       }
 
       // List of less frequently used elements
       if( this.docuIndex[group].auxiliaryElements.length > 0 ) {
-        let auxElems = (this.docuIndex[group].auxiliaryElements??[]).join(", ")
+        let auxElems = (this.docuIndex[group].auxiliaryElements??[]).sort().map(e=>`[${e.name}](../elements/${e.longname}.md)`).join(", ")
         fs.appendFileSync(fileName, `${os.EOL}${os.EOL} ## Auxiliary elements` );
         fs.appendFileSync(fileName, `${os.EOL}${auxElems}` );
       }
