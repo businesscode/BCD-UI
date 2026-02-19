@@ -315,7 +315,7 @@ jQuery.extend(bcdui.widget,
    * @param {string}        [args.widgetCaption]                  A caption which is used as prefix for navPath generation for this widget.
    * @param {boolean}       [args.enableNavPath]                  Set to true if widget should not be added to navpath handling.
    * @param {boolean}       [args.doSortOptions=false]            Set to true if widget should sort options.
-   * @param {string}        [args.label]                          If provided, renders label element to this input, unless args.isCheckBox = true
+   * @param {string}        [args.label]                          If provided, renders label element to this input
    */
   createMultiSelect: function(args)
     {
@@ -341,7 +341,7 @@ jQuery.extend(bcdui.widget,
           widgetCaption:            args.widgetCaption,
           enableNavPath:           args.enableNavPath,
           doSortOptions:            args.doSortOptions || "false",
-          label :                   !args.isCheckBox ? args.label : null
+          label :                   args.label
       };
       if (bcdui.util.isString(args.optionsModelXPath) && !!args.optionsModelXPath.trim()) {
         var optionsModelParams = bcdui.factory._extractXPathAndModelId(args.optionsModelXPath);
@@ -1327,9 +1327,9 @@ jQuery.extend(bcdui.widget,
     * @param {Object}        args                       The parameter map contains the following properties.
     * @param {targetHtmlRef} args.targetHtml            An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id.
     * @param {string}        args.defElementId          Html element id where tabs are defined.
-    * @param {string}        [args.args.id]             ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable. If not given, an auto-id is generated.
-    * @param {string}        [args.handlerJsClassName]  Own JS class name to handler click action on tab.
-    * @param {string}        [args.rendererUrl]         URL to own renderer.
+    * @param {string}        [args.id]                  ID of the Executable object which renders this widget this must be UNIQUE and MUST NOT have same names as any global JavaScript variable. If not given, an auto-id is generated.
+    * @param {string}        [args.handlerJsClassName]  Custom JS class name to handler click action on tab.
+    * @param {string}        [args.rendererUrl]         URL to custom renderer.
     * @param {boolean}       [args.isPersistent=false]  Set this to true to make the tab selection persistent.
     */
    createTabMenu:function(args)
@@ -2944,7 +2944,7 @@ jQuery.extend(bcdui.widget,
      * @param {Object}        args                 The parameter map contains the following properties.
      * @param {string}        args.rendererId      Id of the renderer to work on
      * @param {boolean}       [args.storeSize=true]  Decide whether the action is to be called synchronous or not
-     * @param {boolean}       [args.enableColumnFilters=false]  Set to true if you wnat to enable column filters, too
+     * @param {boolean}       [args.enableColumnFilters=false]  Set to true to enable column filters
      * @param {function}      [args.getCaptionForColumnValue]  if you enabled column filters, you can set its getCaptionForColumnValue here 
     */
     createFixedTableHeader: function(args) {
@@ -3578,8 +3578,8 @@ jQuery.extend(bcdui.widget,
       * @param {function} [args.create] - function to execute when dialog is created
       * @param {function} [args.beforeClose] - function to execute before dialog is closed - it gets args object with properties: targetHtml; if this function returns false, the dialog is not closed.
       * @param {string} [args.title] - dialog title
-      * @param {number} [args.width=640] - dialog width; > 1 means absolute size <= 1 means percentage of the current view-port size, i.e. .75 = 75% of view-port size 
-      * @param {number} [args.width=320] - dialog height; > 1 means absolute size <= 1 means percentage of the current view-port size, i.e. .75 = 75% of view-port size
+      * @param {number} [args.width=640] - dialog width; > 1 means absolute size &lt;= 1 means percentage of the current view-port size, i.e. .75 = 75% of view-port size
+      * @param {number} [args.width=320] - dialog height; > 1 means absolute size &lt;= 1 means percentage of the current view-port size, i.e. .75 = 75% of view-port size
       * @return {Promise<string>} resolving with value provided from 'dialog-close' event, when dialog is closed.
       * @example
       * bcdui.widget.openDialog({

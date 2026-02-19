@@ -1009,7 +1009,8 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
 
  /**
    * A concrete subclass of {@link bcdui.core.TransformationChain TransformationChain}, inserting its output into targetHtml.
-   * Renderer execute() automatically on creation, and as usual execute their dependencies (i.e. parameters) automatically.
+   * Renderers execute() automatically on creation, and execute and wait for their dependencies (i.e. parameters) automatically.
+   * Logic of Renderers can be implemented as JavaScript functions or XSLTs
    * @extends bcdui.core.TransformationChain
    */
 bcdui.core.Renderer = class extends bcdui.core.TransformationChain
@@ -1199,6 +1200,16 @@ bcdui.core.ModelUpdater = class extends bcdui.core.TransformationChain
    * Once this ModelUpdater is {@link bcdui.core.AbstractExecutable#execute executed}, it will check each parameter and execute it, if it is not {@link bcdui.core.AbstractExecutable#isReady .isReady()}
    * @param {boolean}                 [args.autoUpdate=true] - A boolean value indicating if the ModelUpdater should run on every change in the targetModel. Can be a data modification event or if targetModel again reaches the ready status. If autoUpdate is false a model updater only runs when the targetModel is (re)executed. 
    * @param {string}                  [args.id]               - Globally unique id for use in declarative contexts
+   * @example
+   *  // Example for a default value for the GuiStatus: If no filter is set, limit the id range
+   *  new bcdui.core.ModelUpdater({ targetModel: bcdui.wkModels.guiStatus , autoUpdate: false,
+   *    chain: function guiStatusFilter(guiStatusDataDoc) {
+   *      if( guiStatusDataDoc.selectSingleNode("/guiStatus:Status/f:Filter" ) === null) {
+   *        bcdui.core.createElementWithPrototype(guiStatusDataDoc, "/guiStatus:Status/f:Filter/f:Expression[@bRef='id' and @op='>=' and @value='1030000']");
+   *        bcdui.core.createElementWithPrototype(guiStatusDataDoc, "/guiStatus:Status/f:Filter/f:Expression[@bRef='id' and @op='<=' and @value='1030125']");
+   *      }
+   *    }
+   *  });
    */
   constructor(args)
   {

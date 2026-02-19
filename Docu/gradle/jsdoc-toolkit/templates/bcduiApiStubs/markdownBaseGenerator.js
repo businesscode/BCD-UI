@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2025 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -26,6 +26,19 @@ const {Generator} = require("./generator");
 class MarkdownBaseGenerator extends Generator {
 
   /**
+   * Constructor
+   * @param opts
+   * @param taffyDb
+   */
+  constructor(opts, taffyDb) {
+    super(opts, taffyDb);
+    this.mdIndexPath    = "generated/index/";
+    this.mdElementsPath = "generated/elements/";
+    this.mdOutputIndexPath    = this.opts.destination + "/../md/" + this.mdIndexPath   ;
+    this.mdOutputElementsPath = this.opts.destination + "/../md/" + this.mdElementsPath;
+  }
+
+  /**
    * Print a parameter list and potentially contained complex types
    * @param params
    * @returns {string}
@@ -39,35 +52,59 @@ class MarkdownBaseGenerator extends Generator {
 
       //--------------------
       // Parameters themselves
-      result += os.EOL+os.EOL + "#### Parameters"+os.EOL;
+      result += os.EOL+os.EOL;
       result += "| Name     | Type     | Default  | Description |" + os.EOL;
       result += "|----------|----------|----------|-------------|" + os.EOL;
+      let that = this;
       params.forEach( param => {
         let name = param.name+ (param.optional ? "?" : "");
         let types = this.printCommentDataTypes(param.type).replaceAll(/([<|])/g, "\\$1");
         let defaultVal = param.defaultvalue ?? "";
-        let descr = param.description?.replace(/[\r\n]+/g, ' ').trim() ?? "";
+        let descr = param.description?.replace(/[\r\n]+/g, '<br/>').trim() ?? "";
+        descr = that.jsLinksToMarkdownLinks(descr);
         result += `| ${name} | ${types} | ${defaultVal} | ${descr} |${os.EOL}`
       });
 
       //--------------------
       // Potentially complex types from the parameter list
+      // Types do not become headers so that they are not part of the sidebar
       params.forEach( param => {
         param.type?.names.forEach(tn => {
           let types = helper.find(this.taffyDb, {kind: "typedef", name: tn});
           if( types.length === 0 || !types[0].properties ) return;
-          result += os.EOL + "##### Type " + tn;
+          result += os.EOL + "Type **" + tn + "**" + os.EOL;
           result += os.EOL + "| Name     | Type     | Default  | Description |";
           result += os.EOL + "|----------|----------|----------|-------------|";
-          types[0].properties?.forEach(p =>
-            result += os.EOL + `| ${p.name + (p.optional?"":"") } | ${p.type.names[0]} | ${p.defaultvalue??""} | ${p.description} |`
-          );
+          types[0].properties?.forEach(p => {
+            let desc = that.jsLinksToMarkdownLinks(p.description);
+            desc = desc.replaceAll(/[\r\n]+/g, '<br/>').trim();
+            result += os.EOL + `| ${p.name + (p.optional ? "" : "")} | ${p.type.names[0]} | ${p.defaultvalue ?? ""} | ${desc} |`
+          });
           result += os.EOL;
         });
       });
     }
 
     return result;
+  }
+
+  /**
+   * Replace jsdoc {@link} tags with markdown links
+   * Limitation: We do not have links to param types but list them below the function
+   * @param content
+   * @returns {string}
+   */
+  jsLinksToMarkdownLinks(content) {
+    if( !content ) return content;
+    return content.replaceAll(
+      /\{@link\s+([^}\s]+)(?:\s+([^}]*))?\}/g,
+      function(match, ref, text) {
+        const label = text || ref;
+        if( label.endsWith("Param") ) return " of type **" + label + "**";
+        const path = ref.replaceAll(/\(|\)/g, "");
+        return `[${label}](${path}.md)`;
+      }
+    );
   }
 
 }

@@ -106,7 +106,7 @@
         delete args.targetHTMLElementId;
         delete args.targetHtmlElementId;
       } else if (args.targetHTMLElementId || args.targetHtmlElementId){
-        throw "Must not define .targetHtml and args.args.targetHtmlElementId";
+        throw "Must not define args.targetHtml and args.targetHtmlElementId";
       }
 
       const targetEl = bcdui.util._getTargetHtml(args, prefixAutoId || "autoId_", true);

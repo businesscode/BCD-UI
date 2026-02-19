@@ -69,22 +69,10 @@ class ApiStubsClassGenerator extends ApiStubsBaseGenerator {
     // ... add Constructor parameter
     result += "/**" + nL(1);
 
+    // ... add the Constructor
     let {typeDefs, paramsDoc} = this.printCommentParams(clazz.params, clazz, "Constructor");
     result += paramsDoc; // Inline plain params, typedefs are prepended to class output below
-
-    // Eclipse 2021-12 an VSC expect the class description at the constructor.
-    // We print it after the params because for IDEA this is repeated for each param and after it is better to read
-    result += this.printExternalLink(this.ONLINE_JS_DOC+clazz.longname+".html")+nL(1);
-    if( clazz.classdesc )
-      result += "@description " + clazz.classdesc.replace(/ *(\r?\n|\r) */gm," ") + nL(1);
-    if (clazz.description)
-      result += "@description " + clazz.description.replace(/( *\r?\n|\r *)/gm," ") + nL(1);
-    if (clazz.examples)
-      result += this.printCommentExamples( clazz.examples );
-
     result += "  */" + nL(1);
-
-    // ... add the Constructor
     result += "constructor("
     var paramList = "";
     if(clazz.params && clazz.params.length !== 0){

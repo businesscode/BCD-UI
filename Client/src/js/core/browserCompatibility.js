@@ -15,8 +15,6 @@
 */
 "use strict";
 /**
- * <p>
- *
  * This namespace contains XML-related functions to make the BCD-UI library
  * work on different browsers' XML implementation. These functions deal with
  * the following issues:

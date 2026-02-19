@@ -359,8 +359,7 @@ bcdui = Object.assign(bcdui,
     })(),
 
     /**
-     * Context path of the current webapp
-     * @constant
+     * Context path of the current webapp. Use getContextPath()
      * @type {string}
      */
     contextPath        : "/",
@@ -381,6 +380,7 @@ bcdui = Object.assign(bcdui,
     },
 
     /**
+     * Context path of the current webapp
      * @return {string} Context path of the current webapp to resolve relative URLs
      */
     getContextPath : function() {

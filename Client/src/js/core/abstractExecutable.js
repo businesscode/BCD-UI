@@ -20,13 +20,10 @@
  */
   
  /**
- * The abstract executable class is a base class for asynchronous operating status-based classes in BCD-UI library. It offers a basic set of
- * methods that these classes share. Most methods deal with status handling, transitions, listeners and synchronization.
- *
- * <br/>Most common implementations are:
- * {@link bcdui.core.StaticModel} &bull;
- * {@link bcdui.core.SimpleModel} &bull;
-
+  * The abstract executable class is a base class for asynchronous operating status-based classes in BCD-UI library. It offers a basic set of
+  * methods that these classes share. Most methods deal with status handling, transitions, listeners and synchronization.
+  * <br/>Most common implementations are:
+  * {@link bcdui.core.StaticModel} and {@link bcdui.core.SimpleModel}
   * @abstract
   */
 bcdui.core.AbstractExecutable = class
