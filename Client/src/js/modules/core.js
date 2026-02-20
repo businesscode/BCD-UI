@@ -33,6 +33,11 @@ import {
 } from "../core/dataProvider.js"
 
 import "../core/browserCompatibility.js"
+import {
+  bcduiExport_DotJsTransformator as DotJsTransformator
+, bcduiExport_JsTransformator as JsTransformator
+, bcduiExport_WebworkerTransformator as WebworkerTransformator
+} from "../core/transformators.js"
 import "../core/extendedBrowserCompatibility.js"
 import "../core/commonStatusObjects.js"
 
@@ -50,12 +55,6 @@ import {
 , bcduiExport_RequestDocumentDataProvider as RequestDocumentDataProvider
 , bcduiExport_StringDataProvider as StringDataProvider
 } from "../core/dataProviders.js"
-
-import {
-  bcduiExport_DotJsTransformator as DotJsTransformator
-, bcduiExport_JsTransformator as JsTransformator
-, bcduiExport_WebworkerTransformator as WebworkerTransformator
-} from "../core/transformators.js"
 
 import "../core/xmlLoader.js"
 import "../log/backendEventsPoller.js"
