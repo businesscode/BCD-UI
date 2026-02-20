@@ -127,6 +127,7 @@
           inputModel  : this.targetDataProvider,
           parameters  : jQuery.extend(true, {
             nodeIdAttribute : this.NODE_ID_ATTR,
+            OpsCaptions: new bcdui.core.SimpleModel({url: bcdui.config.libPath + "js/widgetNg/universalFilter/widgetReferenceData.xml"}),
             cssClassPrefix  : this.options.cssClassPrefix,
             bRefModel       : new bcdui.core.OptionsDataProvider({
               optionsModelXPath               : this.options.bRefOptionsModelXPath,

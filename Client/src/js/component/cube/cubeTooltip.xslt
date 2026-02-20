@@ -31,7 +31,7 @@
 <xsl:import href="../../../xslt/renderer/numberFormatting.xslt"/>
 
 
-<xsl:output method="html" version="1.0" encoding="UTF-8" indent="no"/>
+<xsl:output method="html" encoding="UTF-8" indent="no"/>
 
 <xsl:key name="colDefByPos" match="/*/wrs:Header/wrs:Columns/wrs:C" use="@pos"/>
 <xsl:key name="colDefById"  match="/*/wrs:Header/wrs:Columns/wrs:C" use="@id"/>

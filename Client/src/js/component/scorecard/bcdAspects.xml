@@ -722,11 +722,18 @@
           </xsl:copy>
         </xsl:template>
 
-        <xsl:template match="wrs:R/wrs:C[key('colHeadByPosOrigValue',position())]">
-          <xsl:copy>
-            <xsl:copy-of select="@*"/>
-            <xsl:value-of select="key('colHeadByPosOrigValue',position())/@bcdPreviousPeriodAspectOrigValue"/>
-          </xsl:copy>
+        <xsl:template match="wrs:R/wrs:C">
+          <xsl:choose>
+            <xsl:when test="key('colHeadByPosOrigValue',position())">
+              <xsl:copy>
+                <xsl:copy-of select="@*"/>
+                <xsl:value-of select="key('colHeadByPosOrigValue',position())/@bcdPreviousPeriodAspectOrigValue"/>
+              </xsl:copy>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:copy><xsl:apply-templates select="@*|node()"/></xsl:copy>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:template>
 
         <xsl:template match="@*|node()">

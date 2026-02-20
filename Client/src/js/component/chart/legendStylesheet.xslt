@@ -16,17 +16,24 @@
 -->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-<xsl:output method="html" version="1.0" encoding="UTF-8" indent="no"/>
+<xsl:output method="html" encoding="UTF-8" indent="no"/>
 
-<xsl:template name="chart">
-  <xsl:param name="id"/>
-  <xsl:param name="metaDataModel"/>
-  <xsl:param name="targetHTMLElementId"/>
-  <div id="{$id}"
-    metaDataModel="{$metaDataModel}"
-    chartRendererId="{$id}"
+<xsl:param name="id"/>
+<xsl:param name="chartRendererId"/>
+<xsl:param name="targetHTMLElementId"/>
+<xsl:param name="elementStyle"/>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  creates HTML element to initialize chart legend renderer
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<xsl:template match="/*">
+  <div id="{$targetHTMLElementId}_tempExec"
+    chartRendererId="{$chartRendererId}"
+    legendRendererId="{$id}"
+    elementStyle="{$elementStyle}"
     targetHTMLElementId="{$targetHTMLElementId}"
-    bcdOnLoad="bcdui.component.chart.init">
+    bcdOnLoad="bcdui.component.chart.initChartLegend"
+    >
   </div>
 </xsl:template>
 

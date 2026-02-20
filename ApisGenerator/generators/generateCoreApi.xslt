@@ -51,7 +51,7 @@
       <!-- XSLT / XAPI Api -->
       <File name="gensrc/js/core/core.xslt" outputFormat="xml">
         <xsla:stylesheet version="1.0" xmlns:xapi="http://www.businesscode.de/schema/bcdui/xmlapi-1.0.0">
-          <xsla:output method="html" version="1.0" encoding="UTF-8" indent="no"/>
+          <xsla:output method="html" encoding="UTF-8" indent="no"/>
           <xsla:param name="bcdContextPath"/>
           <xsla:param name="bcdInputModelId"/>
           <xsl:text>&#10;</xsl:text>

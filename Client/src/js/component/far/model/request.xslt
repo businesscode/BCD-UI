@@ -130,14 +130,14 @@
 
   <xsl:template match="dm:LevelRef" mode="asOrderBy">
     <xsl:variable name="order" select="substring-before(@sort,'ending')"/>
-    <C bRef="{@bRef}" order="{concat(substring('asc',0,1 div string-length($order)),$order)}"/>
+    <C bRef="{@bRef}" order="{concat(substring('asc',1,string-length('asc') * (number(string-length($order) = 0))),$order)}"/>
   </xsl:template>
   <xsl:template match="dm:MeasureRef" mode="asOrderBy">
     <xsl:variable name="measure" select="key('measureById',@idRef)"/>
     <xsl:variable name="order" select="substring-before(@sort,'ending')"/>
     <C
-      bRef="{concat(substring($measure/@bRef,0,1 div string-length($measure/calc:Calc/calc:ValueRef/@idRef)), $measure/calc:Calc/calc:ValueRef/@idRef)}"
-      order="{concat(substring('asc',0,1 div string-length($order)),$order)}"/>
+      bRef="{concat(substring($measure/@bRef,1,string-length($measure/@bRef)*(number(string-length($measure/calc:Calc/calc:ValueRef/@idRef) = 0))),$measure/calc:Calc/calc:ValueRef/@idRef)}"
+      order="{concat(substring('asc',1,string-length('asc') * (number(string-length($order) = 0))),$order)}"/>
   </xsl:template>
 
 </xsl:stylesheet>

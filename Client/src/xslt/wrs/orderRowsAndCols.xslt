@@ -350,7 +350,7 @@
           In addition, if we are to be sorted by a measure and there are col dims below us, we must search for the total of the next level -->
         <xsl:choose>
           <xsl:when test="$colDimSort/@sortBy and substring-after($colDimRest,'|')">
-            <xsla:sort order="{concat(substring('ascending',0,1 div string-length($colDimSort/@sort)),$colDimSort/@sort)}">
+            <xsla:sort order="{concat(substring('ascending',1,string-length('ascending') * (number(string-length($colDimSort/@sort) = 0))),$colDimSort/@sort)}">
               <xsl:attribute name="select">
                 /*/wrs:Data/wrs:R[not(wrs:C/@bcdGr='0')]/wrs:C[
                 starts-with(key('colHeadByPos',position())/@id,concat(<xsl:value-of select="$colDimCumul"/>,'&#xE0F0;1'))
@@ -360,7 +360,7 @@
             </xsla:sort>
           </xsl:when>
           <xsl:when test="$colDimSort/@sortBy">
-            <xsla:sort order="{concat(substring('ascending',0,1 div string-length($colDimSort/@sort)),$colDimSort/@sort)}">
+            <xsla:sort order="{concat(substring('ascending',1,string-length('ascending') * (number(string-length($colDimSort/@sort) = 0))),$colDimSort/@sort)}">
               <xsl:attribute name="select">
                 /*/wrs:Data/wrs:R[not(wrs:C/@bcdGr='0')]/wrs:C[
                 starts-with(key('colHeadByPos',position())/@id,concat(<xsl:value-of select="$colDimCumul"/>,''))

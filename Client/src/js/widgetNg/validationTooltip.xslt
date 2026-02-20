@@ -21,7 +21,7 @@
   <!--
     TODO: rename and move, since this tooltip is general purpose widget tooltip / balloon renderer
    -->
-  <xsl:output method="html" version="1.0" encoding="UTF-8" indent="no"/>
+  <xsl:output method="html" encoding="UTF-8" indent="no"/>
 
   <!-- its a default referencing the value in bcdui.i18n.I18N_TAG, but anyway explicitelly set during renderer creation -->
   <xsl:param name="I18N_TAG" select="'&#xE0FF;'"/>

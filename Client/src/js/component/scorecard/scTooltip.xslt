@@ -31,7 +31,7 @@
 
 <msxsl:script language="JScript" implements-prefix="exslt">this['node-set'] = function (x) { return x; }</msxsl:script>
 
-<xsl:output method="html" version="1.0" encoding="UTF-8" indent="no"/>
+<xsl:output method="html" encoding="UTF-8" indent="no"/>
 
 <xsl:key name="columnDefinitionLookupById" match="/*/wrs:Header/wrs:Columns/wrs:C" use="@id"/>
 

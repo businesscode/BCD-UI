@@ -90,7 +90,7 @@ bcdui.widgetNg.impl.readParams._validateEnumValues = function(paramBag, paramNam
       <!-- XSLT Api -->
       <File name="gensrc/js/widgetNg/widgetNg.xslt" outputFormat="xml">
         <xsla:stylesheet version="1.0" xmlns:xapi="http://www.businesscode.de/schema/bcdui/xmlapi-1.0.0">
-          <xsla:output method="html" version="1.0" encoding="UTF-8" indent="no"/>
+          <xsla:output method="html" encoding="UTF-8" indent="no"/>
           <xsl:apply-templates select="$normalizedApi/*/BcdObject[not(@generateXSLT) or @generateXSLT='true']" mode="xslt"/>
         </xsla:stylesheet>
       </File>

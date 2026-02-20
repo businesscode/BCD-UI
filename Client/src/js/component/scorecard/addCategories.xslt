@@ -336,32 +336,39 @@
   <!-- 
     Add categories as  attributes and @parentId to bcd_kpi_id
     -->
-  <xsl:template match="wrs:R/wrs:C[key('colHeadByPos', position())/@dimId='bcd_kpi_id']">
-    <xsl:variable name="kpiElement" select="$sccDefinition/*/scc:Kpis/scc:Kpi[@id = current()]"/>
-    <xsl:copy>
-      <xsl:apply-templates select="@*"/>
-
-      <xsl:if test="not($colCategories)">
-
-        <!-- category attributes -->
-        <xsl:for-each select="$categoryAttrTypes">
-          <xsl:variable name="categoryType" select="@idRef"/>
-          <xsl:variable name="categoryTypeElement" select="$categoryTypeElements[@id = $categoryType]"/>
-          <xsl:variable name="categoryValue" select="$kpiElement/scc:Categories/@*[local-name() = $categoryType]"/>
-          <xsl:variable name="categoryValueElement" select="$categoryTypeElement/*[@id = $categoryValue] | $categoryTypeElement/scc:UnknownCategory[not($categoryTypeElement/*[@id = $categoryValue])]"/>
-          <xsl:attribute name="{$categoryType}"><xsl:value-of select="$categoryValueElement/@id"/></xsl:attribute>
-        </xsl:for-each>
-
-        <!-- parentKpi -->
-        <xsl:variable name="parentKpi" select="$kpiElement/scc:ParentKpis/@*[name()=$parentKpiType]"/>
-        <xsl:if test="$parentKpi">
-          <xsl:attribute name="parentId"><xsl:value-of select="$parentKpi"/></xsl:attribute>
-        </xsl:if>
-
-      </xsl:if>
-
-      <xsl:apply-templates select="node()"/>
-    </xsl:copy>
+  <xsl:template match="wrs:R/wrs:C">
+    <xsl:choose>
+      <xsl:when test="key('colHeadByPos', position())/@dimId='bcd_kpi_id'">
+        <xsl:variable name="kpiElement" select="$sccDefinition/*/scc:Kpis/scc:Kpi[@id = current()]"/>
+        <xsl:copy>
+          <xsl:apply-templates select="@*"/>
+    
+          <xsl:if test="not($colCategories)">
+    
+            <!-- category attributes -->
+            <xsl:for-each select="$categoryAttrTypes">
+              <xsl:variable name="categoryType" select="@idRef"/>
+              <xsl:variable name="categoryTypeElement" select="$categoryTypeElements[@id = $categoryType]"/>
+              <xsl:variable name="categoryValue" select="$kpiElement/scc:Categories/@*[local-name() = $categoryType]"/>
+              <xsl:variable name="categoryValueElement" select="$categoryTypeElement/*[@id = $categoryValue] | $categoryTypeElement/scc:UnknownCategory[not($categoryTypeElement/*[@id = $categoryValue])]"/>
+              <xsl:attribute name="{$categoryType}"><xsl:value-of select="$categoryValueElement/@id"/></xsl:attribute>
+            </xsl:for-each>
+    
+            <!-- parentKpi -->
+            <xsl:variable name="parentKpi" select="$kpiElement/scc:ParentKpis/@*[name()=$parentKpiType]"/>
+            <xsl:if test="$parentKpi">
+              <xsl:attribute name="parentId"><xsl:value-of select="$parentKpi"/></xsl:attribute>
+            </xsl:if>
+    
+          </xsl:if>
+    
+          <xsl:apply-templates select="node()"/>
+        </xsl:copy>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy><xsl:apply-templates select="node()|@*"/></xsl:copy>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
 </xsl:stylesheet>

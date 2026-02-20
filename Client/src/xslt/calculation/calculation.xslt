@@ -48,11 +48,11 @@
   <xsl:variable name="operators" select="exslt:node-set($operatorsString)"/>
   <xsl:variable name="functionsString">
     <Functions>
-      <Max>substring-before(concat(normalize-space(concat(substring(<V p="2"/>,0,1div(<V p="1"/>><V p="2"/>)),' ',<V p="1"/>)),' '),' ')</Max>
-      <Min>substring-before(concat(normalize-space(concat(substring(<V p="2"/>,0,1div(<V p="2"/>><V p="1"/>)),' ',<V p="1"/>)),' '),' ')</Min>
-      <Coa>concat(translate(number(<V p="1"/>),'aN',''),substring(<V p="2"/>, 0,1div(string(number(<V p="1"/>))!='NaN')))</Coa>
+      <Max>substring-before(concat(normalize-space(concat(substring(<V p="2"/>,0,1 div (<V p="1"/>><V p="2"/>)),' ',<V p="1"/>)),' '),' ')</Max>
+      <Min>substring-before(concat(normalize-space(concat(substring(<V p="2"/>,0,1 div (<V p="2"/>><V p="1"/>)),' ',<V p="1"/>)),' '),' ')</Min>
+      <Coa>concat(translate(number(<V p="1"/>),'aN',''),substring(<V p="2"/>, 0,1 div (string(number(<V p="1"/>))!='NaN')))</Coa>
       <Zin>translate(number(<V p="1"/>),'aN','0')</Zin>
-      <Niz>substring(<V p="1"/>,0,1div(<V p="1"/>=0))</Niz>
+      <Niz>substring(<V p="1"/>,0,1 div (<V p="1"/>=0))</Niz>
       <Abs>translate(<V p="1"/>,'-','')</Abs>
       <Igt>boolean(<V p="1"/>><V p="2"/>)</Igt> <!-- One (true), if 1 greater than 2, otherwise 0. You can use -1 div 0 for p="2" to make 1 if number, 0 otherwise -->
       <Ian>boolean(string(number(<V p="1"/>))!='NaN')</Ian> <!-- One (true), if a number, 0 (false) otherwise -->

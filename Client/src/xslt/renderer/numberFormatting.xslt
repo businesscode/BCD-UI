@@ -55,8 +55,9 @@
       <xsl:otherwise>#,##0</xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
-  <xsl:decimal-format name="enDecimalFormat" NaN="" infinity="" digit="#" decimal-separator="." grouping-separator="," pattern-separator="|"/>
-  <xsl:decimal-format name="deDecimalFormat" NaN="" infinity="" digit="#" decimal-separator="," grouping-separator="." pattern-separator="|"/>
+  <!-- with XSLT3, NaN/infinity can't be an empty string, so they are " " here but get formatted value gets normalized at the end to return "" -->
+  <xsl:decimal-format name="enDecimalFormat" NaN=" " infinity=" " digit="#" decimal-separator="." grouping-separator="," pattern-separator="|"/>
+  <xsl:decimal-format name="deDecimalFormat" NaN=" " infinity=" " digit="#" decimal-separator="," grouping-separator="." pattern-separator="|"/>
 
   <xsl:key name="columnHeaderByPos" match="/*/wrs:Header/wrs:Columns/wrs:C" use="@pos"/>
 
@@ -129,7 +130,7 @@
          Sample (in US format) for 14990.404: scale 2 -> 14990.40, scale -2 -> 14990.4, scale 1000 -> 15,000, scale -1000 -> 15
          (Implementation note, we cannot use shorter number(@scale|$columnDefinition/@scale) because document order is wrong priority order)
      -->
-    <xsl:variable name="effectiveScale">
+    <xsl:variable name="effectiveScaleRaw">
       <xsl:choose>
         <xsl:when test="$scale">
           <xsl:value-of select="$scale"/>
@@ -142,6 +143,8 @@
         </xsl:when>
       </xsl:choose>
     </xsl:variable>
+
+    <xsl:variable name="effectiveScale" select="number($effectiveScaleRaw)"/>
 
     <xsl:choose>
       <xsl:when test="$effectiveScale > 10">
@@ -189,19 +192,26 @@
   
   <!-- implementation of number formatting including negative format option -->
   <xsl:template name="formatNumberImpl">
-  <xsl:param name="value"/>
-  <xsl:param name="pattern"/>
-  <xsl:param name="suffix"/>
-  <xsl:param name="numberFormattingOption"/>
-  <xsl:param name="formatName" select="$defaultDecimalFormatName"/>
-  <xsl:choose>
-    <xsl:when test="$numberFormattingOption = 'accounting'">
-      <xsl:value-of select="concat(format-number($value, concat($pattern,'|(',$pattern,')'), $formatName), $suffix)"/>
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:value-of select="concat(format-number($value, $pattern, $formatName), $suffix)"/>
-    </xsl:otherwise>
-  </xsl:choose>
+    <xsl:param name="value"/>
+    <xsl:param name="pattern"/>
+    <xsl:param name="suffix"/>
+    <xsl:param name="numberFormattingOption"/>
+    <xsl:param name="formatName" select="$defaultDecimalFormatName"/>
+
+    <xsl:variable name="formatValue">
+      <xsl:choose>
+        <xsl:when test="$numberFormattingOption = 'accounting'">
+          <xsl:value-of select="concat(format-number($value, concat($pattern,'|(',$pattern,')'), $formatName), $suffix)"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="concat(format-number($value, $pattern, $formatName), $suffix)"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <!-- avoid printing out " %" where the space comes from infinity or NaN -->
+    <xsl:if test="normalize-space($formatValue)=$formatValue">
+      <xsl:value-of select="$formatValue"/>
+    </xsl:if>
   </xsl:template>
 
 </xsl:stylesheet>

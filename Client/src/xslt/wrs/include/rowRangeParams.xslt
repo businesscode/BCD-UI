@@ -21,6 +21,7 @@
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no" />
 
   <!-- Individual parameters -->
+  <xsl:param name="paramSet"/>
   <xsl:param name="rowStartPos" select="$paramSet/xp:RowStartPos"/>
   <xsl:param name="rowStartId"  select="$paramSet/xp:RowStartId"/>
   <xsl:param name="rowEndPos"   select="$paramSet/xp:RowEndPos"/>

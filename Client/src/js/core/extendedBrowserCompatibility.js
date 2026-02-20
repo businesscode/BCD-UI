@@ -32,6 +32,8 @@
  */
 
 
+if (!bcdui.config.useSaxonJs) {
+
 //-----------------------------------------------------------------------------
 //BEGIN: Webkit and Gecko overwrites (in reality this is all browsers)
 //-----------------------------------------------------------------------------
@@ -586,4 +588,232 @@ if (bcdui.browserCompatibility.isGecko) {
 }
 //-----------------------------------------------------------------------------
 //END: Implementation of Gecko functions
+//-----------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------
+//BEGIN: Adding support for SaxonJs based XSLT handling
+//-----------------------------------------------------------------------------
+}
+else {
+
+  // let's create an own (pseudo) XSLTProcessor
+  window.XSLTProcessor = function XSLTProcessor() {}
+
+  bcdui.core.browserCompatibility.asyncCreateXsltProcessor =  function( args ) {
+    var fn = args.callBack;
+    var proc = new XSLTProcessor();
+    proc.outputFormat = "xml";
+    
+    // either we have a string which contains the sef.json and the original xslt url
+    if (typeof args.model == "string") {
+      proc.sefJson = args.model.split(bcdui.core.magicChar.separator)[0];
+      proc.stylesheetURL = args.model.split(bcdui.core.magicChar.separator)[1];
+    }
+    // or we work on a generated xslt document
+    else
+      proc.stylesheetNode = args.model;
+
+    setTimeout(fn.bind(undefined,proc));
+  }
+  
+
+  /**
+   * Determine transformation output formt (xslt, xml or html)
+   * @param {Object} result EIther a saxonJS transformation result object or a document
+   * @returns xslt, xml or html as a string
+   */
+  XSLTProcessor.prototype.determineOutputFormat = function(result) {
+    let outputFormat = "xml";
+    let isXSLT = false;
+
+    // input was an xslt stylesheet document
+    if (! result.stylesheetInternal) {
+      let outputNode = result.selectSingleNode("/*/xsl:output");
+      if (outputNode != null) {
+        isXSLT |= (outputNode.getAttribute("media-type") === "text/xslt");
+        outputFormat = outputNode.getAttribute("method");
+      }
+    }
+    // otherwise check saxonJS internal structure for output parameters
+    else {
+      if (result.stylesheetInternal.C) {
+        result.stylesheetInternal.C.forEach(function(c) {
+          if (c.N == "output") {
+            c.C.forEach(function(p) {
+              if (p.name == "method")
+                outputFormat = p.value;
+              isXSLT |= (p.name == "media-type" && p.value == "text/xslt");               
+            }.bind(this));
+          }
+        }.bind(this));
+      }
+    }
+    return (outputFormat == "xml" && isXSLT) ? "xslt" : outputFormat;
+  }
+
+  /**
+   * generates either HTML output (string) or a XML/XSLT document depending on the detected outputFormat
+   * @param {Object} result the result of the saxonJs trafo
+   * @param {Object} outputFmtNode node which can be used for determineOutputFormat (see above)
+   * @returns xml/xslt document or html (as a string)
+   */
+  XSLTProcessor.prototype.generateOutput = function(result, outputFmtNode)
+  {
+    this.outputFormat = this.determineOutputFormat(outputFmtNode);
+
+    // depending on the output we either return a fragment or a document
+    // for HTML it might be useful to check if serializing the output and returning a string is better
+    // in the htmlbuilder case (see below in the stylesheetNode trafo) attaching it to the HMTL dom tree causes rendering issues since it seems that the
+    // standard (html) namespace is not correctly used in that case
+    if (this.outputFormat == "html") {
+      // need to serialize output here since attaching a document fragment here leads to weird rendering effects, most likely caused by
+      // standard namespace issues of the fragment versus the outer html
+      // a html transformation which returns nothing should at least return some valid but obsolete html 
+      // we use Saxon's serializer here because it supports correct serialization of html specific rule, e.g. not self-close <span> or <i> etc.
+      return (result.principalResult != null) ? SaxonJS.serialize(result.principalResult, {method:"html", indent:false}) : "<template xmlns='http://www.w3.org/1999/xhtml' bcdComment='this is an empty html'/>";
+    }
+    else {
+      const doc = bcdui.core.browserCompatibility.newDOMDocument();
+      doc.append(result.principalResult);
+      return doc;
+    }
+  }
+  
+  XSLTProcessor.prototype.killXmlBaseAttr = function(doc) {
+    Array.from(doc.selectNodes("//*[@*[local-name() = 'xml:base']]")).forEach(function(e) { e.removeAttribute("xml:base"); });
+    Array.from(doc.selectNodes("//*[@*[local-name() = 'base']]")).forEach(function(e) { e.removeAttributeNS("http://www.w3.org/XML/1998/namespace", "base"); });
+  }
+
+  XSLTProcessor.prototype.transformToDocument = function(sourceDoc)
+  {
+    // saxonJs doesn't like xml:base in input and parameter documents
+    this.killXmlBaseAttr(sourceDoc);
+    if (this.parameters) {
+      for (let p in this.parameters) {
+        if (this.parameters[p] instanceof Document) {
+          this.killXmlBaseAttr(this.parameters[p]);
+        }
+      }
+    }
+
+    let result = null;
+    let outputFmtNode = null;
+
+    // if no stylesheetNode is specified, we work on a 'standard' xslt transformation with an available sef.json file 
+    if (!this.stylesheetNode) {
+      result = SaxonJS.transform({
+        stylesheetLocation: this.sefJson,
+        sourceNode: sourceDoc,
+        destination: "document",
+        stylesheetParams: this.parameters
+      });
+      outputFmtNode = result;
+    }
+    // if we have a stylesheetNode which was generated by a loaded xslt (e.g. single cube chain xslts), we also have a belonging sef.json file 
+    else if (this.stylesheetNode.URL.endsWith(".xslt")) {
+      result = SaxonJS.transform({
+        stylesheetLocation: bcdui.core.transformators.xsltToSefJson(this.stylesheetNode.URL),
+        sourceNode: sourceDoc,
+        destination: "document",
+        stylesheetParams: this.parameters
+      });
+      outputFmtNode = result;
+    }
+    // if we have a stylesheetNode which was generated by a xslt transformation or dynamically e.g. as an inline model, we need to do a costy xslt3 transformation
+    else {
+
+      // if we generated an xslt on the fly, we have no idea from which base url it was generated.
+      // For this, we've added an attribute which holds the uri of the generating stylesheet.
+      // We need to remove it though, otherwise saxonJs will complain about it 
+      const saxonStyleSheet = this.stylesheetNode.selectSingleNode("/*").getAttribute("saxonStyleSheet") || "";
+      this.stylesheetNode.selectSingleNode("/*").removeAttribute("saxonStyleSheet");
+
+      // make imports absolute
+      const baseUrl = saxonStyleSheet || this.stylesheetNode.URL;
+      Array.from(this.stylesheetNode.selectNodes("//*[local-name()='import']")).forEach(function(e) {
+        let importPath = (e.getAttribute("href") || "")
+
+        // there can be cases where bcduicp was not resolved yet
+        if (importPath.startsWith("bcduicp://"))
+          importPath = bcdui.config.contextPath + "/" + importPath.substring(10);
+
+        const absoluteHref = new URL(importPath, importPath.startsWith(bcdui.contextPath)? window.location.origin : baseUrl).href;
+        e.setAttribute("href", absoluteHref);
+      }.bind(this));
+
+      // make document() URIs absolute — we assume (for speed reasons) that document(.. is only used with xsl:variable)
+      const docRegex = /document\s*\(\s*(['"])(.*?)\1\s*\)/g;
+      const origin   = window.location.origin;
+      const ctxPath  = bcdui.contextPath;
+      Array.from(this.stylesheetNode.selectNodes("//xsl:variable[contains(@select, 'document(')]/@select")).forEach(attr => {
+
+        let value = attr.value;
+        value = value.replace(docRegex, (match, quote, uri) => {
+        if (!uri || uri.includes("{"))
+          return match;
+
+        // there can be cases where bcduicp was not resolved yet
+        if (uri.startsWith("bcduicp://"))
+          uri = bcdui.config.contextPath + "/" + uri.substring(10);
+
+        const baseForUrl = uri.startsWith(ctxPath) ? origin : new URL(baseUrl, origin);
+        return `document(${quote}${new URL(uri, baseForUrl).href}${quote})`;
+        });
+        attr.value = value;
+      });
+
+      // resolve to window location since all documents/includes should be absolute now
+      this.killXmlBaseAttr(this.stylesheetNode);
+      this.stylesheetNode.selectSingleNode("/*").setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:base", window.location.origin);
+
+      result = SaxonJS.transform({
+        stylesheetLocation: bcdui.contextPath + "/bcdui/sef/xslt/xslt_transform.sef.json"
+      , destination: "document"
+      , sourceNode: sourceDoc // not really used here but required since saxonJS needs an input
+      , stylesheetParams: {
+          sourceNode: sourceDoc
+        , stylesheetNode: this.stylesheetNode
+        , stylesheetParams: this.parameters
+        }
+      });
+      outputFmtNode = this.stylesheetNode;
+    }
+    if (result != null)
+      return this.generateOutput(result, outputFmtNode);
+  }
+
+  XSLTProcessor.prototype.transform = function( args ) {
+
+    // remember parameters, currently no additional work on them since saxonJS works fine with all kind of types     
+    this.parameters = args.parameters;
+    args.callBack( this.transformToDocument(args.input) );
+  };
+
+  bcdui.core.transformators.xsltToSefJson = function(xsltUrl) {
+    let url = xsltUrl;
+    url = url.replace("/bcdui/js/", "/bcdui/sef/js/");
+    url = url.replace("/bcdui/xslt/", "/bcdui/sef/xslt/");
+    return url.replace(".xslt", ".sef.json");
+  }
+
+    // add a XSLT matching rule to the first pos of ruleToTransformerMapping array
+  bcdui.core.transformators.ruleToTransformerMapping.unshift(
+    { test: function(rule){ return  typeof rule === "string" && rule.match(/\.xsl[t\;\?\#]?/) != null }, 
+      info: {
+       // sef.js files are json files so we load them with mime type json
+       // generally we load the equally named .sef.json instead of the .xslt from the same location
+       // for lib based xslt files, we switch to /bcdui/sef folder where the precompiled one are available
+       ruleDp: function( rule, name ) {
+         const url = bcdui.core.transformators.xsltToSefJson(rule); 
+         // provide the new url (maybe for later use, also remember the original xslt name, deliminated via separator)
+         return new bcdui.core.ConstantDataProvider({ name: name, value: url + bcdui.core.magicChar.separator + rule});
+       }, 
+       ruleTf: function( args ) { bcdui.core.browserCompatibility.asyncCreateXsltProcessor(args); }
+    }
+  });
+}
+
+//-----------------------------------------------------------------------------
+//END: Adding support for SaxonJs based XSLT handling
 //-----------------------------------------------------------------------------

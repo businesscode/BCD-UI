@@ -24,8 +24,7 @@
     directly.
   -->
 
-  <!-- Unclear why, but xsl:import here will make firefox freeze on loading  -->
-  <xi:include href="include/rowRangeParams.xslt" xpointer="xpointer(/*/*[self::xsl:variable or self::xsl:param])"/>
+  <xsl:import href="include/rowRangeParams.xslt"/>
 
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no" />
 

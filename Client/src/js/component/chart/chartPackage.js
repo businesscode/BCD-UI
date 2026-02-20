@@ -116,7 +116,7 @@ bcdui.component.chart = Object.assign(bcdui.component.chart,
     var a = bcdui.factory.createRenderer(
       {
         id: id+"_ExecLegendRenderer"
-        ,url: bcdui.util.url.resolveToFullURLPathWithCurrentURL("/bcdui/js/component/chart/legendTemplate.xslt")
+        ,url: bcdui.util.url.resolveToFullURLPathWithCurrentURL("/bcdui/js/component/chart/legendStylesheet.xslt")
         ,inputModel: args.inputModel || bcdui.wkModels.guiStatus
         ,targetHTMLElementId: args.targetHTMLElementId
         ,parameters: params

@@ -5,20 +5,20 @@
   xmlns:cust="http://www.businesscode.de/schema/bcdui/customization-1.0.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   
-  <xsl:output method="html" version="1.0" encoding="UTF-8" indent="no" media-type="text/html"/>
+  <xsl:output method="html" encoding="UTF-8" indent="no" media-type="text/html"/>
 
   <xsl:param name="cssClassPrefix" select="'bcd-unifilter-'"/>
   <!-- attribute name of which provides uniquelly generated node id -->
   <xsl:param name="nodeIdAttribute" select="'bcd-univ-node-id'"/>
   <!-- OptionsDataProvider -->
   <xsl:param name="bRefModel"/>
+  <xsl:param name="OpsCaptions"/>
 
   <!--
     input: dataProviderWithXPathNodes: Root/[usersProvidedTarget]/*
    -->
   <!-- i.e. /Root/f:And -->
   <xsl:variable name="target" select="/*/*"/>
-  <xsl:variable name="OpsCaptions" select="document('widgetReferenceData.xml')"/>
 
 	<xsl:template match="/">
     <div contextId="default">
@@ -56,7 +56,7 @@
   <xsl:template match="f:Expression">
     <div data-node-id="{@*[name()=$nodeIdAttribute]}" contextId="non-empty is-expression">
       <xsl:variable name="expressionCaption" select="$bRefModel/*/cust:Option[@value = current()/@bRef]/@caption"/>
-      <xsl:variable name="expressionName" select="concat(substring(@bRef,0,1 div string-length($expressionCaption)),$expressionCaption)"/>
+      <xsl:variable name="expressionName" select="concat(substring(@bRef, 1, string-length(@bRef) * (number(string-length($expressionCaption) = 0))), $expressionCaption)"/>
       <xsl:variable name="customClass">
         <xsl:apply-templates select="." mode="class"/>
       </xsl:variable>

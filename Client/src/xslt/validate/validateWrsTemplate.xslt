@@ -22,7 +22,7 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0">
 
-  <xsl:import href="validate.xslt"/>
+  <xsl:import href="bcduicp://bcdui/xslt/validate/validate.xslt"/>
 
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes"/>
 

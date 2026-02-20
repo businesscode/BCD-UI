@@ -29,7 +29,7 @@
   input model is the cube's status model with the cube layout
   -->
 
-  <xsl:output method="html" version="1.0" encoding="UTF-8" indent="no"/>
+  <xsl:output method="html" encoding="UTF-8" indent="no"/>
 
   <xsl:param name="guiStatus" select="*[false()]"/>
   <xsl:param name="bcdI18nModel" select="*[false()]"/>

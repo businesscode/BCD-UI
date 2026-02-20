@@ -18,7 +18,7 @@
 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 xmlns:xapi="http://www.businesscode.de/schema/bcdui/xmlapi-1.0.0">
 
-<xsl:output encoding="UTF-8" indent="no" method="html" version="1.0"/>
+<xsl:output encoding="UTF-8" indent="no" method="html"/>
 <xsl:param name="bcdContextPath"/>
 <xsl:param name="bcdInputModelId"/>
 

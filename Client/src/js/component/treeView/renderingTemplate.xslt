@@ -25,7 +25,7 @@
   <xsl:import href="bcduicp://bcdui/xslt/stringUtil.xslt"/>
   <xsl:import href="bcduicp://bcdui/xslt/renderer/numberFormatting.xslt"/>
 
-  <xsl:output method="html" version="1.0" encoding="UTF-8" indent="yes"/>
+  <xsl:output method="html" encoding="UTF-8" indent="yes"/>
 
   <xsl:param name="guiStatus"/>
 
@@ -68,7 +68,7 @@
     <xsl:choose>
       <xsl:when test="/*/wrs:Data/wrs:Level | /*/wrs:Data/wrs:R">
         <div class="bcdTreeView" bcdOnLoad="bcdui.component.treeView._init" data-bcd-on-load="{$bcdOnLoad}" data-bcd-controller-variable-name="{$bcdControllerVariableName}">
-          <table class="{concat('bcdReport bcdTreeReport',substring('Pi',0,1div(not($parentChildColIdx))))}">
+          <table class="{concat('bcdReport bcdTreeReport',substring('Pi',0,1 div (not($parentChildColIdx))))}">
 
             <!-- Create thead with htmlHeaderBuilderTemplate -->
             <xsl:apply-templates select="/*/wrs:Header/wrs:Columns">
@@ -99,6 +99,7 @@
   <xsl:template match="wrs:Level" mode="onRowStart">
     <xsl:param name="indent"/>
     <xsl:param name="is_expanded"/>
+    <xsl:comment>extension-point</xsl:comment>
   </xsl:template>
 
   <!--
@@ -123,6 +124,7 @@
    -->
   <xsl:template match="wrs:R" mode="onRowStart">
     <xsl:param name="indent"/>
+    <xsl:comment>extension-point</xsl:comment>
   </xsl:template>
 
   <!-- Create row for a leaf Level -->

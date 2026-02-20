@@ -167,21 +167,21 @@
     #### rewrite Measure, Level, LevelRef as Item ### 
    -->
   <xsl:template match="dm:Measure" mode="enhanceForConfigurator">
-    <Item idRef="{@id}" caption="{concat(substring(@id,0,1 div string-length(@caption)),@caption)}"/>
+    <Item idRef="{@id}" caption="{concat(substring(@id,1,string-length(@id) * (number(string-length(@caption) = 0))),@caption)}"/>
   </xsl:template>
   <xsl:template match="dm:Level" mode="enhanceForConfigurator">
-    <Item idRef="{@bRef}" caption="{concat(substring(@bRef,0,1 div string-length(@caption)),@caption)}"/>
+    <Item idRef="{@bRef}" caption="{concat(substring(@bRef, 1, string-length(@bRef) * (number(string-length(@caption) = 0))), @caption)}"/>
   </xsl:template>
   <xsl:template match="dm:DimensionRef | dm:LevelRef" mode="enhanceForConfigurator">
     <xsl:choose>
       <xsl:when test="self::dm:DimensionRef">
         <!-- resolve dm:DimensionRef minus LevelRef already used locally -->
         <xsl:for-each select="$dimensionsModel/*//dm:Dimension[@id=current()/@idRef]//dm:Level[not( @id = current()/../dm:LevelRef/@bRef )]">
-          <Item idRef="{@bRef}" caption="{concat(substring(@bRef,0,1 div string-length(@caption)),@caption)}"/>
+          <Item idRef="{@bRef}" caption="{concat(substring(@bRef, 1, string-length(@bRef) * (number(string-length(@caption) = 0))), @caption)}"/>
         </xsl:for-each>
       </xsl:when>
       <xsl:otherwise><!-- LevelRef -->
-        <Item idRef="{@bRef}" caption="{concat(substring(@bRef,0,1 div string-length(@caption)),@caption)}"/>
+        <Item idRef="{@bRef}" caption="{concat(substring(@bRef, 1, string-length(@bRef) * (number(string-length(@caption) = 0))), @caption)}"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -189,12 +189,12 @@
   <!-- resolve captions against dimensions model where not available -->
   <xsl:template match="far:Configuration/far:Dimensions/dm:LevelRef[ not(@caption) ]">
     <xsl:variable name="level" select="$dimensionsModel/*//dm:Level[@bRef = current()/@bRef]"/>
-    <dm:LevelRef bRef="{@bRef}" caption="{concat(substring(@bRef,0,1 div string-length($level/@caption)),$level/@caption)}"/>
+    <dm:LevelRef bRef="{@bRef}" caption="{concat(substring(@bRef,1,string-length(@bRef) * (number(string-length($level/@caption) = 0))),$level/@caption)}"/>
   </xsl:template>
   <!-- resolve dm:DimensionRef minus LevelRef already used locally -->
   <xsl:template match="far:Configuration/far:Dimensions/dm:DimensionRef">
     <xsl:for-each select="$dimensionsModel/*//dm:Dimension[@id=current()/@idRef]//dm:Level[not( @id = current()/../dm:LevelRef/@bRef )]">
-      <dm:LevelRef bRef="{@bRef}" caption="{concat(substring(@bRef,0,1 div string-length(@caption)),@caption)}"/>
+      <dm:LevelRef bRef="{@bRef}" caption="{concat(substring(@bRef, 1, string-length(@bRef) * (number(string-length(@caption) = 0))), @caption)}"/>
     </xsl:for-each>
   </xsl:template>
 

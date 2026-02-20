@@ -28,7 +28,7 @@
   xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
   xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0">
 
-  <xsl:import href="bcduicp://bcdui/xslt/stringUtil.xslt"/>
+  <xsl:import href="../../../../xslt/stringUtil.xslt"/>
 
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no"/>
 
