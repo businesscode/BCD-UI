@@ -152,11 +152,14 @@ class ApiStubsBaseGenerator extends Generator {
   }
 
   /**
-   * Print a link to an online documentation
-   * @param link
+   * Print a link to the online documentation
+   * @param main topic like class or package
+   * @param sub optional sub topic like class or package member
    * @returns {string}
    */
-  printExternalLink(link) {
+  printExternalLink(main, sub = "") {
+    let link = this.ONLINE_JS_DOC + main;
+    if( sub ) link += "?id=" +  sub.toLowerCase();
     var result = `@see [Online Documentation](${link})`;
     return result;
   }

@@ -43,7 +43,7 @@ class ApiStubsClassGenerator extends ApiStubsBaseGenerator {
     // Eclipse 2021-12 and VSC 1.63 need get a copy at the constructor below
     result += "/**" + nL(1);
     result += "@class " + clazz.longname + nL(1);
-    result += this.printExternalLink(this.ONLINE_JS_DOC+clazz.longname+".html")+nL(1);
+    result += this.printExternalLink(clazz.longname)+nL(1);
     if( clazz.classdesc )
       result += "@description " + clazz.classdesc.replace(/(\r?\n|\r)/gm," ") + nL(1);
     if (clazz.description)
@@ -133,7 +133,7 @@ class ApiStubsClassGenerator extends ApiStubsBaseGenerator {
     // Add the documentation for the method, but only if the documentation actually exists.
     if (docu.description || docu.params?.length > 0 || docu.returns) {
       result += "  /**" + nL(1);
-      result += this.printExternalLink(this.ONLINE_JS_DOC+this.clazz.longname+".html#"+(docu.scope==="static"?".":"")+docu.name)+nL(1);
+      result += this.printExternalLink(this.clazz.longname, (docu.scope==="static"?".":"")+docu.name)+nL(1);
 
       if (docu.description)
         result += "@description " + this.cleanupDescription(docu.description) + nL(1);
