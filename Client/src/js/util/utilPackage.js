@@ -704,7 +704,17 @@ bcdui.util =
     if (concat)
       x = x.replace(/('|\")*(\s)*Xconcat\('/g, "concat('").replace(/, ''X\)(\s)*('|\")*/g, ", '')");
     return x.replace(/\uE0F3/g, "*"); // don't forget to replace the utf8 char back to *
+  },
+
+  /**
+   * wrapper function for effects htmlBuilderOnLoad. This here is called from htmlBuilderTemplate on bcdOnLoad
+   * which tests if effects package (via widgets) is actually loaded.
+   */
+  htmlBuilderOnLoad: () => {
+    if (bcdui.widget && bcdui.widget.effects && bcdui.widget.effects.htmlBuilderOnLoad)
+      bcdui.widget.effects.htmlBuilderOnLoad();
   }
+
 }
 
 //Dummy implementation in case validation is not loaded

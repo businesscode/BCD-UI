@@ -66,7 +66,7 @@
     data-sticky-last-cols="{$stickyLastCols}"
     data-sticky-last-rows="{$stickyLastRows}"
     data-sticky-disable-max-w-h="{$stickyDisableMaxWH}">
-    <xsl:attribute name="bcdOnLoad">bcdui.widget.effects.htmlBuilderOnLoad</xsl:attribute>
+    <xsl:attribute name="bcdOnLoad">bcdui.util.htmlBuilderOnLoad</xsl:attribute>
 
     <xsl:apply-templates select="wrs:Header/wrs:Columns"/>
     <xsl:apply-templates select="wrs:Data"/>
