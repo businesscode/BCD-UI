@@ -73,7 +73,7 @@
       <label>Name:</label>
       <bcd-inputField>
         <xsl:attribute name="targetModelXPath"><xsl:value-of select="concat($tempTargetModelXPath, '/@caption')"/></xsl:attribute>
-        <xsl:attribute name="onBlur">bcdui.component.userCalcEditor._onNameUpdate(('<xsl:value-of select="$id"/>'), ('formulaEditor_<xsl:value-of select="$id"/>'), this)</xsl:attribute>
+        <xsl:attribute name="onBlur">bcdui.component.userCalcEditor._onNameUpdate</xsl:attribute>
         <xsl:attribute name="mandatory">true</xsl:attribute>
       </bcd-inputField>
     </div>
@@ -97,10 +97,10 @@
       </xsl:if>
       <label>Format:</label><input id="doScale" type="checkbox" class="bcdCalcEditorFormat checkboxes" checked="checked"/>
       <span class="bcdCalcEditorFormatComponents"><label>Fractional digits:</label>
-        <bcd-inputfield>
+        <bcd-inputField>
           <xsl:attribute name="id">inputScale</xsl:attribute>
           <xsl:attribute name="targetModelXPath"><xsl:value-of select="concat($tempTargetModelXPath, '/calc:Calc/@scale')"/></xsl:attribute>
-        </bcd-inputfield>
+        </bcd-inputField>
         <label>Percent:</label> <input type="checkbox" class="bcdCalcEditorPercent checkboxes"/></span>
     </div>
     <br style="clear:both"/>
@@ -121,16 +121,16 @@
     <br style="clear:both"/>
     <div class="bcdUserCalcEditorButtons form-row">
       <div class="col-sm-auto">
-        <bcd-buttonng>
+        <bcd-buttonNg>
           <xsl:attribute name="caption">Ok</xsl:attribute>
-          <xsl:attribute name="onClickAction">bcdui.component.userCalcEditor._save();</xsl:attribute>
-        </bcd-buttonng>
+          <xsl:attribute name="onClickAction">bcdui.component.userCalcEditor._save</xsl:attribute>
+        </bcd-buttonNg>
       </div>
       <div class="col-sm-auto">
-        <bcd-buttonng>
+        <bcd-buttonNg>
           <xsl:attribute name="caption">Cancel</xsl:attribute>
-          <xsl:attribute name="onClickAction">bcdui.component.userCalcEditor._cancel();</xsl:attribute>
-        </bcd-buttonng>
+          <xsl:attribute name="onClickAction">bcdui.component.userCalcEditor._cancel</xsl:attribute>
+        </bcd-buttonNg>
       </div>
     </div>
   </span>
