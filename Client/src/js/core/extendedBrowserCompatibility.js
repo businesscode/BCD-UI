@@ -31,7 +31,6 @@
  *   if the using xslt is maked with bcdxml:wrsHeaderIsEnough
  */
 
-
 if (!bcdui.config.useSaxonJs) {
 
 //-----------------------------------------------------------------------------

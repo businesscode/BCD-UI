@@ -38,7 +38,8 @@ import {
 , bcduiExport_JsTransformator as JsTransformator
 , bcduiExport_WebworkerTransformator as WebworkerTransformator
 } from "../core/transformators.js"
-import "../core/extendedBrowserCompatibility.js"
+// wrap extendedBrowserCompatibility for dynamic SaxonJs injection
+import "./extendedBrowserCompatibility.js"
 import "../core/commonStatusObjects.js"
 
 import {
