@@ -65,8 +65,13 @@ public class BCDUIConfig extends HttpServlet {
   private static final String clientConfigFilePath="/WEB-INF/clientLog.properties";
   private Logger log = LogManager.getLogger(this.getClass());
   private final Logger virtLoggerPage = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.page");
-  
-  private static boolean useSaxonJs = ((Boolean)BareConfiguration.getInstance().getConfigurationParameter(Configuration.USE_SAXONJS_XSLT)).booleanValue();
+  private static final boolean useSaxonJs;
+  static {
+    boolean saxon;
+    try { saxon = ((Boolean)BareConfiguration.getInstance().getConfigurationParameter(Configuration.USE_SAXONJS_XSLT)).booleanValue(); }
+    catch (Exception e) { saxon = false; }
+    useSaxonJs = saxon;
+  }
 
   private String configJson;
 
