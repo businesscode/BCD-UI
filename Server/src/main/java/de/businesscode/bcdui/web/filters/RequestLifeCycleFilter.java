@@ -73,11 +73,13 @@ public class RequestLifeCycleFilter implements Filter {
    * used in {@link #isThreadBoundToHttpRequest()}
    */
   private static final ThreadLocal<Boolean> requestTaggingFlag = new ThreadLocal<Boolean>();
+  public static final String REFERER_HEADER = "Referer";
   public static final String SESSION_KEY_BCD_SESSIONCREATED = "BCD.sessionCreated";
   public static final String MDC_KEY_BCD_REQUESTHASH = "BCD.requestHash";
   public static final String MDC_KEY_BCD_PAGEHASH = "BCD.pageHash";
   public static final String MDC_KEY_IS_CLIENT_LOG = "BCD.isClientLog";
   public static final String MDC_KEY_SESSION_ID = "BCD.httpSessionId";
+  public static final String MDC_KEY_REFERER = "BCD.referer";
   private static final Pattern pattern = Pattern.compile("\\$\\{bcdClient:(\\w+)\\}");
   private static final String CONTENT_SECURITY_POLICY = "ContentSecurityPolicy";
   private static final ArrayList<String> contentSecurityPolicy = new ArrayList<>();
@@ -268,6 +270,8 @@ public class RequestLifeCycleFilter implements Filter {
       requestHash = pageHash +"."+Math.round(Math.random()*1000);
     if (requestHash != null) ThreadContext.put(MDC_KEY_BCD_REQUESTHASH, requestHash);
     if (pageHash != null)    ThreadContext.put(MDC_KEY_BCD_PAGEHASH, pageHash);
+    String referer = request.getHeader(REFERER_HEADER);
+    if( referer != null ) ThreadContext.put(MDC_KEY_REFERER, referer);
 
     // log session once
     if (session != null && SessionSqlLogger.getInstance().isEnabled()) {
