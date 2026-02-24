@@ -92,7 +92,7 @@ class ApiStubsBaseGenerator extends Generator {
           console.warn("Missing param name at " + clazz.longname + "." + method.name);
 
         // Param/Property description
-        result += " -"; // make sure a description like '2nd...' is not an issue
+        result += " ";
         if( prefix && param.defaultvalue )
           result += " default=" + param.defaultvalue;
         if( param.description )
@@ -139,16 +139,16 @@ class ApiStubsBaseGenerator extends Generator {
   /**
    * Necessary cleanup for descriptions
    * a) XML samples with @ are misinterpreted as jsdoc tags, we escape them, Some like {@link are valid, so only those looking like xml (testcase dp.write())
-   * b) IDEA as of beginning 2022 has issues (WEB-18474) with multi-line descriptions. They lead to repeated description at the other params. (tescase each args.x param when ctrl-space within {})
-   * c) VSC 1.63 does cut multiline descriptions at the first html tag (testcase bcdui.core).
-   *    While it still does ignore html tags, it destroys the intended format but this way it is at least visible as unformatted text
+   * b) - at the beginning pf a param description too often make it a one-enty list, so we remove it
    * @param text
    */
   cleanupDescription(text)
   {
     if( !text )
       return "";
-    return "  "+text.replace(/( |\/|,|\[)@/g,"$1&commat;").replace(/ *(\r?\n|\r) */gm," ");
+    text = "  "+text.replace(/( |\/|,|\[)@/g,"$1&commat;");
+    if( text.trim().startsWith("-") ) text.substring(text.indexOf("-")+1).trim();
+    return text;
   }
 
   /**
