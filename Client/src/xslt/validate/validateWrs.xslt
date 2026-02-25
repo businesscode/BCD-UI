@@ -29,7 +29,7 @@
     Import this stylesheet into you own and add rules with mode mode="customValidation"
 -->
 <xsl:stylesheet version="1.0"
-  xmlns:gen="http://businesscode.de/generated"
+  xmlns:generator="http://businesscode.de/generated"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0">
 
@@ -50,7 +50,7 @@
      <xsl:apply-templates select="$validationTemplate/*" mode="generateXSLT"/>
   </xsl:template>
 
-  <xsl:template match="gen:keyGeneration" mode="generateXSLT">
+  <xsl:template match="generator:keyGeneration" mode="generateXSLT">
     <xsl:element name="key" namespace="http://www.w3.org/1999/XSL/Transform">
       <xsl:attribute name="name">keyRows</xsl:attribute>
       <xsl:attribute name="match">/*/wrs:Data/wrs:*</xsl:attribute>
@@ -64,7 +64,7 @@
        </xsl:element>
   </xsl:template>
 
-  <xsl:template match="gen:currentValueGeneration" mode="generateXSLT">
+  <xsl:template match="generator:currentValueGeneration" mode="generateXSLT">
     <xsl:element name="variable" namespace="http://www.w3.org/1999/XSL/Transform">
       <xsl:attribute name="name">currentValue</xsl:attribute>
       <xsl:attribute name="select">
@@ -77,7 +77,7 @@
     </xsl:element>
   </xsl:template>
 
-  <xsl:template match="gen:ReferencesCheckWithRowFilterXPath" mode="generateXSLT">
+  <xsl:template match="generator:ReferencesCheckWithRowFilterXPath" mode="generateXSLT">
     <xsl:variable name="currentElement" select="."/>
     <xsl:for-each select="$referencesWithRowFilterXPath">
       <xsl:variable name="rowFilterXPath">
@@ -88,7 +88,7 @@
         </xsl:call-template>
       </xsl:variable>
       <xsl:comment>
-        gen:ReferencesCheckWithRowFilterXPath for rowFilterPath: <xsl:value-of select="$rowFilterXPath"/>
+        generator:ReferencesCheckWithRowFilterXPath for rowFilterPath: <xsl:value-of select="$rowFilterXPath"/>
       </xsl:comment>
       <xsl:element name="template" namespace="http://www.w3.org/1999/XSL/Transform">
        <xsl:attribute name="match">wrs:C[@pos = <xsl:value-of select="@pos"/>]/wrs:References</xsl:attribute>
@@ -109,7 +109,7 @@
     </xsl:element>
   </xsl:template>
 
-  <xsl:template match="gen:DynamicXPathTest" mode="rowFilterXPath">
+  <xsl:template match="generator:DynamicXPathTest" mode="rowFilterXPath">
     <xsl:param name="rowFilterXPath"/>
     <xsl:element name="if" namespace="http://www.w3.org/1999/XSL/Transform">
       <xsl:attribute name="test"><xsl:value-of select="concat('not(', @baseXPath, '[', $rowFilterXPath, '])')"/></xsl:attribute>
