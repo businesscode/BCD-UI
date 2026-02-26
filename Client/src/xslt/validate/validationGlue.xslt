@@ -15,7 +15,7 @@
   limitations under the License.
 -->
 <xsl:stylesheet version="1.0"
-  xmlns:generator="http://businesscode.de/generated"
+  xmlns:gen="http://businesscode.de/generated"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xsla="http://www.w3.org/1999/XSL/Transform/Alias"
   xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
