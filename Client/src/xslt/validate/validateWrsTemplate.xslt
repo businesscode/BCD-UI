@@ -18,7 +18,7 @@
   Part of validationWrs.xslt
 -->
 <xsl:stylesheet version="1.0"
-  xmlns:generator="http://businesscode.de/generated"
+  xmlns:gen="http://businesscode.de/generated"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0">
 
@@ -36,7 +36,7 @@
   <xsl:variable name="invalidDateFormat">bcd_ValidTypeName_TIMESTAMP</xsl:variable>
   <xsl:variable name="emptyDate">bcd_ValidNullable</xsl:variable>
 
-  <generator:keyGeneration/>
+  <gen:keyGeneration/>
 
   <xsl:template match="/*">
     <xsl:choose>
@@ -113,9 +113,9 @@
   </xsl:template>
 
   <!-- Check references with rowFilterXPath:
-    only xsl: and generator: children expected.
+    only xsl: and gen: children expected.
     check with match=node() mode=rowFilterXPath in validateWrs.xslt -->
-  <generator:ReferencesCheckWithRowFilterXPath>
+  <gen:ReferencesCheckWithRowFilterXPath>
     <xsl:variable name="bindingItemId" select="../@id"/>
     <xsl:variable name="colPos" select="number(../@pos)"/>
     <xsl:variable name="referenceElement" select="."/>
@@ -124,16 +124,16 @@
       <xsl:variable name="value" select="wrs:C[$colPos]"/>
       <xsl:variable name="rowNum" select="position()"/>
       <xsl:if test = "not(self::wrs:D) and wrs:C[$colPos][not(wrs:null)]" >
-        <generator:DynamicXPathTest baseXPath="$referenceElement/*/wrs:Data/*[wrs:C[$refValueColNo] = $value]">
+        <gen:DynamicXPathTest baseXPath="$referenceElement/*/wrs:Data/*[wrs:C[$refValueColNo] = $value]">
           <wrs:R>
             <wrs:C><xsl:value-of select="@id"/></wrs:C>
             <wrs:C><xsl:value-of select="$bindingItemId"/></wrs:C>
             <wrs:C>bcd_ValidReferences</wrs:C>
           </wrs:R>
-        </generator:DynamicXPathTest>
+        </gen:DynamicXPathTest>
       </xsl:if>
     </xsl:for-each>
-  </generator:ReferencesCheckWithRowFilterXPath>
+  </gen:ReferencesCheckWithRowFilterXPath>
 
   <!-- Apply checks on a column -->
   <xsl:template match="/*/wrs:Header/wrs:Columns/wrs:C">
@@ -154,7 +154,7 @@
 
   <!-- Apply type-name UNIQ check -->
   <xsl:template match="/*/wrs:Data/wrs:*[not(self::wrs:D)]">
-    <generator:currentValueGeneration/>
+    <gen:currentValueGeneration/>
     <xsl:variable name = "errors" select="key('keyRows',$currentValue)"/>
     <xsl:variable name = "rowID" select="@id"/>
     <xsl:if test="count($errors) > 1">
