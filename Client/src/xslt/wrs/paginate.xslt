@@ -47,7 +47,18 @@
   <xsl:param name="addRowCounter" select="translate($paramSet/xp:AddRowCounter,'0false','')"/>
   
   <xsl:variable name="impl.addRowCounter" select="boolean($addRowCounter)"/>
-  <xsl:variable name="impl.pageNumber" select="normalize-space($pageNumber)"/>
+  <xsl:variable name="impl.pageSize">
+    <xsl:choose>
+      <xsl:when test="number($pageSize) != 'NaN'"><xsl:value-of select="number($pageSize)"/></xsl:when>
+      <xsl:otherwise>-1</xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  <xsl:variable name="impl.pageNumber">
+    <xsl:choose>
+      <xsl:when test="number($pageNumber) != 'NaN'"><xsl:value-of select="number($pageNumber)"/></xsl:when>
+      <xsl:otherwise>-1</xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
 
   <xsl:variable name="y2">
     <xsl:choose>
@@ -68,7 +79,7 @@
   <xsl:template match="/">
     <xsl:choose>
       <!-- if one of params is NaN then we skip processing -->
-      <xsl:when test="$y2 + $y1 != $y2 + $y1">
+      <xsl:when test="$impl.pageSize=-1 or $impl.pageNumber=-1">
         <bcdxml:XsltNop/>
       </xsl:when>
       <xsl:otherwise>
