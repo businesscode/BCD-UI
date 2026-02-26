@@ -341,10 +341,6 @@
     </xsl:for-each>
   </xsl:template>
 
-  <!-- All other attributes do not lead to a check -->
-  <xsl:template match="@*"/>
-  <xsl:template match="@*" mode="customValidation"/>
-
   <!-- default, empty extension points -->
   <xsl:template match="text()" mode="validation.DATE"/>
   <xsl:template match="text()" mode="validation.TIMESTAMP"/>
