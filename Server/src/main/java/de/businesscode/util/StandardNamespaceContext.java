@@ -43,6 +43,8 @@ public class StandardNamespaceContext implements NamespaceContext {
   public static final String BCDXML_NAMESPACE       = "http://www.businesscode.de/schema/bcdui/bcdxml-1.0.0";
   public static final String BCDXSLGEN_PREFIX       = "generator";
   public static final String BCDXSLGEN_NAMESPACE    = "urn(bcd-xsltGenerator)";
+  public static final String BCDXSLGEN_ALT_PREFIX   = "gen";
+  public static final String BCDXSLGEN_ALT_NAMESPACE= "urn(bcd-xsltGenerator)";
   public static final String BINDINGS_PREFIX        = "b";
   public static final String BINDINGS_NAMESPACE     = "http://www.businesscode.de/schema/bcdui/bindings-1.0.0";
   public static final String CALC_PREFIX            = "calc";
