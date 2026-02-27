@@ -124,7 +124,7 @@
       <xsl:variable name="value" select="wrs:C[$colPos]"/>
       <xsl:variable name="rowNum" select="position()"/>
       <xsl:if test = "not(self::wrs:D) and wrs:C[$colPos][not(wrs:null)]" >
-        <gen:DynamicXPathTest baseXPath="$referenceElement/*/wrs:Data/*[wrs:C[$refValueColNo] = $value]">
+        <gen:DynamicXPathTest baseXPath="$referenceElement/*/wrs:Data/*[wrs:C[position()=$refValueColNo] = $value]">
           <wrs:R>
             <wrs:C><xsl:value-of select="@id"/></wrs:C>
             <wrs:C><xsl:value-of select="$bindingItemId"/></wrs:C>
