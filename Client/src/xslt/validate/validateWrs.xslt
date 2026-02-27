@@ -99,14 +99,18 @@
     </xsl:for-each>
   </xsl:template>
 
-  <xsl:template match="node()"  mode="rowFilterXPath">
+  <xsl:template match="*" mode="rowFilterXPath">
     <xsl:param name="rowFilterXPath"/>
     <xsl:element name="{local-name()}" namespace="http://www.w3.org/1999/XSL/Transform">
       <xsl:copy-of select="@*"/>
-      <xsl:apply-templates select="node()" mode="rowFilterXPath">
+      <xsl:apply-templates select="*" mode="rowFilterXPath">
         <xsl:with-param name="rowFilterXPath" select="$rowFilterXPath"/>
       </xsl:apply-templates>
     </xsl:element>
+  </xsl:template>
+  <xsl:template match="text()" mode="rowFilterXPath">
+    <xsl:param name="rowFilterXPath"/>
+    <xsl:value-of select="."/>
   </xsl:template>
 
   <xsl:template match="gen:DynamicXPathTest" mode="rowFilterXPath">
