@@ -7,6 +7,8 @@ jQuery.extend(bcdui.widget, {
   * @param {Object} args The parameter map contains the following properties:
   * @param {targetHtmlRef} args.targetHtml - A reference to the HTML DOM Element where to put the output
   * @param {Object} [args.hotArgs] - optionally grid hotArgs overwrites
+  *
+  * To use messagesEditor, make sure to load `bcdui.js?bcduiLoadFiles=bcduiMessagesEditor`
  */  
   messagesEditor : function(args) {
 

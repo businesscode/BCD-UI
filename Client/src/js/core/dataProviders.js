@@ -922,11 +922,11 @@ bcdui.core.DataProviderHtmlAttribute = class extends bcdui.core.DataProvider
    * @param {string} args.htmlElementId
    * @param {string} args.attributeName
    * @example
-   * &lt;div id="myDiv" attr="123">&lt;/div>
-   * &lt;script type="text/javascript">
+   * <div id="myDiv" attr="123"><div>
+   * <script type="text/javascript">
    *   var dp = new bcdui.core.DataProviderHtmlAttribute({ htmlElementId: 'myDiv', attributeName: 'attr'});
-   *   console.log(dp.getData());
-   * &lt;/script>
+   *   dp.onceReady( () => console.log(dp.getData()) ); // -> '123'
+   * <script>
    */
   constructor( args)
   {

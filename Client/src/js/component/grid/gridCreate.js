@@ -39,7 +39,10 @@
  */
 
 /**
- * Creates a GridModel
+ * @description
+ * Creates a GridModel for use by Grid if you need more fine-grained control.
+ * To use Grid or GridModel, make sure to load `bcdui.js?bcduiLoadFiles=bcduiGrid`
+ *
  * @extends bcdui.core.SimpleModel
  */
 bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
@@ -59,6 +62,26 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
   * @param {bcdui.core.DataProvider} [args.pagerModel=bcdui.wkModels.guiStatus]             - StatusModel of the pagination information
   * @param {chainDef}                [args.requestPostChain]                                - The definition of the transformation chain
   * @param {string|bcdui.core.DataProvider} [args.modelUrl='WrsServlet']                    - This is a string or string- DataProvider with the URL which to send the requestModel result to
+  *
+  * @example
+  * <grid:GridConfiguration
+  *     xmlns:grid="http://www.businesscode.de/schema/bcdui/grid-1.0.0"
+  *     xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0">
+  *
+  *   <wrq:BindingSet>mdStation</wrq:BindingSet>
+  *
+  *   <grid:SelectColumns>
+  *     <grid:C bRef="lastUpdate" isReadOnly="true"/>
+  *     <grid:C bRef="country" isKey="true"/>
+  *     <grid:C bRef="station" isKey="true"/>
+  *     <grid:C bRef="isGateway" isCheckbox="1|0" class='bcdCheckbox'/>
+  *   </grid:SelectColumns>
+  *
+  *   <grid:OrderColumns>
+  *     <grid:C bRef="lastUpdate" order="desc"/>
+  *   </grid:OrderColumns>
+  *
+  * </grid:GridConfiguration>
  */
   constructor(args) {
     // Evaluate default parameters
@@ -161,7 +184,11 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
 }
 
 /**
- * Creates a grid UI based on given data or a configuration allowing to edit the data
+ * @description
+ * Creates an editable Grid-UI based on given data or a configuration allowing to edit the data.
+ * It creates a GridModel in the background, if none is given.
+ * To use Grid or GridModel, make sure to load `bcdui.js?bcduiLoadFiles=bcduiGrid`
+ *
  * @extends bcdui.core.Renderer
 */
 bcdui.component.grid.Grid = class extends bcdui.core.Renderer
@@ -171,7 +198,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   * @param {targetHtmlRef}           args.targetHtml                                        - A reference to the HTML DOM Element where to put the output
   * @param {bcdui.core.DataProvider} [args.config="./gridConfiguration.xml"]                - The model containing the grid configuration data. If it is not present a SimpleModel with the url  './gridConfiguration.xml' is created.
   * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel (default is 'guiStatusEstablished'), containing the filters as /SomeRoot/f:Filter
-  * @param {bcdui.core.DataProvider} [args.inputModel]                                      - WRS or GridModel which is used, if not provided, it is generated out of the config. If provided, config is ignored unless it is set explicitly
+  * @param {bcdui.core.DataProvider} [args.inputModel]                                      - WRS or GridModel which is used. If not provided, it is generated based on the config. If provided, config is ignored unless it is set explicitly
   * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the Grid registers itself at {@link bcdui.factory.objectRegistry}
   * @param {Object}                  [args.hotArgs]                                         - Arguments which are extended to handsontable creation
   * @param {string|chainDef}         [args.tooltipChain]                                    - To overwrite default tooltip chain. An empty string will disable tooltips, otherwise the default gridTooltip.xslt is used
@@ -204,6 +231,27 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   * @param {string|bcdui.core.DataProvider} [args.modelUrl='WrsServlet']                    - This is a string or string- DataProvider with the URL which to send the requestModel result to
   * @param {string}                  [args.exportFileName]                                  - Filename for grid export
   * @param {boolean}                 [args.disableExport=false]                             - Disable export functionality.
+  *
+  * @example
+  * <grid:GridConfiguration
+  *     xmlns:grid="http://www.businesscode.de/schema/bcdui/grid-1.0.0"
+  *     xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0">
+  *
+  *   <wrq:BindingSet>mdStation</wrq:BindingSet>
+  *
+  *   <grid:SelectColumns>
+  *     <grid:C bRef="lastUpdate" isReadOnly="true"/>
+  *     <grid:C bRef="country" isKey="true"/>
+  *     <grid:C bRef="station" isKey="true"/>
+  *     <grid:C bRef="isGateway" isCheckbox="1|0" class='bcdCheckbox'/>
+  *   </grid:SelectColumns>
+  *
+  *   <grid:OrderColumns>
+  *     <grid:C bRef="lastUpdate" order="desc"/>
+  *   </grid:OrderColumns>
+  *
+  * </grid:GridConfiguration>
+   *
   */
   constructor(args) {
     var id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("grid");
