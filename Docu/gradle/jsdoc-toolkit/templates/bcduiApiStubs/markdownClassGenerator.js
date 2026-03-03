@@ -34,7 +34,7 @@ class MarkdownClassGenerator extends MarkdownBaseGenerator {
     this.current += "# Class " + classDoc.name + os.EOL;
     // To have the class name in header be the first line, which is important for search index,
     // we write the package here below in a hidden span, and move it upo and show it with a kook on display
-    this.current += `<span hidden class='htmlPackage'>${classDoc.longname.substring(0, classDoc.longname.lastIndexOf("."))}</span>`;
+    this.current += "package " + classDoc.longname.substring(0, classDoc.longname.lastIndexOf(".")) + os.EOL;
     this.current += os.EOL + this.jsLinksToMarkdownLinks((classDoc.classdesc || "")) + os.EOL;
 
     // Inheritance
@@ -51,14 +51,14 @@ class MarkdownClassGenerator extends MarkdownBaseGenerator {
     // Constructor
     this.current += os.EOL + "## Constructor";
     this.current += this.printCommentExamplesMandatories( classDoc, classDoc, false );
-    this.printMethod(classDoc, false, "", true);
+    this.printMethod(classDoc, false, true);
 
     // Constructor examples
-    let that = this;
-    if(classDoc.examples) {
-      this.current += os.EOL+"#### Examples"
-      classDoc.examples.forEach( e => this.current += os.EOL+"````js"+os.EOL+that.jsLinksToMarkdownLinks(e)+os.EOL+"````" );
-    }
+    this._printExamples(classDoc);
+
+    // If this file is delivered to an LLM, only sent headers for the remaining part of the file
+    // Unless full details are requested
+    this.current += os.EOL + "<!-- LLM_HINT DETAILS_STARTING -->";
 
     // We now expect printMethod calls
     this.current += os.EOL + "## Methods";
@@ -68,15 +68,14 @@ class MarkdownClassGenerator extends MarkdownBaseGenerator {
    * Print a method documentation
    * @param methodDoc doclet
    * @param isInherited
-   * @param methodName
    * @param isConstructor
    */
-  printMethod(methodDoc, isInherited, methodName, isConstructor = false){
-    this.current += os.EOL + os.EOL + ( methodName ? "---" : "" );
+  printMethod(methodDoc, isInherited, isConstructor = false){
+    this.current += os.EOL + os.EOL + ( isConstructor ? "---" : "" );
 
     // Method signature
     let docu = this.inheritDocu(this.taffyDb, methodDoc);
-    this.current += os.EOL + (methodName ?? "### " + docu.name);
+    this.current += os.EOL + (isConstructor ? "" : "### " + docu.name);
 
     // We want to show the signature but not include it on the header because it would become part of the anchor
     // which makes it hard to navigate to the element from search results or link externally
@@ -87,7 +86,7 @@ class MarkdownClassGenerator extends MarkdownBaseGenerator {
       .map( p => p.name + (p.optional ? "?" : "") )
       .join(", ");
     let sig = "(" + argsList + ") &#x21FE; {" + retType + "}";
-    this.current += os.EOL + `<span style='display: none; font-size: 0.75em' class='htmlSignature' data-id='+docu.name'>${sig}</span>` + os.EOL;
+    if( !isConstructor ) this.current += os.EOL + `${docu.name}${sig}` + os.EOL + os.EOL;
 
     // Description
     if( docu.description )this.current += os.EOL + this.jsLinksToMarkdownLinks(docu.description);
@@ -109,6 +108,10 @@ class MarkdownClassGenerator extends MarkdownBaseGenerator {
         this.current += "{void}";
       }
     }
+
+    // Method examples
+    this._printExamples(docu);
+
   }
 
   /**
@@ -122,6 +125,24 @@ class MarkdownClassGenerator extends MarkdownBaseGenerator {
     fs.mkdirSync(path, { recursive: true });
     fs.writeFileSync( path + fileName, this.current );
     this.current = "";
+  }
+
+  /**
+   * Print @example belonging to the class or method
+   * @param doc
+   * @private
+   */
+  _printExamples(doc) {
+    let that = this;
+    if(doc.examples) {
+      this.current += os.EOL+"#### Examples"
+      doc.examples.forEach( e => {
+        let example = that.jsLinksToMarkdownLinks(e);
+        if( !example.trim().startsWith("````") ) example = "````js" + os.EOL + example + os.EOL + "````";
+        this.current += os.EOL + example;
+      });
+    }
+
   }
 
 }

@@ -106,7 +106,7 @@ class MarkdownIndexGenerator extends MarkdownBaseGenerator {
 
     // One file per group
     for( let group in this.docuIndex) {
-      let fileName = path + "index_"+group+".md";
+      let fileName = path + group+".md";
 
       // General remarks
       let prefix = `# Available Elements in group ${group}`;

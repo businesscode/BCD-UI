@@ -53,18 +53,22 @@ public class I18nServlet extends HttpServlet {
     XMLOutputFactory xf = XMLOutputFactory.newInstance();
     XMLStreamWriter xw = xf.createXMLStreamWriter(response.getWriter());
 
+    boolean doNormalizeKeys = (! "false".equals(getInitParameter("NormalizeKeys"))); 
+
     xw.writeStartDocument("utf-8", "1.0");
     xw.writeStartElement("Catalog");
-    xw.writeAttribute("isKeyNormalized", "true");
+    xw.writeAttribute("isKeyNormalized", String.valueOf(doNormalizeKeys));
     xw.writeAttribute("lang", bundle.getLocale().getLanguage());
 
     Enumeration<String> keys = bundle.getKeys();
     while (keys.hasMoreElements()) {
       String key = keys.nextElement();
-
-      // convert to element name
-      xw.writeStartElement(normalizeKey(key));
-
+      if (doNormalizeKeys)
+        xw.writeStartElement(normalizeKey(key));
+      else {
+        xw.writeStartElement("i");
+        xw.writeAttribute("key", key);
+      }
       // contents
       xw.writeCharacters(bundle.getString(key));
 

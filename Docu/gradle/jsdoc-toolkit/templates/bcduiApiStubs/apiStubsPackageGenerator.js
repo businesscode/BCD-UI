@@ -49,7 +49,7 @@ class ApiStubsPackageGenerator extends ApiStubsBaseGenerator {
 
     // Print the namespace like bcdui.component = {} with its comment;
     let nsResult = nL() + "/**" + nL();
-    nsResult += " * " + this.printExternalLink(this.ONLINE_JS_DOC + namespace.longname + ".html") + nL();
+    nsResult += " * " + this.printExternalLink(namespace.longname) + nL();
     if (namespace.description)
       nsResult += " * @description " + this.cleanupDescription(namespace.description) + nL();
     nsResult += " * @namespace " + namespace.longname + nL();
@@ -76,7 +76,7 @@ class ApiStubsPackageGenerator extends ApiStubsBaseGenerator {
     let {typeDefs, paramsDoc} = this.printCommentParams(method.params, this.namespace, method);
     result += paramsDoc;
 
-    result += this.printExternalLink(this.ONLINE_JS_DOC + this.namespace.longname + ".html#" + (method.scope === "static" ? "." : "") + method.name) + nL(1);
+    result += this.printExternalLink(method.longname) + nL(1);
     result += "@description " + this.cleanupDescription(method.description) + nL(1);
     // IDEA (2012.2) needs @method (to show type) and @memberOf (to understand it belongs to the class)
     result += "@method " + method.name + nL();
