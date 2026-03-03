@@ -342,7 +342,7 @@ bcdui.component.userCalcEditor = Object.assign(bcdui.component.userCalcEditor,
         else {
 
           if (generatedNodes.getAttribute("caption") == null || generatedNodes.getAttribute("caption") == "") {
-            message = bcdui.wkModels.bcdI18nModel.getData().getElementsByTagName("bcd_ApplyDenyMessage").length > 0 ? bcdui.wkModels.bcdI18nModel.getData().getElementsByTagName("bcd_ApplyDenyMessage")[0].text : "Please fill out all required chooser";
+            message = bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_ApplyDenyMessage"}) || "Please fill out all required chooser"; 
             captionError = "";
           }
 
