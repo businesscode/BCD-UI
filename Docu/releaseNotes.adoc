@@ -19,6 +19,7 @@ ___
 * cookies created are flagged as "secure"
 * CORS: to make your app CORSable use `de.businesscode.bcdui.web.filters.ShiroFilter` as a replacement of `org.apache.shiro.web.servlet.ShiroFilter` and add `de.businesscode.bcdui.web.filters.CorsFilter` as a first in the chain and cover resources which should be available to CORS, or set it to `/*` to enable for the whole site.
 * added BindingItem description element, also added to WRS Header
+* i18nServlet allows not normalized key which are printed out as elements. servlet param "NormalizeKeys false" creates a <i key=''>value</i> xml output with not normalized key attributes
 
 .Client:
 * Login Widget to be used in login-pages, i.e. via `<bcd-loginng>` custom tag
