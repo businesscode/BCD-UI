@@ -53,9 +53,19 @@ export const bcduiExport_AutoModel = bcdui.core.AutoModel = class extends bcdui.
    * @param {function}                                      [args.saveOptions.onFailure]              - Callback on failure, is called if error occurs
    * @param {function}                                      [args.saveOptions.onWrsValidationFailure] - Callback on serverside validate failure, if omitted the onFailure is used in case of validation failures
    * @param {bcdui.core.DataProvider}                       [args.saveOptions.urlProvider]            - DataProvider holding the request url (by default taken from the underlying simple model url)
-  * @example
+   * @example
    * // Create a simple AutoModel, reading distinct bindingItems 'country', 'region' and 'city' from BindingSet 'md_geo'
    * var am = new bcdui.core.AutoModel({ bindingSetId: "md_geo", bRefs: "country region city", isDistinct: true, filterElement: "country='DE'" });
+   * // Show data
+   * let rnd = new bcdui.core.Renderer({inputModel: am, targetHtml: "#myDataDiv"});
+   * // Get a value
+   * am.onceReady({ executeIfNotReady: true, onSuccess: () => {
+   *   let costPos = am.read("/wrs:Wrs/wrs:Header/wrs:Columns/wrs:C[id='cost']");
+   *   let cost = am.read("/wrs:Wrs/wrs:Data/wrs:R[3]/wrs:C["+costPos+"]");
+   * }});
+   * // Add a row and save it
+   * am.tblInsert({author: 'Descartes', title: "Principles of Philosophy", year: "1644"});
+   * am.sendData();
    */
   constructor(args)
     {

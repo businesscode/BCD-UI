@@ -36,7 +36,7 @@ bcdui.component.far.Far = class
    * @param {targetHtmlRef}             args.targetHtml         A reference to the HTML DOM Element where to render the output.
    * @param {bcdui.core.DataProvider}   args.config             Configuration document from http://www.businesscode.de/schema/bcdui/far-1.0.0
    * @param {string}                    [args.componentId="far"] An ID for the component, 'far' is the default. This is not the data provider's technical identifier,
-   *                                                            this ID is used as component identifer to support multiple components on single page, i.e. reuse same configuration.
+   *                                                            this ID is used as component identifier to support multiple components on single page, i.e. reuse same configuration.
    * @param {bcdui.core.DataProvider}   [args.statusModel=bcdui.wkModels.guiStatusEstablished]  The StatusModel, containing the filters at /SomeRoot/f:Filter
    */
   constructor(args){

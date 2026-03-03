@@ -20,7 +20,7 @@ const os = require('os')
  */
 class Generator {
 
-  ONLINE_JS_DOC = "https://businesscode.github.io/BCD-UI-Docu/jsdoc/";
+  ONLINE_JS_DOC = "https://businesscode.github.io/BCD-UI-Docu/jsdoc/index.html#/generated/elements/";
 
   /**
    * Constructor
