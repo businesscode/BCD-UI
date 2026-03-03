@@ -599,8 +599,8 @@ export const bcduiExport_CubeConfigurator = bcdui.component.cube.configurator = 
 
       bcdui.core.createElementWithPrototype(e, "Option[@value='" + value.replace(/"/g,'&quote;').replace(/'/g,"&#39;") + "' and @caption='" + caption.replace(/"/g,'&quote;').replace(/'/g,"&#39;") + "' and @type-name='NUMERIC' and @containsAgg='"+containsAgg+"']");
 
-      var subTotalCaption = bcdui.wkModels.bcdI18nModel.getData().getElementsByTagName("bcd_SubTotal").length > 0 ? bcdui.wkModels.bcdI18nModel.getData().getElementsByTagName("bcd_SubTotal")[0].text : "(subTotal)";
-      var totalCaption = bcdui.wkModels.bcdI18nModel.getData().getElementsByTagName("bcd_Total").length > 0 ? bcdui.wkModels.bcdI18nModel.getData().getElementsByTagName("bcd_Total")[0].text : "(total)";
+      var subTotalCaption = bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_SubTotal"}) || "(subTotal)"; 
+      var totalCaption = bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_Total"}) || "(total)";
 
       // add special options for total and subtotal
       // it's special char followed by 1 or 2 (subtotal, total) PIPE referenced measure id PIPE C or R (column total or row total)

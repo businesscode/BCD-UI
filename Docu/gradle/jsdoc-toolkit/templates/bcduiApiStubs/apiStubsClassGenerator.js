@@ -39,15 +39,14 @@ class ApiStubsClassGenerator extends ApiStubsBaseGenerator {
     result += nL();
 
     // Add the documentation for the class
-    // This is before the class definition and is used by IDEA.
-    // Eclipse 2021-12 and VSC 1.63 need get a copy at the constructor below
+    // In praxis this docu will be shown in IDEA and VSC on autocomplete after the package
     result += "/**" + nL(1);
     result += "@class " + clazz.longname + nL(1);
-    result += this.printExternalLink(this.ONLINE_JS_DOC+clazz.longname+".html")+nL(1);
+    result += this.printExternalLink(clazz.longname)+nL(1);
     if( clazz.classdesc )
-      result += "@description " + clazz.classdesc.replace(/(\r?\n|\r)/gm," ") + nL(1);
+      result += "@description " + clazz.classdesc + nL(1);
     if (clazz.description)
-      result += "@description " + clazz.description.replace(/(\r?\n|\r)/gm," ") + nL(1);
+      result += "@description " + clazz.description + nL(1);
     result += this.printCommentExamplesMandatories( clazz, clazz );
     if (clazz.examples)
       result += this.printCommentExamples( clazz.examples );
@@ -66,10 +65,22 @@ class ApiStubsClassGenerator extends ApiStubsBaseGenerator {
 
     result += "{" + nL(1);
 
-    // ... add Constructor parameter
+    // ... add Constructor
+    // In theory the constructor inherits the class doc,
+    // but IDEA 2026 needs at least the constructor signature, otherwise it shows the parent class' constructor,
+    // and tsc then in turn also needs the comment block with the params types, otherwise they become any
+    // So we repeat docu here
+    // In praxis this docu will be shown in IDEA and VSC on hover especially after () are appended
     result += "/**" + nL(1);
-
-    // ... add the Constructor
+    if( clazz.classdesc )
+      result += "@description " + clazz.classdesc + nL(1);
+    if (clazz.description)
+      result += "@description " + clazz.description + nL(1);
+    result += this.printExternalLink(clazz.longname)+nL(1);
+    result += this.printCommentExamplesMandatories( clazz, clazz );
+    if (clazz.examples)
+      result += this.printCommentExamples( clazz.examples );
+    // @extends cannot be shown here as tsc will complain that it is not attached to a class
     let {typeDefs, paramsDoc} = this.printCommentParams(clazz.params, clazz, "Constructor");
     result += paramsDoc; // Inline plain params, typedefs are prepended to class output below
     result += "  */" + nL(1);
@@ -133,7 +144,7 @@ class ApiStubsClassGenerator extends ApiStubsBaseGenerator {
     // Add the documentation for the method, but only if the documentation actually exists.
     if (docu.description || docu.params?.length > 0 || docu.returns) {
       result += "  /**" + nL(1);
-      result += this.printExternalLink(this.ONLINE_JS_DOC+this.clazz.longname+".html#"+(docu.scope==="static"?".":"")+docu.name)+nL(1);
+      result += this.printExternalLink(this.clazz.longname, (docu.scope==="static"?".":"")+docu.name)+nL(1);
 
       if (docu.description)
         result += "@description " + this.cleanupDescription(docu.description) + nL(1);

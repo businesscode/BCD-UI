@@ -278,7 +278,7 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
    * @param {integer}           [args.yAxis1Or2]                - 1 for left and 2 for right axis
    * @param {number[]}          [args.yData]                    - Data array or provide yDataInfo
    * @param {DomNodeSet}        [args.yDataInfo]                - XML nodeset with data
-   * @param {number[]}          [args.sizeData]                 - 2nd value for scattered charts
+   * @param {number[]}          [args.sizeData]                 - The 2nd value for scattered charts
    * @param {number[]}          [args.xValues]                  - For x-y charts
    * @param {(integer|string)}  [args.chartType]                - Either name or numeric value for chart type
    * @param {string}            [args.rgb]                      - Color

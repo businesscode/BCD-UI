@@ -239,6 +239,10 @@
   <servlet>
     <servlet-name>bcdui4.I18nServlet</servlet-name>
     <servlet-class>de.businesscode.bcdui.web.i18n.I18nServlet</servlet-class>
+    <init-param>
+      <param-name>NormalizeKeys</param-name>
+      <param-value>true</param-value>
+    </init-param>
   </servlet>
   <servlet-mapping>
     <servlet-name>bcdui4.I18nServlet</servlet-name>

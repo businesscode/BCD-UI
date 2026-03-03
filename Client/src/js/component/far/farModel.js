@@ -16,8 +16,9 @@
 "use strict";
 
 /**
- * Data provider implementation reading far:Configuration document and providing data according to it, you can use this model if you solely want
- * to read data using far:Configuration.
+ * DataProvider for Far if you need more fine-grained control.
+ * Implementation reading far:Configuration document and providing data according to it,
+ * you can use this model if you solely want to read data using far:Configuration.
  * @extends bcdui.core.AsyncJsDataProvider
  */
 export const bcduiExport_FarModel = bcdui.component.far.FarModel = class extends bcdui.core.AsyncJsDataProvider
