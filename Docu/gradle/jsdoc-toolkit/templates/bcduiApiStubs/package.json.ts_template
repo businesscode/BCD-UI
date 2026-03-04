@@ -1,0 +1,5 @@
+{
+  "name": "bcdui",
+  "version": "--bcd-dyn-replace-current-version--",
+  "types": "./index.d.ts"
+}
