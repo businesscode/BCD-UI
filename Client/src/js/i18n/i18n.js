@@ -67,16 +67,6 @@ bcdui.i18n.MessageCatalog = class
     }else{
       this._getMsgId = this._msgIdProxy_asis;
     }
-    this.map = {};
-    const root = this.catalog.documentElement;
-    const children = root.children;
-    const map = this.map;
-    const normalized = this.isKeyNormalized;
-    for (let i = 0, len = children.length; i < len; i++) {
-      const e = children[i];
-      map[normalized ? e.nodeName : e.getAttribute("key")] =
-        e.textContent;
-    }
   }
 
   /**
@@ -92,7 +82,10 @@ bcdui.i18n.MessageCatalog = class
       return null;
     }
     var msgid = this._getMsgId(args.msgid);
-    var translated = this.map[msgid] || "";
+    var nd = this.catalog.getElementsByTagName(msgid)[0];
+    if(nd){
+      translated = nd.nodeValue || nd.text || (nd.lastChild ? nd.lastChild.nodeValue : null) || "";
+    }
 
     if (args.interpolations) {
       for (var id in args.interpolations) {
