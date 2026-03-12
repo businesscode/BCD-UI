@@ -710,9 +710,9 @@ bcdui.util =
    * wrapper function for effects htmlBuilderOnLoad. This here is called from htmlBuilderTemplate on bcdOnLoad
    * which tests if effects package (via widgets) is actually loaded.
    */
-  htmlBuilderOnLoad: () => {
+  htmlBuilderOnLoad: function() {
     if (bcdui.widget && bcdui.widget.effects && bcdui.widget.effects.htmlBuilderOnLoad)
-      bcdui.widget.effects.htmlBuilderOnLoad();
+      bcdui.widget.effects.htmlBuilderOnLoad.apply(this);
   }
 
 }
