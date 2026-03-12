@@ -180,6 +180,8 @@ bcdui.widget.effects = Object.assign(bcdui.widget.effects,
          });
        });
       }
+      if ((args.isCreateHeaderFilters || args.isCreateFixHeader) &&  (args.controllerVariableName && typeof bcdui.factory.objectRegistry.getObject(args.controllerVariableName) == "undefined"))
+        throw new Error("Renderer needs to be registered to use FixTableHeader or CreateHeaderFilters");
       if (!args.isCreateHeaderFilters && args.isCreateFixHeader)
         bcdui.widget._enableFixedTableHeader(htmlElement, args.controllerVariableName, true);
       else if (args.isCreateHeaderFilters && args.isCreateFixHeader)
