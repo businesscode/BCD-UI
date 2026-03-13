@@ -2899,7 +2899,7 @@ jQuery.extend(bcdui.widget,
           var newInputModel = new bcdui.core.ModelWrapper({
               inputModel: renderer.originalInputModel
             , id: renderer.originalInputModel.id + "_filtered" // registered for widget use
-            , chain: bcdui.contextPath + "/bcdui/xslt/wrs/filterRows.xslt"
+            , chain: bcdui.widget.filterRows
             , parameters: {paramModel: paramModel}
             });
           
@@ -3885,6 +3885,105 @@ jQuery.extend(bcdui.widget,
           cell.c.parent().addClass("bcdStickyNthRow").css("bottom", lastRowBottom - cell.t - cell.h + (stickyFooter ? bottom : 0 ));
         }
       });
+     },
+     
+     /**
+      * js implementation of filterRowsTemplate.xslt
+      * Allows filtering of rows of a wrs input document by specifying column filters
+      * @returns filtered document
+      * @param {doc} chain function input wrs document
+      * @param {args} chain parameters
+      */
+     filterRows: function(doc, args) {
+
+       // read filterXPath pointing to the actual filters
+       let filterXPath = args.paramModel.selectSingleNode("//xp:FilterXPath/xp:Value");
+       filterXPath = filterXPath != null ? filterXPath.text : "";
+       if (filterXPath) {
+         const config = bcdui.factory._extractXPathAndModelId(filterXPath);
+         const filterNode = bcdui.factory.objectRegistry.getObject(config.modelId).query(config.xPath);
+
+         // if we have a filterNode, build up filter definitions by bRef
+         if (filterNode) {
+           let filterValues = {};
+           const comparatorMap = {
+             isequal:     function(cellValue, filterValue) { return cellValue == filterValue}
+           , isnotequal : function(cellValue, filterValue) { return cellValue != filterValue}
+           , contains   : function(cellValue, filterValue) { return cellValue.indexOf(filterValue) != -1}
+           , startswith : function(cellValue, filterValue) { return cellValue.startsWith(filterValue)}
+           , endswith   : function(cellValue, filterValue) { return cellValue.endsWith(filterValue)}
+           , isempty    : function(cellValue, filterValue) { return cellValue == ""}
+           , isnotempty : function(cellValue, filterValue) { return cellValue != ""}
+           }
+           Array.from(filterNode.selectNodes("*")).forEach(function(f) {
+             // condition is either by default contains, given as an attribute or in case of a f:Or list it's "isequal"
+             const condition = (f.localName||f.baseName) == "Or" ? "isequal" : f.getAttribute("condition") || "contains";
+             const values    = (f.localName||f.baseName) == "Or" ? Array.from(f.selectNodes("./f:Expression[@op='=']")) : [f];
+
+             // get the single filterValues per bRef. Not necessarily only 1, they can be many (e.g. f:Or/f:Expression list)
+             // remember bRef, it's wrs header position and the filter value (lowercase)
+             values.forEach(function(e) {
+               const bRef = e.getAttribute("bRef") || "";
+               if (bRef) {
+                 if (typeof filterValues[bRef] == "undefined")
+                   filterValues[bRef] = {
+                     comparator: comparatorMap[condition]
+                   , value: []
+                   , referenceNode: doc.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + bRef+ "']/wrs:References/*/wrs:Data")
+                   , pos: parseInt(doc.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + bRef+ "']/@pos").text, 10) - 1
+                   };
+                 // might use a code/caption lookup via references, so build up a codeCaptionMap for fast lookup
+                 const referenceNode = doc.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + bRef+ "']/wrs:References/*/wrs:Data");
+                 let codeCaptionMap = {};
+                 if (referenceNode) {
+                   Array.from(referenceNode.children).forEach(function(row) {
+                     const Cs = row.children;
+                     if (Cs.length > 1)
+                       codeCaptionMap[Cs[1].text.toLowerCase()] = Cs[0].text.toLowerCase();
+                   });
+                 }
+                 filterValues[bRef].codeCaptionMap = codeCaptionMap;
+                 filterValues[bRef].value.push((e.text || e.getAttribute("value") || "").toLowerCase());
+               }
+             });
+           });
+
+           // start with a new document and take over header and create a new data element
+           let newDoc = bcdui.core.browserCompatibility.newDOMDocument();
+           let root = newDoc.appendChild(newDoc.createElementNS("http://www.businesscode.de/schema/bcdui/wrs-1.0.0", "Wrs"));
+           root.appendChild(doc.selectSingleNode("/*/wrs:Header").cloneNode(true));
+           const dataNode = root.appendChild(newDoc.createElementNS("http://www.businesscode.de/schema/bcdui/wrs-1.0.0", "Data"));
+           const data = doc.selectSingleNode("/*/wrs:Data");
+
+           // test each row against (all) filter values and decide if the row is taken over or not
+           Array.from(data.children).forEach(function(row) {
+             let doCopyRow = true;
+             for (let filter in filterValues) {
+               let filterMatches = false;
+               const f = filterValues[filter];
+
+               // get cell value (or mapped caption for cell value)
+               let cell = row.children[f.pos];
+               let cellValue = ("1" == cell.getAttribute("bcdGr") ? "\uE0F1" : cell.text).toLowerCase(); // avoid filtering total cells
+               cellValue = f.codeCaptionMap[cellValue] || cellValue;
+
+               // test if at least one of the current filter values match
+               for (let i = 0; i < f.value.length; i++)
+                 filterMatches |= f.comparator(cellValue, f.value[i]);
+
+               // to take over row, all bRef filters must be ok
+               doCopyRow &= filterMatches;
+
+               // early exit if a filter does not matched
+               if (!doCopyRow)
+                break;
+             }
+             if (doCopyRow)
+               dataNode.appendChild(row.cloneNode(true));
+           });
+           return newDoc;
+         }
+       }
      }
 }); // namespace
 
