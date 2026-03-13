@@ -229,14 +229,6 @@ bcdui.browserCompatibility.BCDUINodeList.prototype.item = function(index)
   return this[index];
 }
 
-/**
- * @ignore
- */
-XSLTProcessor.prototype.addParameter = function(name, value)
-{
-  this.setParameter(null, name, value);
-}
-
 XMLDocument.prototype.selectSingleNode = function(xPathExpression)
 {
   return this.evaluate(xPathExpression, this, bcdui.core.browserCompatibility.resolveNamespace, 0, null).iterateNext();
