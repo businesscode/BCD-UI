@@ -543,6 +543,11 @@ if (bcdui.browserCompatibility.isGecko) {
     var doc = new DOMParser().parseFromString(serializedDoc, "text/xml");
     return doc;
   };
+  
+  XSLTProcessor.prototype.addParameter = function(name, value)
+  {
+    this.setParameter(null, name, value);
+  };
 
   /**
    * Make the transformX interface async

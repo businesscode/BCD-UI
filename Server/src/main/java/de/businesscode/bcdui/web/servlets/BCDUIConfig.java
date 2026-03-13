@@ -108,7 +108,7 @@ public class BCDUIConfig extends HttpServlet {
     writer.println("  , deVersion: \"" + getVersion("BCD-UI-DE") + "\"");
 
     // write info about usage of saxonJs for XSLT
-    writer.println("  , useSaxonJs: " + (useSaxonJs ? "true" : "false"));
+    writer.println("  , useSaxonJs: typeof XSLTProcessor == 'undefined' || " + (useSaxonJs ? "true" : "false"));
 
     // IIS has a limit also for http request URLs, i.e. data requests
     writer.println("  , serverHasRequestUrlLimit: " + environmentValue.toString());
