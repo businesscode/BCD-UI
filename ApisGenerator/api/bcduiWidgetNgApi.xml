@@ -826,6 +826,12 @@
         <Param name="sourceFilter_placeholder" type="i18nToken">
           <Doc>Placeholder for the preselection filter dropdown</Doc>
         </Param>
+        <Param name="generateItemHtmlSource" required="false" type="function">
+          <Doc>
+            Function to generate the html for the source container item. Gets object with properties: value, caption, position;
+            see implementation documentation to read more about the structure to return by this function.
+          </Doc>
+        </Param>
       </Api>
       
       <Api name="connectable" extends="widget hasOptionsFilter">
