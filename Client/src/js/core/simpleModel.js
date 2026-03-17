@@ -52,7 +52,7 @@
  *   // ...
  * });
  * // Add a row and save it
- * myModel.tblInsert({author: 'Descartes', title: "Principles of Philosophy", year: "1644"});
+ * myModel.tblInsert({ values: {author: 'Descartes', title: "Principles of Philosophy", year: "1644"} });
  * myModel.sendData();
  *
  * @extends bcdui.core.AbstractUpdatableModel

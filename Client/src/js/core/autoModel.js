@@ -54,18 +54,20 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
    * @param {function}                                      [args.saveOptions.onWrsValidationFailure] - Callback on serverside validate failure, if omitted the onFailure is used in case of validation failures
    * @param {bcdui.core.DataProvider}                       [args.saveOptions.urlProvider]            - DataProvider holding the request url (by default taken from the underlying simple model url)
    * @example
-   * // Create a simple AutoModel, reading distinct bindingItems 'country', 'region' and 'city' from BindingSet 'md_geo'
-   * var am = new bcdui.core.AutoModel({ bindingSetId: "md_geo", bRefs: "country region city", isDistinct: true, filterElement: "country='DE'" });
+   * // Get a list of authors
+   * let authors = new bcdui.core.AutoModel({ bindingSetId: 'books', bRefs: 'author', isDistinct: 'true' });
+   * // Read values for bindingItems 'author', 'title' and 'year' from BindingSet 'books' for 'DE' from database
+   * var am = new bcdui.core.AutoModel({ bindingSetId: "books", bRefs: "author title year", filterElement: "country='DE'" });
    * // Show data
    * let rnd = new bcdui.core.Renderer({inputModel: am, targetHtml: "#myDataDiv"});
-   * // Get a value
+   * // Read/write values with JavaScript from DataProvider
    * am.onceReady({ executeIfNotReady: true, onSuccess: () => {
-   *   let costPos = am.read("/wrs:Wrs/wrs:Header/wrs:Columns/wrs:C[id='cost']");
-   *   let cost = am.read("/wrs:Wrs/wrs:Data/wrs:R[3]/wrs:C["+costPos+"]");
+   *   let descartesBooks = am.tblSelect({ filter: { author: "Descartes" }, columns: ['title', 'year'] });
+   *   ...
+   *   // Add a row and save it
+   *   am.tblInsert({ values: {author: 'Descartes', title: "Principles of Philosophy", year: "1644"} });
+   *   am.sendData();
    * }});
-   * // Add a row and save it
-   * am.tblInsert({author: 'Descartes', title: "Principles of Philosophy", year: "1644"});
-   * am.sendData();
    */
   constructor(args)
     {
