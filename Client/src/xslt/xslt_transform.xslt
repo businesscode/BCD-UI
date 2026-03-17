@@ -29,7 +29,7 @@
       })?output"/>
     </xsl:variable>
 
-    <xsl:copy-of select="$innerResult"/>
+    <xsl:sequence select="$innerResult"/>
 
   </xsl:template>
 
