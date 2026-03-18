@@ -185,8 +185,8 @@ bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
 
 /**
  * @description
- * Creates an editable Grid-UI based on given data or a configuration allowing to edit the data.
- * It creates a GridModel in the background, if none is given.
+ * Creates a Grid-UI for editing tabular data, complete with range copy-paste and validation.
+ * It creates its GridModel in the background, if none is provided
  * To use Grid or GridModel, make sure to load `bcdui.js?bcduiLoadFiles=bcduiGrid`
  *
  * @extends bcdui.core.Renderer
@@ -196,7 +196,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
   /**
   * @param args The parameter map contains the following properties:
   * @param {targetHtmlRef}           args.targetHtml                                        - A reference to the HTML DOM Element where to put the output
-  * @param {bcdui.core.DataProvider} [args.config="./gridConfiguration.xml"]                - The model containing the grid configuration data. If it is not present a SimpleModel with the url  './gridConfiguration.xml' is created.
+  * @param {bcdui.core.DataProvider} [args.config="./gridConfiguration.xml"]                - The model containing the grid configuration data, default is './gridConfiguration.xml', which must be present then.
   * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel (default is 'guiStatusEstablished'), containing the filters as /SomeRoot/f:Filter
   * @param {bcdui.core.DataProvider} [args.inputModel]                                      - WRS or GridModel which is used. If not provided, it is generated based on the config. If provided, config is ignored unless it is set explicitly
   * @param {string}                  [args.id]                                              - The object's id, needed only when later accessing via id. If given the Grid registers itself at {@link bcdui.factory.objectRegistry}

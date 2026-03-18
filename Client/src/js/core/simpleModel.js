@@ -36,21 +36,26 @@
  *    <tr><td>*.xml, .xsl, .xslt</td><td>"application/xml", "application/xslt+xml"</td><td>are parsed into DOM</td></tr>
  *  </table>
  *  All other content is just loaded as plain text.
+ * 
  * @example
- * // Load plain content and use it in a renderer
+ * // Load fix xml content and use a Renderer to display it
  * var bookModel = new bcdui.core.SimpleModel( "../docs/allBooks.xml" );
- * var renderer  = new bcdui.core.Renderer({ targetHtml: "booksDiv", chain: "renderer.xslt", inputModel: bookModel });
+ * var renderer  = new bcdui.core.Renderer({ targetHtml: "booksDiv", chain: "myRenderer.xslt", inputModel: bookModel });
+ * 
  * @example
- * // Load a model using a Wrs request document from Wrs servlet
+ * // Load a model using a Wrs-Request document Wrq from Wrs servlet
  * // Provide data as a {@link bcdui.core.DataProvider DataProvider}
- * var myModel = new bcdui.core.SimpleModel({ id: "dayModel", url: new bcdui.core.RequestDocumentDataProvider({ url: "requestDoc.xml"}) });
- * // Reference by id
+ * var myModel = new bcdui.core.SimpleModel({ id: "dayModel", url: new bcdui.core.RequestDocumentDataProvider({ url: "daysWrq.xml"}) });
+ * 
+ * // Reference by id in an xPath in a widget ($dayModel)
  * bcdui.widgetNg.createSingleSelect({ targetHtml: "selectDayHtml", optionsModelXPath: "$dayModel/Values/V", targetModelXPath: "$guiStatus/guiStatus:Status/guiStatus:SelectedDay/@value" });
+ * 
  * // Note: Only if using in plain JS, execute the model to load the data. Renderers and Widgets do that for you automatically.
  * myModel.onceReady({ executeIfNotReady: true, onSuccess: () => {
  *   var myVal = myModel.getData().selectSingleNode("/wrs:Wrs/wrs:Data/wrs:R[1]/wrs:C[3]").nodeValue;
  *   // ...
  * });
+ * 
  * // Add a row and save it
  * myModel.tblInsert({ values: {author: 'Descartes', title: "Principles of Philosophy", year: "1644"} });
  * myModel.sendData();
