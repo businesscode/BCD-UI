@@ -87,13 +87,18 @@ class MarkdownIndexGenerator extends MarkdownBaseGenerator {
     // Rarely used elements are just listed by name so that they can be looked up via GetDetailSpec
     let isCommon =
       ( functionOrClass.kind === "class" )
-      || functionOrClass.longname.includes("widget.create")
-      || functionOrClass.longname.includes("widgetNg.create");
+        || longname.includes("widget.create") || longname.includes("widgetNg.create");
 
     if( isCommon ) this.docuIndex[group].elements[name] = element;
     else this.docuIndex[group].auxiliaryElements.push(
-      { name: functionOrClass.longname.split(".").slice(2).join("."), longname: functionOrClass.longname }
+      { name: longname.split(".").slice(2).join("."), longname }
     );
+
+    // AI works better if it finds the basic Renderer from core also found under 'components'
+    // And probabl also humans may search it there
+    if( longname === "bcdui.core.Renderer" ) {
+      this.docuIndex["component"].elements[name] = element;
+    }
   }
 
   /**
@@ -111,7 +116,7 @@ class MarkdownIndexGenerator extends MarkdownBaseGenerator {
       // General remarks
       let prefix = `# Available Elements in group ${group}`;
       prefix += `${os.EOL} Note: A detail specification is available for all elements.`;
-      prefix += `${os.EOL} <!-- For LLM: Use tool GetDetailedSpecification(elementName) -->`;
+      prefix += `${os.EOL} <!-- For LLM: Use tool GetSpecification(elementName) -->`;
       fs.writeFileSync(fileName, prefix ); // Also deleting the old file
 
       // List of main elements
