@@ -509,12 +509,16 @@ export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends 
   }
 
   /**
-   * inserts a new row in the wrs data, values given as object
+   * Inserts a new row in the Wrs. The property names match the Wrs header ids.
    * @param {Object}  args             - parameter bag
    * @param {Object}  args.values      - object holding cell values which should be inserted, e.g. { country: 'DE', flag: true }
    * @param {boolean} [args.rmi=true]  - use wrs:I syntax when this is true, otherwise wrs:R is used, rmi=true also prefills default values
    * @param {boolean} [args.fire=true] - lets the listeners know, that the update was finished
    * @return {string} row id of newly inserted row
+   *
+   * @example
+   * // Wrs has columns with matching ids wrs:header/wrs:Columns/wrs:C/@id='author' etc
+   * myModel.tblInsert({ values: {author: 'Descartes', title: "Principles of Philosophy", year: "1644"} });
    */
   tblInsert(args) {
     args = args || {};
@@ -535,14 +539,24 @@ export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends 
   }
 
   /**
-   * updates wrs rows with given data. Either a single row (via rowId) or single/multiple ones (via filter)
+   * Updates one or multiple Wrs rows with given data.
+   * Either a single row (via rowId) or single/multiple ones (via filter)
+   * The filter's and the given values' property names refer to the columns ids.
    * @param {Object}  args             - parameter bag
-   * @param {Object}  args.values      - object holding cell values which should be used for updating, e.g. { country: 'DE', flag: true }
-   * @param {Object}  [args.filter]    - object holding cell values which should be used for selecting the rows for update, e.g. { country: 'DE', flag: true }
+   * @param {Object}  args.values      - columns and values to be updated. This sets 2 columns { country: 'DE', flag: true }
+   * @param {Object}  [args.filter]    - affected row(s) for example `{ country: 'DE', flag: true }`
    * @param {boolean} [args.rmi=true]  - use wrs:M syntax when this is true, otherwise row columns element name is not touched
    * @param {boolean} [args.fire=true] - lets the listeners know, that the update was finished
    * @param {string}  [args.rowId]     - id specifying row which should be updated (or use filter)
    * @return {number} count of updated rows
+   *
+   * @example
+   * // Update sales information for a book
+   * myModel.tblUpdate({ values: {sold: 16, lastSold: new Date()},
+   *                     filter: {author: 'Descartes', title: "Principles of Philosophy"} });
+   * @example
+   * // Update all values for 'AT', for example, even it has 3 sites
+   * myModel.tblUpdate({ values: {supervisor: 'Karl Popper'}, filter: {country: 'AT'} });
    */
   tblUpdate(args) {
     args = args || {};
@@ -588,13 +602,17 @@ export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends 
   }
 
   /**
-   * updates wrs rows with given data. Either a single row (via rowId) or single/multiple ones (via filter)
+   * Delete Wrs rows. Either a single row (via rowId) or single/multiple ones via filter
+   * The filter's property names refer to the columns ids.
    * @param {Object}  args             - parameter bag
-   * @param {Object}  [args.filter]    - object holding cell values which should be used for selecting the rows for update, e.g. { country: 'DE', flag: true }
+   * @param {Object}  [args.filter]    - affected row(s) for example `{ country: 'DE', flag: true }`
    * @param {boolean} [args.rmi=true]  - use wrs:M syntax when this is true, otherwise row columns element name is not touched
    * @param {boolean} [args.fire=true] - lets the listeners know, that the update was finished
    * @param {string}  [args.rowId]     - id specifying row which should be deleted (or use filter) 
    * @return {number} count of removed rows
+   * @example
+   * // Update all values for 'AT', for example, even it has 3 sites
+   * myModel.tblDelete({ filter: {country: 'AT'} });
    */
   tblDelete(args) {
     args = args || {};
@@ -610,11 +628,20 @@ export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends 
   }
 
   /**
-   * returns an array of requested data
+   * Selects an array of row values like `[{ctr: 'DE', site: 'HAM', flag: true}, {ctr: 'DE', site: 'BER', flag: false}];` for a given filter.
+   * The filter's and the returned property names match the column ids.
    * @param {Object}  args            - parameter bag
    * @param {Object}  [args.filter]   - object holding cell values which should be used for selecting the rows for update, e.g. { country: 'DE', flag: true }
    * @param {Array<string>}   [args.columns]  - string array of requested columns, if not given, all columns are returned
    * @return {Array<Object>} Array of objects holding the requested data
+   * @example
+   * // Select all rows with country 'DE'
+   * let ret = myModel.tblSelect({ filter: { ctr: 'DE' } });
+   * // ret equals [{ctr: 'DE', site: 'Hamburg', flag: true}, {ctr: 'DE', site: 'Berlin', flag: false}]
+   * @example
+   * // Select only books names and publishing years for author 'Hobbes'
+   * let ret = myModel.tblSelect({ filter: { author: 'Hobbes' }, columns: ['title', 'year'] });
+   * // ret equals [{title: 'De Cive', year: '1642'}, {title: 'Problemata Physica', year: '1662'}]
    */
   tblSelect(args){
     args = args || {};
@@ -624,12 +651,17 @@ export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends 
   }
 
   /**
-   * returns one object representing the filtered data (either filter or rowId). In case of multiple filter matches, the first one is returned
+   * Returns an object with the values of a single row, which is either identified by its `wrs:/@id` if given, or the first one matching the filter.
+   * The filter's and the returned property names match the column ids.
    * @param {Object}  args                 - parameter bag
    * @param {Object}        [args.filter]  - object holding cell values which should be used for selecting the rows for update, e.g. { country: 'DE', flag: true }
    * @param {string}        [args.rowId]   - rowId of row which should be queried (or use filter)
    * @param {Array<string>} [args.columns] - string array of requested columns, if not given, all columns are returned
    * @return {Object} Array  of objects holding the requested data
+   * @example
+   * // Select only books names and publishing years for author 'Hobbes'
+   * let ret = myModel.tblSelectRow({ filter: { ctr: 'US', state: 'CA' }, columns: ['area', 'population'] });
+   * // ret equals {area: '423.970', population: '39.538.223'}}
    */
   tblSelectRow(args){
     args = args || {};
@@ -637,7 +669,7 @@ export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends 
       const columns = args.columns || Array.from(this.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C")).map(function (e) { return e.getAttribute("id"); });
       return this._getDataFromTemplate(columns, "/*/wrs:Data/wrs:*[@id='{{=it.rowId}}']", {rowId: args.rowId})[0];
     }
-    return this.tblFetchAll(args)[0];
+    return this.tblSelect(args)[0];
   }
 
   /**
@@ -646,27 +678,25 @@ export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends 
    * It will prefer extending an existing start-part over creating a second one.
    * After the operation the xPath (with the optional value) is guaranteed to exist (pre-existing or created or extended) and the addressed node is returned.
    * 
-   * @param {string}  xPath        - xPath pointing to the node which is set to the value or plain xPath to be created if not there.
-   *    It tries to reuse all matching parts that are already there. If you provide for example `/n:Root/n:MyElem/@attr2` and there is already `/n:Root/n:MyElem/@attr1`, then `/n:Root/n:MyElem` will be "re-used" and get an additional attribute attr2.
-   *    Many expressions are allowed, for example `/n:Root/n:MyElem[@attr1='attr1Value']/n:SubElem` is also ok.
-   *    By nature, some xPath expressions are not allowed, for example using '//' or `/n:Root/n:MyElem/[@attr1 or @attr2]/n:SubElem` is obviously not unambiguous enough and will throw an error.
-   *    This method is Wrs aware, use for example `/wrs:Wrs/wrs:Data/wrs:*[2]/wrs:C[3]` as xPath, and it will turn wrs:R[wrs:C] into wrs:M[wrs:C and wrs:O], see Wrs format.
-   *    (can include dot template placeholders which get filled with the given fillParams)
+   * @param {string}  xPath        - xPath pointing to the node which is to be modified. Only the first match will be modified.
+   *    If it does not exist, it will be created.
+   *    For example, if you provide `/n:Root/n:MyElem/@attr2` and there is already `/n:Root/n:MyElem/@attr1`, then `/n:Root/n:MyElem` will be "re-used" and get an additional attribute attr2.
+   *    Even complex expressions are allowed, like predicates `/n:Root/n:MyElem[@attr1='attr1Value']/n:SubElem`.
+   *    Ambiguous xPaths are not allowed, for example, using `//` or `/n:Root/n:MyElem/[@attr1 or @attr2]/n:SubElem`, and will throw an error.
+   *    The method is Wrs aware, for Wrs it turns wrs:R into wrs:M etc., see Wrs format.
+   *    Using {{=it[0]}} templates makes sure values are escaped correctly.
    * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions
    *     Example: `bcdui.wkModels.guiStatus.write("/guiStatus:Status/guiStatus:ClientSettings/guiStatus:Test[@caption='{{=it[0]}}' and @caption2='{{=it[1]}}']", ["china's republic", "drag\"n drop"])`
    * @param {string}  [value]      - Optional value which should be written, for example to `/n:Root/n:MyElem/@attr` or with `/n:Root/n:MyElem` as the element's text content.
-   *    If not provided, the xPath contains all values like in `/n:Root/n:MyElem[@attr='a' and @attr1='b']` or needs none like `/n:Root/n:MyElem`
+   *    If not provided, the xPath contains all values and either there is a full match or it will be created.
    * @param {boolean} [fire=false] - If true a fire is triggered to inform data modification listeners
    * @return {DomNode} The xPath's node or null if dataProvider isn't ready
    *
    * @example
-   * // To change an individual value, use this to set the second column in the 3rd row to 'HALLO'.
-   * // It turns the row into a proper `wrs:M`, if it detects the model is a Wrs.
-   * // Writing by pointing to a node. wrs:* makes sure that it matches wrs:R as well as wrs:M
-   * myModel.write("/wrs:Wrs/wrs:Data/wrs:*[3]/wrs:C[2]", "HELLO")
-   * // Writing 2 values by describing, what xPath should match: wrs:*[3][..]
-   * // If the row 3 does not exist, it is created (wrs:I)
-   * myModel.write("/wrs:Wrs/wrs:Data/wrs:*[3][wrs:C[1]='{{=it[0]}}' and wrs:C[2]='{{=it[2]}}']", ["HELLO", "WORLD"])
+   * // Set column 2 for 'UK' to 'Hello UK'.
+   * // For Wrs, it also turns the row into a proper `wrs:M`, ready to be saved.
+   * // If there is no row for 'UK' in the first column, it will create it (wrs:I), and then set the second column.
+   * myModel.write("/wrs:Wrs/wrs:Data/wrs:*[wrs:C[1]='{{=it[0]}}']/wrs:C[2]", ['UK'], "Hello UK")
    */
   write(xPath, fillParams, value, fire) {
     if (this.getData() == null)

@@ -53,9 +53,6 @@ class MarkdownClassGenerator extends MarkdownBaseGenerator {
     this.current += this.printCommentExamplesMandatories( classDoc, classDoc, false );
     this.printMethod(classDoc, false, true);
 
-    // Constructor examples
-    this._printExamples(classDoc);
-
     // If this file is delivered to an LLM, only sent headers for the remaining part of the file
     // Unless full details are requested
     this.current += os.EOL + "<!-- LLM_HINT DETAILS_STARTING -->";

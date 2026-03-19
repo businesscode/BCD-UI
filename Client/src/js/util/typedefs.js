@@ -101,7 +101,7 @@ jQuery.extend( true, bcdui, {
  * @typedef {string|Function|Array.<(string|Function)>|bcdui.core.DataProvider} chainDef
  * @description
  * Defines the transformation steps of a transformation chain, like {@link bcdui.core.ModelWrapper} or {@link bcdui.core.Renderer}.
- * <br/>Can be: url | function | Array<(url|function)> | bcdui.core.DataProvider
+ * <br/>Can be: url | function | Array&lt;(url|function)> | bcdui.core.DataProvider
  * <br/>You can provide
  * <ul>
  *   <li>A single DataProvider, holding a chain definition following XML Schema 'chain-1.0.0.xsd'. Or
