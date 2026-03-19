@@ -50,7 +50,7 @@
    */
   const asIsFormatter = function(arg){ return arg; };
 
-  jQuery.widget("elp.ckeditor",{
+  jQuery.widget("bcdui.ckeditor",{
     _create : function(){
       if(!this.options.id){
         this.options.id = bcdui.factory.objectRegistry.generateTemporaryId();

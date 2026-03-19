@@ -1008,9 +1008,28 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
 
 
  /**
-   * A concrete subclass of {@link bcdui.core.TransformationChain TransformationChain}, inserting its output into targetHtml.
-   * Renderers execute() automatically on creation, and execute and wait for their dependencies (i.e. parameters) automatically.
-   * Logic of Renderers can be implemented as JavaScript functions or XSLTs
+   * This class renders data to HTML, per default a table view of Wrs, but it does support any kind of input and HTML output when providing a `chain`.
+   * A Renderer is started on page entry and makes asks its DataProviders to become ready and waits if necessary.
+   * The chain represents the exact logic of the Renderer can be implemented as JavaScript functions or XSLTs,
+   * default is htmlBuilder.xslt, which is ideal for showing Wrs tabular data.
+   * 
+   * @example
+   * // Show the data on page load, applying any filer in $guiStatus/guiStatus:Status/f:Filter
+   * const companiesModel = new bcdui.core.AutoModel({ bindingSetId: "Companies", bRefs: "id, name, address, country" });
+   * const renderer = new bcdui.core.Renderer({ targetHtml: "#companiesDiv", inputModel: companiesModel });
+   * 
+   * @example
+   * // Wait for country to be selected (mandatoryFilterBRefsSubset), and re-display the data whenever $guiStatus/guiStatus:Status/f:Filter changes (isAutoRefresh, onReady)
+   * const companiesModel = new bcdui.core.AutoModel({
+   *  bindingSetId: "Companies", bRefs: "id, name, address, country",
+   *   mandatoryFilterBRefsSubset: "country",
+   *   isAutoRefresh: true
+   * });
+   * const renderer = new bcdui.core.Renderer({
+   *   targetHtml: "#companiesDiv",
+   *   inputModel: companiesModel
+   * });
+   * companiesModel.onReady( () => renderer.execute(true) );
    * @extends bcdui.core.TransformationChain
    */
 bcdui.core.Renderer = class extends bcdui.core.TransformationChain
