@@ -2208,7 +2208,7 @@ jQuery.extend(bcdui.widget,
           , elementId: elementId
           });
           if (paginatedAction)
-            bcdui.util._executeJsFunctionFromString();
+            bcdui.util._executeJsFunctionFromString(paginatedAction);
         }
       });
       jQuery(el).off("change");
