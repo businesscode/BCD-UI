@@ -73,12 +73,13 @@ bcdui.widget.contextMenu = Object.assign(bcdui.widget.contextMenu,
      */
     _clickItem: function(/* Event */ event)
     {
+      const clickResolver = jQuery("#bcdContextMenuDiv").data("clickResolver");
       var event = new bcdui.widget.DetachedEvent(event);
       var bcdMenuCode = bcdui._migPjs._$(event.target).attr("bcdMenuCode");
       var bcdContextMenuDiv = jQuery("#bcdContextMenuDiv");
       var eventSourceElement = bcdContextMenuDiv.attr("bcdEventSourceElementId");
       bcdui._migPjs._$("bcdContextMenuDiv").hide();
-      if (bcdMenuCode != null && eventSourceElement != null) {
+      if ((bcdMenuCode != null || (clickResolver && typeof clickResolver == "function")) && eventSourceElement != null) {
         event.eventSourceElement = eventSourceElement;
         event.eventSrcElement = eventSourceElement;
         // set the bcdRowIdent and bcdColIdent values looking up in ancestor path of the eventSourceElement
@@ -91,7 +92,6 @@ bcdui.widget.contextMenu = Object.assign(bcdui.widget.contextMenu,
           event.bcdColIdent = jQuery(_lastTr.find("th").add("td", _lastTr).get(_srcEl.index())).attr("bcdColIdent");
         }
 
-        const clickResolver = jQuery("#bcdContextMenuDiv").data("clickResolver");
         const elData = event.target.dataset;
         
         const wellKnown = {
