@@ -119,12 +119,51 @@ bcdui.widgetNg.commons.balloon._init = function(){
       widgetBalloonContainer.css({display: "none"});
       document.body.appendChild(widgetBalloonContainer.get(0));
     }
+
+    const validationTooltip = function(doc, args) {
+      const root = doc.selectSingleNode("/*");
+      if (!root || root.nodeName !== "BalloonData")
+        return;
+
+      const translate = (v) => {
+        if (!v)
+          return "";
+        return v.startsWith(bcdui.i18n.TAG)
+          ? bcdui.i18n.syncTranslateFormatMessage({ msgid: v.substring(1) }) || v
+          : v;
+      };
+
+      let tooltip = "";
+      let validationMessages = "";
+
+      const children = root.children;
+      for (let i = 0, len = children.length; i < len; i++) {
+        const child = children[i];
+        const name = child.nodeName;
+        if (name === "Tooltip")
+          tooltip = `<span>${translate(child.textContent)}</span>`;
+        else if (name === "ValidationMessages") {
+          const items = [];
+          const sub = child.children;
+          for (let j = 0, subLen = sub.length; j < subLen; j++) {
+            if (sub[j].nodeName === "Item") {
+              const v = translate(sub[j].textContent);
+              items.push(`<li>${v}</li>`);
+            }
+          }
+          if (items.length)
+            validationMessages = `<div class="bcdValidationMessages"><ul>${items.join("")}</ul></div>`;
+        }
+      }
+      return `<div class="bcdWidgetBalloon">${validationMessages}${tooltip}</div>`;
+    };
+
     /**
      * singleton tooltip renderer
      */
     bcdui.widgetNg.commons.balloon.TOOLTIP_RENDERER = bcdui.widget.createTooltip({
       id: bcdui.widgetNg.commons.balloon.CONST.tooltipRendererId,
-      url: bcdui.contextPath + "/bcdui/js/widgetNg/validationTooltip.xslt",
+      chain: validationTooltip,
       inputModel: bcdui.widgetNg.commons.balloon.CONST.dataProviderId,
       parameters: {"I18N_TAG":bcdui.i18n.TAG}
     });
@@ -133,7 +172,7 @@ bcdui.widgetNg.commons.balloon._init = function(){
      */
     bcdui.widgetNg.commons.balloon.BALLOON_RENDERER = bcdui.widget.createTooltip({
       id: bcdui.widgetNg.commons.balloon.CONST.balloonRendererId,
-      url: bcdui.contextPath + "/bcdui/js/widgetNg/validationTooltip.xslt",
+      chain: validationTooltip,
       inputModel: bcdui.widgetNg.commons.balloon.CONST.dataProviderId,
       parameters: {"I18N_TAG":bcdui.i18n.TAG},
       tooltipTargetHtmlId : "bcdWidgetBalloon"
