@@ -3897,93 +3897,150 @@ jQuery.extend(bcdui.widget,
      filterRows: function(doc, args) {
 
        // read filterXPath pointing to the actual filters
-       let filterXPath = args.paramModel.selectSingleNode("//xp:FilterXPath/xp:Value");
-       filterXPath = filterXPath != null ? filterXPath.text : "";
-       if (filterXPath) {
-         const config = bcdui.factory._extractXPathAndModelId(filterXPath);
-         const filterNode = bcdui.factory.objectRegistry.getObject(config.modelId).query(config.xPath);
+       let filterXPathNode = args.paramModel.selectSingleNode("//xp:FilterXPath/xp:Value");
+       let filterXPath = filterXPathNode != null ? filterXPathNode.text : "";
+       if (!filterXPath)
+         return;
 
-         // if we have a filterNode, build up filter definitions by bRef
-         if (filterNode) {
-           let filterValues = {};
-           const comparatorMap = {
-             isequal:     function(cellValue, filterValue) { return cellValue == filterValue}
-           , isnotequal : function(cellValue, filterValue) { return cellValue != filterValue}
-           , contains   : function(cellValue, filterValue) { return cellValue.indexOf(filterValue) != -1}
-           , startswith : function(cellValue, filterValue) { return cellValue.startsWith(filterValue)}
-           , endswith   : function(cellValue, filterValue) { return cellValue.endsWith(filterValue)}
-           , isempty    : function(cellValue, filterValue) { return cellValue == ""}
-           , isnotempty : function(cellValue, filterValue) { return cellValue != ""}
-           }
-           Array.from(filterNode.selectNodes("*")).forEach(function(f) {
-             // condition is either by default contains, given as an attribute or in case of a f:Or list it's "isequal"
-             const condition = (f.localName||f.baseName) == "Or" ? "isequal" : f.getAttribute("condition") || "contains";
-             const values    = (f.localName||f.baseName) == "Or" ? Array.from(f.selectNodes("./f:Expression[@op='=']")) : [f];
+       const config = bcdui.factory._extractXPathAndModelId(filterXPath);
+       const filterNode = bcdui.factory.objectRegistry.getObject(config.modelId).query(config.xPath);
+       if (!filterNode)
+         return;
 
-             // get the single filterValues per bRef. Not necessarily only 1, they can be many (e.g. f:Or/f:Expression list)
-             // remember bRef, it's wrs header position and the filter value (lowercase)
-             values.forEach(function(e) {
-               const bRef = e.getAttribute("bRef") || "";
-               if (bRef) {
-                 if (typeof filterValues[bRef] == "undefined")
-                   filterValues[bRef] = {
-                     comparator: comparatorMap[condition]
-                   , value: []
-                   , referenceNode: doc.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + bRef+ "']/wrs:References/*/wrs:Data")
-                   , pos: parseInt(doc.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + bRef+ "']/@pos").text, 10) - 1
-                   };
-                 // might use a code/caption lookup via references, so build up a codeCaptionMap for fast lookup
-                 const referenceNode = doc.selectSingleNode("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + bRef+ "']/wrs:References/*/wrs:Data");
-                 let codeCaptionMap = {};
-                 if (referenceNode) {
-                   Array.from(referenceNode.children).forEach(function(row) {
-                     const Cs = row.children;
-                     if (Cs.length > 1)
-                       codeCaptionMap[Cs[1].text.toLowerCase()] = Cs[0].text.toLowerCase();
-                   });
-                 }
-                 filterValues[bRef].codeCaptionMap = codeCaptionMap;
-                 filterValues[bRef].value.push((e.text || e.getAttribute("value") || "").toLowerCase());
+       // build up column metadata
+       const columnMeta = {};
+       const columns = doc.selectNodes("/*/wrs:Header/wrs:Columns/wrs:C");
+       for (let i = 0; i < columns.length; i++) {
+         const col = columns[i];
+         const id = col.getAttribute("id");
+
+         columnMeta[id] = {
+           pos: parseInt(col.getAttribute("pos"), 10) - 1,
+           referenceNode: col.selectSingleNode("wrs:References/*/wrs:Data"),
+           codeCaptionMap: null
+         };
+       }
+
+       // prepare comparator map
+       const comparatorMap = {
+         isequal:     (a, b) => a == b,
+         isnotequal:  (a, b) => a != b,
+         contains:    (a, b) => a.indexOf(b) !== -1,
+         startswith:  (a, b) => a.startsWith(b),
+         endswith:    (a, b) => a.endsWith(b),
+         isempty:     (a)    => a === "",
+         isnotempty:  (a)    => a !== ""
+       };
+
+       // build filterValues
+       const filterValues = {};
+       const filterChildren = filterNode.selectNodes("*");
+
+       for (let i = 0; i < filterChildren.length; i++) {
+         const f = filterChildren[i];
+         const name = f.localName || f.baseName;
+         const isOr = name === "Or";
+
+         const condition = isOr ? "isequal" : (f.getAttribute("condition") || "contains");
+         const values = isOr
+           ? f.selectNodes("./f:Expression[@op='=']")
+           : [f];
+
+         for (let j = 0; j < values.length; j++) {
+           const e = values[j];
+           const bRef = e.getAttribute("bRef") || "";
+           if (!bRef) continue;
+
+           const meta = columnMeta[bRef];
+           if (!meta) continue;
+
+           // build codeCaptionMap once per column
+           if (meta.referenceNode && !meta.codeCaptionMap) {
+             const map = {};
+             const refChildren = meta.referenceNode.children;
+
+             for (let k = 0; k < refChildren.length; k++) {
+               const row = refChildren[k];
+               const Cs = row.children;
+               if (Cs.length > 1) {
+                 map[Cs[1].text.toLowerCase()] = Cs[0].text.toLowerCase();
                }
-             });
-           });
-
-           // start with a new document and take over header and create a new data element
-           let newDoc = bcdui.core.browserCompatibility.newDOMDocument();
-           let root = newDoc.appendChild(newDoc.createElementNS("http://www.businesscode.de/schema/bcdui/wrs-1.0.0", "Wrs"));
-           root.appendChild(doc.selectSingleNode("/*/wrs:Header").cloneNode(true));
-           const dataNode = root.appendChild(newDoc.createElementNS("http://www.businesscode.de/schema/bcdui/wrs-1.0.0", "Data"));
-           const data = doc.selectSingleNode("/*/wrs:Data");
-
-           // test each row against (all) filter values and decide if the row is taken over or not
-           Array.from(data.children).forEach(function(row) {
-             let doCopyRow = true;
-             for (let filter in filterValues) {
-               let filterMatches = false;
-               const f = filterValues[filter];
-
-               // get cell value (or mapped caption for cell value)
-               let cell = row.children[f.pos];
-               let cellValue = ("1" == cell.getAttribute("bcdGr") ? "\uE0F1" : cell.text).toLowerCase(); // avoid filtering total cells
-               cellValue = f.codeCaptionMap[cellValue] || cellValue;
-
-               // test if at least one of the current filter values match
-               for (let i = 0; i < f.value.length; i++)
-                 filterMatches |= f.comparator(cellValue, f.value[i]);
-
-               // to take over row, all bRef filters must be ok
-               doCopyRow &= filterMatches;
-
-               // early exit if a filter does not matched
-               if (!doCopyRow)
-                break;
              }
-             if (doCopyRow)
-               dataNode.appendChild(row.cloneNode(true));
-           });
-           return newDoc;
+             meta.codeCaptionMap = map;
+           }
+
+           if (!filterValues[bRef]) {
+             filterValues[bRef] = {
+               comparator: comparatorMap[condition],
+               value: [],
+               codeCaptionMap: meta.codeCaptionMap || {},
+               pos: meta.pos
+             };
+           }
+
+           filterValues[bRef].value.push( (e.text || e.getAttribute("value") || "").toLowerCase() );
          }
        }
+
+       // create result document
+       const newDoc = bcdui.core.browserCompatibility.newDOMDocument();
+       const root = newDoc.appendChild(
+         newDoc.createElementNS("http://www.businesscode.de/schema/bcdui/wrs-1.0.0", "Wrs")
+       );
+
+       root.appendChild(doc.selectSingleNode("/*/wrs:Header").cloneNode(true));
+       const dataNode = root.appendChild(
+         newDoc.createElementNS("http://www.businesscode.de/schema/bcdui/wrs-1.0.0", "Data")
+       );
+
+       const data = doc.selectSingleNode("/*/wrs:Data");
+       const rows = data.children;
+       const cFactor = {R: 1, D: 1, I: 1, M: 2};
+
+       // filter rows
+       for (let i = 0; i < rows.length; i++) {
+         const row = rows[i];
+         const rowName = row.localName || row.baseName;
+         const cells = row.children;
+
+         let doCopyRow = true;
+
+         for (let key in filterValues) {
+           const f = filterValues[key];
+           let filterMatches = false;
+
+           const cell = cells[f.pos * cFactor[rowName]];
+           let cellValue = (
+             cell.getAttribute("bcdGr") === "1"
+               ? "\uE0F1"
+               : cell.text
+           ).toLowerCase();
+
+           // apply code-caption mapping
+           if (f.codeCaptionMap[cellValue]) {
+             cellValue = f.codeCaptionMap[cellValue];
+           }
+
+           // test values
+           const values = f.value;
+           for (let j = 0; j < values.length; j++) {
+             if (f.comparator(cellValue, values[j])) {
+               filterMatches = true;
+               break; // early exit
+             }
+           }
+
+           if (!filterMatches) {
+             doCopyRow = false;
+             break; // early exit
+           }
+         }
+
+         if (doCopyRow)
+           dataNode.appendChild(row.cloneNode(true));
+       }
+
+       return newDoc;
      }
 }); // namespace
 
