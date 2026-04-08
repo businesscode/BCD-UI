@@ -106,7 +106,7 @@ bcdui.widgetNg.validation.validators.general.TYPE_VALIDATORS={
     },
     "email": function(value){
       if(value==null || !value.trim())return null;
-      return /^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$/.test(value) ? null : {validationMessage: bcdui.i18n.TAG + "bcd_ValidEmail"};
+      return /^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/.test(value) ? null : {validationMessage: bcdui.i18n.TAG + "bcd_ValidEmail"};
     }
 }
 
