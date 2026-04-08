@@ -536,7 +536,7 @@ bcdui.widget.dimensionChooser = Object.assign(bcdui.widget.dimensionChooser,
       parent = bcdui.core.createElementWithPrototype(targetModel.getData(),targetModelXPath);
 
     // we only really add it when all values are available 
-    if (values.length > 0 && values[0].childNodes.length  == numberOfExpressionsPerValue) {
+    if (values.length > 0 && values[0].selectNodes("f:Expression").length  == numberOfExpressionsPerValue) {
       jQuery.each(values, function(i, e){
         // add selection only once (by removing a possibly existing identical one first)
         var xpath = bcdui.widget.dimensionChooser._removalXpath(e, dimChooserId, dimensionName, exclude);
