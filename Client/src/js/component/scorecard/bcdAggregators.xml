@@ -64,14 +64,14 @@
                 <xsl:for-each select="/*/scc:Dimensions/*/dm:LevelRef">
                   <wrq:C bRef="{@bRef}">
                     <xsl:if test="@sortBy">
-                      <wrq:A bRef="{@sortBy}" name="order" aggr="max"/>
+                      <wrq:A bRef="{@sortBy}" name="order" id="{concat(@sortBy,'Order')}" aggr="max"/>
                     </xsl:if>
                     <xsl:if test="@captionBRef">
                       <!--
                         We could add captionBRef to grouping but that would make it harder for WrqModifier to work with the query.
                         As a work-around, we just null the value for (sub)totals
                         -->
-                      <wrq:A bRef="{@captionBRef}" name="caption" skipForTotals="{@bRef}"/>
+                      <wrq:A bRef="{@captionBRef}" name="caption" id="{concat(@captionBRef,'Caption')}" skipForTotals="{@bRef}"/>
                     </xsl:if>
                   </wrq:C>
                 </xsl:for-each>

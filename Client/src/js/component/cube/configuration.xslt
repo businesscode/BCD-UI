@@ -90,12 +90,14 @@
                 <wrq:A>
                   <xsl:attribute name="name">caption</xsl:attribute>
                   <xsl:attribute name="bRef"><xsl:value-of select="../@captionBRef"/></xsl:attribute>
+                  <xsl:attribute name="id"><xsl:value-of select="../@captionBRef"/>CaptionBRef</xsl:attribute>
                 </wrq:A>
               </xsl:if>
               <xsl:if test="../@orderBRef and not($hasVdms)">
                 <wrq:A>
                   <xsl:attribute name="name">order</xsl:attribute>
                   <xsl:attribute name="bRef"><xsl:value-of select="../@orderBRef"/></xsl:attribute>
+                  <xsl:attribute name="id"><xsl:value-of select="../@orderBRef"/>OrderBRef</xsl:attribute>
                 </wrq:A>
               </xsl:if>
             </wrq:C>
