@@ -39,6 +39,9 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.Utils;
@@ -55,6 +58,7 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
   public static final String WRS_XML_NAMESPACE = "http://www.businesscode.de/schema/bcdui/wrs-1.0.0";
   //
   private XMLStreamWriter writer;
+  private static final Logger log = LogManager.getLogger(WrsDataWriter.class);
   //
   private boolean maxRowsExceed = false;
   private boolean errorDuringQuery = false;
@@ -445,6 +449,7 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
       writeWrsDataRowColumnValue(item.getJDBCDataType(), item.getColumnNumber());
     }
     catch (Exception e){
+      log.error("Error writing wrs:R/wrs:C[@id='{}'] or one of its wrs:A: {}", item.getId(), e.getMessage());
       setErrorDuringQuery(true);
     }
     getWriter().writeEndElement(); // C
