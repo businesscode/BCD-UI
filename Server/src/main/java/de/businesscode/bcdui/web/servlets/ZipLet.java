@@ -26,6 +26,7 @@ import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Types;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -791,8 +792,13 @@ public class ZipLet extends HttpServlet {
       String sql = getTransformSQL(createFileSQL);
       stmt = connection.prepareStatement(sql);
       stmt.setString(1, tinyUrl);
-      StringReader reader = new StringReader(longUrl);
-      stmt.setCharacterStream(2, reader, longUrl.length());
+      boolean isClob = Bindings.getInstance().get(BCDTINYURLCONTROL, List.of("long_url")).get("long_url").getJDBCDataType().equals(Types.CLOB);
+      if( isClob) {
+        StringReader reader = new StringReader(longUrl);
+        stmt.setCharacterStream(2, reader, longUrl.length());
+      } else {
+        stmt.setString(2, longUrl);
+      }
       java.util.Date today = new java.util.Date();
       stmt.setDate(3, new java.sql.Date(today.getTime()));
       stmt.setDate(4, new java.sql.Date(today.getTime()));

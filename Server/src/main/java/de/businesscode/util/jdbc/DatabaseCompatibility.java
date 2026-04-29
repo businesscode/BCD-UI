@@ -432,8 +432,9 @@ public class DatabaseCompatibility
     InputStream iStr = null;
     Clob clob = null;
     Reader cContentReader = null;
-    // postgresql would fail when using getClob, so we use getString instead to access the TEXT column
-    if ("postgresql".equals(getDatabaseProductNameLC(bs.getJdbcResourceName()))) {
+    // postgresql and snowflake would fail when using getClob, so we use getString instead to access the TEXT column
+    if ("postgresql".equals(getDatabaseProductNameLC(bs.getJdbcResourceName()))
+        ||"snowflake".equals(getDatabaseProductNameLC(bs.getJdbcResourceName()))) {
       content = rs.getString(column);
       if (content != null)
         iStr = new ByteArrayInputStream(content.getBytes("UTF-8"));
