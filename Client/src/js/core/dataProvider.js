@@ -639,7 +639,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    * let ret = myModel.tblSelect({ filter: { ctr: 'DE' } });
    * // ret equals [{ctr: 'DE', site: 'Hamburg', flag: true}, {ctr: 'DE', site: 'Berlin', flag: false}]
    * @example
-   * // Select only books names and publishing years for author 'Hobbes'
+   * // Select all book titles and publishing years for author 'Hobbes'
    * let ret = myModel.tblSelect({ filter: { author: 'Hobbes' }, columns: ['title', 'year'] });
    * // ret equals [{title: 'De Cive', year: '1642'}, {title: 'Problemata Physica', year: '1662'}]
    */
@@ -651,7 +651,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   }
 
   /**
-   * Returns an object with the values of a single row, which is either identified by its `wrs:/@id` if given, or the first one matching the filter.
+   * Get the values of a single row, identified either by its `wrs:/@id`, or the first one matching the filter.
    * The filter's and the returned property names match the column ids.
    * @param {Object}  args                 - parameter bag
    * @param {Object}        [args.filter]  - object holding cell values which should be used for selecting the rows for update, e.g. { country: 'DE', flag: true }
@@ -659,7 +659,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    * @param {Array<string>} [args.columns] - string array of requested columns, if not given, all columns are returned
    * @return {Object} Array  of objects holding the requested data
    * @example
-   * // Select only books names and publishing years for author 'Hobbes'
+   * // Select area and population for California
    * let ret = myModel.tblSelectRow({ filter: { ctr: 'US', state: 'CA' }, columns: ['area', 'population'] });
    * // ret equals {area: '423.970', population: '39.538.223'}}
    */
@@ -673,7 +673,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   }
 
   /**
-   * Set a value to on a certain xPath and create the xPath where necessary. 
+   * Set a value to on a certain xPath and create the xPath where necessary.
    * This combines Element.evaluate() for a single node with creating the path where necessary. 
    * It will prefer extending an existing start-part over creating a second one.
    * After the operation the xPath (with the optional value) is guaranteed to exist (pre-existing or created or extended) and the addressed node is returned.

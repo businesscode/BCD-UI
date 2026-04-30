@@ -45,8 +45,9 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
    * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatus] - the status model to resolve .filterBRefs against
    * @param {bcdui.core.DataProvider} [args.statusModelEstablished]       - the established status model to provide to ModelWrapper creating request document as 'statusModelEstablished' parameter
    * @param {string}                  [args.groupByBRefs]                 - Space separated list of bRefs for grouping. Is not effective when using .isDistinct=true parameter.   
-   * @param {DomDocument|DomElement|string}  [args.filterElement]                - custom filter element (f:And, f:Or, f:Not, f:Expression) in wrs-filter format, see filter-1.0.0.xsd
-   *     or a string as required by {@link bcdui.wrs.wrsUtil.parseFilterExpression} or the result of it - note that the function allows filling in values without escaping issues if the filter is not fixed.
+   * @param {DomDocument|DomElement|string}  [args.filterElement]         - custom filter element (f:And, f:Or, f:Not, f:Expression) in wrs-filter format, see filter-1.0.0.xsd
+   *     or a string as required by {@link bcdui.wrs.wrsUtil.parseFilterExpression} `filterElement: 'ctr='DE' and (product='AMS' or product='WWS')`
+   *     or the result of it `filterElement: bcdui.wrs.wrsUtil.parseFilterExpression(region='Asia' and ctr='${{}}', "People's Republic of China")`- note that this allows filling in values without escaping issues.
    * @param {Object}                                        [args.saveOptions]         - An object, with the following elements
    * @param {chainDef}                                      [args.saveOptions.saveChain]              - The definition of the transformation chain
    * @param {Object}                                        [args.saveOptions.saveParameters]         - An object, where each property holds a DataProvider, used as a transformation parameters.

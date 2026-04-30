@@ -211,7 +211,7 @@ bcdui.browserCompatibility.BCDUINodeList = function(doc, baseNode, xPathExpressi
   try {
     var nodeIterator = doc.evaluate(xPathExpression, baseNode, bcdui.core.browserCompatibility.resolveNamespace, 0, null);
   } catch( e ) {
-    throw new Error("Invalid XPath: '"+xPathExpression+"'");
+    throw new Error("Invalid XPath: '"+xPathExpression+"' "+e);
   }
   var node = null;
   this.length = 0;

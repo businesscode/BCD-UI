@@ -1009,17 +1009,19 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
 
  /**
    * This class renders data to HTML, per default a table view of Wrs, but it does support any kind of input and HTML output when providing a `chain`.
-   * A Renderer is started on page entry and makes asks its DataProviders to become ready and waits if necessary.
-   * The chain represents the exact logic of the Renderer can be implemented as JavaScript functions or XSLTs,
-   * default is htmlBuilder.xslt, which is ideal for showing Wrs tabular data.
-   * 
+   * A Renderer is started on page entry and makes sure its DataProviders become ready.
+   * The chain represents the exact logic of the Renderer can be implemented as JavaScript functions or XSLTs.
+   * The default is htmlBuilder.xslt, which is ideal for showing Wrs tabular data. It renders an HTML table, applies number-formats, and aligns dimensions left.
+   * To identify the corresponding row in Wrs, use a `tr`s attribute `bcdrowident`, which is set to the `wrs:R`'s id.
+   *
    * @example
    * // Show the data on page load, applying any filer in $guiStatus/guiStatus:Status/f:Filter
    * const companiesModel = new bcdui.core.AutoModel({ bindingSetId: "Companies", bRefs: "id, name, address, country" });
    * const renderer = new bcdui.core.Renderer({ targetHtml: "#companiesDiv", inputModel: companiesModel });
    * 
    * @example
-   * // Wait for country to be selected (mandatoryFilterBRefsSubset), and re-display the data whenever $guiStatus/guiStatus:Status/f:Filter changes (isAutoRefresh, onReady)
+   * // Wait for country to be selected (mandatoryFilterBRefsSubset),
+   * // and re-display the data whenever $guiStatus/guiStatus:Status/f:Filter changes (isAutoRefresh, onReady)
    * const companiesModel = new bcdui.core.AutoModel({
    *  bindingSetId: "Companies", bRefs: "id, name, address, country",
    *   mandatoryFilterBRefsSubset: "country",
@@ -1029,7 +1031,16 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
    *   targetHtml: "#companiesDiv",
    *   inputModel: companiesModel
    * });
+   *
+   * // Not needed for initial rendering
+   * // But reacts on model reloads due to filter changes (isAutoRefresh) or manual updates (doUpdate)
    * companiesModel.onReady( () => renderer.execute(true) );
+   *
+   * // Later
+   * function doUpdate(companyId, address) {
+   *   companiesModel.tblUpdate({ values: {address}, filter: {id: companyId} });
+   *   companiesModel.fire(); // Changes done
+   * }
    * @extends bcdui.core.TransformationChain
    */
 bcdui.core.Renderer = class extends bcdui.core.TransformationChain
