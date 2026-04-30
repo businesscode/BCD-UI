@@ -362,7 +362,7 @@ public class WrqBindingItem implements WrsBindingItem
         }
       }
       catch (Exception e) {
-        throw new RuntimeException("Unexpected exception", e);
+        throw new RuntimeException("Unexpected exception: "+e.getMessage(), e);
       }
     }
   }

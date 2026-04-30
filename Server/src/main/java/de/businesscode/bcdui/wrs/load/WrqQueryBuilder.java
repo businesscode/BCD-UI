@@ -147,7 +147,7 @@ public class WrqQueryBuilder
         wrqBindingSetForWrqAlias.put(cteElem.getAttribute("alias"), ssBs);
       }
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException("Unable to handle WITH clause: "+e.getMessage(), e);
     }
 
     //-----------------------------------------------------------
@@ -159,7 +159,7 @@ public class WrqQueryBuilder
       selectStatement = stmtWP; // TODO gs2u
       selectedBindingItems = sqlFomFullSelect.getSelectedBindingItems();
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException("Unable to handle FULL SELECT clause: "+e.getMessage(), e);
     }
     
     return selectStatement;

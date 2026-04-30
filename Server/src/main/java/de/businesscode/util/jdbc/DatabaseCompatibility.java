@@ -95,8 +95,10 @@ public class DatabaseCompatibility
       Class<? extends DatabaseCompatibility> clazz = (Class<? extends DatabaseCompatibility>) Configuration.getClassoption(Configuration.OPT_CLASSES.DATABASECOMPATIBILITY);
       try {
         DatabaseCompatibility.singleton = clazz.getDeclaredConstructor().newInstance();
-      } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+      } catch (InstantiationException | NoSuchMethodException | IllegalAccessException e) {
         throw new RuntimeException("No class found for DatabaseCompatibility", e);
+      } catch (InvocationTargetException e) {
+        throw new RuntimeException("No class found for 'DatabaseCompatibility'", e.getCause());
       }
     }
     return DatabaseCompatibility.singleton;

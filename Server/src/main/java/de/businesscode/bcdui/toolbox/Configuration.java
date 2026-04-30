@@ -351,11 +351,12 @@ public class Configuration implements ConfigurationProvider {
     try {
       return (T) clazz.getConstructor(types).newInstance(params);
     } catch (NoSuchMethodException e) {
-      throw new RuntimeException("failed to instantiate due to missing constructor accepting types", e);
+      throw new RuntimeException("failed to instantiate "+clazz.getName()+" due to missing constructor accepting types: "+e.getMessage(), e);
     } catch (InstantiationException | IllegalAccessException e) {
-      throw new RuntimeException("failed to instantiate", e);
+      throw new RuntimeException("failed to instantiate "+clazz.getName()+": "+e.getMessage(), e);
     } catch (InvocationTargetException e) {
-      throw new RuntimeException("failed to instantiate due to exception caught in constructor", e);
+      Throwable cause = e.getCause();
+      throw new RuntimeException("failed to instantiate "+clazz.getName()+" due to exception caught in constructor: "+(cause!=null?cause.getMessage():"Unknown"), cause);
     }
   }
 }
