@@ -143,6 +143,75 @@ resolveURLWithXMLBase: function( xmlElement, url)
     if (url == null) return combinedXmlBase;
     if (combinedXmlBase == null) return url;
     return bcdui.util.url.translateRelativeURL(combinedXmlBase, url);
+  },
+
+/**
+ * @enum {string} Classification of a URL
+ * @const
+ */
+CLASSIFY_LINK_RESULT : {
+  INJECTION: "injection",
+  SAFE_INTERNAL:  "internal",
+  SAFE_EXTERNAL:  "external",
+},
+
+/**
+ * Classifies a link as either internal, external, or injection (i.e. usually dangerous).
+ * @param {string} href The link to check
+ * @returns {string} One of bcdui.util.url.CLASSIFY_LINK_RESULT: 'injection' | 'internal' | 'external'
+ * @example
+ * if( bcdui.util.url.classifyLink(url) === bcdui.util.url.CLASSIFY_LINK_RESULT.SAFE_EXTERNAL ) warnOpen(url);
+ */
+classifyLink: function(href)
+  {
+    const RESULT = bcdui.util.url.CLASSIFY_LINK_RESULT;
+    if (!href || typeof href !== "string") return RESULT.INJECTION;
+
+    // decode repeatedly to catch %6A%61%76%61%73%63%72%69%70%74%3A etc.
+    let decoded = href.trim();
+    try {
+      let prev;
+      do { prev = decoded; decoded = decodeURIComponent(decoded); }
+      while (decoded !== prev);
+    } catch {
+      return RESULT.INJECTION;
+    }
+
+    // strip whitespace and control chars browsers silently ignore
+    // (tab/newline inside "java\tscript:" still executes)
+    const normalized = decoded.replace(/[\u0000-\u001F\u007F\s]/g, "").toLowerCase();
+
+    // blocklist dangerous protocols after normalization
+    const dangerous = ["javascript:", "data:", "vbscript:", "blob:", "file:", "about:"];
+    if (dangerous.some(p => normalized.startsWith(p))) return RESULT.INJECTION;
+
+    // resolve against current page — handles relative, protocol-relative, absolute
+    let url;
+    try {
+      url = new URL(decoded, window.location.href);
+    } catch {
+      return RESULT.INJECTION;
+    }
+
+    // allowlist protocols — reject ftp:, ws:, custom schemes etc.
+    if (!["http:", "https:"].includes(url.protocol)) return RESULT.INJECTION;
+
+    // same origin check
+    const sameOrigin = url.hostname === window.location.hostname
+      && url.port     === window.location.port
+      && url.protocol === window.location.protocol;
+
+    if (!sameOrigin) return RESULT.SAFE_EXTERNAL;
+
+    // context path check
+    const contextPath = bcdui.contextPath;
+    const ctx = contextPath.endsWith("/") ? contextPath : contextPath + "/";
+    if (url.pathname === contextPath || url.pathname.startsWith(ctx)) {
+      return RESULT.SAFE_INTERNAL;
+    }
+
+    // same origin but outside contextPath — treat as external
+    return RESULT.SAFE_EXTERNAL;
   }
 
 }; // namespace
