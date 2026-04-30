@@ -77,9 +77,17 @@ class MarkdownPackageGenerator extends MarkdownBaseGenerator {
     );
     let that = this;
     allProperties.forEach(propDoc => {
+      let member = "";
       // No link, they just appear in the package overview page with type and full description
-      that.currentPackage += `${os.EOL}${os.EOL}**${propDoc.name}** {${propDoc.type?.names?.[0] ?? "*"}}`;
-      if(propDoc.description) that.currentPackage += "\\" + os.EOL + that.jsLinksToMarkdownLinks(propDoc.description);
+      member += `${os.EOL}${os.EOL}**${propDoc.name}** {${propDoc.type?.names?.[0] ?? "*"}}`;
+      if(propDoc.description) member += "\\" + os.EOL + that.jsLinksToMarkdownLinks(propDoc.description);
+
+      // Because some are linked to, a bcdui.factory.objectRegistry, we also create a page for them
+      // Even if they appear in full already on the package page
+      fs.writeFileSync( this.mdOutputElementsPath + propDoc.longname + ".md", member );
+
+      // List on package place
+      that.currentPackage += member;
     });
 
     // List sub-packages
