@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2024 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -518,7 +518,7 @@ bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
 };
 
 /**
-  *  This class creates a static model with a top level element '<Root/>' and appends all
+  *  This class creates a static model with a top level element '&lt;Root/>' and appends all
   *  the elements that are found by xpath as children. Useful for be passing data as parameter to an XSLT transformation.
   *  See {@link bcdui.core.DataProviderWithXPath DataProviderWithXPath} for reading a single value as a string
   * @extends bcdui.core.DataProviderHolder
@@ -922,11 +922,11 @@ bcdui.core.DataProviderHtmlAttribute = class extends bcdui.core.DataProvider
    * @param {string} args.htmlElementId
    * @param {string} args.attributeName
    * @example
-   * &lt;div id="myDiv" attr="123">&lt;/div>
-   * &lt;script type="text/javascript">
+   * <div id="myDiv" attr="123"><div>
+   * <script type="text/javascript">
    *   var dp = new bcdui.core.DataProviderHtmlAttribute({ htmlElementId: 'myDiv', attributeName: 'attr'});
-   *   console.log(dp.getData());
-   * &lt;/script>
+   *   dp.onceReady( () => console.log(dp.getData()) ); // -> '123'
+   * <script>
    */
   constructor( args)
   {

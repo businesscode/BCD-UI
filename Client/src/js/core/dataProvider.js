@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2024 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@
  * {@link bcdui.core.DataProviderHolder} &bull;
  * {@link bcdui.core.DataProviderAlias} &bull;
  * {@link bcdui.core.ConstantDataProvider} &bull;
- * {@link bcdui.core.PromptDataProvider} &bull;
+ * {@link bcdui.core.PromptDataProvider}
  *
  * @extends bcdui.core.AbstractExecutable
  * @abstract
@@ -458,6 +458,77 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   }
 
   /**
+   * Checks whether a string is a valid WRS date (YYYY-MM-DD) or timestamp (YYYY-MM-DDTHH:MM:SS / YYYY-MM-DD HH:MM:SS).
+   * Appends Z to force UTC so toISOString() round-trips cleanly for comparison.
+   * Any overflow (e.g. Feb 30) or malformed input causes a mismatch and returns false.
+   * @param {string} v - the value to check
+   * @param {boolean} isTimestamp - true for TIMESTAMP, false for DATE
+   * @return {boolean}
+   * @private
+   */
+  _isValidWrsDate(v, isTimestamp) {
+    if (!isTimestamp) {
+      const d = new Date(v + "T00:00:00Z");
+      return !isNaN(d) && d.toISOString().slice(0, 10) === v;
+    } else {
+      const iso = v.replace(" ", "T");
+      const d = new Date(iso + "Z");
+      return !isNaN(d) && d.toISOString().slice(0, 19) === iso;
+    }
+  }
+
+  /**
+   * Validates a single cell value against WRS column header constraints.
+   * @param {string} value - the cell value as string; pass "" for null/empty
+   * @param {Object} colMeta - one column object from tblGetColumnMetadata (attribute names as-is, e.g. "type-name")
+   * @param {Set<string>|null} [refValues] - set of allowed values for reference check; null skips the check
+   * @return {string[]} array of wrsValidationErrorCode strings
+   * @private
+   */
+  _wrsValidateCellValue(value, colMeta, refValues) {
+    const errors = [];
+    const type = colMeta["type-name"] || "";
+
+    // NUMERIC check
+    if (/DECIMAL|DOUBLE|FLOAT|NUMERIC|REAL/.test(type) && value !== "" && /[^0-9.\-]/.test(value))
+      errors.push("bcd_ValidTypeName_NUMERIC");
+
+    // INTEGER check
+    if (type === "INTEGER" && value !== "" && /[^0-9\-]/.test(value))
+      errors.push("bcd_ValidTypeName_INTEGER");
+
+    // DISPLAY SIZE check (VARCHAR / CHAR)
+    if (/VARCHAR|CHAR/.test(type)) {
+      const displaySize = Number.parseInt((colMeta["display-size"] || "255"));
+      if(displaySize > 0 && value.length > displaySize)
+        errors.push("bcd_ValidDisplaySize");
+    }
+
+    // NULLABLE check
+    if (colMeta["nullable"] === "0" && value === "")
+      errors.push("bcd_ValidNullable");
+
+    // SCALE check
+    if (/DECIMAL|DOUBLE|FLOAT|NUMERIC|REAL/.test(type)) {
+      const dotIdx = value.indexOf(".");
+      if(dotIdx !== -1 && value.substring(dotIdx + 1).length > parseInt(colMeta["scale"] || "0", 10))
+        errors.push("bcd_ValidScale");
+    }
+
+    // DATE / TIMESTAMP check
+    if (type === "DATE" && value !== "" && !this._isValidWrsDate(value, false))
+      errors.push("bcd_ValidTypeName_DATE");
+    if (type === "TIMESTAMP" && value !== "" && !this._isValidWrsDate(value, true))
+      errors.push("bcd_ValidTypeName_TIMESTAMP");
+
+    // REFERENCES check
+    if (refValues && value !== "" && !refValues.has(value))
+      errors.push("bcd_ValidReferences");
+
+    return errors;
+  }
+
+  /**
    * read the data from a wrs, filter via xpath and return data as an object array
    * @param {string[]} columns - positive list of column
    * @param {Object} xPathTemplate - xPath template which is used for reading (filtered) data (can have {{=it.}}) object references) 
@@ -508,13 +579,88 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
     return (xPaths.length == 0 ? "" : "[" + xPaths.join(" and ") + "]");
   }
 
+
+
   /**
-   * inserts a new row in the wrs data, values given as object
+   * Returns an array of row ids (wrs:R/@id) of the rows matching the filter.
+   * If no filter is given, all row ids are returned.
+   * The order of ids matches the order of the rows in the Wrs.
+   * @param {object} args
+   * @param {object} [args.filter] - object holding requested filter conditions, e.g. `{ country: 'DE', flag: true }`
+   * @returns {Array<string>} row ids
+   */
+  tblGetRowIds(args) {
+    const filter = args?.filter ? this._buildXPathTemplate(args.filter) : "";
+    const predicate = "/*/wrs:Data/wrs:*" + filter;
+    const xPath = this._getFillParams(args?.filter ?? "",  predicate+ "/@id");
+    const rowIds = Array.from( this.queryNodes(xPath) ).map( rId => rId.text );
+    return rowIds;
+  }
+
+  /**
+   * Returns an array of columns of a Wrs with their metadata attributes like id, caption, type-name etc.
+   * Includes id, caption, pos, type-name, display-size, scale, isKey, nullable, references etc.
+   * For example: `[{id: 'ctr', caption: 'Country', pos: '1'}, {id: 'state', caption: 'State', pos: '2', references: [ {value: '#e00', caption: 'Red'}, {value: '#0e0', caption: 'Green'} ]}]`
+   * @param {object} [args]
+   * @param {Array<string>} [args.columns] Limit to these column ids
+   * @param {boolean} [args.doSort=false] Sort the columns according to the given columns list. If not given, the columns are returned in the order they are defined in the WRS.
+   * @returns {Array<Object>} column metadata
+   */
+  tblGetColumnMetadata(args) {
+    const columns = args?.columns;
+    const doSort = !!args?.doSort;
+
+    let cols = [];
+    let colNodes = Array.from( this.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C") );
+    // We may not want all columns
+    if( !!columns ) {
+      colNodes = colNodes.filter(function (c) { return columns.includes(c.id) });
+      if(colNodes.length !== columns.length) {
+        const missing = columns.filter(c => !colNodes.some(n => n.id === c));
+        console.error("Requested non-existing columns for '"+this.id+"' in tblGetColumnMetadata(): "+missing.join(", "));
+      }
+    }
+    let that = this;
+    colNodes .forEach(function(e) {
+      const col = {};
+
+      // Add attributes
+      e.getAttributeNames().forEach(function(a) {
+        col[a] = e.getAttribute(a);
+      });
+
+      // Collect wrs:References//wrs:C, which is a limitation of allowed values
+      const refValues = [];
+      const colXpath = "/*/wrs:Header/wrs:Columns/wrs:C[@id='"+e.getAttribute("id")+"']";
+      const refColXpath = colXpath + "/wrs:References/wrs:Wrs/wrs:Data/wrs:R/wrs:C[1]";
+      Array.from( that.queryNodes(refColXpath) ).forEach(function(refsNode) {
+        refValues.push( { value: refsNode.text, caption: refsNode.getAttribute("caption") } );
+      });
+      if( refValues.length > 0 ) col.references = refValues;
+
+      // Add col to list
+      cols.push(col);
+    });
+
+    // We may want a specific order
+    if( !!columns && doSort ) {
+      cols.sort(function(a, b) { return columns.indexOf(a.id) - columns.indexOf(b.id); });
+    }
+
+    return cols;
+  }
+
+  /**
+   * Inserts a new row in the Wrs. The property names match the Wrs header ids.
    * @param {Object}  args             - parameter bag
    * @param {Object}  args.values      - object holding cell values which should be inserted, e.g. { country: 'DE', flag: true }
    * @param {boolean} [args.rmi=true]  - use wrs:I syntax when this is true, otherwise wrs:R is used, rmi=true also prefills default values
    * @param {boolean} [args.fire=true] - lets the listeners know, that the update was finished
    * @return {string} row id of newly inserted row
+   *
+   * @example
+   * // Wrs has columns with matching ids wrs:header/wrs:Columns/wrs:C/@id='author' etc
+   * myModel.tblInsert({ values: {author: 'Descartes', title: "Principles of Philosophy", year: "1644"} });
    */
   tblInsert(args) {
     args = args || {};
@@ -535,14 +681,24 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   }
 
   /**
-   * updates wrs rows with given data. Either a single row (via rowId) or single/multiple ones (via filter)
+   * Updates one or multiple Wrs rows with given data.
+   * Either a single row (via rowId) or single/multiple ones (via filter)
+   * The filter's and the given values' property names refer to the columns ids.
    * @param {Object}  args             - parameter bag
-   * @param {Object}  args.values      - object holding cell values which should be used for updating, e.g. { country: 'DE', flag: true }
-   * @param {Object}  [args.filter]    - object holding cell values which should be used for selecting the rows for update, e.g. { country: 'DE', flag: true }
+   * @param {Object}  args.values      - columns and values to be updated. This sets 2 columns { country: 'DE', flag: true }
+   * @param {Object}  [args.filter]    - affected row(s) for example `{ country: 'DE', flag: true }`
    * @param {boolean} [args.rmi=true]  - use wrs:M syntax when this is true, otherwise row columns element name is not touched
    * @param {boolean} [args.fire=true] - lets the listeners know, that the update was finished
    * @param {string}  [args.rowId]     - id specifying row which should be updated (or use filter)
    * @return {number} count of updated rows
+   *
+   * @example
+   * // Update sales information for a book
+   * myModel.tblUpdate({ values: {sold: 16, lastSold: new Date()},
+   *                     filter: {author: 'Descartes', title: "Principles of Philosophy"} });
+   * @example
+   * // Update all values for 'AT', for example, even it has 3 sites
+   * myModel.tblUpdate({ values: {supervisor: 'Karl Popper'}, filter: {country: 'AT'} });
    */
   tblUpdate(args) {
     args = args || {};
@@ -588,13 +744,17 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   }
 
   /**
-   * updates wrs rows with given data. Either a single row (via rowId) or single/multiple ones (via filter)
+   * Delete Wrs rows. Either a single row (via rowId) or single/multiple ones via filter
+   * The filter's property names refer to the columns ids.
    * @param {Object}  args             - parameter bag
-   * @param {Object}  [args.filter]    - object holding cell values which should be used for selecting the rows for update, e.g. { country: 'DE', flag: true }
+   * @param {Object}  [args.filter]    - affected row(s) for example `{ country: 'DE', flag: true }`
    * @param {boolean} [args.rmi=true]  - use wrs:M syntax when this is true, otherwise row columns element name is not touched
    * @param {boolean} [args.fire=true] - lets the listeners know, that the update was finished
    * @param {string}  [args.rowId]     - id specifying row which should be deleted (or use filter) 
    * @return {number} count of removed rows
+   * @example
+   * // Update all values for 'AT', for example, even it has 3 sites
+   * myModel.tblDelete({ filter: {country: 'AT'} });
    */
   tblDelete(args) {
     args = args || {};
@@ -610,11 +770,20 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   }
 
   /**
-   * returns an array of requested data
+   * Selects an array of row values like `[{ctr: 'DE', site: 'HAM', flag: true}, {ctr: 'DE', site: 'BER', flag: false}];` for a given filter.
+   * The filter's and the returned property names match the column ids.
    * @param {Object}  args            - parameter bag
    * @param {Object}  [args.filter]   - object holding cell values which should be used for selecting the rows for update, e.g. { country: 'DE', flag: true }
    * @param {Array<string>}   [args.columns]  - string array of requested columns, if not given, all columns are returned
    * @return {Array<Object>} Array of objects holding the requested data
+   * @example
+   * // Select all rows with country 'DE'
+   * let ret = myModel.tblSelect({ filter: { ctr: 'DE' } });
+   * // ret equals [{ctr: 'DE', site: 'Hamburg', flag: true}, {ctr: 'DE', site: 'Berlin', flag: false}]
+   * @example
+   * // Select all book titles and publishing years for author 'Hobbes'
+   * let ret = myModel.tblSelect({ filter: { author: 'Hobbes' }, columns: ['title', 'year'] });
+   * // ret equals [{title: 'De Cive', year: '1642'}, {title: 'Problemata Physica', year: '1662'}]
    */
   tblSelect(args){
     args = args || {};
@@ -624,12 +793,17 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   }
 
   /**
-   * returns one object representing the filtered data (either filter or rowId). In case of multiple filter matches, the first one is returned
+   * Get the values of a single row, identified either by its `wrs:/@id`, or the first one matching the filter.
+   * The filter's and the returned property names match the column ids.
    * @param {Object}  args                 - parameter bag
    * @param {Object}        [args.filter]  - object holding cell values which should be used for selecting the rows for update, e.g. { country: 'DE', flag: true }
    * @param {string}        [args.rowId]   - rowId of row which should be queried (or use filter)
    * @param {Array<string>} [args.columns] - string array of requested columns, if not given, all columns are returned
    * @return {Object} Array  of objects holding the requested data
+   * @example
+   * // Select area and population for California
+   * let ret = myModel.tblSelectRow({ filter: { ctr: 'US', state: 'CA' }, columns: ['area', 'population'] });
+   * // ret equals {area: '423.970', population: '39.538.223'}}
    */
   tblSelectRow(args){
     args = args || {};
@@ -637,27 +811,101 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
       const columns = args.columns || Array.from(this.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C")).map(function (e) { return e.getAttribute("id"); });
       return this._getDataFromTemplate(columns, "/*/wrs:Data/wrs:*[@id='{{=it.rowId}}']", {rowId: args.rowId})[0];
     }
-    return this.tblFetchAll(args)[0];
+    return this.tblSelect(args)[0];
   }
 
   /**
-   * Set a value to on a certain xPath and create the xPath where necessary. 
+   * Validates a set of column values against the WRS header constraints of this DataProvider.
+   * The check is purely client-side (no server round-trip): type, scale, display-size, nullable,
+   * embedded header References, and key uniqueness within the loaded data are all covered.
+   * Only columns present in args.values are validated.
+   * For a planned tblUpdate, provide rowId or filter to exclude the changed row from uniqueness check.
+   * For a planned tblInsert, rowId is not needed as the uniqueness check is performed against all current loaded data.
+   * @param {Object}  args            - parameter bag
+   * @param {Object}  args.values     - { colId: value } map of values to validate
+   * @param {string}  [args.rowId]    - only needed for key uniqueness: identifies the row being validated so it is excluded from the duplicate check. If not given values is treated like a new row to be inserted
+   * @param {Object}  [args.filter]   - alternative to rowId, only needed for key uniqueness exclusion; first matching row is used
+   * @return {Array<{colId: string, errorCode: string}>} list of validation errors
+   *
+   * @example
+   * const errors = myModel.tblValidateRowChange({ rowId: 'R1', values: { amount: 'abc', color: '#xyz' } });
+   * // errors: [{ colId: 'amount', errorCode: 'bcd_ValidTypeName_NUMERIC' },
+   * //          { colId: 'color',  errorCode: 'bcd_ValidReferences' }]
+   */
+  tblValidateRowChange(args) {
+    args = args || {};
+    const values = args.values || {};
+
+    // Column metadata keyed by colId (attributes as-is, e.g. "type-name", "display-size")
+    const headers = this.tblGetColumnMetadata({});
+    const headerById = {};
+    headers.forEach(h => { headerById[h.id] = h; });
+
+    // Build reference Sets from the refValues already collected by tblGetColumnMetadata
+    const refValuesByColId = {};
+    headers.forEach(h => {
+      if (h.refValues)
+        refValuesByColId[h.id] = new Set(h.refValues.map(r => r.value));
+    });
+
+    // Validate each provided column; key uniqueness is triggered on the first key column encountered
+    const errors = [];
+    const keyColIds = headers.filter(h => h.isKey === "true").map(h => h.id);
+    let keyChecked = false;
+    for (const colId in values) {
+      const colMeta = headerById[colId];
+      if (!colMeta) {
+        errors.push({ colId, errorCode: "bcd_ValidId" }); // TODO add to messages
+        continue
+      };
+      const value = values[colId] === null ? "" : String(values[colId]);
+      this._wrsValidateCellValue(value, colMeta, refValuesByColId[colId] || null)
+        .forEach(errorCode => errors.push({ colId, errorCode }));
+
+      // Key uniqueness: run once when iterating over a key column, provided all key columns are in values
+      if (!keyChecked && colMeta.isKey === "true") {
+        keyChecked = true;
+        const rowId = args.rowId || (args.filter ? (this.tblGetRowIds({ filter: args.filter })[0] || null) : null);
+        const targetRow = this.tblSelectRow({rowId: args.rowId});
+        const keyFilter = Object.fromEntries(keyColIds.map(k => [k, typeof values[k] === 'undefined' ? targetRow[k] : String(values[k])]));
+        // rowId may not exist, we will assume an insert then and do no exclusion from uniqueness check
+        const idExclude = rowId ? "[@id!='" + rowId + "']" : "";
+        const xPath = this._getFillParams(keyFilter,
+          "/*/wrs:Data/wrs:*[not(self::wrs:D)]" + idExclude + this._buildXPathTemplate(keyFilter)
+        );
+        if (this.queryNodes(xPath).length > 0)
+          keyColIds.forEach(k => errors.push({ colId: k, errorCode: "bcd_ValidUniq" }));
+      }
+    }
+
+    return errors;
+  }
+
+  /**
+   * Set a value to on a certain xPath and create the xPath where necessary.
    * This combines Element.evaluate() for a single node with creating the path where necessary. 
    * It will prefer extending an existing start-part over creating a second one.
    * After the operation the xPath (with the optional value) is guaranteed to exist (pre-existing or created or extended) and the addressed node is returned.
    * 
-   * @param {string}  xPath        - xPath pointing to the node which is set to the value or plain xPath to be created if not there.
-   *    It tries to reuse all matching parts that are already there. If you provide for example "/n:Root/n:MyElem/@attr2" and there is already "/n:Root/n:MyElem/@attr1", then "/n:Root/n:MyElem" will be "re-used" and get an additional attribute attr2.
-   *    Many expressions are allowed, for example "/n:Root/n:MyElem[@attr1='attr1Value']/n:SubElem" is also ok.
-   *    By nature, some xPath expressions are not allowed, for example using '//' or "/n:Root/n:MyElem/[@attr1 or @attr2]/n:SubElem" is obviously not unambiguous enough and will throw an error.
-   *    This method is Wrs aware, use for example '/wrs:Wrs/wrs:Data/wrs:*[2]/wrs:C[3]' as xPath and it will turn wrs:R[wrs:C] into wrs:M[wrs:C and wrs:O], see Wrs format.
-   *    (can include dot template placeholders which get filled with the given fillParams)
+   * @param {string}  xPath        - xPath pointing to the node which is to be modified. Only the first match will be modified.
+   *    If it does not exist, it will be created.
+   *    For example, if you provide `/n:Root/n:MyElem/@attr2` and there is already `/n:Root/n:MyElem/@attr1`, then `/n:Root/n:MyElem` will be "re-used" and get an additional attribute attr2.
+   *    Even complex expressions are allowed, like predicates `/n:Root/n:MyElem[@attr1='attr1Value']/n:SubElem`.
+   *    Ambiguous xPaths are not allowed, for example, using `//` or `/n:Root/n:MyElem/[@attr1 or @attr2]/n:SubElem`, and will throw an error.
+   *    The method is Wrs aware, for Wrs it turns wrs:R into wrs:M etc., see Wrs format.
+   *    Using {{=it[0]}} templates makes sure values are escaped correctly.
    * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions
-   *     Example: bcdui.wkModels.guiStatus.write("/guiStatus:Status/guiStatus:ClientSettings/guiStatus:Test[@caption='{{=it[0]}}' and @caption2='{{=it[1]}}']", ["china's republic", "drag\"n drop"])
-   * @param {string}  [value]      - Optional value which should be written, for example to "/n:Root/n:MyElem/@attr" or with "/n:Root/n:MyElem" as the element's text content.
-   *    If not provided, the xPath contains all values like in "/n:Root/n:MyElem[@attr='a' and @attr1='b']" or needs none like "/n:Root/n:MyElem" 
+   *     Example: `bcdui.wkModels.guiStatus.write("/guiStatus:Status/guiStatus:ClientSettings/guiStatus:Test[@caption='{{=it[0]}}' and @caption2='{{=it[1]}}']", ["china's republic", "drag\"n drop"])`
+   * @param {string}  [value]      - Optional value which should be written, for example to `/n:Root/n:MyElem/@attr` or with `/n:Root/n:MyElem` as the element's text content.
+   *    If not provided, the xPath contains all values and either there is a full match or it will be created.
    * @param {boolean} [fire=false] - If true a fire is triggered to inform data modification listeners
    * @return {DomNode} The xPath's node or null if dataProvider isn't ready
+   *
+   * @example
+   * // Set column 2 for 'UK' to 'Hello UK'.
+   * // For Wrs, it also turns the row into a proper `wrs:M`, ready to be saved.
+   * // If there is no row for 'UK' in the first column, it will create it (wrs:I), and then set the second column.
+   * myModel.write("/wrs:Wrs/wrs:Data/wrs:*[wrs:C[1]='{{=it[0]}}']/wrs:C[2]", ['UK'], "Hello UK")
    */
   write(xPath, fillParams, value, fire) {
     if (this.getData() == null)

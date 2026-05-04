@@ -72,6 +72,7 @@
   
   <xsl:variable name="cellOrigCaptionToValue">
     <xsl:choose>
+      <xsl:when test="/*/wrs:Data/@isHtml='true'">[HTML Data]</xsl:when>
       <xsl:when test="/*/wrs:Data/@isDocument='true'">[XML Data]</xsl:when>
       <xsl:when test="/*/wrs:Data/@mappedCaptionOrig != ''">
         <xsl:value-of select="/*/wrs:Data/@mappedCaptionOrig"/>
@@ -84,6 +85,7 @@
   </xsl:variable>
  <xsl:variable name="cellCaptionToValue">
     <xsl:choose>
+      <xsl:when test="/*/wrs:Data/@isHtml='true'">[HTML Data]</xsl:when>
       <xsl:when test="/*/wrs:Data/@isDocument='true'">[XML Data]</xsl:when>
       <xsl:when test="/*/wrs:Data/@mappedCaption != ''">
         <xsl:value-of select="/*/wrs:Data/@mappedCaption"/>

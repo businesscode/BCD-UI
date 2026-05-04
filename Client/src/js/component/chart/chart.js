@@ -32,42 +32,42 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
    * @constant
    * @type {integer}
    */
-  static LINECHART= 1;
+  LINECHART= 1;
   /**
    * @constant
    * @type {integer}
    */
-  static AREACHART= 2;
+  AREACHART= 2;
   /**
    * @constant
    * @type {integer}
    */
-  static BARCHART=  3;
+  BARCHART=  3;
   /**
    * @constant
    * @type {integer}
    */
-  static PIECHART=  4;
+  PIECHART=  4;
   /**
    * @constant
    * @type {integer}
    */
-  static SCATTEREDCHART= 5;
+  SCATTEREDCHART= 5;
   /**
    * @constant
    * @type {integer}
    */
-  static POINTCHART= 6;
+  POINTCHART= 6;
   /**
    * @constant
    * @type {integer}
    */
-  static GAUGECHART= 7;
+  GAUGECHART= 7;
   /**
    * @constant
    * @type {integer}
    */
-  static MARIMEKKOCHART= 8;
+  MARIMEKKOCHART= 8;
   /**
    * @private
    * @constant
@@ -278,7 +278,7 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
    * @param {integer}           [args.yAxis1Or2]                - 1 for left and 2 for right axis
    * @param {number[]}          [args.yData]                    - Data array or provide yDataInfo
    * @param {DomNodeSet}        [args.yDataInfo]                - XML nodeset with data
-   * @param {number[]}          [args.sizeData]                 - 2nd value for scattered charts
+   * @param {number[]}          [args.sizeData]                 - The 2nd value for scattered charts
    * @param {number[]}          [args.xValues]                  - For x-y charts
    * @param {(integer|string)}  [args.chartType]                - Either name or numeric value for chart type
    * @param {string}            [args.rgb]                      - Color

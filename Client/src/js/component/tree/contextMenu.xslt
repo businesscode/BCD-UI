@@ -1,5 +1,5 @@
 <!--
-  Copyright 2010-2019 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@
     <ContextMenu>
       <xsl:if test="$gotExport='true'">
         <ContextMenuEntryGroup caption="{$bcdI18nModel/*/bcd_Tree_ActionsGlobalHdr}" >
-          <Entry caption="{$bcdI18nModel/*/bcd_Tree_Export}">
+          <Entry caption="{$bcdI18nModel/*/bcd_Tree_Export}" data-bcd-action="fullDataExport">
             <JavaScriptAction>jQuery("#" + this.eventSrcElement).trigger("treeActions:fullDataExport")</JavaScriptAction>
           </Entry>
         </ContextMenuEntryGroup>

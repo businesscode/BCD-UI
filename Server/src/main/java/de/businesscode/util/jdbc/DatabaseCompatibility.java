@@ -95,8 +95,10 @@ public class DatabaseCompatibility
       Class<? extends DatabaseCompatibility> clazz = (Class<? extends DatabaseCompatibility>) Configuration.getClassoption(Configuration.OPT_CLASSES.DATABASECOMPATIBILITY);
       try {
         DatabaseCompatibility.singleton = clazz.getDeclaredConstructor().newInstance();
-      } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+      } catch (InstantiationException | NoSuchMethodException | IllegalAccessException e) {
         throw new RuntimeException("No class found for DatabaseCompatibility", e);
+      } catch (InvocationTargetException e) {
+        throw new RuntimeException("No class found for 'DatabaseCompatibility'", e.getCause());
       }
     }
     return DatabaseCompatibility.singleton;
@@ -432,8 +434,9 @@ public class DatabaseCompatibility
     InputStream iStr = null;
     Clob clob = null;
     Reader cContentReader = null;
-    // postgresql would fail when using getClob, so we use getString instead to access the TEXT column
-    if ("postgresql".equals(getDatabaseProductNameLC(bs.getJdbcResourceName()))) {
+    // postgresql and snowflake would fail when using getClob, so we use getString instead to access the TEXT column
+    if ("postgresql".equals(getDatabaseProductNameLC(bs.getJdbcResourceName()))
+        ||"snowflake".equals(getDatabaseProductNameLC(bs.getJdbcResourceName()))) {
       content = rs.getString(column);
       if (content != null)
         iStr = new ByteArrayInputStream(content.getBytes("UTF-8"));

@@ -21,7 +21,7 @@ import java.sql.Connection;
 
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -77,7 +77,7 @@ public class WrsNextIdentifierServlet extends HttpServlet {
       log.trace("got next identifier for scope " + scope + ": " + nextId);
 
       // @formatter:off
-      StringBuilder sb = new StringBuilder("<?xml version=\"1.0\"?><NextIdentifier xmlns=\"http://www.businesscode.de/schema/bcdui/bindings-1.0.0\" scope=\"" + StringEscapeUtils.escapeXml(scope) + "\" blockSize=\"" + blockSize + "\">");
+      StringBuilder sb = new StringBuilder("<?xml version=\"1.0\"?><NextIdentifier xmlns=\"http://www.businesscode.de/schema/bcdui/bindings-1.0.0\" scope=\"" + StringEscapeUtils.escapeXml11(scope) + "\" blockSize=\"" + blockSize + "\">");
       // @formatter:on
 
       sb.append(nextId);

@@ -61,9 +61,9 @@
         `<tbody>`+
           `<tr>`+
             `<td class='bcdCol' id='${it.id}sbsLeft'></td>`+
-            `<td class='bcdCol2'><span class='bcd-sbs-controls'><span class='bcdButton bcdToMainTarget'><a href='javascript:void(0)'></a></span><span class='bcdButton bcdToSource'><a href='javascript:void(0)'></a></span></span></td>`+
+            `<td class='bcdCol2'><span class='bcd-sbs-controls'><span class='bcdButton bcdToMainTarget'><a></a></span><span class='bcdButton bcdToSource'><a></a></span></span></td>`+
             `<td class='bcdCol3' id='${it.id}sbsRight'></td>`+
-            `<td class='bcdCol4'><span class='bcd-sbs-controls'><span class='bcdButton bcdMoveUp'><a href='javascript:void(0)'></a></span><span class='bcdButton bcdMoveDown'><a href='javascript:void(0)'></a></span></span></td>`+
+            `<td class='bcdCol4'><span class='bcd-sbs-controls'><span class='bcdButton bcdMoveUp'><a></a></span><span class='bcdButton bcdMoveDown'><a></a></span></span></td>`+
            `</tr>`+
           `</tbody>`+
         `</table>`+
@@ -125,6 +125,7 @@
           // isDoubleClickTarget - we use the default (1st target)
           , onBeforeChange: this.options.onBeforeChange
           , onChange: this.options.onChange
+          , onChangeAction: this.options.onChangeAction
           , scope: this.options.id
           , showLasso: false
           // targetHtml - we rendered a tab, so we set our own ids now

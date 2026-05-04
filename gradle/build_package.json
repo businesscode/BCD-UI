@@ -19,6 +19,7 @@
     "@babel/preset-env":    "7.14.1",
     "babel-preset-minify":  "0.4.2",
     "jison":                "0.4.18",
-    "typescript":           "5.9.2"
+    "typescript":           "5.9.2",
+    "esbuild":              "0.27.2"
   }
 }

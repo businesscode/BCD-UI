@@ -20,7 +20,7 @@
         customConfig="{$bcdContextPath}/bcdui/js/3rdParty/ckeditor/ckeditor_config.js"
         formatter_in="bcdui.component.grid.GridEditor.bcduiHtmlEditor.format_in"
         formatter_out="bcdui.component.grid.GridEditor.bcduiHtmlEditor.format_out"
-        bcdOnLoad="jQuery(this).ckeditor()">
+        bcdOnLoad="bcdui.widget._initCkEditor">
       </textarea>
     </div>
   </xsl:template>

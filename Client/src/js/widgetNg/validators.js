@@ -106,7 +106,7 @@ bcdui.widgetNg.validation.validators.general.TYPE_VALIDATORS={
     },
     "email": function(value){
       if(value==null || !value.trim())return null;
-      return /^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$/.test(value) ? null : {validationMessage: bcdui.i18n.TAG + "bcd_ValidEmail"};
+      return /^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/.test(value) ? null : {validationMessage: bcdui.i18n.TAG + "bcd_ValidEmail"};
     }
 }
 
@@ -114,8 +114,8 @@ bcdui.widgetNg.validation.validators.general.TYPE_VALIDATORS={
 // ### WIDGET VALIDATORS ###
 
 /**
- * this getter we have to use which is compliant to the non-native placeholder
- * feature
+ * Current value of the chooser.
+ * Use this instead of native value property as it understands our placeholder implementation.
  *
  * @see implementation at bcdui.widgetNg.input.isFieldEmpty
  *
@@ -184,6 +184,8 @@ bcdui.widgetNg.validation.validators.widget.notEmptyValidator = function(htmlEle
 bcdui.widgetNg.validation.validators.widget.invalidModelDataValidator = function(htmlElementId){
   var el = bcdui._migPjs._$(htmlElementId);
   var config = el.data("_config_");
+  if (!config)
+    return null;
   var node = bcdui.factory.objectRegistry.getObject(config.target.modelId).getData().selectSingleNode(config.target.xPath);
   var bcdInvalidValue = null;
 

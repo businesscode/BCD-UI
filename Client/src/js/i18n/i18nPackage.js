@@ -445,7 +445,7 @@ bcdui.i18n._initializeI18nModul();
 //Support email is configured via i18n (for example messages.xml)
 //Cannot be done in logging module since that is setup before bcdui
 bcdui.wkModels.bcdI18nModel.onceReady(()=>{
-  var emailContact = bcdui.wkModels.bcdI18nModel.getData().getElementsByTagName("bcd_ErrorEmailContactCcSubject")[0];
+  var emailContact = bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_ErrorEmailContactCcSubject"}) || "";  
   if(bcdui.log && bcdui.log._getBCDAppender() && emailContact && emailContact.firstChild) {
    bcdui.log._getBCDAppender().emailContact =   emailContact.firstChild.nodeValue.split(":")[0];
    bcdui.log._getBCDAppender().emailContactCC = emailContact.firstChild.nodeValue.split(":")[1];

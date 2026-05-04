@@ -46,7 +46,6 @@
         <tr><td bcdTranslate="{.}"><xsl:value-of select="."/></td></tr>
       </xsl:for-each>
     </table>
-    <div />
   </xsl:if>
 </xsl:template>
 

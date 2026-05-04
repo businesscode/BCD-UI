@@ -1,4 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2010-2025 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
 <ContextMenu
   xmlns="http://www.businesscode.de/schema/bcdui/contextMenu-1.0.0"
   xmlns:ctx="http://www.businesscode.de/schema/bcdui/contextMenu-1.0.0">
@@ -8,23 +23,23 @@
 
   <!-- used for empty content -->
   <ctx:Context id="empty">
-    <ctx:Entry caption="Add Expression">
+    <ctx:Entry caption="Add Expression" data-bcd-action="combine">
       <ctx:JavaScriptAction>jQuery("#" + this.eventSourceElement).trigger("bcdui:universalFilter:combine");</ctx:JavaScriptAction>
     </ctx:Entry>
   </ctx:Context>
 
   <ctx:Context id="is-expression">
-    <ctx:Entry caption="Edit">
+    <ctx:Entry caption="Edit" data-bcd-action="edit">
       <ctx:JavaScriptAction>jQuery("#" + this.eventSourceElement).trigger("bcdui:universalFilter:edit");</ctx:JavaScriptAction>
     </ctx:Entry>
   </ctx:Context>
   
   <ctx:Context id="non-empty">
-    <ctx:Entry caption="Delete">
+    <ctx:Entry caption="Delete" data-bcd-action="delete">
       <ctx:JavaScriptAction>jQuery("#" + this.eventSourceElement).trigger("bcdui:universalFilter:delete");</ctx:JavaScriptAction>
     </ctx:Entry>
 
-    <ctx:Entry caption="Combine with new expression">
+    <ctx:Entry caption="Combine with new expression" data-bcd-action="combine">
       <ctx:JavaScriptAction>jQuery("#" + this.eventSourceElement).trigger("bcdui:universalFilter:combine");</ctx:JavaScriptAction>
     </ctx:Entry>
   </ctx:Context>

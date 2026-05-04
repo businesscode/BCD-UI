@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -94,7 +94,7 @@
     
             <xsl:choose>
               <xsl:when test="$isCredentialMenu='true' and $depth=2 and $pos=1">
-                <a href="#" class="bcd__header_credentials_toggle">
+                <a class="bcd__header_credentials_toggle">
                   <span class="initials"><xsl:value-of select="substring(translate($userName, 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 1, 1)"/></span>
                   <span><xsl:value-of select="$userName"/></span>
                   <i class="fas fa-caret-down"></i>
@@ -195,13 +195,14 @@
 
       <xsl:attribute name="class">
         <xsl:value-of select="$activeClassName"/>
+        <xsl:if test="$isClickable"> isClickable</xsl:if> 
         <xsl:if test="$node[@disable='true']"> bcdDisabled</xsl:if>
         <xsl:if test="$node[@hide='true']"> bcdHidden</xsl:if>
         <xsl:if test="$hasSubMenu"> bcdSubMenuContainer</xsl:if>
       </xsl:attribute>
 
       <xsl:if test="$isClickable and $node/@onClick">
-        <xsl:attribute name="onclick"><xsl:value-of select="$node/@onClick"/></xsl:attribute>
+        <xsl:attribute name="bcdAction"><xsl:value-of select="$node/@onClick"/></xsl:attribute>
       </xsl:if>
 
       <xsl:if test="$isClickable and $node/@newWindow = 'true'">

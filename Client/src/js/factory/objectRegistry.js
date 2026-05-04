@@ -27,7 +27,7 @@
   /**
    * @description
    * This class should not be instantiated directly, because there is already a
-   * singleton instance at {@link bcdui.factory.objectRegistry} which is used by
+   * singleton instance at {@link bcdui.factory.objectRegistry} (note the lower case 'o'), which is used by
    * the factory methods.
    */
   constructor()

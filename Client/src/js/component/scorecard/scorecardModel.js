@@ -33,48 +33,82 @@
  *
  * This scorecard does all calculations and also transposes data if necessary. It does not deal with any presentation part, though.
  * See {@link bcdui.component.createScorecard} if you want a default scorecard rendering.
+ * ````
+ *  I. Read ScoreCard reference data
+ *    1) Create internal format of ScoreCard ref data                           => _refSccDefinition
+ *
+ *  II. Read measures and calculate KPIs
+ *    4) Derive needed aggregators from KPI and measure/aggregator combinations => _refDistMeasCol
+ *    5) Read needed aggregators
+ *    6) Complete aggregator wrqs                                             => _agg_<aggrId>_WrqBuilder
+ *    7) Run aggregator wrqs, i.e. read measures                              => _agg_<aggrId>_ColWrs
+ *    7a) We may need to apply a pre-calculation on an aggragator's result    => _agg_<aggrId>_ColWrs_preCalced
+ *    8) Transpose measures from each aggregator if needed                    => _agg_<aggrId>_RowWrs
+ *    9) Join measures from all aggregator together                             => _agg_<aggrId>_Joined
+ *    This may involve creating an extra dok with the dims only,
+ *    derived from all aggrs with full dim depths                            => _refAggrDimsWrs
+ *    10) Create an alias representing the doc with all kpi-aggrs joined        => _allAggrJoined or _completed_kpiAsp (skipping 11-18) if there are no aspects
+ *
+ *  III. Apply aspects, do their calculations, maybe read additional data
+ *    11) Determine which additional data to read for aspects via wrq_builder
+ *    12) Determine which additional measure data to read for aspects via wrq_modifier
+ *    13) Read additional data for aspects (WrqBuilder)                         => _asp_<aspId>_Wrq, _asp_<aspId>_ColWrs
+ *    13a) We may need to apply a pre-calculation on the aspects result         => _asp_<aspId>_ColWrs_preCalced
+ *    13b) Maybe transpose aspect data                                          => _asp_<aspId>_RowWrs
+ *    14) Join each additional aspect data                                      => _asp_<aspId>_KpiData
+ *    15) Read additional measure data for aspects, per aggr (WrqModifier)      => _asp_<aspId>_agg_<aggrId>_Wrq_aggr, _asp_<aspId>_ModifierColWrs
+ *    15a) Transpose aspect data if needed                                    => _asp_<aspId>_agg_<aggrId>_RowWrs
+ *    16) Join additional measure data for aspect                               => _asp_<aspId>_KpiData
+ *    17) Run KPI calculation for the KPIs themselves and
+ *    for all additional measure data requested by aspects                  => _completed_kpiCalcs
+ *    18) Run aspect calculations, all KPIs and aspects are available here      => _completed_kpiAsp
+ *
+ *  IV. We have the data, let's finish the final requested format
+ *    19) Verticalize KPIs, keep aspects as columns, create attr asp, sort      => _final
+ *    20) Optionally create colummn dimensions                                  => also _final
+ *    21) Optionally join category data                                         => also _final
+ *    22) Final data is in internal model and passed on Scorecard.getData()     => externally same as scorecard id
+ * ````
+ *
+ * @example
+ * ````xml
+ * <?xml version="1.0" encoding="UTF-8"?>
+ * <scc:ScorecardConfiguration xmlns:scc="http://www.businesscode.de/schema/bcdui/scorecard-1.0.0"
+ *   xmlns:calc="http://www.businesscode.de/schema/bcdui/calc-1.0.0"
+ *   xmlns:xi="http://www.w3.org/2001/XInclude"
+ *   xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
+ *   xmlns:bcdxml="http://www.businesscode.de/schema/bcdui/bcdxml-1.0.0"
+ *   xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0">
+ *
+ *   <scc:Layout>
+ *     <scc:KpiRefs>
+ *       <scc:KpiRef idRef="K01" />
+ *       <scc:KpiRef idRef="K02" />
+ *     </scc:KpiRefs>
+ *     <scc:AspectRefs>
+ *       <scc:AspectKpi/>
+ *     </scc:AspectRefs>
+ *     <scc:Dimensions>
+ *       <scc:Rows>
+ *         <scc:LevelKpi/>
+ *         <dm:LevelRef bRef="product" total="trailing" sort="ascending"/>
+ *       </scc:Rows>
+ *       <scc:Columns>
+ *         <dm:LevelRef bRef="orig_country" total="trailing" sort="ascending"/>
+ *       </scc:Columns>
+ *     </scc:Dimensions>
+ *   </scc:Layout>
+ *
+ *   <xi:include href="../../scorecard/kpi.xml" />
+ *   <xi:include href="../../scorecard/aggregators.xml" />
+ *
+ * </scc:ScorecardConfiguration>
+ * ````
+ *
  * @extends bcdui.core.DataProvider
  */
 bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
 {
-  /* This class represents a Scorecard. The process is:
-    * <pre>
-        I. Read ScoreCard reference data
-          1) Create internal format of ScoreCard ref data                           => _refSccDefinition
-
-        II. Read measures and calculate KPIs
-          4) Derive needed aggregators from KPI and measure/aggregator combinations => _refDistMeasCol
-          5) Read needed aggregators
-            6) Complete aggregator wrqs                                             => _agg_<aggrId>_WrqBuilder
-            7) Run aggregator wrqs, i.e. read measures                              => _agg_<aggrId>_ColWrs
-            7a) We may need to apply a pre-calculation on an aggragator's result    => _agg_<aggrId>_ColWrs_preCalced
-            8) Transpose measures from each aggregator if needed                    => _agg_<aggrId>_RowWrs
-          9) Join measures from all aggregator together                             => _agg_<aggrId>_Joined
-             This may involve creating an extra dok with the dims only,
-             derived from all aggrs with full dim depths                            => _refAggrDimsWrs
-          10) Create an alias representing the doc with all kpi-aggrs joined        => _allAggrJoined or _completed_kpiAsp (skipping 11-18) if there are no aspects
-
-        III. Apply aspects, do their calculations, maybe read additional data
-          11) Determine which additional data to read for aspects via wrq_builder
-          12) Determine which additional measure data to read for aspects via wrq_modifier
-          13) Read additional data for aspects (WrqBuilder)                         => _asp_<aspId>_Wrq, _asp_<aspId>_ColWrs
-          13a) We may need to apply a pre-calculation on the aspects result         => _asp_<aspId>_ColWrs_preCalced
-          13b) Maybe transpose aspect data                                          => _asp_<aspId>_RowWrs
-          14) Join each additional aspect data                                      => _asp_<aspId>_KpiData
-          15) Read additional measure data for aspects, per aggr (WrqModifier)      => _asp_<aspId>_agg_<aggrId>_Wrq_aggr, _asp_<aspId>_ModifierColWrs
-            15a) Transpose aspect data if needed                                    => _asp_<aspId>_agg_<aggrId>_RowWrs
-          16) Join additional measure data for aspect                               => _asp_<aspId>_KpiData
-          17) Run KPI calculation for the KPIs themselves and
-              for all additional measure data requested by aspects                  => _completed_kpiCalcs
-          18) Run aspect calculations, all KPIs and aspects are available here      => _completed_kpiAsp
-
-        IV. We have the data, let's finish the final requested format
-          19) Verticalize KPIs, keep aspects as columns, create attr asp, sort      => _final
-          20) Optionally create colummn dimensions                                  => also _final
-          21) Optionally join category data                                         => also _final
-          22) Final data is in internal model and passed on Scorecard.getData()     => externally same as scorecard id
-       </pre>
-  */
   /**
    * @param {Object} args - Parameter map contains the following properties:
    * @param {bcdui.core.DataProvider} args.config                  - The scorecard definition

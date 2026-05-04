@@ -236,6 +236,7 @@
           , hint: this.options.hint
           , onBeforeChange: this.options.onBeforeChange
           , onChange: this.options.onChange
+          , onChangeAction: this.options.onChangeAction
           , scope: this.options.id
           , showLasso: true
           , unselectAfterMove: true

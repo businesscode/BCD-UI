@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 "use strict";
 
 /**
- * An AutoModel is an easy way for loading data from a BindingSet in many cases. At minimum just provide the BindingSet id and a list of bRefs.
+ * An AutoModel is an easy way for loading data from a BindingSet in many cases, using `$guiStatus/guiStatus:Status/f:Filter` per default.
+ * At minimum just provide the BindingSet id and a list of bRefs.
+ * To trigger a data re-load, prefer `args.isAutoRefresh` to whatch for changed f:Filters instead of `execute(true)`.
  * @extends bcdui.core.SimpleModel
  */
 bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
@@ -24,27 +26,28 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
   /**
    * @param {Object} args The parameter map contains the following properties. Most parameters only apply when using default wrq-stylesheet.
    * @param {string}                  args.bindingSetId                   - Id of BindingSet to read from.
-   * @param {string}                  args.bRefs                          - Space separated list of bRefs to be loaded.
-   * @param {string}                  [args.filterBRefs]                  - Space separated list of bRefs in $guiStatus f:Filter to be used as filters. TODO: add static
+   * @param {string}                  args.bRefs                          - Space separated list of bRefs to be loaded, also defines the order of columns.
+   * @param {string}                  [args.filterBRefs]                  - Space separated list of bRefs to be used from `$guiStatus/guiStatus:Status/f:Filter`, default is all. 
    * @param {string}                  [args.orderByBRefs]                 - Space separated list of bRefs that will be used to order the data. This ordering has a higher priority over possible auto ordering by useCaptions or isDistinct. A minus(-) sign at the end indicates descending sorting.
-   * @param {string}                  [args.initialFilterBRefs]           - Space separated list of bRefs in $guiStatus f:Filter to be used as filters for initial, very first request only. Unlike filterBRefs, these filter values are not monitored for changes.
-   * @param {string}                  [args.mandatoryFilterBRefsSubset]   - Space separated subset of bRefs that needs to be set before the AutoModel gets data. Until available, no request will be run.
+   * @param {string}                  [args.initialFilterBRefs]           - Space separated list of bRefs in `$guiStatus/guiStatus:Status/f:Filter` to be used as filters for very first request only. Filters are ignored for later requests or for isAutoRefresh=true.
+   * @param {string}                  [args.mandatoryFilterBRefsSubset]   - Space separated subset of bRefs that needs to be set in any filter before the AutoModel gets data. Until available, no request will be run. Usefull if user needs to make selections first or you want to enforce a specific filter.
    * @param {boolean}                 [args.isDistinct=false]             - If true, a group-by across all columns is generated. Parameter .groupByBRefs is ignored in this case.
    * @param {boolean}                 [args.useCaptions=false]            - If true, @bRef+'_caption' will be used as bRef for the caption.
-   * @param {modelXPath}              [args.additionalFilterXPath]        - Allows using additional filters not part of $guiStatus f:Filter. These filters are monitored for changes. The given xPath needs to point to the filter expression itself, not to a parent.
-   * @param {modelXPath}              [args.additionalPassiveFilterXPath] - Optional, allows using additional filters not part of $guiStatus f:Filter, unlike 'additionalFilterXPath', this xPath is not monitored for changes.
+   * @param {modelXPath}              [args.additionalFilterXPath]        - Allows using additional filters (not part of `$guiStatus/guiStatus:Status/f:Filter`). The given xPath needs to point to the filter expression itself (f:And or f:Expression), not to for example f:Filter.
+   * @param {modelXPath}              [args.additionalPassiveFilterXPath] - Allows using additional filters (not part of `$guiStatus/guiStatus:Status/f:Filter`), unlike 'additionalFilterXPath', this xPath is not monitored for changes.
    * @param {number}                  [args.maxRows]                      - Optional, limits the request to n rows. Use distinct if you need a certain order.
    *
    * @param {string}                  [args.id]                           - Optional, a globally unique id for use in declarative contexts
-   * @param {boolean}                 [args.isAutoRefresh=false]          - If true, will reload when any (other) filter regarding a bRefs or the additionalFilterXPath change.
+   * @param {boolean}                 [args.isAutoRefresh=false]          - If true, will reload data when (filterBRefs in) `$guiStatus/guiStatus:Status/f:Filter` or any of additionalFilterXPath changes but not additionalPassiveFilterXPath
    *
    * @param {Object}                  [args.reqDocParameters]             - Optional parameters for a custom request document builder.
    * @param {Array<string>}           [args.reqDocChain=['wrs/requestDocumentBuilder.xslt']] - Optional custom chain for request document builder.
    * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatus] - the status model to resolve .filterBRefs against
    * @param {bcdui.core.DataProvider} [args.statusModelEstablished]       - the established status model to provide to ModelWrapper creating request document as 'statusModelEstablished' parameter
    * @param {string}                  [args.groupByBRefs]                 - Space separated list of bRefs for grouping. Is not effective when using .isDistinct=true parameter.   
-   * @param {DomDocument|DomElement|string}  [args.filterElement]                - custom filter element (f:And, f:Or, f:Not, f:Expression) in wrs-filter format, see filter-1.0.0.xsd
-   *     or a string as required by {@link bcdui.wrs.wrsUtil.parseFilterExpression} or the result of it - note that the function allows filling in values without escaping issues if the filter is not fixed.
+   * @param {DomDocument|DomElement|string}  [args.filterElement]         - custom filter element (f:And, f:Or, f:Not, f:Expression) in wrs-filter format, see filter-1.0.0.xsd
+   *     or a string as required by {@link bcdui.wrs.wrsUtil.parseFilterExpression} `filterElement: 'ctr='DE' and (product='AMS' or product='WWS')`
+   *     or the result of it `filterElement: bcdui.wrs.wrsUtil.parseFilterExpression(region='Asia' and ctr='${{}}', "People's Republic of China")`- note that this allows filling in values without escaping issues.
    * @param {Object}                                        [args.saveOptions]         - An object, with the following elements
    * @param {chainDef}                                      [args.saveOptions.saveChain]              - The definition of the transformation chain
    * @param {Object}                                        [args.saveOptions.saveParameters]         - An object, where each property holds a DataProvider, used as a transformation parameters.
@@ -53,9 +56,21 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
    * @param {function}                                      [args.saveOptions.onFailure]              - Callback on failure, is called if error occurs
    * @param {function}                                      [args.saveOptions.onWrsValidationFailure] - Callback on serverside validate failure, if omitted the onFailure is used in case of validation failures
    * @param {bcdui.core.DataProvider}                       [args.saveOptions.urlProvider]            - DataProvider holding the request url (by default taken from the underlying simple model url)
-  * @example
-   * // Create a simple AutoModel, reading distinct bindingItems 'country', 'region' and 'city' from BindingSet 'md_geo'
-   * var am = new bcdui.core.AutoModel({ bindingSetId: "md_geo", bRefs: "country region city", isDistinct: true, filterElement: "country='DE'" });
+   * @example
+   * // Get a list of authors
+   * let authors = new bcdui.core.AutoModel({ bindingSetId: 'books', bRefs: 'author', isDistinct: 'true' });
+   * // Read values for bindingItems 'author', 'title' and 'year' from BindingSet 'books' for 'DE' from database
+   * var am = new bcdui.core.AutoModel({ bindingSetId: "books", bRefs: "author title year", filterElement: "country='DE'" });
+   * // Show data
+   * let rnd = new bcdui.core.Renderer({inputModel: am, targetHtml: "#myDataDiv"});
+   * // Read/write values with JavaScript from DataProvider
+   * am.onceReady({ executeIfNotReady: true, onSuccess: () => {
+   *   let descartesBooks = am.tblSelect({ filter: { author: "Descartes" }, columns: ['title', 'year'] });
+   *   ...
+   *   // Add a row and save it
+   *   am.tblInsert({ values: {author: 'Descartes', title: "Principles of Philosophy", year: "1644"} });
+   *   am.sendData();
+   * }});
    */
   constructor(args)
     {

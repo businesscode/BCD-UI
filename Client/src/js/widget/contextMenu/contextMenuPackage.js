@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -73,12 +73,13 @@ bcdui.widget.contextMenu = Object.assign(bcdui.widget.contextMenu,
      */
     _clickItem: function(/* Event */ event)
     {
+      const clickResolver = jQuery("#bcdContextMenuDiv").data("clickResolver");
       var event = new bcdui.widget.DetachedEvent(event);
       var bcdMenuCode = bcdui._migPjs._$(event.target).attr("bcdMenuCode");
-      var bcdContextMenuDiv = bcdui._migPjs._$("bcdContextMenuDiv");
+      var bcdContextMenuDiv = jQuery("#bcdContextMenuDiv");
       var eventSourceElement = bcdContextMenuDiv.attr("bcdEventSourceElementId");
       bcdui._migPjs._$("bcdContextMenuDiv").hide();
-      if (bcdMenuCode != null && eventSourceElement != null) {
+      if ((bcdMenuCode != null || (clickResolver && typeof clickResolver == "function")) && eventSourceElement != null) {
         event.eventSourceElement = eventSourceElement;
         event.eventSrcElement = eventSourceElement;
         // set the bcdRowIdent and bcdColIdent values looking up in ancestor path of the eventSourceElement
@@ -90,9 +91,25 @@ bcdui.widget.contextMenu = Object.assign(bcdui.widget.contextMenu,
           var _lastTr = _table.find("thead tr").last();
           event.bcdColIdent = jQuery(_lastTr.find("th").add("td", _lastTr).get(_srcEl.index())).attr("bcdColIdent");
         }
-        // We must call this function deferred, because otherwise the menu
-        // mechanism gets broken in case of an exception.
-        setTimeout((function() { eval(bcdMenuCode) }).bind(event));
+
+        const elData = event.target.dataset;
+        
+        const wellKnown = {
+          event: event
+        , htmlElement: jQuery(event.target).get(0)
+        , bcdColIdent: event.bcdColIdent
+        , bcdRowIdent: event.bcdRowIdent
+        , bcdEventSourceElement : jQuery("#" + event.eventSourceElement).get(0)
+        }
+
+        if (clickResolver && typeof clickResolver == "function" && elData.bcdAction) {
+          setTimeout(function() { clickResolver(Object.assign(wellKnown, elData)); });
+        }
+        else if (bcdui.config.unsafeEval) {
+          // We must call this function deferred, because otherwise the menu
+          // mechanism gets broken in case of an exception.
+          setTimeout((function() { eval(bcdMenuCode) }).bind(event));
+        }
       }
     }
 });

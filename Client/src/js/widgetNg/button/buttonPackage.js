@@ -198,7 +198,7 @@
             idValue = idValue != null ? idValue.text : idValue;
           }
           idValue = bcdui.util.escapeHtml(idValue);
-          dropDown += "<li bcdValue='" + idValue + "'><span class='bcdButton btn-primary'><a href='#' style='min-width: " + (el.outerWidth() - padL - padR - borL - borR) + "px;' bcdTranslate='" + caption + "'>" + caption + "</a></span></li>";
+          dropDown += "<li bcdValue='" + idValue + "'><span class='bcdButton btn-primary'><a style='min-width: " + (el.outerWidth() - padL - padR - borL - borR) + "px;' bcdTranslate='" + caption + "'>" + caption + "</a></span></li>";
           i++;
         });
         dropDown += "</ul></div>";

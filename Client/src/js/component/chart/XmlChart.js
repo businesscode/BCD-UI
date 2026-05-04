@@ -206,7 +206,8 @@ bcdui.component.chart.XmlChart = class extends bcdui.component.chart.Chart
         colorProvider = new bcdui.component.chart.TypeColorProviderFixedList(colArray);
       }
       else if( provType != null && provType.text != '' ){
-        eval(" colorProvider = new " + provType.text + "();");
+        const cp = bcdui.util._getJsObjectFromString(provType.text);
+        colorProvider = new cp();
       }
       else if ( extDoc != null){
         var res = new Array();

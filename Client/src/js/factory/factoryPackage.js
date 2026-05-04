@@ -81,6 +81,7 @@ bcdui.factory = Object.assign(bcdui.factory,
 
   /**
    * Creates a dataprovider from an xPath, its value is the evaluated xPath
+   * @param {Object} args The parameter map contains the same members as {@link bcdui.core.DataProviderWithXPath}
    */
   createDataProviderWithXPath: function(args) {
     if (typeof args.id == "undefined") {
@@ -119,7 +120,9 @@ bcdui.factory = Object.assign(bcdui.factory,
     return bcdui.factory._generateSymbolicLink(args);
   },
   /**
-   * creates a dataprovider the data is a list of elements found at xpath bundled below a artifical root node
+   * creates a {@link bcdui.core.DataProviderWithXPathNodes} the data is a list of elements found at xpath bundled below a artifical root node
+   * Waits for input DataProviders to exist (not just to be ready), if provided by id
+   * @param {Object} args The parameter map contains the same members as {@link bcdui.core.DataProviderWithXPathNodes}
    * @private
    */
   createDataProviderWithXPathNodes: function(args) {
@@ -676,11 +679,12 @@ bcdui.factory = Object.assign(bcdui.factory,
         if (typeof args.status == "string" && !!args.status.trim()) {
           var isFunctionCall = args.status.endsWith("()");
           if (isFunctionCall && args.status.startsWith(".")) {
-            args.status = eval("bcdui.factory.objectRegistry.objectMap." + args.ids + args.status);
+            args.status = bcdui.util._executeJsFunctionFromString("bcdui.factory.objectRegistry.objectMap." + args.ids + args.status);
           } else if (isFunctionCall) {
-            args.status = eval(args.status);
+            args.status = bcdui.util._executeJsFunctionFromString(args.status);
           } else {
-            args.status = eval("new " + args.status + "()");
+            const cp = bcdui.util._getJsObjectFromString(args.status);
+            args.status = new cp();
           }
         } else {
           delete args.status;

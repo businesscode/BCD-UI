@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -394,12 +394,15 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
    *
    * @private
    */
-  _executeOnXAttributes( targetElement, attribute )
+  _executeOnXAttributes( targetElement, attribute, useEval )
     {
       jQuery(targetElement).find(" *["+attribute+"]").each(function(idx,onLoadElement) {
         var initCode = onLoadElement.getAttribute( attribute );
         if (initCode && initCode.trim().length!=0) {
-          (function() { eval(initCode); }.bind(onLoadElement))(); // No defer, keep order for bcdui.core.bcdParamBag
+          if (useEval && bcdui.config.unsafeEval)
+            (function() { eval(initCode); }.bind(onLoadElement))(); // No defer, keep order for bcdui.core.bcdParamBag
+          else
+	          bcdui.util._executeJsFunctionFromString(initCode, onLoadElement);
         }
         onLoadElement.removeAttribute( attribute );
       });
@@ -448,6 +451,9 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
               // Transformation can deliver HTML as DOM or as a string
               if( typeof result=="string" ) {
                 jQuery(targetElement).html( result ); // to support .destroy() mechanism of jQuery Widgets
+                if (typeof this.postHtmlAttachProcess == "function") {
+                  this.postHtmlAttachProcess(targetElement.lastChild, null);
+                }
               }
               // XSLT will deliver fragment
               // If we receive a document, we assume the last step did not provide any output to us, because in such cases
@@ -482,6 +488,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
               }
   
               this._executeOnXAttributes(targetElement, "bcdOnload");
+              this._executeOnXAttributes(targetElement, "bcdOnloadX", true);  //xslt api calls using eval
             }
           }
 
@@ -901,7 +908,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
               /*
                * It can also be returned by a JS function.
                */
-              xsltModel = eval(stylesheet.getAttribute("jsFactoryExpression"));
+              xsltModel = bcdui.util._getJsObjectFromString(stylesheet.getAttribute("jsFactoryExpression"));
               xslt.transformerFactory = bcdui.core.browserCompatibility.asyncCreateXsltProcessor;
             } else if (stylesheet.getAttribute("jsProcFct") != null) {
               /*
@@ -911,7 +918,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
               var jsProcFct = jsProcFctName.split(".").reduce( function( fkt, f ) { return fkt[f] }, window );
               xsltModel = new bcdui.core.ConstantDataProvider( { value: jsProcFct } );
               xslt.transformerFactory = function( args ) { args.callBack( new bcdui.core.transformators.JsTransformator( args.model) ) };
-            } else if( stylesheet.selectSingleNode("./chain:JsProcFct") ) {
+            } else if( stylesheet.selectSingleNode("./chain:JsProcFct") && bcdui.config.unsafeEval ) {
               var jsSource = "";
               for( var child=stylesheet.selectSingleNode("./chain:JsProcFct").firstChild; child; child=child.nextSibling ) {
                 if( child.nodeType == 3 )
@@ -1001,8 +1008,39 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
 
 
  /**
-   * A concrete subclass of {@link bcdui.core.TransformationChain TransformationChain}, inserting its output into targetHtml.
-   * Renderer execute() automatically on creation, and as usual execute their dependencies (i.e. parameters) automatically.
+   * This class renders data to HTML, per default a table view of Wrs, but it does support any kind of input and HTML output when providing a `chain`.
+   * A Renderer is started on page entry and makes sure its DataProviders become ready.
+   * The chain represents the exact logic of the Renderer can be implemented as JavaScript functions or XSLTs.
+   * The default is htmlBuilder.xslt, which is ideal for showing Wrs tabular data. It renders an HTML table, applies number-formats, and aligns dimensions left.
+   * To identify the corresponding row in Wrs, use a `tr`s attribute `bcdrowident`, which is set to the `wrs:R`'s id.
+   *
+   * @example
+   * // Show the data on page load, applying any filer in $guiStatus/guiStatus:Status/f:Filter
+   * const companiesModel = new bcdui.core.AutoModel({ bindingSetId: "Companies", bRefs: "id, name, address, country" });
+   * const renderer = new bcdui.core.Renderer({ targetHtml: "#companiesDiv", inputModel: companiesModel });
+   * 
+   * @example
+   * // Wait for country to be selected (mandatoryFilterBRefsSubset),
+   * // and re-display the data whenever $guiStatus/guiStatus:Status/f:Filter changes (isAutoRefresh, onReady)
+   * const companiesModel = new bcdui.core.AutoModel({
+   *  bindingSetId: "Companies", bRefs: "id, name, address, country",
+   *   mandatoryFilterBRefsSubset: "country",
+   *   isAutoRefresh: true
+   * });
+   * const renderer = new bcdui.core.Renderer({
+   *   targetHtml: "#companiesDiv",
+   *   inputModel: companiesModel
+   * });
+   *
+   * // Not needed for initial rendering
+   * // But reacts on model reloads due to filter changes (isAutoRefresh) or manual updates (doUpdate)
+   * companiesModel.onReady( () => renderer.execute(true) );
+   *
+   * // Later
+   * function doUpdate(companyId, address) {
+   *   companiesModel.tblUpdate({ values: {address}, filter: {id: companyId} });
+   *   companiesModel.fire(); // Changes done
+   * }
    * @extends bcdui.core.TransformationChain
    */
 bcdui.core.Renderer = class extends bcdui.core.TransformationChain
@@ -1192,6 +1230,16 @@ bcdui.core.ModelUpdater = class extends bcdui.core.TransformationChain
    * Once this ModelUpdater is {@link bcdui.core.AbstractExecutable#execute executed}, it will check each parameter and execute it, if it is not {@link bcdui.core.AbstractExecutable#isReady .isReady()}
    * @param {boolean}                 [args.autoUpdate=true] - A boolean value indicating if the ModelUpdater should run on every change in the targetModel. Can be a data modification event or if targetModel again reaches the ready status. If autoUpdate is false a model updater only runs when the targetModel is (re)executed. 
    * @param {string}                  [args.id]               - Globally unique id for use in declarative contexts
+   * @example
+   *  // Example for a default value for the GuiStatus: If no filter is set, limit the id range
+   *  new bcdui.core.ModelUpdater({ targetModel: bcdui.wkModels.guiStatus , autoUpdate: false,
+   *    chain: function guiStatusFilter(guiStatusDataDoc) {
+   *      if( guiStatusDataDoc.selectSingleNode("/guiStatus:Status/f:Filter" ) === null) {
+   *        bcdui.core.createElementWithPrototype(guiStatusDataDoc, "/guiStatus:Status/f:Filter/f:Expression[@bRef='id' and @op='>=' and @value='1030000']");
+   *        bcdui.core.createElementWithPrototype(guiStatusDataDoc, "/guiStatus:Status/f:Filter/f:Expression[@bRef='id' and @op='<=' and @value='1030125']");
+   *      }
+   *    }
+   *  });
    */
   constructor(args)
   {

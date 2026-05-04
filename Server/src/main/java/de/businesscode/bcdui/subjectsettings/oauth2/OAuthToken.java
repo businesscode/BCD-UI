@@ -15,7 +15,7 @@
 */
 package de.businesscode.bcdui.subjectsettings.oauth2;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import de.businesscode.bcdui.subjectsettings.ExternalAuthenticationToken;
 

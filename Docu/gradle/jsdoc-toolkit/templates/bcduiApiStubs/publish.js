@@ -28,6 +28,7 @@ var helper = require('jsdoc/util/templateHelper');
 const MarkdownIndexGenerator = require("./markdownIndexGenerator")
 const MarkdownPackageGenerator = require("./markdownPackageGenerator")
 const MarkdownClassGenerator = require("./markdownClassGenerator")
+const {MarkdownSidebarGenerator} = require("./markdownSidebarGenerator")
 const {ApiStubsClassGenerator} = require("./apiStubsClassGenerator")
 const {ApiStubsPackageGenerator} = require("./apiStubsPackageGenerator")
 
@@ -46,12 +47,13 @@ exports.publish = function(taffyData, opts)
     new ApiStubsPackageGenerator(opts, taffyData),
     new MarkdownIndexGenerator(opts, taffyData),
     new MarkdownPackageGenerator(opts, taffyData),
-    new MarkdownClassGenerator(opts, taffyData)
+    new MarkdownClassGenerator(opts, taffyData),
+    new MarkdownSidebarGenerator(opts, taffyData)
   ]
 
   //-----------------------------------------
   // Namespaces and static functions
-  var allNamespaces = helper.find( taffyData, { kind: "namespace", access: { "!is": "private" }  } );
+  var allNamespaces = helper.find( taffyData, { kind: "namespace", access: { "!is": "private" } } );
   // Make sure namespaces are defined bottom up
   allNamespaces = allNamespaces.sort( function(a,b){ return a.longname.localeCompare(b.longname) } )
 
@@ -59,26 +61,26 @@ exports.publish = function(taffyData, opts)
     .filter( n => n.longname.startsWith("bcdui") )
     .forEach( function( namespace ) {
 
-    // Open package definition
-    generators.forEach(g => g.startPackage(namespace));
+      // Open package definition
+      generators.forEach(g => g.startPackage(namespace));
 
-    // Now list the static functions of this namespace
-    var methods = helper.find(taffyData,{ kind: "function", memberof: namespace.longname });
-    methods = methods.filter( m => m.access !== "private" )
-    methods.sort( (m1, m2) => m1.name > m2.name );
-    methods.forEach ( function( method, methodIdx ) {
-      generators.forEach(g => g.printPackageFunction(method));
-    });
+      // Now list the static functions of this namespace
+      var methods = helper.find(taffyData,{ kind: "function", memberof: namespace.longname });
+      methods = methods.filter( m => m.access !== "private" )
+      methods.sort( (m1, m2) => m1.name.localeCompare(m2.name) );
+      methods.forEach ( function( method, methodIdx ) {
+        generators.forEach(g => g.printPackageFunction(method));
+      });
 
-    // And any properties of this namespace
-    var members = taffyData( { memberof: namespace.longname, access: {"!is": "private"} }, [ {kind: "member"}, {kind: "constant"} ] ).get();
-    members.sort( function(m1, m2){ return m1.name > m2.name } );
-    members.filter( m => m.description ).forEach( function(member) {
-      generators.forEach(g => g.printPackageMember(member));
-    });
+      // And any properties of this namespace
+      var members = taffyData( { memberof: namespace.longname, access: {"!is": "private"} }, [ {kind: "member"}, {kind: "constant"} ] ).get();
+      members.sort( (m1, m2) => m1.name.localeCompare(m2.name) );
+      members.filter( m => m.description ).forEach( function(member) {
+        generators.forEach(g => g.printPackageMember(member));
+      });
 
-    // Close and write the package
-    generators.forEach(g => g.finishPackage(namespace));
+      // Close and write the package
+      generators.forEach(g => g.finishPackage(namespace));
   });
 
   //------------------------------------------
@@ -88,8 +90,8 @@ exports.publish = function(taffyData, opts)
   // For some reason TaffyDB contains classes multiple times (up to 3) and some occurrences are unclean
   // It could well be that it has an issue with our way to annotate them with ja-doc.
   // Here we remove them as a work-around
-  allClasses = allClasses.filter( (clazz) => { return clazz.longname.indexOf("~") === -1 ; } );
-  allClasses = allClasses.filter( (clazz) => { return clazz.undocumented !== true; } );
+  allClasses = allClasses.filter( _ => _.longname.indexOf("~") === -1 );
+  allClasses = allClasses.filter( _ => _.undocumented !== true );
 
   // We want the definitions to follow the order in bcduiLoader.js
   // So we loop over the files there and find the matching classes
@@ -119,18 +121,18 @@ exports.publish = function(taffyData, opts)
 
       // ...for each method, print the methods
       var methods = helper.find(taffyData,{ kind: "function", memberof: name_adjusted });
-      methods = methods.filter( function(m){ return m.access !== "private" } );
-      methods.sort( function(m1, m2){ return m1.name > m2.name } );
-      var ownMethods = methods.filter( function(m){ return !m.inherits } );
+      methods = methods.filter( _=> _.access !== "private" );
+      methods.sort( (m1, m2) => m1.name.localeCompare(m2.name) );
+      var ownMethods = methods.filter( _ => !_.inherits );
       ownMethods.forEach( function(method, methodIdx) {
         generators.forEach(g => g.printMethod(method, false));
       });
 
       // ... add all methods that are inherited from the parent class
       // Each implementation of each base class in hierarchically shows up, we make it here unique (TODO and take just any)
-      const handledMethodMap = new Set();
       var inheritedMethods = methods.filter( function(m){ return !!m.inherits && ownMethods.filter(om => om.name === m.name).length === 0 } );
-      inheritedMethods.sort( function(m1, m2){ return m1.name > m2.name } );
+      inheritedMethods.sort( (m1, m2) => m1.name.localeCompare(m2.name) );
+      const handledMethodMap = new Set();
       inheritedMethods.forEach( function(method, methodIdx) {
         if( handledMethodMap.has(method.name) ) return;
         handledMethodMap.add(method.name);
@@ -139,7 +141,7 @@ exports.publish = function(taffyData, opts)
 
       // Static class members
       var members = taffyData( { memberof: clazz.longname, access: {"!is": "private"} }, [ {kind: "constant"} ] ).get();
-      members.sort( function(m1, m2){ return m1.name > m2.name } );
+      members.sort( (m1, m2) => m1.name.localeCompare(m2.name) );
       members.forEach( function(member) {
         generators.forEach( g => g.printClassMember(member) );
       });

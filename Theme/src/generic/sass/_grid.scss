@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -26,20 +26,30 @@
       select { border: none; }
     }
 
+    .bcdPagingButton:hover,
     .bcdPagingButtonActive,
     .bcdPagingCoutOfElements,
     .bcdPagingButton {
       border: 1px solid $border-color;
     }
+    .bcdPagingButton:hover,
     .bcdPagingButtonActive,
     .bcdPagingButton {
       cursor: pointer;
     }
+    .bcdPagingButton:hover,
     .bcdPagingButtonActive {
       @include con_color($grid-hover-color-body);
     }
     .bcdPagingSelectAction select { width: auto !important; font: $font-size-default $font-family-default; }
   }
+}
+
+.popupActionButtons bcd-buttonng.defaultButton {
+  margin: 0 0 0 1em;
+}
+.popupActionButtons bcd-buttonng.defaultButton a {
+  padding: 0;
 }
 
 .bcdGrid.bcdGridDE {

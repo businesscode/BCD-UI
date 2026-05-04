@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -197,13 +197,16 @@
     }
   }
 
+  .bcdReportTemplatesItems a .bcdTemplateRemove { display: none; }
+  .bcdReportTemplatesItems a:hover .bcdTemplateRemove { display:block; }
+
   .bcdTemplateRemove {
     font-weight: bold;
     position: absolute;
     right: 3px;
     top: 1px;
   }
-  
+
   span.bcdTemplateRemove:after {
     content: "x";
   }

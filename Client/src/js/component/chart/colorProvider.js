@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -106,29 +106,9 @@ bcdui.component.chart.ColorProvider = class
    * @param hexSub
    * @private
    */
-  _toDecimal(hexSub)
-  {
-     var res=null;
-     if(hexSub == "A")
-        res = 10;
-     else
-     if(hexSub == "B")
-        res = 11;
-     else
-     if(hexSub == "C")
-        res = 12;
-     else
-     if(hexSub == "D")
-        res = 13;
-     else
-     if(hexSub == "E")
-        res = 14;
-     else
-     if(hexSub == "F")
-        res = 15;
-     else
-        res = eval(hexSub);
-     return res;
+  _toDecimal(hexSub) {
+    const valueMap = {"0": 0, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "A": 10, "B": 11, "C": 12, "D": 13, "E": 14,"F": 15};
+    return valueMap[hexSub] || 0;
   }
 
   /**

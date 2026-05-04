@@ -63,7 +63,7 @@
              <div class="form-group role-login">
                <button class="btn btn-primary w-100 role-login-action"> Login </button>
                <!-- // TODO disable temporarily
-                 <a href="#" class="text-link">Forgot password?</a>
+                 <a class="text-link">Forgot password?</a>
                 -->
              </div>
            </section>
@@ -74,10 +74,10 @@
                <span>OR</span>
              </div>
              <div class="form-group">
-               <a href="#" bcdOauthProviderId="google" class="btn btn--google-login"> Login with Google </a>
+               <a bcdOauthProviderId="google" class="btn btn--google-login"> Login with Google </a>
              </div>
              <div class="form-group">
-               <a href="#" bcdOauthProviderId="azure" class="btn btn--microsoft-login"> Login with Microsoft </a>
+               <a bcdOauthProviderId="azure" class="btn btn--microsoft-login"> Login with Microsoft </a>
              </div>
            </section>
          </div>

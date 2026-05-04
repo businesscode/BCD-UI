@@ -261,6 +261,16 @@ bcdui.component.exports = Object.assign(bcdui.component.exports,
     new bcdui.component.exports.PDFExport( args ).execute();
   },
 
+  _clickActionExport:function() {
+    bcdui.component.exports._prepareExport(this);
+  },
+  _clickActionSave:function() {
+    bcdui.component.exports._prepareExport(this, true);
+  },
+  _clickActionCancel:function() {
+    jQuery(this).closest(".bcdExportColumnsDialog").dialog("close");
+  },
+
   /**
    * prepares selected columns export, optionally saves data to vfs 
    * @param {HtmlElement} element - html element within the bcdExportColumnsDialog
@@ -424,9 +434,9 @@ bcdui.component.exports = Object.assign(bcdui.component.exports,
             "<div>" +
               "<bcd-sideBySideChooserng doSortOptions='false' targetModelXPath='$" + targetModel.id + "/*/wrq:C/@bRef' optionsModelXPath='$" + optionsModel.id + "/*/Item/@caption' optionsModelRelativeValueXPath='../.' sourceCaption='" + bcdui.i18n.TAG + "bcd_ExportAvailableColumns' targetCaption='" + bcdui.i18n.TAG + "bcd_ExportSelectedColumns'></bcd-sideBySideChooserng>" +
             "</div>"+
-            "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_ExportRunExport' onClickAction='bcdui.component.exports._prepareExport(this)'></bcd-buttonng>" +
-            (config.allowSave ? "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_ExportSaveRunExport' onClickAction='bcdui.component.exports._prepareExport(this, true)'></bcd-buttonng>" : "") +
-            "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_ExportCancelExport' onClickAction='jQuery(this).closest(\".bcdExportColumnsDialog\").dialog(\"close\");'></bcd-buttonng>" +
+            "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_ExportRunExport' onClickAction='bcdui.component.exports._clickActionExport'></bcd-buttonng>" +
+            (config.allowSave ? "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_ExportSaveRunExport' onClickAction='bcdui.component.exports._clickActionSave'></bcd-buttonng>" : "") +
+            "<bcd-buttonng caption='" + bcdui.i18n.TAG + "bcd_ExportCancelExport' onClickAction='bcdui.component.exports._clickActionCancel'></bcd-buttonng>" +
            "</div>"
           );
 

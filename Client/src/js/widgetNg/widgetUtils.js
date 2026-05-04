@@ -106,7 +106,7 @@
         delete args.targetHTMLElementId;
         delete args.targetHtmlElementId;
       } else if (args.targetHTMLElementId || args.targetHtmlElementId){
-        throw "Must not define .targetHtml and args.args.targetHtmlElementId";
+        throw "Must not define args.targetHtml and args.targetHtmlElementId";
       }
 
       const targetEl = bcdui.util._getTargetHtml(args, prefixAutoId || "autoId_", true);
@@ -334,7 +334,7 @@
       if(validators!=null){
         bcdui.log.isTraceEnabled() && bcdui.log.trace("found validators: " + validators.length);
         validators.forEach(function(v){
-          var res = v(inputElementId);
+          var res = v(bcdui._migPjs._$(inputElementId));
           if(res!=null){
             messages.push(res.validationMessage);
           }

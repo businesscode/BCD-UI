@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -72,6 +72,12 @@
     </xs:choice>
     <xs:attribute name="caption" use="required"/>
     <xs:attribute name="bcdTranslate" use="optional"/>
+    <xs:attribute name="data-bcd-action" use="optional">
+      <xs:annotation>
+        <xs:documentation>Keyword used for ContextMenuResolvers to perform an action for this entry</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    
   </xs:complexType>
 
   <xs:complexType name="ContextMenuEntryGroup">

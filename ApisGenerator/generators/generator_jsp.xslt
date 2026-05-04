@@ -278,7 +278,7 @@
       </xsl:variable>
 
       <xsl:text>&#10;&lt;%-- js implementation call with all parameters --%&gt;</xsl:text>
-      <xsl:text>&#10;&lt;webpage:script>&#10;  </xsl:text><xsl:value-of select="$functionCall"/><xsl:text>({bcdSyntaxDummy: null&#10;</xsl:text>
+      <xsl:text>&#10;&lt;webpage:script>&#10;  </xsl:text><xsl:value-of select="$functionCall"/><xsl:text>({bcdApi: 'JSP', bcdSyntaxDummy: null&#10;</xsl:text>
       <xsl:for-each select="Api/Param">
 
         <!--  get final js name, either name or overwrite from jsName -->

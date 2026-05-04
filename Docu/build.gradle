@@ -134,6 +134,14 @@ task bcduiTypescriptDefs ( type: NodeTask, dependsOn: bcduiDocuJsApiStubs ) {
       into outputDir
       rename { "index.d.ts" }
     }
+    copy {
+      from "$sharedBuildFilesRoot/Docu/gradle/jsdoc-toolkit/templates/bcduiApiStubs/package.json.ts_template"
+      into outputDir
+      filter { line ->
+        line.replaceAll(/--bcd-dyn-replace-current-version--/, getProperty('bcdui.version'))
+      }
+      rename { "package.json" }
+    }
     // Make typedefs available as ambient global types
     def typedefFile = file(outputDir.get().asFile.path+"/typedefs.d.ts")
     def nl = System.lineSeparator()

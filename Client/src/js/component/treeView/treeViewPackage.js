@@ -22,6 +22,13 @@ bcdui.component.treeView = Object.assign(bcdui.component.treeView,
 /** @lends bcdui.component.treeView */
 {
 
+  _toggleAction: function() {
+    const levelId = jQuery(this).closest("*[levelId]").attr("levelId") || "";
+    const rendererId = jQuery(this).closest("*[rendererId]").attr("rendererId") || "";
+    const isExpanded = (jQuery(this).closest("*[isExpended]").attr("isExpended") || "false") == "true";
+    bcdui.component.treeView.expandCollapse(levelId, rendererId, ! isExpanded);
+  },
+
   /**
    * Expand or collapse a level for a treeView renderer
    * @param {string}  rendererId - Id of the treeView's renderer
@@ -95,7 +102,17 @@ bcdui.component.treeView = Object.assign(bcdui.component.treeView,
       }
     });
   },
-  
+
+  _init: function() {
+    const data = this.dataset;
+    if (data) {
+      const bcdOnLoad = data.bcdOnLoad || "";
+      bcdui.component.treeView._registerTreeViewListener(data.bcdControllerVariableName);
+      if (bcdOnLoad)
+        bcdui.util._executeJsFunctionFromString(bcdOnLoad, this);
+    }
+  },
+
   /**
    * @private
    */

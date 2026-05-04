@@ -833,7 +833,7 @@
       // setup our function handlers
       this.onBeforeChange = this.options.onBeforeChange || nop;
       this.onSelected = this.options.onSelected || nop;
-      this.onChange = this.options.onChange || nop;
+      this.onChange = this.options.onChange || this.options.onChangeAction || nop;
       this.generateItemHelperHtml = this.options.generateItemHelperHtml || function(event, item) {
         // custom helper rendering...we show up to 5 selected items (+ "..." if there are more)
         var selectedItems = this.container.children('.ui-selected').not(".ui-sortable-placeholder").add(item);

@@ -158,6 +158,13 @@
       <R id="R96"><C>bcd_Grid_SortColumn_Ascending</C><C>Ascending</C><C>en</C></R>
       <R id="R97"><C>bcd_Grid_SortColumn_Descending</C><C>Descending</C><C>en</C></R>
 
+      <!-- DE ExpandableGrid -->
+      <R id="G91"><C>bcd_Grid_DE_Delete</C><C>Delete</C><C>en</C></R>
+      <R id="G92"><C>bcd_Grid_DE_Cancel</C><C>Cancel</C><C>en</C></R>
+      <R id="G93"><C>bcd_Grid_DE_Restore</C><C>Restore</C><C>en</C></R>
+      <R id="G94"><C>bcd_Grid_DE_Ok</C><C>OK</C><C>en</C></R>
+      <R id="G95"><C>bcd_Grid_DE_Close</C><C>Close</C><C>en</C></R>
+
       <!-- Editing -->
       <R id="R220"><C>bcd_Edit_Save</C><C>Save</C><C>en</C></R>
       <R id="R221"><C>bcd_Edit_ResetAll</C><C>Reset All</C><C>en</C></R>

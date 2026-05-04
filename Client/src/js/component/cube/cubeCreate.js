@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -20,7 +20,9 @@
  */
 
 /**
-  * Creates a cube model, provides data with calculations and col dimensions applied
+  * Creates a CubeModel for use by Cube, if you need more fine-grained control or only want the data.
+  * Provides data with calculations and col dimensions applied.
+  * To use Cube or CubeModel, make sure to load `bcdui.js?bcduiLoadFiles=bcduiCube`
   * @extends bcdui.core.ModelWrapper
   */
 bcdui.component.cube.CubeModel = class extends bcdui.core.ModelWrapper
@@ -34,6 +36,76 @@ bcdui.component.cube.CubeModel = class extends bcdui.core.ModelWrapper
    * @param {bcdui.core.DataProvider} [args.statusModel=bcdui.wkModels.guiStatusEstablished] - StatusModel, containing the filters as /SomeRoot/f:Filter and the layout definition at /SomeRoot//cube:Layout[@cubeId=args.cubeId]
    * @param {chainDef}                [args.requestChain] - An alternative request building chain. Default here is /bcdui/js/component/cube/request.xslt.
    * @param {Object}                  [args.requestParameters] - An object, where each property holds a DataProvider, used as a transformation parameters.
+   *
+   * @example
+     ````xml
+      <cube:CubeConfiguration xmlns:cube="http://www.businesscode.de/schema/bcdui/cube-2.0.0"
+                              xmlns:calc="http://www.businesscode.de/schema/bcdui/calc-1.0.0"
+                              xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
+                              xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0">
+
+        <cube:Layout>
+
+          <!-- Row and column dimensions -->
+          <cube:Dimensions hideTotals="false">
+            <cube:Rows>
+              <dm:LevelRef total="trailing" bRef="orig_country"/>
+              <dm:LevelRef total="trailing" bRef="orig_area"/>
+            </cube:Rows>
+            <cube:Columns>
+              <dm:LevelRef total="trailing" bRef="product_code"/>
+            </cube:Columns>
+          </cube:Dimensions>
+
+          <cube:Measures>
+            <!-- Broken down by row dimension, showing total for col dimensions -->
+            <cube:RowDims/>
+              <dm:MeasureRef idRef="cost"/>
+            <!-- Broken down by row and columns dimensions -->
+            <cube:AllDims>
+              <dm:MeasureRef idRef="weight"/>
+            </cube:AllDims>
+          </cube:Measures>
+
+        </cube:Layout>
+
+        <wrq:BindingSet>myReportData1</wrq:BindingSet>
+
+        <!-- Definition of available dimensions, also used by optional cubeConfigurator it -->
+        <dm:Dimensions>
+          <dm:LevelRef bRef="orig_country" total="trailing" caption="Origin Country"/>
+          <dm:LevelRef bRef="orig_area"    total="trailing" caption="Origin Area"/>
+          <dm:LevelRef bRef="dest_country" total="trailing" caption="Destination Country"/>
+          <dm:LevelRef bRef="dest_area"    total="trailing" caption="Destination Area"/>
+          <dm:LevelRef bRef="product_code" total="trailing" caption="Product Code"/>
+          <dm:LevelRef bRef="dy"           total="trailing" caption="Day"/>
+        </dm:Dimensions>
+
+        <!- Actual values to be shown ->
+        <dm:Measures>
+          <dm:Measure id="cost" caption="Cost">
+            <calc:Calc type-name="NUMERIC" scale="1">
+              <calc:ValueRef idRef="cost" aggr="sum"/>
+            </calc:Calc>
+          </dm:Measure>
+          <dm:Measure id="weight" caption="Weight">
+            <calc:Calc type-name="NUMERIC" unit="kg">
+              <calc:ValueRef idRef="weight" aggr="sum"/>
+            </calc:Calc>
+          </dm:Measure>
+          <!-- A measure with a values who is client-calculated by the quotient of two values -->
+          <dm:Measure id="weightPerVolume" caption="Weight/Vol.">
+            <calc:Calc type-name="NUMERIC" scale="3">
+              <calc:Div>
+                <calc:ValueRef idRef="weight" aggr="sum"/>
+                <calc:ValueRef idRef="volume" aggr="sum"/>
+              </calc:Div>
+            </calc:Calc>
+          </dm:Measure>
+        </dm:Measures>
+
+      </cube:CubeConfiguration>
+     ````
    */
   constructor(args) {
 
@@ -151,7 +223,10 @@ bcdui.component.cube._cubeChain = bcdui.contextPath+"/bcdui/js/component/cube/ch
 
 // cube
 /**
- * Creates a cube front end based on given data or a configuration
+ * @description Creates a Cube, i.e. pivot-like front end based on given data or a configuration.
+ * This class will create in implicit CubeModel if not provided as inputModel parameter.
+ * See {@link bcdui.component.cube.CubeModel} for an example of a cube:CubeConfiguration
+ * To use Cube or CubeModel, make sure to load `bcdui.js?bcduiLoadFiles=bcduiCube`
  * @extends bcdui.core.Renderer
  */
 
@@ -169,6 +244,7 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
    * @param {Object}                  [args.parameters]                                      - An object, where each property holds a DataProvider being a renderer parameter used in custom chains
    * @param {chainDef}                [args.requestChain]                                    - An alternative request building chain. Default here is /bcdui/js/component/cube/request.xslt.
    * @param {Object}                  [args.requestParameters]                               - An object, where each property holds a DataProvider, used as a transformation parameters.
+   * @param {bcdui.core.DataProvider} [args.inputModel]                                      - CubeModel to work with. If not given, Cube creates a CubeModel in the background from the config
    */
   constructor(args) {
 
@@ -393,6 +469,7 @@ bcdui.component = Object.assign(bcdui.component,
    * @param {string}                  [args.templateTargetHtmlElementId]                          - Custom location for template editor
    * @param {string}                  [args.summaryTargetHtmlElementId]                           - Custom location for summary display
    * @param {(boolean|string)}        [args.contextMenu=false]                                    - If true, cube's default context menu is used, otherwise provide the url to your context menu xslt here.
+   * @param {(function|string)}       [args.contextMenuResolver]                                  - Function which gets a parameter bag with well known attributes and the dataset of the selected context menu entry. Should return false if action is not provided so that default functions are called.
    * @param {(boolean|string)}        [args.tooltip=false]                                        - If true, cube's default tooltip is used, otherwise provide the url to your tooltip xslt here.
    * @param {boolean}                 [args.isDefaultHtmlLayout=false]                            - If true, a standard layout for dnd area, ranking, templates and summary is created. Separate targetHtmlElements will be obsolete then. If false, you need to provide containers with classes: bcdCurrentRowDimensionList, bcdCurrentColMeasureList, bcdCurrentColDimensionList, bcdCurrentMeasureList, bcdDimensionList, bcdMeasureList within an outer bcdCubeDndMatrix container. if your targetHtml got classes bcdDndBlindOpen or bcdDndBlindClosed, the actual dnd area is also put in collapsable boxes (either open or closed by default).
    * @param {boolean}                 [args.hasUserEditRole]                                      - Template Editor also has edit capability. If not given, bcdui.config.clientRights.bcdCubeTemplateEdit is used to determine state (either *(any) or cubeId to enable).
@@ -403,7 +480,7 @@ bcdui.component = Object.assign(bcdui.component,
    *
    * @example
    *   new bcdui.core.SimpleModel({
-   *    id:  "myDndOptions", // define ID explicitely
+   *    id:  "myDndOptions", // define ID explicitly
    *    url: "dndOptionsModel.xml"
    *   );
    *   bcdui.component.createCubeConfigurator({
@@ -415,25 +492,26 @@ bcdui.component = Object.assign(bcdui.component,
    *     , cubeRenderer:        "cube"
    *     , rankingTargetHtmlElementId: "rankingDiv"
    *   });
+   *
    * @example
-   *  &lt;div class='container_24 bcdCubeDndMatrix'>
-   *    &lt;div class='grid_24'>
-   *      &lt;div class='grid_3 omega bcdCurrentRowDimensionList alpha'>&lt;/div>
-   *      &lt;div class='grid_3 omega bcdCurrentColMeasureList'>&lt;/div>
-   *      &lt;div class='grid_3 omega'>
-   *        &lt;div class='bcdCurrentColDimensionList'>&lt;/div>
-   *        &lt;div class='bcdCurrentMeasureList'>&lt;/div>
-   *      &lt;/div>
-   *      &lt;div class='grid_5 omega'>
-   *        &lt;div class='bcdHeader'>Dimensions&lt;/div>
-   *        &lt;div class='bcdDimensionList'>&lt;/div>
-   *      &lt;/div>
-   *      &lt;div class='grid_5 omega'>
-   *        &lt;div class='bcdHeader'>Measures&lt;/div>
-   *        &lt;div class='bcdMeasureList'>&lt;/div>
-   *      &lt;/div>
-   *    &lt;/div>
-   *  &lt;/div>
+   *  <div class='container_24 bcdCubeDndMatrix'>
+   *    <div class='grid_24'>
+   *      <div class='grid_3 omega bcdCurrentRowDimensionList alpha'></div>
+   *      <div class='grid_3 omega bcdCurrentColMeasureList'></div>
+   *      <div class='grid_3 omega'>
+   *        <div class='bcdCurrentColDimensionList'></div>
+   *        <div class='bcdCurrentMeasureList'></div>
+   *      </div>
+   *      <div class='grid_5 omega'>
+   *        <div class='bcdHeader'>Dimensions</div>
+   *        <div class='bcdDimensionList'></div>
+   *      </div>
+   *      <div class='grid_5 omega'>
+   *        <div class='bcdHeader'>Measures</div>
+   *        <div class='bcdMeasureList'></div>
+   *      </div>
+   *    </div>
+   *  </div>
    */
   createCubeConfigurator: function(/* Object */ args){
     bcdui.log.isTraceEnabled() && bcdui.log.trace("Creating DndMatrix");
@@ -516,6 +594,8 @@ bcdui.component = Object.assign(bcdui.component,
         args.summaryTargetHtmlElementId = "bcdDndSummaryDiv_" + args.cubeId;
 
         args.applyFunction = args.applyFunction || bcdui.core.lifecycle.applyAction;
+        if (typeof args.applyFunction == "string")
+          args.applyFunction = bcdui.util._toJsFunction(args.applyFunction);
 
         bcdui.widget.createBlindUpDownArea({
           id: "bcdBlindUpDown_" + args.cubeId
@@ -538,7 +618,7 @@ bcdui.component = Object.assign(bcdui.component,
 
         bcdui.widgetNg.createButton({
           caption: "Apply",
-          onClickAction: bcdui.util._toJsFunction(args.applyFunction),
+          onClickAction: args.applyFunction,
           targetHtml: "#bcdDNDApplyButton_" + args.cubeId
         });
       }
@@ -587,6 +667,10 @@ bcdui.component = Object.assign(bcdui.component,
       if ( !!args.contextMenu && args.contextMenu !== 'false'  && args.contextMenu !== false ) {
         var contextMenuUrl = args.contextMenu === 'true' || args.contextMenu === true ? bcdui.component.cube._contextMenuUrl : args.contextMenu;
 
+        let contextMenuResolver = args.contextMenuResolver || function() { return false; };
+        if (typeof contextMenuResolver == "string")
+          contextMenuResolver = bcdui.util._toJsFunction(contextMenuResolver);
+
         // try to attach clicked measure / dimension information which is reused in contextMenu
         var prepareContextMenu = function(doc, args) {
           var target = jQuery("#bcdContextMenuDiv").attr("bcdEventSourceElementId");
@@ -620,6 +704,10 @@ bcdui.component = Object.assign(bcdui.component,
           , inputModel      : contextMenu
           , tableMode       : true
           , refreshMenuModel: true
+          , clickResolver: function(args) {
+            if (!contextMenuResolver(args))
+              bcdui.component.cube.configurator.resolveContextMenu(args);
+            }
         });
       }
 
@@ -660,6 +748,36 @@ bcdui.component = Object.assign(bcdui.component,
         templateRenderer.onReady(function(){
           jQuery(cube.getTargetHtml()).trigger("bcdui:cubeConfigurator:templateManagerRendered");
           jQuery(templateRenderer.getTargetHtml()).trigger("bcdui:cubeConfigurator:templateManagerRendered")
+
+          jQuery("#" + args.templateTargetHtmlElementId).find(".bcdReportTemplateList").off("click");
+          jQuery("#" + args.templateTargetHtmlElementId).find(".bcdReportTemplateList").on("click", ".bcdAction", function(event) {
+            
+            let htmlElement = jQuery(event.target);
+            if (! htmlElement.hasClass("bcdAction"))
+              htmlElement = jQuery(htmlElement).closest(".bcdAction");
+
+            const data = htmlElement.get(0).dataset;
+            if (data) {
+              const objectId = data.objectId || ""
+              const templateId = data.templateId || "";
+              const reportPath = data.reportPath || "";
+            
+              if (htmlElement.hasClass("apply") && objectId != "" && templateId != "")
+                bcdui.component.cube.templateManager._applyUserTemplate(objectId, templateId, htmlElement.get(0));            
+              if (htmlElement.hasClass("clear") && objectId != "")
+                bcdui.component.cube.templateManager.clearLayout(objectId);            
+
+              if (htmlElement.hasClass("toggle"))
+                bcdui.component.cube.templateManager._toggleElement('userTempEditor');
+              if (htmlElement.hasClass("save") && objectId != "" && reportPath != "")
+                bcdui.component.cube.templateManager.saveTemplates(reportPath, objectId);
+              if (htmlElement.hasClass("remove") && objectId != "" && templateId != "" && reportPath != "")
+                bcdui.component.cube.templateManager._updateTemplates(reportPath, null, templateId, objectId);
+            }
+            
+            event.stopPropagation();
+            
+          });
         });
         cube.getConfigModel().onChange(function() {templateRenderer.execute();}, "/*/cube:Layouts");
 

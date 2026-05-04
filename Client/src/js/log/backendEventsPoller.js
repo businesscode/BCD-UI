@@ -79,7 +79,7 @@
     if($$.events.length > 0){
       for(var x=0;x<$$.events.length;x++){
         $$.ev = $$.events[x];
-        $$.level = eval("log4javascript.Level." + $$.ev.getAttribute("level").toUpperCase());
+        $$.level = bcdui.util._getJsObjectFromString("log4javascript.Level." + $$.ev.getAttribute("level").toUpperCase());
         if(! $$.level || $$.level.level < this.config.threshold.level)continue;
         $$.message = $$.ev.getAttribute("logger") + ": " + $$.ev.selectSingleNode("log4j:message").firstChild.nodeValue;
         $$.logEvents.push({level:$$.level, message:$$.message});
@@ -90,7 +90,9 @@
       log.group("backend event queue - threshold: " + this.config.threshold.name + ", items: " + $$.logEvents.length, false);
       for(var x=0;x<$$.logEvents.length;x++){
         $$.ev = $$.logEvents[x];
-        eval("log." + $$.ev.level.name.toLowerCase()).call(log,$$.ev.message);
+        window["bcduiLog"] = log;
+        bcdui.util._getJsObjectFromString("bcduiLog." + $$.ev.level.name.toLowerCase()).call(log,$$.ev.message);
+        delete window["bcduiLog"];
       }
       log.groupEnd();
     }
