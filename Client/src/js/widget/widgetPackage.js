@@ -72,6 +72,7 @@ jQuery.extend(bcdui.widget,
    * @param {boolean}       [args.isPassword]                     If true, input element type will be 'password'.
    * @param {string}        [args.label]                          If provided, renders label element to this input
    * @param {boolean}       [args.hideWildcardChar]               If true, no asterisk characters are shown
+   * @param {boolean}       [args.selectOrFocus]                  If true and optionsModel is given, it either focus the selection box if multiple entries are available or - if only 1 is available - automatically selects it
    */
   createInputField: function(args)
     {
@@ -110,7 +111,8 @@ jQuery.extend(bcdui.widget,
           enableNavPath: args.enableNavPath,
           isPassword: args.isPassword,
           label: args.label,
-          hideWildcardChar: args.hideWildcardChar
+          hideWildcardChar: args.hideWildcardChar,
+          selectOrFocus: args.selectOrFocus
       };
       if (bcdui.util.isString(args.optionsModelXPath) && !!args.optionsModelXPath.trim()) {
         var optionsModelParams = bcdui.factory._extractXPathAndModelId(args.optionsModelXPath);

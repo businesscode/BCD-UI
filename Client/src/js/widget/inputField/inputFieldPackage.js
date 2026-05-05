@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -191,6 +191,27 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
             if(! _el.length > 0){
               return;
             }
+
+            if (htmlElement.getAttribute("bcdSelectOrFocus") || "") {
+              const targetModel = bcdui.factory.objectRegistry.getObject(config.targetModelId);
+              const targetValue = targetModel.read(config.targetModelXPath, "");
+              if (! targetValue) {
+                const optionsModelXPath = htmlElement.getAttribute("bcdOptionsModelXPath") || "";
+                const optionsModelRelativeValueXPath = htmlElement.getAttribute("bcdOptionsModelRelativeValueXPath") || "";
+                const optionsModel = bcdui.factory.objectRegistry.getObject(htmlElement.getAttribute("bcdOptionsModelId") || "");
+                const nodes = optionsModel.getData().selectNodes(optionsModelXPath);
+                if (nodes.length == 1) {
+                  setTimeout(function() {
+                    const value = optionsModel.read(optionsModelXPath + (optionsModelRelativeValueXPath ? "/" + optionsModelRelativeValueXPath : ""), "");
+                    if (value)
+                      targetModel.write(config.targetModelXPath, value, true);
+                  });
+                }
+                else if (nodes.length > 1)
+                  setTimeout(function() { htmlElement.click() });
+              }
+            }
+
             if ("true" != _el.attr("bcdDisabled")) _el.prop("disabled", false);
 
             // Now that the optionsmodel is available, allow working with the drop.down arrow to open the list
