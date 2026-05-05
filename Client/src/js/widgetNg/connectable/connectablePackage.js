@@ -632,7 +632,7 @@
      * @private
      */ 
     _sort: function(theContainer) {
-      var theItems = jQuery(theContainer).children(".ui-selectee");
+      var theItems = Array.from(jQuery(theContainer).children(".ui-selectee"));
       theItems.sort(function (a, b) {
         return (parseInt(jQuery(a).get(0).getAttribute("bcdPos"), 10) > parseInt(jQuery(b).get(0).getAttribute("bcdPos"), 10) ? 1 : -1);
       });
