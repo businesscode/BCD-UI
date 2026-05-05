@@ -565,6 +565,9 @@
             If true and optionsModel is given, it either focus the selection box if multiple entries are available or - if only 1 is available - automatically selects it.
           </Doc>
         </Param>
+        <Param name="placeholder" type="string">
+          <Doc>HTML placeholder property, can be an i18n key if prefixed with the i18n token.</Doc>
+        </Param>
       </Api>
 
       <Api name="loginForm" extends="">
