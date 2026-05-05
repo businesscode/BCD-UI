@@ -549,7 +549,6 @@ a {
   font: $font-size-default $font-family-default;
   @include con_color( #ffffff);
   border: 1px solid $border-color;
-  min-width: 126px !important;
   height: 150px;
   overflow-y: auto;
   z-index: 20005;
