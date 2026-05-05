@@ -120,6 +120,10 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
       wildcard: htmlElement.getAttribute("bcdWildcard")
     };
 
+    const ph = htmlElement.getAttribute("bcdPlaceholder") || "";
+    if (ph)
+      config["placeholder"] = ph.startsWith(bcdui.i18n.TAG) ? bcdui.i18n.syncTranslateFormatMessage({msgid: ph.substring(1) }) || ph : ph; 
+
     // models contains all models EXCEPT the options model itself
     var models = bcdui.widget._extractModelsFromModelXPath(config.optionsModelXPath);
     if(models){
@@ -144,6 +148,8 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
         
         if (isOptionsModelPresented)
           htmlElement.removeAttribute("placeholder");
+        if (config.placeholder)
+          htmlElement.setAttribute("placeholder", config.placeholder);
         
         var targetModel = bcdui.factory.objectRegistry.getObject(config.targetModelId);
         var listener = new bcdui.widget.inputField.XMLListener({
@@ -219,7 +225,7 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
 
             // Creates a listener on data changes to the original (or combined) options model to refresh the layout
             bcdui.factory.objectRegistry.getObject(config.optionsModelId).addStatusListener({  // TODO: Make sure the listener is not recreated when the same input field is recreated (same id), also/or deregister listener when inputfield is gone
-              listener: function( optionsModelId, htmlElementId, statusEvent )
+              listener: function( optionsModelId, placeholder, htmlElementId, statusEvent)
               {
                 var optionsModel = bcdui.factory.objectRegistry.getObject(optionsModelId);
                 var htmlElement = bcdui._migPjs._$(htmlElementId);
@@ -257,6 +263,8 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
 
                   // remove loading placeholder
                   htmlElement.removeAttr("placeholder");
+                  if (placeholder)
+                    htmlElement.setAttribute("placeholder", placeholder);
 
                   // in case someone typed in between loading we only refresh the additional filter
                   if (! htmlElement.data("oldValue") || htmlElement.data("oldValue") == htmlElement.val()) {
@@ -269,7 +277,7 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
                     bcdui.widget.inputField._writeAdditionalFilter(htmlElementId);
                 }
 
-              }.bind(undefined, config.optionsModelId, htmlElement.id )
+              }.bind(undefined, config.optionsModelId, config.placeholder, htmlElement.id )
             });
           }
       });
