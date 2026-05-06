@@ -106,11 +106,6 @@ public abstract class WrqBindingSetVirtual implements WrqBindingSet {
   }
 
   @Override
-  public boolean hasCustomItem() {
-    return false;
-  }
-
-  @Override
   public Collection<BindingItem> get(Collection<String> keys) throws BindingNotFoundException {
     Collection<BindingItem> result = new ArrayList<BindingItem>(keys.size());
     for (String key : keys) {

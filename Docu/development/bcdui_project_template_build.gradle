@@ -59,8 +59,8 @@ dependencies {
       url "https://github.com/businesscode/maven-repo/raw/master"
     }
   }
-  implementation 'de.businesscode.bcdui:bcd-ui-core:5.7.0-SNAPSHOT'
-  implementation 'de.businesscode.bcdui:bcd-ui-theme-bcd:5.7.0-SNAPSHOT'
+  implementation 'de.businesscode.bcdui:bcd-ui-core:6.0.0-SNAPSHOT'
+  implementation 'de.businesscode.bcdui:bcd-ui-theme-bcd:6.0.0-SNAPSHOT'
 
   // Local files from WEB-INF/lib
   implementation fileTree(dir: "$webAppDirName/WEB-INF/lib", include: ['*.jar'])

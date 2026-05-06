@@ -258,7 +258,7 @@ public class WrqFilter2Sql
     if( ignoreCase ) {
       valueElement.setAttribute("value", valueElement.getAttribute("value").toLowerCase() );
       colExpr = "lower("+bindingItem.getQColumnExpression(false)+")";
-    } else if( useAggr && ! "none".equals(bindingItem.attributes.get("aggr")) ) {
+    } else if( useAggr && ! "none".equals(bindingItem.getAttribute("aggr")) ) {
       // If we do having for example, we are required to work on aggregated level for non-dims
       colExpr = bindingItem.getQColumnExpressionWithAggr(! wrqInfo.getGroupingBRefs().contains(bindingItem.getId()));
     } else {

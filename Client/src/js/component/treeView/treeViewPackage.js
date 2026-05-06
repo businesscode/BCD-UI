@@ -22,6 +22,9 @@ export const bcduiExport_TreeView = bcdui.component.treeView = Object.assign(bcd
 /** @lends bcdui.component.treeView */
 {
 
+  /**
+   * @private
+   */
   _toggleAction: function() {
     const levelId = jQuery(this).closest("*[levelId]").attr("levelId") || "";
     const rendererId = jQuery(this).closest("*[rendererId]").attr("rendererId") || "";
@@ -103,6 +106,9 @@ export const bcduiExport_TreeView = bcdui.component.treeView = Object.assign(bcd
     });
   },
 
+  /**
+   * @private
+   */
   _init: function() {
     const data = this.dataset;
     if (data) {

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
+import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.wrs.IRequestOptions;
 import de.businesscode.bcdui.wrs.export.ExcelSylkTemplate.ColumnMapping;
 import de.businesscode.bcdui.wrs.load.AbstractDataWriter;
@@ -150,10 +151,7 @@ public abstract class SylkDataWriter extends AbstractDataWriter implements IData
         }
       }
 
-      String columnCaption = bindingItem.getCaption();
-      if (columnCaption == null || columnCaption.length() == 0) {
-        columnCaption = bindingItem.getId();
-      }
+      String columnCaption = bindingItem.getAttribute(Bindings.captionAttribute, bindingItem.getId());
       String dbColumnName = bindingItem.getAlias();
       String decimals = null;
       if (bindingItem.getJDBCColumnScale() != null) {

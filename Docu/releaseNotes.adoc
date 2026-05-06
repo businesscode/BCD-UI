@@ -7,7 +7,30 @@ The following release notes allow following BCD-UI's ongoing development. +
 Potentially breaking changes are listed under _Incompatibilities_.
 
 ___
-==== Release 5_7_0 ...in progress
+==== Release 6_0_0 ...in progress
+
+---
+.Server:
+* BindingSet: Added `bnd:BindingDefaults` for inheriting BindingItem attributes defaults based on their id
++
+[source,xml]
+----
+<!-- Sample: Unless overwritten in a BindingSet, this applies to all country_code BindingItems in all BindingSets -->
+<bnd:BindingDefaults xmlns:bnd="http://www.businesscode.de/schema/bcdui/bindings-1.0.0">
+  <bnd:C id="country_code" caption="Country Code" type-name="VARCHAR"/>
+</bnd:BindingDefaults>
+----
+* Wrq: All attributes on `wrq:Select/wrq:Columns/wrq:C`, even custom ones, survive the roundtrip to `wrs:Header/wrs:Columns/wrs:C`
+* BindingSet: Custom elements set on `bnd:BindingSet/bnd:C` can be delivered to the client at `wrs:Header/wrs:Columns/wrs:C`
+    - If listed in web.xml bcdui/bnd/wrsAttributes for each request
+    - If listed in web.xml bcdui/bnd/wrsMetaAttribute only for metadata request, i.e. @rowStart > @rowEnd
+
+.Incompatibilities:
+* In web.xml, add new env entries `bcdui/bnd/wrsAttributes` and `bcdui/bnd/wrsMetaAttribute`, see `Server/configFiles/WebContent/WEB-INF/web.xml` for backward compatible defaults
+---.
+
+___
+==== Release 5_7_0
 
 .Major new features:
 * switched to Java 17, Gradle 8.5, Tomcat 10.1
@@ -18,7 +41,19 @@ ___
 * updated default web.xml and enforce usage of https
 * cookies created are flagged as "secure"
 * CORS: to make your app CORSable use `de.businesscode.bcdui.web.filters.ShiroFilter` as a replacement of `org.apache.shiro.web.servlet.ShiroFilter` and add `de.businesscode.bcdui.web.filters.CorsFilter` as a first in the chain and cover resources which should be available to CORS, or set it to `/*` to enable for the whole site.
-* added BindingItem description element, also added to WRS Header
+* BindingSet: Added bnd:BindingDefaults for inheriting BindingItem attribute defaults based on their id
++
+[source,xml]
+----
+<!-- Unless overwritten in a BindingSet, this applies to all country_code BindingItems in all BindingSets -->
+<bnd:BindingDefaults xmlns:bnd="http://www.businesscode.de/schema/bcdui/bindings-1.0.0">
+  <bnd:C id="country_code" caption="Country Code" type-name="VARCHAR"/>
+</bnd:BindingDefaults>
+----
+* Wrq: All attributes on `wrq:Select/wrq:Columns/wrq:C`, even custom ones, survive the roundtrip to `wrs:Header/wrs:Columns/wrs:C`
+* BindingSet: Custom elements set on `bnd:BindingSet/bnd:C` can be delivered to the client at `wrs:Header/wrs:Columns/wrs:C`
+    - If listed in web.xml bcdui/bnd/wrsAttributes for each request
+    - If listed in web.xml bcdui/bnd/wrsMetaAttribute only for metadata request, i.e. @rowStart > @rowEnd
 
 .Client:
 * Login Widget to be used in login-pages, i.e. via `<bcd-loginng>` custom tag
@@ -46,7 +81,6 @@ ___
 * javax to jakarta switch (for several packages e.g. javax.servlet)
 * new 3rd party jars set
 * cookies created are flagged as "secure", requiring https
-* add BindingInfo servlet to web.xml
 * OAuth2 configuration in shiro.ini:
 ** OAuthAuthenticatingFilter properties renamed: authScope to scope, redirectUrl to redirectUri, apiEndpoint to userInfoEndpoint
 ** `redirectUri` became optional, and this value is then derived from Servlet context at runtime instead, supporting virtual hosts
@@ -334,7 +368,7 @@ The Renderer either works directly with the specified element or (in case of spe
 * Updated 3rd party jars (apache commons etc) to latest versions
 * Cube: for templateManager, RankingEditor or Summary, you need to include bcduiComponent in addition to bcduiCube. Symptom: _renderSummaryArea is undefined
 ** CubeContextMenu, Sort Measure is replaced by Column Sorting, when using custom context menus, remove calls to setSortMeasure, add calls to setColumnSort
-** If a template is selected and then manually modified later, cube:Layout/@name and @description attributes are appeded with ' - '+bcd_Edit_Modified
+** If a template is selected and then manually modified later, cube:Layout/@name and @description attributes are appended with ' - '+bcd_Edit_Modified
 * Export: removed bcdui.component.exports.excel functions (detailExport, exportHTMLElement). Use bcdui.component.exports detailExport, exportWysiwygAsExcel functions.
 * New entries for Eclipse injection to support ECMA5 transpiled sources, see Docu/development/eclipseInjected.xml
 * Widgets: navpath generation is turned off by default, use widget's enableNavPath attribute to turn it on

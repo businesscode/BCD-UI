@@ -868,7 +868,12 @@ bcdui.component.scorecardConfigurator = Object.assign(bcdui.component.scorecardC
     var targetModel = bcdui.factory.objectRegistry.getObject(jQuery(".bcd_" + scorecardId + "_dnd").data("targetModelId"));
     return "<li bcdColIdent='dim' bcdRowIdent='" + args.value + "' contextId='bcdDim' class='ui-selectee " + customClass + "' bcdValue='" + args.value + "' bcdPos='" + args.position + "' bcdLoCase='" + args.caption.toLowerCase() + "'><span class='bcdItem'>" + args.caption + "</span></li>";
   },
-  
+
+  /**
+   * @param args
+   * @returns {string}
+   * @private
+   */
   _itemRendererAspects: function(args) {
     var customClass = "";
     var scorecardId = jQuery("#" + args.id).closest("*[bcdScorecardId]").attr("bcdScorecardId");

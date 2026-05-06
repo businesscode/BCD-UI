@@ -261,12 +261,21 @@ bcdui.component.exports = Object.assign(bcdui.component.exports,
     new bcdui.component.exports.PDFExport( args ).execute();
   },
 
+  /**
+   * @private
+   */
   _clickActionExport:function() {
     bcdui.component.exports._prepareExport(this);
   },
+  /**
+   * @private
+   */
   _clickActionSave:function() {
     bcdui.component.exports._prepareExport(this, true);
   },
+  /**
+   * @private
+   */
   _clickActionCancel:function() {
     jQuery(this).closest(".bcdExportColumnsDialog").dialog("close");
   },
@@ -488,6 +497,9 @@ bcdui.component.exports = Object.assign(bcdui.component.exports,
     });
   },
 
+  /**
+   * @private
+   */
   _doExport: function(args) {
 
     // We want xlsx and use server-side Excel creation

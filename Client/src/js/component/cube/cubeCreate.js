@@ -223,7 +223,7 @@ bcdui.component.cube._cubeChain = bcdui.contextPath+"/bcdui/js/component/cube/ch
 
 // cube
 /**
- * @description Creates a Cube, i.e. pivot-like front end based on given data or a configuration.
+ * @description Creates a Cube, which is a pivot-like view based on given data or a configuration.
  * This class will create in implicit CubeModel if not provided as inputModel parameter.
  * See {@link bcdui.component.cube.CubeModel} for an example of a cube:CubeConfiguration
  * To use Cube or CubeModel, make sure to load `bcdui.js?bcduiLoadFiles=bcduiCube`

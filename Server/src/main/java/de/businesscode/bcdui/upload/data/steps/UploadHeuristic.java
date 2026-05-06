@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
   All rights reserved.
   For terms of license, please contact BusinessCode GmbH, Germany
 */
@@ -150,7 +150,7 @@ public class UploadHeuristic implements IUploadStep {
           boolean biFound = false;
           for(int b = 0; b < importColumnCount; b++) {
             String normId = bi.getId().toLowerCase().replace("_","");
-            String normCaption = bi.getCaption().toLowerCase().replace("_","").replace(" ","");
+            String normCaption = bi.getAttribute(Bindings.captionAttribute, "").toLowerCase().replace("_","").replace(" ","");
             String normImportCaption = uc.getMappingBindingItemAttribute(b, "caption").toLowerCase().replace("_","").replace(" ","");
             if(normId.equals(normImportCaption) || normCaption.equals(normImportCaption)) {
               biFound = true;
@@ -179,11 +179,11 @@ public class UploadHeuristic implements IUploadStep {
           for(BindingItem bi: targetBs.getBindingItems()) {
             String id = bi.getId();
             String normId = id.toLowerCase().replace("_","");
-            String normCaption = bi.getCaption().toLowerCase().replace("_","").replace(" ","");
+            String normCaption = bi.getAttribute(Bindings.captionAttribute, "").toLowerCase().replace("_","").replace(" ","");
             String normImportCaption = uc.getMappingBindingItemAttribute(b, "caption").toLowerCase().replace("_","").replace(" ","");
             if(normId.equals(normImportCaption) || (! normCaption.isEmpty() && normCaption.equals(normImportCaption))) {
               uc.setMappingBindingItemAttribute(b, "id", id);
-              uc.setMappingBindingItemAttribute(b, "caption", bi.getCaption());
+              uc.setMappingBindingItemAttribute(b, Bindings.captionAttribute, bi.getAttribute(Bindings.captionAttribute, ""));
               uc.setMappingBindingItemAttribute(b, Bindings.jdbcDataTypeNameAttribute, bi.getJDBCDataTypeName());
               uc.setMappingBindingItemAttribute(b, Bindings.keyAttributeName, bi.isKey() ? "1" : "0");
               uc.setMappingBindingItemAttribute(b, Bindings.jdbcNullableAttribute, bi.getJDBCNullable().toString());
@@ -200,7 +200,7 @@ public class UploadHeuristic implements IUploadStep {
               if (b < importColumnCount) {
                 String id = bi.getId();
                 uc.setMappingBindingItemAttribute(b, "id", id);
-                uc.setMappingBindingItemAttribute(b, "caption", bi.getCaption());
+                uc.setMappingBindingItemAttribute(b, Bindings.captionAttribute, bi.getAttribute(Bindings.captionAttribute, ""));
                 uc.setMappingBindingItemAttribute(b, Bindings.jdbcDataTypeNameAttribute, bi.getJDBCDataTypeName());
                 uc.setMappingBindingItemAttribute(b, Bindings.keyAttributeName, bi.isKey() ? "1" : "0");
                 uc.setMappingBindingItemAttribute(b, Bindings.jdbcNullableAttribute, bi.getJDBCNullable().toString());

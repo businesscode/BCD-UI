@@ -1061,9 +1061,9 @@ bcdui.widget.dimensionChooser = Object.assign(bcdui.widget.dimensionChooser,
     // try to guess level out of filter data by taking the first filter group and matching it against the dimension model
     var foundLevel = "";
     var filterNodes = targetModel.getData().selectNodes(multiSelectTargetXpath + "/f:And[1]/f:Expression");
-    var l1 = jQuery(filterNodes).map(function() {return this.getAttribute("bRef")}).sort();
+    var l1 = Array.from(jQuery(filterNodes)).map(function(e) {return e.getAttribute("bRef")}).sort();
     for (var l in levelStorage) {
-      var l2 = jQuery(levelStorage[l]).map(function() {return this.getAttribute("bRef")}).sort();
+      var l2 = Array.from(jQuery(levelStorage[l])).map(function(e) {return e.getAttribute("bRef")}).sort();
       if (l1.length == l2.length) {
         var allOk = true;
         for (var b = 0; b < l1.length; b++)
@@ -1136,7 +1136,7 @@ bcdui.widget.dimensionChooser = Object.assign(bcdui.widget.dimensionChooser,
       }
     }
     callback(id, "");
-  }
+  },
 
   /**
    * checks if container html still exists, if not, listeners, filters and client area is cleaned
@@ -1144,7 +1144,7 @@ bcdui.widget.dimensionChooser = Object.assign(bcdui.widget.dimensionChooser,
    * @returns {boolen} boolean true when chooser is not existing anymore
    * @private
    */
-  , _cleanupListener: function(config) {
+  _cleanupListener: function(config) {
     if (jQuery("#" + config.elementId).length == 0) {
       if (config.targetModelId) {
         var targetModel = bcdui.factory.objectRegistry.getObject(config.targetModelId);
