@@ -1136,7 +1136,7 @@ bcdui.widget.dimensionChooser = Object.assign(bcdui.widget.dimensionChooser,
       }
     }
     callback(id, "");
-  }
+  },
 
   /**
    * checks if container html still exists, if not, listeners, filters and client area is cleaned
@@ -1144,7 +1144,7 @@ bcdui.widget.dimensionChooser = Object.assign(bcdui.widget.dimensionChooser,
    * @returns {boolen} boolean true when chooser is not existing anymore
    * @private
    */
-  , _cleanupListener: function(config) {
+  _cleanupListener: function(config) {
     if (jQuery("#" + config.elementId).length == 0) {
       if (config.targetModelId) {
         var targetModel = bcdui.factory.objectRegistry.getObject(config.targetModelId);

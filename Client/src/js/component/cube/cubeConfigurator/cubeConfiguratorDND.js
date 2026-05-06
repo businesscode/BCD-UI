@@ -783,17 +783,17 @@ bcdui.component.cube.configuratorDND = Object.assign(bcdui.component.cube.config
     '</style>').appendTo('head');
 
     return template;
-  }
+  },
 
   // Extension Points
   /**
    * @private
    */
-  , _addGroupManagerContextMenu : function(){}
+  _addGroupManagerContextMenu : function(){},
 
   /**
    * @private
    */
-  , _markGroupingDimensions : function(){}
+  _markGroupingDimensions : function(){}
 
 });

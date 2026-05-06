@@ -2771,7 +2771,10 @@ jQuery.extend(bcdui.widget,
     _getTooltipFilterOption: function(inputText) {
       return inputText;
     },
-    
+
+    /**
+     * @private
+     */
     _filterClickAction: function() {
       const action = jQuery(this).closest("*[bcdActionId]").attr("bcdActionId") || "";
       if (action == "selectAll")
