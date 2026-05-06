@@ -573,8 +573,7 @@ bcdui.component.cube.configuratorDND = Object.assign(bcdui.component.cube.config
       if (mes.getAttribute("cumulateRow") != null && mes.getAttribute("cumulateCol") != null) customClass = "bcdRowColCumulate";
     }
 
-    var title =  bcdui.factory.objectRegistry.getObject(cubeId).getConfigModel().query("//cube:Layout//@description") != null ? "" : " title='" + args.caption + "'";
-    return "<li bcdRowIdent='" + args.value + "' contextId='" + (mes !=null ? "bcdMsr" : "bcdDim") +"' class='ui-selectee " + customClass + "' bcdValue='" + args.value + "' bcdPos='" + args.position + "' bcdLoCase='" + args.caption.toLowerCase() + "'" + title + "><span class='bcdItem'>" + args.caption + "</span></li>";
+    return "<li bcdRowIdent='" + args.value + "' contextId='" + (mes !=null ? "bcdMsr" : "bcdDim") +"' class='ui-selectee " + customClass + "' bcdValue='" + args.value + "' bcdPos='" + args.position + "' bcdLoCase='" + args.caption.toLowerCase() + "'><span class='bcdItem'>" + args.caption + "</span></li>";
   },
 
   // some special rules to remove cube attributes like sort, cumulate, exclude, hides or not inner vdms
