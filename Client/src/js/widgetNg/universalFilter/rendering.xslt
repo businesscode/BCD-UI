@@ -12,7 +12,7 @@
   <xsl:param name="nodeIdAttribute" select="'bcd-univ-node-id'"/>
   <!-- OptionsDataProvider -->
   <xsl:param name="bRefModel"/>
-  <xsl:param name="OpsCaptions"/>
+  <xsl:param name="opsCaptions"/>
 
   <!--
     input: dataProviderWithXPathNodes: Root/[usersProvidedTarget]/*
@@ -86,7 +86,7 @@
           <span class="{$cssClassPrefix}expression-type-empty" bcdTranslate="bcd_widget_universalFilter_valueNull"></span>
         </xsl:when>
         <xsl:otherwise>
-          <span class="{$cssClassPrefix}expression-op"><xsl:value-of select="$OpsCaptions/*/Op/Item[text()=current()/@op]/@caption"/></span>
+          <span class="{$cssClassPrefix}expression-op"><xsl:value-of select="$opsCaptions/*/Op/Item[text()=current()/@op]/@caption"/></span>
           <span class="{$cssClassPrefix}expression-value"><xsl:value-of select="@value"/></span>
         </xsl:otherwise>
       </xsl:choose>
