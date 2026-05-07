@@ -7,9 +7,12 @@ The following release notes allow following BCD-UI's ongoing development. +
 Potentially breaking changes are listed under _Incompatibilities_.
 
 ___
-==== Release 6_0_0 ...in progress
+==== Release 6_0_2 ...in progress
 
----
+.Client
+* Added option to use BCD-UI as JavaScript modules like `import { AutoModel, Renderer } from "../bcdui/js/modules/core.js"`
+* Added SaxxonJS2 option to be used instead of browser native XSLT
+
 .Server:
 * BindingSet: Added `bnd:BindingDefaults` for inheriting BindingItem attributes defaults based on their id
 +
