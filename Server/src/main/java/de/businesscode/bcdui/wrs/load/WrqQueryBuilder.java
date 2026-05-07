@@ -61,6 +61,8 @@ public class WrqQueryBuilder
   // Result of our work. The SQL statement as string plus the bound values for the prepared statement
   private SQLStatementWithParams selectStatement;
 
+  private boolean isMetaDataRequest = false;
+
   /**
    * We are initialized a single wrq:WrqRequest.
    */
@@ -147,7 +149,7 @@ public class WrqQueryBuilder
         wrqBindingSetForWrqAlias.put(cteElem.getAttribute("alias"), ssBs);
       }
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException("Unable to handle WITH clause: "+e.getMessage(), e);
     }
 
     //-----------------------------------------------------------
@@ -159,9 +161,21 @@ public class WrqQueryBuilder
       selectStatement = stmtWP; // TODO gs2u
       selectedBindingItems = sqlFomFullSelect.getSelectedBindingItems();
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException("Unable to handle FULL SELECT clause: "+e.getMessage(), e);
     }
     
+    // determine if the the request is a meta data only request
+    NodeList selects = wrqElem.getElementsByTagNameNS(StandardNamespaceContext.WRSREQUEST_NAMESPACE, "Select");
+    if (selects.getLength() > 0) {
+      int rowStart = 0;
+      int rowEnd   = -1;
+      String rowStartAttrStr = ((Element)selects.item(0)).getAttribute("rowStart");
+      if( ! rowStartAttrStr.isEmpty() ) rowStart = Integer.parseInt(rowStartAttrStr);
+      String rowEndAttrStr = ((Element)selects.item(0)).getAttribute("rowEnd");
+      if( ! rowEndAttrStr.isEmpty() ) rowEnd = Integer.parseInt(rowEndAttrStr);
+      isMetaDataRequest = (rowEnd > 0 && rowStart > rowEnd) || rowEnd == 0;
+    }
+
     return selectStatement;
   }
 
@@ -266,6 +280,14 @@ public class WrqQueryBuilder
   public String getJdbcResourceName() {
     return jdbcResourceName;
   }
-  
+
+  /**
+   * current wrq is a metadata only request, based on the rowStart/End info at first select
+   * @return
+   */
+  public boolean isMetaDataRequest() {
+    return isMetaDataRequest;
+  }
+
 }
 

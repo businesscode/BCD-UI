@@ -36,12 +36,12 @@ bcdui.core.PromptDataProvider = class extends bcdui.core.DataProvider
    * @param {string} [args.id]  - Globally unique id for use in declarative contexts
    */
   constructor(args)
-    {
-      super(args);
-      this.value = "";
-      this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();
-      this.initializedStatus = new bcdui.core.status.InitializedStatus();
-    }
+  {
+    super(args);
+    this.value = "";
+    this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();
+    this.initializedStatus = new bcdui.core.status.InitializedStatus();
+  }
 
   /**
    * @inheritDoc
@@ -90,26 +90,26 @@ bcdui.core.ConstantDataProvider = class extends bcdui.core.DataProvider
    * @param {(string|number|boolean|object)} args.value - The data
    */
   constructor(args)
-    {
-      var bcdPreInit = args ? args.bcdPreInit : null;
-      super(jQuery.extend(args, {
-        bcdPreInit: function() {
-          if (bcdPreInit)
-            bcdPreInit.call(this);
-          /*
-           * Validate if the name and value parameters are present.
-           */
-          if (typeof args.value == "undefined") {
-            throw Error("Must specify a \"value\" property in the parameter map for '"+(args.id || args.name)+"'");
-          }
+  {
+    var bcdPreInit = args ? args.bcdPreInit : null;
+    super(jQuery.extend(args, {
+      bcdPreInit: function() {
+        if (bcdPreInit)
+          bcdPreInit.call(this);
+        /*
+         * Validate if the name and value parameters are present.
+         */
+        if (typeof args.value == "undefined") {
+          throw Error("Must specify a \"value\" property in the parameter map for '"+(args.id || args.name)+"'");
         }
-      }));
-      /**
-       * The value provided by the "getData" function.
-       * @type {string|Number|Boolean}
-       * @private
-       */
-      this.value = args.value;
+      }
+    }));
+    /**
+     * The value provided by the "getData" function.
+     * @type {string|Number|Boolean}
+     * @private
+     */
+    this.value = args.value;
 
     }
 
@@ -149,7 +149,8 @@ bcdui.core.ConstantDataProvider = class extends bcdui.core.DataProvider
     {
       return "[bcdui.core.ConstantDataProvider: " + this.id + ", name=" + this.name + ", value=" + this.value + " ]";
     }
-}; // Create class: bcdui.core.ConstantDataProvider
+};
+
 
 /**
   * This acts as a holder for the real DataProvider and behaves like a DataProvider itself.
@@ -167,27 +168,27 @@ bcdui.core.DataProviderHolder = class extends bcdui.core.DataProvider
    * @param {string}                  [id]          - id
    */
   constructor(args)
-    {
+  {
 
-      args = args || {};
-      super( args);
-      /**
-       * The status the provider is in before it has loaded its data.
-       * @type {bcdui.core.Status}
-       * @private
-       */
-      this.initializedStatus = new bcdui.core.status.InitializedStatus();
-      /**
-       * This status indicates that the data is available.
-       * @type {bcdui.core.Status}
-       * @private
-       */
-      this.loadedStatus = new bcdui.core.status.LoadedStatus();
+    args = args || {};
+    super( args);
+    /**
+     * The status the provider is in before it has loaded its data.
+     * @type {bcdui.core.Status}
+     * @private
+     */
+    this.initializedStatus = new bcdui.core.status.InitializedStatus();
+    /**
+     * This status indicates that the data is available.
+     * @type {bcdui.core.Status}
+     * @private
+     */
+    this.loadedStatus = new bcdui.core.status.LoadedStatus();
 
-      // pendingExecute: If execute is called on us and we have no source yet, we execute the source once it is added later
-      this.pendingExecute = false;
-      this.setSource(args.source);
-    }
+    // pendingExecute: If execute is called on us and we have no source yet, we execute the source once it is added later
+    this.pendingExecute = false;
+    this.setSource(args.source);
+  }
 
   /**
    * @inheritDoc
@@ -410,7 +411,6 @@ bcdui.core.DataProviderHolder = class extends bcdui.core.DataProvider
  * @extends bcdui.core.DataProviderHolder
  */
 bcdui.core.DataProviderAlias = class extends bcdui.core.DataProviderHolder
-
 {
   /**
    * @param {object} args - The argument map taking two mandatory parameters:
@@ -439,7 +439,6 @@ bcdui.core.DataProviderAlias = class extends bcdui.core.DataProviderHolder
  * @extends bcdui.core.DataProviderHolder
  */
 bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
-
 {
   /**
    * @private
@@ -451,27 +450,27 @@ bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
    * @param {string}    [args.name]  - Logical name of this DataProvider when used as a parameter in a transformation
    */
   constructor( args)
-    {
-      var bcdPreInit = args ? args.bcdPreInit : null;
-      super(jQuery.extend(args, {
-        bcdPreInit: function() {
-          if (bcdPreInit)
-            bcdPreInit.call(this);
-          if (typeof args.xPath == "undefined") {
-            throw Error("Must specify an \"xPath\" property in the parameter map.");
-          }
-    
-          var modelParams = bcdui.factory._extractXPathAndModelId(args.xPath);
-          if (! args.source)
-            args.source = bcdui.factory.objectRegistry.getObject(modelParams.modelId);
-          args.xPath = modelParams.xPath;
-    
-          this._xPath = args.xPath;
-          if (typeof args.nullValue != "undefined")
-            this._nullValue = args.nullValue;
+  {
+    var bcdPreInit = args ? args.bcdPreInit : null;
+    super(jQuery.extend(args, {
+      bcdPreInit: function() {
+        if (bcdPreInit)
+          bcdPreInit.call(this);
+        if (typeof args.xPath == "undefined") {
+          throw Error("Must specify an \"xPath\" property in the parameter map.");
         }
-      }));
-    }
+  
+        var modelParams = bcdui.factory._extractXPathAndModelId(args.xPath);
+        if (! args.source)
+          args.source = bcdui.factory.objectRegistry.getObject(modelParams.modelId);
+        args.xPath = modelParams.xPath;
+  
+        this._xPath = args.xPath;
+        if (typeof args.nullValue != "undefined")
+          this._nullValue = args.nullValue;
+      }
+    }));
+  }
 
   /**
    * @inheritDoc
@@ -524,90 +523,89 @@ bcdui.core.DataProviderWithXPath = class extends bcdui.core.DataProviderHolder
   * @extends bcdui.core.DataProviderHolder
  */
 bcdui.core.DataProviderWithXPathNodes = class extends bcdui.core.DataProviderHolder
-
+{
+  /** 
+   * @param {object}                  args
+   * @param {modelXPath}              [args.xPath]  - Data source like <code>"$modelId/guiStatus:MyNode/@myAttr"</code>
+   * @param {bcdui.core.DataProvider} [args.source] - Optional source, which will override source reference from args.xPath
+   * @param {string}                  [args.name]   - Logical name of this DataProvider when used as a parameter in a transformation
+   */
+  constructor(args)
     {
-      /** 
-       * @param {object}                  args
-       * @param {modelXPath}              [args.xPath]  - Data source like <code>"$modelId/guiStatus:MyNode/@myAttr"</code>
-       * @param {bcdui.core.DataProvider} [args.source] - Optional source, which will override source reference from args.xPath
-       * @param {string}                  [args.name]   - Logical name of this DataProvider when used as a parameter in a transformation
-       */
-      constructor(args)
-        {
-          var bcdPreInit = args ? args.bcdPreInit : null;
-          super(jQuery.extend(args, {
-            bcdPreInit: function() {
-              if (bcdPreInit)
-                bcdPreInit.call(this);
+      var bcdPreInit = args ? args.bcdPreInit : null;
+      super(jQuery.extend(args, {
+        bcdPreInit: function() {
+          if (bcdPreInit)
+            bcdPreInit.call(this);
 
-              if (typeof args.xPath == "undefined") {
-                throw Error("Must specify an \"xPath\" property in the parameter map.");
-              }
-
-              var modelParams = bcdui.factory._extractXPathAndModelId(args.xPath);
-              if (! args.source)
-                args.source = bcdui.factory.objectRegistry.getObject(modelParams.modelId);
-              args.xPath = modelParams.xPath;
-
-              this._xPath = args.xPath;
-            }
-          }));
-        }
-
-      /**
-       * @inheritDoc
-       */
-      getClassName() {return "bcdui.core.DataProviderWithXPathNodes";}
-
-      /**
-       * returns the root-element of the document
-       * @private
-       */
-      _getDataElement()
-        {
-          if (this.source == null) return null;
-          var data = this.source.getData();
-          if (data == null) return null;
-          if (typeof data.item == "undefined") {
-            return data;
-          }
-          if (data.length > 0) {
-            return data.item(0);
-          }
-          return null;
-        }
-      /**
-       * The xpath is applied to dataElement with selectSingleNode, selectNodes doesnt work in firefox 
-       * @inheritDoc
-       */
-      getData()
-        {
-          var dataElement = this._getDataElement();
-          var nodes = null;
-          if (dataElement != null) {
-            nodes  = jQuery.makeArray(dataElement.selectNodes(this._xPath));
+          if (typeof args.xPath == "undefined") {
+            throw Error("Must specify an \"xPath\" property in the parameter map.");
           }
 
-          var newDoc = bcdui.core.browserCompatibility.createDOMFromXmlString("<Root/>");
-          var parent = newDoc.documentElement;
-          if (nodes != null){
-            nodes.forEach( function(e){
-              if( e.nodeType===2 ){
-                parent.appendChild( newDoc.createElement(e.nodeName) ).text=e.nodeValue;
-              } else
-                parent.appendChild(e.cloneNode(true));
-            })
-          }
-          return newDoc;
+          var modelParams = bcdui.factory._extractXPathAndModelId(args.xPath);
+          if (! args.source)
+            args.source = bcdui.factory.objectRegistry.getObject(modelParams.modelId);
+          args.xPath = modelParams.xPath;
+
+          this._xPath = args.xPath;
         }
-      /**
-       * @return {string}
-       */
-      getXPath()
-        {
-          return this._xPath;
-        }
-    };
+      }));
+    }
+
+  /**
+   * @inheritDoc
+   */
+  getClassName() {return "bcdui.core.DataProviderWithXPathNodes";}
+
+  /**
+   * returns the root-element of the document
+   * @private
+   */
+  _getDataElement()
+    {
+      if (this.source == null) return null;
+      var data = this.source.getData();
+      if (data == null) return null;
+      if (typeof data.item == "undefined") {
+        return data;
+      }
+      if (data.length > 0) {
+        return data.item(0);
+      }
+      return null;
+    }
+  /**
+   * The xpath is applied to dataElement with selectSingleNode, selectNodes doesnt work in firefox 
+   * @inheritDoc
+   */
+  getData()
+    {
+      var dataElement = this._getDataElement();
+      var nodes = null;
+      if (dataElement != null) {
+        nodes  = jQuery.makeArray(dataElement.selectNodes(this._xPath));
+      }
+
+      var newDoc = bcdui.core.browserCompatibility.createDOMFromXmlString("<Root/>");
+      var parent = newDoc.documentElement;
+      if (nodes != null){
+        nodes.forEach( function(e){
+          if( e.nodeType===2 ){
+            parent.appendChild( newDoc.createElement(e.nodeName) ).text=e.nodeValue;
+          } else
+            parent.appendChild(e.cloneNode(true));
+        })
+      }
+      return newDoc;
+    }
+  /**
+   * @return {string}
+   */
+  getXPath()
+    {
+      return this._xPath;
+    }
+};
 
 /**
  *  This class creates a static model with a top level element '&lt;cust:Options/>' and appends all
@@ -616,7 +614,6 @@ bcdui.core.DataProviderWithXPathNodes = class extends bcdui.core.DataProviderHol
  * @extends bcdui.core.DataProviderHolder
 */
 bcdui.core.OptionsDataProvider = class extends bcdui.core.DataProviderHolder
-
 {
   /** 
    * @param {object}                  args
@@ -699,7 +696,6 @@ bcdui.core.OptionsDataProvider = class extends bcdui.core.DataProviderHolder
  * @extends bcdui.core.DataProvider
  */
 bcdui.core.RequestDocumentDataProvider = class extends bcdui.core.DataProvider
-
 {
   /**
    * @param {Object} args - Parameter object
@@ -1067,7 +1063,6 @@ bcdui.core.StringDataProvider = class extends bcdui.core.DataProvider
   * @extends bcdui.core.DataProvider
  */
 bcdui.core.JsDataProvider = class extends bcdui.core.DataProvider
-
 {
   /**
    * @param {Object} args - The parameter map contains the following properties:
@@ -1077,18 +1072,18 @@ bcdui.core.JsDataProvider = class extends bcdui.core.DataProvider
    * @param {string}   [args.name]                   - Logical name of this DataProvider when used as a parameter in a transformation, locally unique
    */
   constructor(args)
-    {
-      super(args);
-      this.callback = args.callback;
-      this.doAllwaysRefresh = typeof args.doAllwaysRefresh == "undefined" ? false : true;
-      this.value = "";
-      this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();
-      this.initializedStatus = new bcdui.core.status.InitializedStatus();
-      this.transformedStatus = new bcdui.core.status.TransformedStatus();
+  {
+    super(args);
+    this.callback = args.callback;
+    this.doAllwaysRefresh = typeof args.doAllwaysRefresh == "undefined" ? false : true;
+    this.value = "";
+    this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();
+    this.initializedStatus = new bcdui.core.status.InitializedStatus();
+    this.transformedStatus = new bcdui.core.status.TransformedStatus();
 
-      var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.transformedStatus;
-      this.setStatus( this.doAllwaysRefresh ? newStatus : this.initializedStatus );
-    }
+    var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.transformedStatus;
+    this.setStatus( this.doAllwaysRefresh ? newStatus : this.initializedStatus );
+  }
 
   /**
    * @inheritDoc
@@ -1101,11 +1096,11 @@ bcdui.core.JsDataProvider = class extends bcdui.core.DataProvider
    * @private
    */
   _executeImpl()
-    {
-      this.value = this.callback();
-      var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.transformedStatus;
-      this.setStatus(newStatus);
-    }
+  {
+    this.value = this.callback();
+    var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.transformedStatus;
+    this.setStatus(newStatus);
+  }
   /**
    * @inheritDoc
    */
@@ -1131,78 +1126,91 @@ bcdui.core.JsDataProvider = class extends bcdui.core.DataProvider
   * @extends bcdui.core.DataProvider   
  */
 bcdui.core.AsyncJsDataProvider = class extends bcdui.core.DataProvider
+{
+  /**
+   * @param args The parameter map contains the following properties:
+   * @param {function} args.callback - The callback providing the data; gets args object with 'setData' function to call once data is available.
+   * @param {string}   [args.id]     - A globally unique id for use in declarative contexts
+   * @param {string}   [args.name]   - Logical name of this DataProvider when used as a parameter in a transformation, locally unique
+   */
+  constructor(/* object */ args)
   {
-    /**
-     * @param args The parameter map contains the following properties:
-     * @param {function} args.callback - The callback providing the data; gets args object with 'setData' function to call once data is available.
-     * @param {string}   [args.id]     - A globally unique id for use in declarative contexts
-     * @param {string}   [args.name]   - Logical name of this DataProvider when used as a parameter in a transformation, locally unique
-     */
-    constructor(/* object */ args)
-      {
-        super( args);
-        this.callback = args.callback || this.callback;
-        this.value = null;
-        this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();
-        // object is initialized
-        this.initializedStatus = new bcdui.core.status.InitializedStatus();
-        // waiting for callback to .setData() in this status no further transition is possible
-        this.transformingStatus = new bcdui.core.status.TransformingStatus();
-        // we are ready
-        this.transformedStatus = new bcdui.core.status.TransformedStatus();
-        this.setStatus( this.initializedStatus );
-      }
+    super( args);
+    this.callback = args.callback || this.callback;
+    this.value = null;
+    this.waitingForUncomittedChanges = new bcdui.core.status.WaitingForUncomittedChanges();
+    // object is initialized
+    this.initializedStatus = new bcdui.core.status.InitializedStatus();
+    // waiting for callback to .setData() in this status no further transition is possible
+    this.transformingStatus = new bcdui.core.status.TransformingStatus();
+    // we are ready
+    this.transformedStatus = new bcdui.core.status.TransformedStatus();
+    this.setStatus( this.initializedStatus );
+  }
 
-    /**
-     * @inheritDoc
-     */
-    getClassName() {return "bcdui.core.AsyncJsDataProvider";}
+  /**
+   * @inheritDoc
+   */
+  getClassName() {return "bcdui.core.AsyncJsDataProvider";}
 
-    /**
-     * Calls the provided function which in turn set to .setData()
-     *
-     * @private
-     * @memberOf bcdui.core.AsyncJsDataProvider
-     */
-    _executeImpl()
-      {
-        // we are still transforming, dont trigger callback
-        if(this.getStatus() === this.transformingStatus){
-          return;
-        }
-        this.setStatus(this.transformingStatus);
-        try{
-          this.callback({setData : this.setData.bind(this)});
-        }catch(e){
-          bcdui.log.warn("error occurred while executing JS callback", e);
-        }
-      }
-    /**
-     * To be called by the callback once data is available. Sets data and transits this dataproviders state to .getReadyStatus() and fires data updated event
-     * @param {*} data
-     */
-    setData(data)
-    {
-      // first set data
-      this.value = data;
+  /**
+   * Calls the provided function which in turn set to .setData()
+   *
+   * @private
+   * @memberOf bcdui.core.AsyncJsDataProvider
+   */
+  _executeImpl()
+  {
+    // we are still transforming, dont trigger callback
+    if(this.getStatus() === this.transformingStatus){
+      return;
+    }
+    this.setStatus(this.transformingStatus);
+    try{
+      this.callback({setData : this.setData.bind(this)});
+    }catch(e){
+      bcdui.log.warn("error occurred while executing JS callback", e);
+    }
+  }
+  /**
+   * To be called by the callback once data is available. Sets data and transits this dataproviders state to .getReadyStatus() and fires data updated event
+   * @param {*} data
+   */
+  setData(data)
+  {
+    // first set data
+    this.value = data;
 
-      // now switch state
-      var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.transformedStatus;
-      this.setStatus(newStatus);
+    // now switch state
+    var newStatus = this._uncommitedWrites ? this.waitingForUncomittedChanges : this.transformedStatus;
+    this.setStatus(newStatus);
+  }
+  /**
+   * @inheritDoc
+   */
+  getReadyStatus(){
+    return this.transformedStatus;
+  }
+  /**
+   * @inheritDoc
+   */
+  getData(){
+    if(bcdui.config.isDeubg && !this.isReady()){
+      bcdui.log.warn("called .getData() although the model is not is ready state", this);
     }
-    /**
-     * @inheritDoc
-     */
-    getReadyStatus(){
-      return this.transformedStatus;
-    }
-    /**
-     * @inheritDoc
-     */
-    getData(){
-      if(bcdui.config.isDeubg && !this.isReady()){
-        bcdui.log.warn("called .getData() although the model is not is ready state", this);
-      }
-      return this.value;
-    }
+    return this.value;
+  }
 };
+
+export const bcduiExport_PromptDataProvider = bcdui.core.PromptDataProvider;
+export const bcduiExport_ConstantDataProvider = bcdui.core.ConstantDataProvider;
+export const bcduiExport_DataProviderHolder = bcdui.core.DataProviderHolder;
+export const bcduiExport_DataProviderAlias = bcdui.core.DataProviderAlias;
+export const bcduiExport_DataProviderWithXPath = bcdui.core.DataProviderWithXPath;
+export const bcduiExport_DataProviderWithXPathNodes = bcdui.core.DataProviderWithXPathNodes;
+export const bcduiExport_OptionsDataProvider = bcdui.core.OptionsDataProvider;
+export const bcduiExport_RequestDocumentDataProvider = bcdui.core.RequestDocumentDataProvider;
+export const bcduiExport_DataProviderHtmlAttribute = bcdui.core.DataProviderHtmlAttribute;
+export const bcduiExport_StringDataProvider = bcdui.core.StringDataProvider;
+export const bcduiExport_JsDataProvider = bcdui.core.JsDataProvider;
+export const bcduiExport_AsyncJsDataProvider = bcdui.core.AsyncJsDataProvider;

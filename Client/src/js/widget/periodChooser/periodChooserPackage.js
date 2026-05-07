@@ -98,6 +98,12 @@
     bcdui.widget.periodChooser.switchPostfix(config.id, value);
   },
 
+  /**
+   *
+   * @param config
+   * @param postfix
+   * @private
+   */
   _getValidPostfix: function(config, postfix) {
     // test if a valid value from the optionsModel was set, if not, set fallback value (either first from optionsModel or setup postfix or bcdEmpty
     var targetModel = bcdui.factory.objectRegistry.getObject(config.targetModelId);

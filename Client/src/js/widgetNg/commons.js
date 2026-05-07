@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -226,14 +226,14 @@ bcdui.widgetNg.commons.balloon.attach = function(htmlElementId,args){
 
   // init tooltip renderer (not balloon)
   if(!args.noTooltip){
-    bcdui.factory.objectRegistry.withReadyObjects(bcdui.widgetNg.commons.balloon.CONST.tooltipRendererId,function(){
+    bcdui.factory.objectRegistry.withObjects(bcdui.widgetNg.commons.balloon.CONST.tooltipRendererId, function(){
       bcdui.widget._attachTooltipRenderer({
         tooltipRendererId : bcdui.widgetNg.commons.balloon.CONST.tooltipRendererId
-          , targetHtmlElement : el.get(0)
-          , filter            : ""
-            , tableMode         : false
-            , identsWithin      : htmlElementId
-            , delay             : 200
+      , targetHtmlElement : el.get(0)
+      , filter            : ""
+      , tableMode         : false
+      , identsWithin      : htmlElementId
+      , delay             : 200
       });
     },false);
   }

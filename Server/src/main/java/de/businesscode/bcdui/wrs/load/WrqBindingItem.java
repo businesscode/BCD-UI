@@ -37,6 +37,7 @@ import org.w3c.dom.NodeList;
 import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.BindingItemFromRel;
 import de.businesscode.bcdui.binding.BindingUtils;
+import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
 import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.Utils;
@@ -56,7 +57,8 @@ public class WrqBindingItem implements WrsBindingItem
   private final List<Element> boundVariables = new LinkedList<Element>();
   private final List<String> wrqTableAliases; // May be multiple in case of wrqCalc
 
-  protected final Map<String,Object> attributes = new HashMap<String,Object>(); // Request specific wrs:C/@ and wrs:A/@ attributes
+  private final Map<String,Object> attributesServer = new HashMap<String,Object>();
+  private final Map<String,Object> attributesClient = new HashMap<String,Object>();
   private final String alias;
   private final String aggr;
   private final String id;
@@ -127,7 +129,7 @@ public class WrqBindingItem implements WrsBindingItem
       // Its allowed to define the type at the calc element
       for (String dataType :  new String[]{"type-name","scale","unit","signed"} ) {
         if( ! calc.getAttribute(dataType).isEmpty() )
-          attributes.put(dataType, calc.getAttribute(dataType));
+          attributesClient.put(dataType, calc.getAttribute(dataType));
       }
       final int dt;
       if( ! calc.getAttribute("type-name").isEmpty() )
@@ -167,13 +169,22 @@ public class WrqBindingItem implements WrsBindingItem
         throw new NullPointerException("BindingItem '"+elem.getAttribute("bRef")+"' not found at BindingSet '"+wrqInfo.getResultingBindingSet().getName()+"'");
 
       // take over all bcdui standard binding attributes for this binding item
-      attributes.putAll(bi.getAttributes());
+      attributesServer.putAll(bi.getAttributes());
+      attributesClient.putAll(bi.getClientAttributesMap());
       // User-provided VDM values are strings
       origJdbcDataType = bi.getJDBCDataType();
       jdbcDataType = wrqInfo.getVdm( getId() ) != null ? Types.VARCHAR : origJdbcDataType;
       columnQuoting = bi.isColumnQuoting();
       isEscapeXml = elem.getAttribute("escapeXml").isEmpty() ? bi.isEscapeXML() : Boolean.valueOf(elem.getAttribute("escapeXml"));
       setColumnExpression( bi.getColumnExpression() );
+    }
+
+    // add custom attributes (use custom prefix to differ between attributes like type-name and cust:type-name
+    if (referenceBindingItem != null) {
+      Map<String, String> customAtts = referenceBindingItem.getCustomAttributesMap();
+      for (String attrName : customAtts.keySet()){
+        attributesServer.put(StandardNamespaceContext.CUST_PREFIX + ":" + attrName, customAtts.get(attrName).toString());
+      }
     }
 
     if( "A".equals(elem.getLocalName()) ) {
@@ -189,13 +200,17 @@ public class WrqBindingItem implements WrsBindingItem
       this.wrsAName   = null;
       this.parentWrsC = null;
       String wrsId = elem.getAttribute("id").isEmpty() ?  elem.getAttribute("bRef") : elem.getAttribute("id");
-      attributes.put("id", wrsId );
+      attributesClient.put("id", wrsId );
       if( elem.getAttribute("dimId").isEmpty() && elem.getAttribute("valueId").isEmpty() ) {
-        if( wrqInfo.getGroupingBRefs().contains(wrsId) )
-          attributes.put("dimId", wrsId );
-        else
-          attributes.put("valueId", wrsId );
-      }
+        if( wrqInfo.getGroupingBRefs().contains(wrsId) ) {
+          attributesClient.put("dimId", wrsId );
+          attributesClient.remove("valueId");
+        }
+        else {
+          attributesClient.put("valueId", wrsId );
+          attributesClient.remove("dimId");
+        }
+      } 
     }
 
     // As part of wrq:C and wrq:A elements in the select list allow the user to provide additional attributes
@@ -204,7 +219,14 @@ public class WrqBindingItem implements WrsBindingItem
     NamedNodeMap attrs = elem.getAttributes();
     for( int a = 0; a<attrs.getLength(); a++ ) {
       Node attr = attrs.item(a);
-      attributes.put(attr.getNodeName(), attr.getNodeValue());
+
+      // add all client attributes, use custom prefix for custom attributes to differ between attributes like type-name and cust:type-name
+      attributesClient.put(
+        StandardNamespaceContext.CUST_NAMESPACE.equals(attr.getNamespaceURI())
+          ? StandardNamespaceContext.CUST_PREFIX + ":" + attr.getLocalName()
+          : attr.getNodeName()
+        , attr.getNodeValue()
+      );
     }
   }
 
@@ -226,8 +248,8 @@ public class WrqBindingItem implements WrsBindingItem
     this.aggr = aggr;
     this.alias = alias;
     this.wrsAName = wrsAName;
-    attributes.put("id", this.id);
-    attributes.put("name", wrsAName);
+    attributesClient.put("id", this.id);
+    attributesClient.put("name", wrsAName);
     wrqInfo.getAllBRefAggrs().get(parentC.getId()).addWrsAAttribute(this); // We are in document order, so we know our parent wrs:C exists already
     this.parentWrsC = parentC;
     this.jdbcDataType = origJdbcDataType = Types.VARCHAR;
@@ -256,7 +278,8 @@ public class WrqBindingItem implements WrsBindingItem
     this.parentWrsC = null;
     this.wrqTableAliases = Arrays.asList( id.indexOf(".")!=-1 ? id.split("\\.")[0] : "" );
 
-    attributes.putAll(bi.getAttributes());
+    attributesServer.putAll(bi.getAttributes());
+    attributesClient.putAll(bi.getClientAttributesMap());
     // User-provided VDM values are strings
     origJdbcDataType = bi.getJDBCDataType();
     jdbcDataType = wrqInfo.getVdm( getId() ) != null ? Types.VARCHAR : origJdbcDataType;
@@ -324,29 +347,29 @@ public class WrqBindingItem implements WrsBindingItem
   }
 
   @Override
-  public void toXML(XMLStreamWriter writer, boolean withColumnExpression) throws XMLStreamException
-  {
-    Map<String,Object> attrs = attributes;
+  public void toXML(XMLStreamWriter writer, boolean withColumnExpression) throws XMLStreamException {
 
-    for (String attrName : attrs.keySet()) {
-      // since we write common wrs elements like Column in standard namespace (see WrsDataWriter), we skip default namespaces which came with the wrq 
+    // either take allowed attributes list from bndMetaWrsAttributes or bndWrsAttributes
+    List<String> allowedAttr = wrqInfo.getCurrentSelect().getWrqQueryBuilder().isMetaDataRequest() ? Bindings.getBndMetaWrsAttributes() : Bindings.getBndWrsAttributes();
+    // we take all client sided attributes
+    Set<String> attrNames = new HashSet<>(attributesClient.keySet());
+
+    // but filter server sided attributes against the selected allowed list
+    for (String attrName : attributesServer.keySet()) {
+      if (allowedAttr.contains(attrName))
+        attrNames.add(attrName);
+    }
+
+    // finally attach them to the xml
+    boolean idWritten = false;
+    for (String attrName : attrNames) {
+      // since we write common wrs elements like Column in standard namespace (see WrsDataWriter), we skip default namespaces which came with the wrq
+      idWritten |= "id".equals(attrName);
       if (!("xmlns".equals(attrName)))
-        writer.writeAttribute(attrName, attrs.get(attrName).toString());
+        writer.writeAttribute(attrName, getAttribute(attrName).toString());
     }
-
-    if(referenceBindingItem != null){
-      Map<String, String> customAtts = referenceBindingItem.getCustomAttributesMap();
-      for (String attrName : customAtts.keySet()){
-        writer.writeAttribute(StandardNamespaceContext.CUST_NAMESPACE, attrName, customAtts.get(attrName));
-      }
-
-      String description = referenceBindingItem.getDescription();
-      if (description != null && ! description.isEmpty()) {
-        writer.writeStartElement("Description");
-        writer.writeCharacters(description);
-        writer.writeEndElement();
-      }
-    }
+    if (!idWritten &&  attributesServer.get("id") != null)
+      writer.writeAttribute("id", attributesServer.get("id").toString()); // at least take server sided id
 
     if (withColumnExpression) {// thus WRS response does not write this element
       writer.writeStartElement("Column");
@@ -362,7 +385,7 @@ public class WrqBindingItem implements WrsBindingItem
         }
       }
       catch (Exception e) {
-        throw new RuntimeException("Unexpected exception", e);
+        throw new RuntimeException("Unexpected exception: "+e.getMessage(), e);
       }
     }
   }
@@ -655,13 +678,8 @@ public class WrqBindingItem implements WrsBindingItem
   }
 
   @Override
-  public String getCaption() {
-    return "" + (attributes.get("caption") != null ? attributes.get("caption") : "");
-  }
-
-  @Override
   public String getJDBCColumnScale() {
-    return "" + (attributes.get("scale") != null ? attributes.get("scale") : "");
+    return "" + (getAttribute("scale") != null ? getAttribute("scale") : "");
   }
 
   public List<Element> getBoundVariables() {
@@ -686,12 +704,32 @@ public class WrqBindingItem implements WrsBindingItem
     return BindingUtils.isNumeric(jdbcDataType);
   }
 
-  public Object getAttribute(String name) {
-    return attributes.get(name);
+  @Override
+  public String getAttribute(String attName) {
+    return attributesClient.containsKey(attName) ? attributesClient.get(attName).toString() : attributesServer.containsKey(attName) ? attributesServer.get(attName).toString() : null;
+  }
+  
+  @Override
+  public String getAttribute(String attName, String attDefault) {
+    String s = getAttribute(attName);
+    return s != null ? s : attDefault;
   }
 
   public void setTableAliasOverwrite(String tableAlias) {
     tableAliasOverwrite = tableAlias;
+  }
+
+  public Map<String,Object> getAttributesServer() {
+    return attributesServer;
+  }
+  
+  public Map<String,Object> getAttributesClient() {
+    return attributesClient;
+  }
+
+  @Override
+  public boolean hasCustomItem() {
+    return attributesClient.keySet().stream().anyMatch(key -> key.startsWith(StandardNamespaceContext.CUST_PREFIX)) || attributesServer.keySet().stream().anyMatch(key -> key.startsWith(StandardNamespaceContext.CUST_PREFIX));
   }
 
 }

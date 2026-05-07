@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2025 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -18,8 +18,11 @@ package de.businesscode.bcdui.toolbox;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -27,7 +30,7 @@ import javax.sql.DataSource;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import de.businesscode.bcdui.binding.exc.BindingException;
+import de.businesscode.bcdui.binding.Bindings;
 import de.businesscode.bcdui.toolbox.config.BareConfiguration;
 import de.businesscode.bcdui.toolbox.config.ConfigurationProvider;
 import de.businesscode.bcdui.toolbox.config.DbProperties;
@@ -62,6 +65,8 @@ public class Configuration implements ConfigurationProvider {
   public static final String DISABLE_CACHE         = "bcdui/disableCache";
   public static final String VFS_CATALOG_KEY       = "bcdui/cache/vfs/catalog";
   public static final String CONFIG_DB_RELOAD_SEC  = "bcdui/config/dbProperties/reloadFrequencySeconds";
+  public static final String BND_WRS_ATTRIBUTES    = "bcdui/bnd/wrsAttributes";
+  public static final String BND_META_WRS_ATTRIBUTES = "bcdui/bnd/wrsMetaAttribute";
 
   public static final String USE_SAXONJS_XSLT      = "bcdui/useSaxonJsXslt";
   public static final String DEFAULT_DB_CONTEXT_ID = "bcdui/defaultConnection";
@@ -116,6 +121,9 @@ public class Configuration implements ConfigurationProvider {
     super();
     isInitialized = true;
     this.bareConfig = BareConfiguration.getInstance();
+
+    try { Bindings.fillBndWrsAttributes(getConfigurationParameterAsStringList(BND_WRS_ATTRIBUTES, ",\\s*"));} catch (Exception e) { /* void */ }
+    try { Bindings.fillBndMetaWrsAttributes(getConfigurationParameterAsStringList(BND_META_WRS_ATTRIBUTES, ",\\s*"));} catch (Exception e) { /* void */ }
 
     // Set some defaults
     try {
@@ -177,6 +185,12 @@ public class Configuration implements ConfigurationProvider {
     if(serverProps != null){
       bareConfig.getConfigurationParameters().putAll(serverProps);
     }
+  }
+  
+  public List<String> getConfigurationParameterAsStringList(String id, String delimiter) {
+    String s = (String)getConfigurationParameter(id);
+    List<String> l = s.trim().isEmpty() ? new ArrayList<>() : new ArrayList<>(Arrays.asList((s.trim().split(delimiter))));
+    return l;
   }
 
   @Override
@@ -352,11 +366,12 @@ public class Configuration implements ConfigurationProvider {
     try {
       return (T) clazz.getConstructor(types).newInstance(params);
     } catch (NoSuchMethodException e) {
-      throw new RuntimeException("failed to instantiate due to missing constructor accepting types", e);
+      throw new RuntimeException("failed to instantiate "+clazz.getName()+" due to missing constructor accepting types: "+e.getMessage(), e);
     } catch (InstantiationException | IllegalAccessException e) {
-      throw new RuntimeException("failed to instantiate", e);
+      throw new RuntimeException("failed to instantiate "+clazz.getName()+": "+e.getMessage(), e);
     } catch (InvocationTargetException e) {
-      throw new RuntimeException("failed to instantiate due to exception caught in constructor", e);
+      Throwable cause = e.getCause();
+      throw new RuntimeException("failed to instantiate "+clazz.getName()+" due to exception caught in constructor: "+(cause!=null?cause.getMessage():"Unknown"), cause);
     }
   }
 }

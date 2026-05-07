@@ -93,7 +93,7 @@ bcdui.component.chart = Object.assign(bcdui.component.chart,
 
   /**
    * Create a legend for the chart, listing all series
-   * @param {Object} args - Paramater object
+   * @param {Object} args - Parameter object
    * @param {bcdui.core.DataProvider} args.inputModel          - Input model to renderer
    * @param {string}                  args.targetHtmlElementId - Target HTML element ID
    * @param {string}                  [args.id]                - Renderer ID

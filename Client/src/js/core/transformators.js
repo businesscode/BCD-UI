@@ -278,3 +278,7 @@ bcdui.core.transformators.JsTlitTransformator = class extends bcdui.core.transfo
   }
 };
 
+export const bcduiExport_JsTransformator = bcdui.core.transformators.JsTransformator;
+export const bcduiExport_WebworkerTransformator = bcdui.core.transformators.WebworkerTransformator;
+export const bcduiExport_DotJsTransformator = bcdui.core.transformators.DotJsTransformator;
+export const bcduiExport_JsTlitTransformator = bcdui.core.transformators.JsTlitTransformator;

@@ -39,6 +39,9 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.Utils;
@@ -55,6 +58,7 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
   public static final String WRS_XML_NAMESPACE = "http://www.businesscode.de/schema/bcdui/wrs-1.0.0";
   //
   private XMLStreamWriter writer;
+  private static final Logger log = LogManager.getLogger(WrsDataWriter.class);
   //
   private boolean maxRowsExceed = false;
   private boolean errorDuringQuery = false;
@@ -214,14 +218,6 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
     // Write milliseconds since 1.1.1970 UTC
     getWriter().writeAttribute("ts", Long.toUnsignedString(Instant.now().toEpochMilli()));
     getWriter().writeDefaultNamespace(WRS_XML_NAMESPACE);
-    
-    {
-      boolean hasCustomItems = getGenerator().getResolvedBindingSets().stream().anyMatch(bs->bs.hasCustomItem());
-      if(hasCustomItems){
-        getWriter().setPrefix(StandardNamespaceContext.CUST_PREFIX, StandardNamespaceContext.CUST_NAMESPACE);
-        getWriter().writeNamespace(StandardNamespaceContext.CUST_PREFIX, StandardNamespaceContext.CUST_NAMESPACE);
-      }
-    }
 
     //
     // request document
@@ -305,6 +301,12 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
     XMLStreamWriter curWriter = getWriter();
     curWriter.writeStartElement("Columns");
     int colPos = 0; // The wrs:C/@pos, they can differ from bindingItem.getColumnNumber() due to wrs:C/wrs:A and repeated values
+
+    boolean hasCustomItems = getGenerator().getSelectedBindingItems().stream().anyMatch(bs->bs.hasCustomItem());
+    if(hasCustomItems){
+      getWriter().setPrefix(StandardNamespaceContext.CUST_PREFIX, StandardNamespaceContext.CUST_NAMESPACE);
+      getWriter().writeNamespace(StandardNamespaceContext.CUST_PREFIX, StandardNamespaceContext.CUST_NAMESPACE);
+    }
 
     for (WrsBindingItem bindingItem : getGenerator().getSelectedBindingItems()) {
       curWriter.writeStartElement("C");
@@ -445,6 +447,7 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
       writeWrsDataRowColumnValue(item.getJDBCDataType(), item.getColumnNumber());
     }
     catch (Exception e){
+      log.error("Error writing wrs:R/wrs:C[@id='{}'] or one of its wrs:A: {}", item.getId(), e.getMessage());
       setErrorDuringQuery(true);
     }
     getWriter().writeEndElement(); // C

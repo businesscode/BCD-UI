@@ -22,6 +22,9 @@ bcdui.component.treeView = Object.assign(bcdui.component.treeView,
 /** @lends bcdui.component.treeView */
 {
 
+  /**
+   * @private
+   */
   _toggleAction: function() {
     const levelId = jQuery(this).closest("*[levelId]").attr("levelId") || "";
     const rendererId = jQuery(this).closest("*[rendererId]").attr("rendererId") || "";
@@ -103,6 +106,9 @@ bcdui.component.treeView = Object.assign(bcdui.component.treeView,
     });
   },
 
+  /**
+   * @private
+   */
   _init: function() {
     const data = this.dataset;
     if (data) {
@@ -118,3 +124,5 @@ bcdui.component.treeView = Object.assign(bcdui.component.treeView,
    */
   _TreeViewListenerRegistry: {}
 });
+
+export const bcduiExport_TreeView = bcdui.component.treeView;

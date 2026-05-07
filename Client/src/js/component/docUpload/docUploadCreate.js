@@ -586,7 +586,7 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
       this._saveData();
     }
   }
-}
+};
 
 bcdui.component.docUpload = Object.assign(bcdui.component.docUpload,
 /** @lends bcdui.component.docUpload */
@@ -769,3 +769,5 @@ bcdui.component = Object.assign(bcdui.component,
     return { refId: args.id, symbolicLink: true };
   }  
 });
+
+export const bcduiExport_DocUpload = bcdui.component.docUpload.Uploader;

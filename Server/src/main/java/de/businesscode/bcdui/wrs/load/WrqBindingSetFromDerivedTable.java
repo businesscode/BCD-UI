@@ -22,6 +22,7 @@ import de.businesscode.bcdui.binding.exc.BindingException;
 import org.w3c.dom.Element;
 
 import de.businesscode.bcdui.binding.BindingItem;
+import de.businesscode.bcdui.binding.Bindings;
 
 /**
  * This class allows using a sub-select (SqlFromSubSelect) like a BindingSet
@@ -88,11 +89,17 @@ public class WrqBindingSetFromDerivedTable extends WrqBindingSetVirtual {
         else if( wrqBi.getAttribute("bRef") != null ) bRef = wrqBi.getAttribute("bRef").toString();
         bi = new BindingItem(bRef, "", false, this);
         bi.setJDBCDataType(wrqBi.getJDBCDataType());
+
+        //take over collected attributes from binding set
+        bi.getGeneralAttributesMap().putAll(wrqBi.getAttributesServer());
+        bi.getClientAttributesMap().putAll(wrqBi.getAttributesClient());
+
         bi.setAggr(wrqBi.getAggr());
-        bi.setCaption(wrqBi.getCaption());
+        String caption = wrqBi.getAttribute(Bindings.captionAttribute);
+        if (caption != null)
+          bi.getGeneralAttributesMap().put(Bindings.captionAttribute, caption);
         bi.setEscapeXML(wrqBi.isEscapeXML());
         if( !wrqBi.getJDBCColumnScale().isEmpty() ) bi.setJDBCColumnScale( Integer.parseInt(wrqBi.getJDBCColumnScale()) );
-        bi.setCaption(wrqBi.getCaption());
       }
 
       // Adjust the column expression and BindingSet to our level

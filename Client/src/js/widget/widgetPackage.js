@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2025 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -1738,9 +1738,9 @@ jQuery.extend(bcdui.widget,
         }
 
         if (args.clickResolver)
-          jQuery("#bcdContextMenuDiv").data("clickResolver", args.clickResolver);
+          jQuery(config.htmlElement).data("clickResolver", args.clickResolver);
         else
-          jQuery("#bcdContextMenuDiv").removeData("clickResolver");
+          jQuery(config.htmlElement).removeData("clickResolver");
 
         // mark event target html element with an id
         var id = bcdui._migPjs._$(config.event.target).get(0).id || bcdui.factory.objectRegistry.generateTemporaryId();
@@ -1842,21 +1842,24 @@ jQuery.extend(bcdui.widget,
       , inputModel         : args.inputModel
       , dataProviders      : args.dataProviders
       , parameters         : args.parameters
+      , suppressInitialRendering : true
     });
 
-    bcdui.factory.objectRegistry.withReadyObjects({
-      ids: [ args.id, args.targetRendererId ],
-      fn: function() {
-        bcdui.widget._attachContextMenu({
-            contextMenuRendererId: args.id
-          , targetHtmlElement    : bcdui._migPjs._$(args.targetHtmlElement).length > 0 ? bcdui._migPjs._$(args.targetHtmlElement).get(0) : bcdui._migPjs._$(bcdui.factory.objectRegistry.getObject(args.targetRendererId).targetHTMLElementId).get(0)
-          , tableMode            : args.tableMode
-          , identsWithin         : args.identsWithin
-          , refreshMenuModel     : args.refreshMenuModel
-          , offset               : args.offset
-          , clickResolver        : clickResolver
-        });
-      }
+    bcdui.factory.objectRegistry.withObjects(args.id, function() {
+      bcdui.factory.objectRegistry.withReadyObjects({
+        ids: [ args.targetRendererId ],
+        fn: function() {
+          bcdui.widget._attachContextMenu({
+              contextMenuRendererId: args.id
+            , targetHtmlElement    : bcdui._migPjs._$(args.targetHtmlElement).length > 0 ? bcdui._migPjs._$(args.targetHtmlElement).get(0) : bcdui._migPjs._$(bcdui.factory.objectRegistry.getObject(args.targetRendererId).targetHTMLElementId).get(0)
+            , tableMode            : args.tableMode
+            , identsWithin         : args.identsWithin
+            , refreshMenuModel     : args.refreshMenuModel
+            , offset               : args.offset
+            , clickResolver        : clickResolver
+          });
+        }
+      });
     });
 
     return bcdui.factory._generateSymbolicLink(args);
@@ -1927,6 +1930,7 @@ jQuery.extend(bcdui.widget,
         , inputModel         : args.inputModel
         , dataProviders      : args.dataProviders
         , parameters         : args.parameters
+        , suppressInitialRendering : true
       });
     };
 
@@ -1941,31 +1945,26 @@ jQuery.extend(bcdui.widget,
       _createTooltipRenderer(args);
     }
 
-    // sync against target renderer, if bound to
-    var objectsToWait = [args.id];
-    if(boundToRenderer){
-      objectsToWait.push(args.targetRendererId);
-    }
-
-    bcdui.factory.objectRegistry.withReadyObjects({
-      ids: objectsToWait,
-      fn: function() {
-        if(!boundToRenderer && !args.targetHtmlElement){
-          // we dont attach tooltip renderer as we dont have a target
-          return;
+    bcdui.factory.objectRegistry.withObjects(args.id, function() {
+      bcdui.factory.objectRegistry.withReadyObjects({
+        ids: [ args.targetRendererId ],
+        fn: function() {
+          if(!boundToRenderer && !args.targetHtmlElement){
+            // we dont attach tooltip renderer as we dont have a target
+            return;
+          }
+          bcdui.widget._attachTooltipRenderer({
+              tooltipRendererId : args.id
+            , targetHtmlElement : bcdui._migPjs._$(args.targetHtmlElement).length > 0 ? bcdui._migPjs._$(args.targetHtmlElement).get(0) : bcdui._migPjs._$(bcdui.factory.objectRegistry.getObject(args.targetRendererId).targetHTMLElementId).get(0)
+            , filter            : args.filter
+            , tableMode         : args.tableMode
+            , identsWithin      : args.identsWithin
+            , delay             : delay
+            , offset            : args.offset
+          });
         }
-        bcdui.widget._attachTooltipRenderer({
-            tooltipRendererId : args.id
-          , targetHtmlElement : bcdui._migPjs._$(args.targetHtmlElement).length > 0 ? bcdui._migPjs._$(args.targetHtmlElement).get(0) : bcdui._migPjs._$(bcdui.factory.objectRegistry.getObject(args.targetRendererId).targetHTMLElementId).get(0)
-          , filter            : args.filter
-          , tableMode         : args.tableMode
-          , identsWithin      : args.identsWithin
-          , delay             : delay
-          , offset            : args.offset
-        });
-      }
+      });
     });
-
     return bcdui.factory._generateSymbolicLink(args);
   },
 
@@ -2775,7 +2774,10 @@ jQuery.extend(bcdui.widget,
     _getTooltipFilterOption: function(inputText) {
       return inputText;
     },
-    
+
+    /**
+     * @private
+     */
     _filterClickAction: function() {
       const action = jQuery(this).closest("*[bcdActionId]").attr("bcdActionId") || "";
       if (action == "selectAll")

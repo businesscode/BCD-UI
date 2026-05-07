@@ -460,3 +460,4 @@ bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
       return msg + "]";
     }
 }; // Create class: bcdui.core.SimpleModel
+export const bcduiExport_SimpleModel = bcdui.core.SimpleModel;

@@ -113,3 +113,4 @@ bcdui.component.far.FarModel = class extends bcdui.core.AsyncJsDataProvider
     return "bcdui.component.far.FarModel";
   }
 };
+export const bcduiExport_FarModel = bcdui.component.far.FarModel;

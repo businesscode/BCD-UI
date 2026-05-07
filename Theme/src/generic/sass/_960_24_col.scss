@@ -580,7 +580,7 @@ body {
 
 /* http://sonspring.com/journal/clearing-floats */
 
-.clear {
+.clear:not(.bcdAction) {
   clear: both;
   display: block;
   overflow: hidden;

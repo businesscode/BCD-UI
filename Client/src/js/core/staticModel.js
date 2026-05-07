@@ -248,6 +248,7 @@ bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
       return "[bcdui.core.StaticModel: " + this.id + "]";
     }
 }; // Create class: bcdui.core.StaticModel
+export const bcduiExport_StaticModel = bcdui.core.StaticModel;
 
 /**
  * A fixed empty model which can be used in various cases when the real model is not

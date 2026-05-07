@@ -859,4 +859,5 @@ bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
     }
   }
 
-} ;
+};
+export const bcduiExport_ScorecardModel = bcdui.component.scorecard.ScorecardModel;

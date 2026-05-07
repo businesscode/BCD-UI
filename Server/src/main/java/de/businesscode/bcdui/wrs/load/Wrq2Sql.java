@@ -127,7 +127,7 @@ public class Wrq2Sql implements ISqlGenerator
       }
 
     } catch(Exception e) {
-      throw new RuntimeException("Unable to generate select statement.", e);
+      throw new RuntimeException("Unable to generate select statement in workaround for missing GROUPING SET support: "+e.getMessage(), e);
     }
     
     wrqQueryBuilder = new WrqQueryBuilder(this, bindings, requestDoc.getDocumentElement());

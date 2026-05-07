@@ -69,7 +69,6 @@ public class StandardBindingSet implements BindingSet {
   private final ArrayList<Relation> relations = new ArrayList<Relation>();
   private final WriteProcessing writeProcessing;
   private Security security = null;
-  private boolean hasCustomItem = false;
   private List<Class<? extends Modifier>> wrqModifiers = new ArrayList<>();
   protected final Logger log = LogManager.getLogger(StandardBindingSet.class);
 
@@ -94,7 +93,6 @@ public class StandardBindingSet implements BindingSet {
     relations.addAll(bs.relations);
     writeProcessing = bs.writeProcessing;
     security = bs.security;
-    hasCustomItem = bs.hasCustomItem;
     wrqModifiers.addAll(bs.wrqModifiers);
   }
 
@@ -411,18 +409,6 @@ public class StandardBindingSet implements BindingSet {
     return this.security;
   }
 
-  @Override
-  public boolean hasCustomItem() {
-    return this.hasCustomItem;
-  }
-  
-  /**
-   * @param hasCustomItem the hasCustomItem to set
-   */
-  public void setHasCustomItem(boolean hasCustomItem) {
-    this.hasCustomItem = hasCustomItem;
-  }
-  
   public void addWrqModifier(String className) throws ClassNotFoundException {
     wrqModifiers.add(Class.forName(className).asSubclass(Modifier.class));
   }

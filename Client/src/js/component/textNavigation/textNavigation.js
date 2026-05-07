@@ -391,7 +391,7 @@ bcdui.component.textnavigation.TextNavigation = class extends bcdui.core.Rendere
     return transText;
   }
 
-}
+};
 
 /**
  * Create voice recognizer based on http://www.businesscode.de/schema/bcdui/textnavigation-1.0.0 XML
@@ -490,3 +490,5 @@ bcdui.component.textnavigation.VoiceRecognition = class
   }
 
 }
+
+export const bcduiExport_TextNavigation = bcdui.component.textnavigation.TextNavigation;

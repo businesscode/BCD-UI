@@ -415,3 +415,5 @@ bcdui.component.scorecard.Scorecard = class extends bcdui.core.Renderer
 
     return { refId: args.id, symbolicLink: true };
   };
+
+export const bcduiExport_Scorecard = bcdui.component.scorecard.Scorecard;

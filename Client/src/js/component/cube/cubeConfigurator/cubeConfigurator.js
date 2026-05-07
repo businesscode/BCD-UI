@@ -798,3 +798,4 @@ bcdui.component.cube.configurator = Object.assign(bcdui.component.cube.configura
   }
   
 });
+export const bcduiExport_CubeConfigurator = bcdui.component.cube.configurator;

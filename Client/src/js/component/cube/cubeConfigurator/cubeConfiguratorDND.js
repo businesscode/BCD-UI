@@ -445,7 +445,7 @@ bcdui.component.cube.configuratorDND = Object.assign(bcdui.component.cube.config
     if (typeof bucketModel != "undefined") {
 
       const dims = Array.from(configModel.queryNodes("//dm:Dimensions/dm:LevelRef")).map(function(d) { return (d.getAttribute("bRef") || "").trim(); })
-      const msr = Array.from(configModel.queryNodes("//dm:Measures/dm:Measure")).map(function(d) { return (d.getAttribute("id") || "").trim(); })
+      const msr = Array.from(configModel.queryNodes("//dm:Measures/dm:Measure[count(.//*[@idRef])=1]//*[@idRef]")).map(function(d) { return (d.getAttribute("idRef") || "").trim(); })
       const binding = configModel.read("/*/wrq:BindingSet", "");
       bcdui.util.getBindingInfo(binding, dims.concat(msr), function(captionMap) {
 
@@ -573,8 +573,7 @@ bcdui.component.cube.configuratorDND = Object.assign(bcdui.component.cube.config
       if (mes.getAttribute("cumulateRow") != null && mes.getAttribute("cumulateCol") != null) customClass = "bcdRowColCumulate";
     }
 
-    var title =  bcdui.factory.objectRegistry.getObject(cubeId).getConfigModel().query("//cube:Layout//@description") != null ? "" : " title='" + args.caption + "'";
-    return "<li bcdRowIdent='" + args.value + "' contextId='" + (mes !=null ? "bcdMsr" : "bcdDim") +"' class='ui-selectee " + customClass + "' bcdValue='" + args.value + "' bcdPos='" + args.position + "' bcdLoCase='" + args.caption.toLowerCase() + "'" + title + "><span class='bcdItem'>" + args.caption + "</span></li>";
+    return "<li bcdRowIdent='" + args.value + "' contextId='" + (mes !=null ? "bcdMsr" : "bcdDim") +"' class='ui-selectee " + customClass + "' bcdValue='" + args.value + "' bcdPos='" + args.position + "' bcdLoCase='" + args.caption.toLowerCase() + "'><span class='bcdItem'>" + args.caption + "</span></li>";
   },
 
   // some special rules to remove cube attributes like sort, cumulate, exclude, hides or not inner vdms
@@ -783,17 +782,17 @@ bcdui.component.cube.configuratorDND = Object.assign(bcdui.component.cube.config
     '</style>').appendTo('head');
 
     return template;
-  }
+  },
 
   // Extension Points
   /**
    * @private
    */
-  , _addGroupManagerContextMenu : function(){}
+  _addGroupManagerContextMenu : function(){},
 
   /**
    * @private
    */
-  , _markGroupingDimensions : function(){}
+  _markGroupingDimensions : function(){}
 
 });

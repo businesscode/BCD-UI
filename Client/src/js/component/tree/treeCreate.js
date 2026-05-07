@@ -425,7 +425,7 @@ bcdui.component.tree.Tree = class extends bcdui.core.Renderer
    * @inheritDoc
    */
   getClassName() {return "bcdui.component.tree.Tree";}
-}
+};
 
 /************************
  * Glue-ware for declarative environments, not to be used directly
@@ -462,3 +462,4 @@ bcdui.component = Object.assign(bcdui.component,
   }
 });
 
+export const bcduiExport_Tree = bcdui.component.tree.Tree;

@@ -118,12 +118,6 @@ public interface BindingSet extends Cloneable, Serializable {
   public boolean hasItem(String key);
   
   /**
-   * 
-   * @return TRUE if contains at least one custom element from {@link StandardNamespaceContext#CUST_NAMESPACE}
-   */
-  public boolean hasCustomItem();
-
-  /**
    * Get binding items by ids.
    * @see de.businesscode.bcdui.binding.Bindings#get(String)
    * @throws BindingNotFoundException

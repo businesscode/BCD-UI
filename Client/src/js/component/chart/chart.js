@@ -1667,4 +1667,4 @@ bcdui.component.chart.Chart = class extends bcdui.core.DataProvider
 
 }; // Create class: bcdui.component.Chart
 
-
+export const bcduiExport_Chart = bcdui.component.chart.Chart;
