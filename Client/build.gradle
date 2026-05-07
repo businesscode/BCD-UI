@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2025 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -45,20 +45,16 @@ def js3rdPartyNpm = [
                           [ fn: "jquery-ui.css",       ofn: "jquery-ui-dist/dist/themes/base/jquery-ui.css"],
                           [ fn: "images",              ofn: "jquery-ui-dist/dist/themes/base/images"]
                         ],
-      "block-ui":       [ fn: "jquery.blockUI.js",     ofn: "block-ui/jquery.blockUI.js" ],
-//      "dot":            [ fn: "doT.js",                ofn: "dot/doT.js",                                    ofnm: "dot/doT.min.js"],
-//      "log4javascript": [ fn: "log4javascript.js",     ofn: "log4javascript/log4javascript_uncompressed.js", ofnm: "log4javascript/log4javascript.js"],
-//      "handsontable":   [ [ fn: "handsontable.js",     ofn: "handsontable/dist/handsontable.js",             ofnm: "handsontable/dist/handsontable.min.js"],
-//                          [ fn: "numbro.js",           ofn: "handsontable/dist/numbro/numbro.js"],
-//                          [ fn: "handsontable.css",    ofn: "handsontable/dist/handsontable.min.css"] ],
       "nouislider":     [ fn: "nouislider.js",         ofn: "nouislider/distribute/nouislider.js"],
-//      "fileSaver":      [ fn: "fileSaver.js",          ofn: "fileSaver/dist/FileSaver.js",                   ofnm: "fileSaver/dist/FileSaver.min.js"],
       "d3-format":      [ fn: "d3-format.js",          ofn: "d3-format/dist/d3-format.js",                   ofnm: "d3-format/dist/d3-format.min.js"],
       "echarts":        [ fn: "echarts.js",            ofn: "echarts/dist/echarts.js",                       ofnm: "echarts/dist/echarts.min.js"]
     ]
 js3rdPartyNpm = js3rdPartyNpm.findAll { project.hasProperty('bcdui.3rdPartyJs.'+it.key) }
 
-def copyUnmodified = ["xlsx.full.min.js": [ofn: "src/js/3rdParty/xlsx.full.min.js"]]
+def copyUnmodified = [
+  "xlsx.full.min.js": [ofn: "src/js/3rdParty/xlsx.full.min.js"]
+, "jquery.blockUI.js": [ofn: "src/js/3rdParty/jquery.blockUI.js"]
+]
 
 // list 3rdParty folders (src/js/3rdPary) which are kept locally (not minimized but modified)
 def local3rdPartyFolders = ["ckeditor", "handsontable", "fileSaver", "log4javascript", "doT"]
@@ -157,10 +153,10 @@ task bcduiClientCollect3rdParty {
       } else {
         // if we specified a folder, copy it
         if (new File("$clientNodeModulesDir/${value.ofn}").isDirectory()) {
-		  copy {
-		    from  "$clientNodeModulesDir/${value.ofn}"
-		    into "$taskDestDir/${value.fn}"
-		  }
+          copy {
+            from  "$clientNodeModulesDir/${value.ofn}"
+            into "$taskDestDir/${value.fn}"
+          }
         }
         // otherwise map files
         else {
@@ -263,8 +259,8 @@ task bcduiClientJsFileGroups {
           if (replaceExports) {
             outFile.text = outFile.text.replaceAll('export const bcduiExport_[\\w]+ *= *[\\w.]+;?', '')
             outFile.text = outFile.text.replaceAll('await import\\(\\"\\.\\./modules/[\\w/]+\\.js\\"\\),', '')
-  			    outFile.text = outFile.text.replaceAll('import\\"[\\.\\/]+/modules/core.js\\";', '')
-			    }
+            outFile.text = outFile.text.replaceAll('import\\"[\\.\\/]+/modules/core.js\\";', '')
+          }
           outFile.text = '"use strict";' + outFile.text
         }
         outFile.text += newLine + ( is3rdParty ? '/* For license see THIRDPARTYLICENSEREADME.txt */' : "/* $bcdCopyRightText */" )
@@ -273,7 +269,7 @@ task bcduiClientJsFileGroups {
   }
 
   def minifiyTask = { String newTaskName, inputFile, outputFile ->
-     task(newTaskName, type: NodeTask) {
+    task(newTaskName, type: NodeTask) {
       mustRunAfter 'bcduiClientCollectAll'
       script = file("$nodeModulesDir/esbuild/bin/esbuild")
       args = [
@@ -369,7 +365,7 @@ task bcduiClientJsFileGroups {
       def skip = false;
       local3rdPartyFolders.each { ignore -> skip |= fName.startsWith("/js/3rdParty/" + ignore); }
 
-  	  if (! skip) {
+      if (! skip) {
         fName = fName.lastIndexOf('/').with {it != -1 ? fName[it+1..<fName.length()] : fName}
         def fPathNameWoExt = fName.lastIndexOf('.').with {it != -1 ? fName[0..<it] : fName}
         def found = false;
