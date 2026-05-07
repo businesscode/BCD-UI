@@ -45,7 +45,7 @@
  *
  * @extends bcdui.core.SimpleModel
  */
-export const bcduiExport_GridModel = bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
+bcdui.component.grid.GridModel = class extends bcdui.core.SimpleModel
 {
   /**
   * @param {Object} args The parameter map contains the following properties:
@@ -181,7 +181,7 @@ export const bcduiExport_GridModel = bcdui.component.grid.GridModel = class exte
    * @inheritDoc
    */
   getClassName() {return "bcdui.component.grid.GridModel";}
-}
+};
 
 /**
  * @description
@@ -3987,4 +3987,5 @@ bcdui.component = Object.assign(bcdui.component,
   }
 });
 
+export const bcduiExport_GridModel = bcdui.component.grid.GridModel;
 export const bcduiExport_Grid = bcdui.component.grid.Grid;

@@ -23,7 +23,7 @@
  * Creates a tree front end based on a configuration
  * @extends bcdui.core.Renderer  
 */
-export const bcduiExport_Tree = bcdui.component.tree.Tree = class extends bcdui.core.Renderer
+bcdui.component.tree.Tree = class extends bcdui.core.Renderer
 {
   /**
   * @param args The parameter map contains the following properties:
@@ -425,7 +425,7 @@ export const bcduiExport_Tree = bcdui.component.tree.Tree = class extends bcdui.
    * @inheritDoc
    */
   getClassName() {return "bcdui.component.tree.Tree";}
-}
+};
 
 /************************
  * Glue-ware for declarative environments, not to be used directly
@@ -462,3 +462,4 @@ bcdui.component = Object.assign(bcdui.component,
   }
 });
 
+export const bcduiExport_Tree = bcdui.component.tree.Tree;

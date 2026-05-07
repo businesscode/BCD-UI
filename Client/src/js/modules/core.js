@@ -55,6 +55,7 @@ import {
   bcduiExport_DotJsTransformator as DotJsTransformator
 , bcduiExport_JsTransformator as JsTransformator
 , bcduiExport_WebworkerTransformator as WebworkerTransformator
+, bcduiExport_JsTlitTransformator as JsTlitTransformator
 } from "../core/transformators.js"
 
 import "../core/xmlLoader.js"

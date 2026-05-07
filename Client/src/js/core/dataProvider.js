@@ -46,7 +46,7 @@
  * @extends bcdui.core.AbstractExecutable
  * @abstract
  */
-export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
+bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
 {
   /**
    * @description
@@ -1212,3 +1212,5 @@ export const bcduiExport_DataProvider = bcdui.core.DataProvider = class extends 
     }.bind(this));
   }
 }; // Create class: bcdui.core.DataProvider
+
+export const bcduiExport_DataProvider = bcdui.core.DataProvider;

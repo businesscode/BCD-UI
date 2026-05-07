@@ -18,7 +18,7 @@
  * This namespace contains the functions for expanding and collapsing tree nodes in the tree viewer.
  * @namespace bcdui.component.treeView
  */
-export const bcduiExport_TreeView = bcdui.component.treeView = Object.assign(bcdui.component.treeView, 
+bcdui.component.treeView = Object.assign(bcdui.component.treeView, 
 /** @lends bcdui.component.treeView */
 {
 
@@ -124,3 +124,5 @@ export const bcduiExport_TreeView = bcdui.component.treeView = Object.assign(bcd
    */
   _TreeViewListenerRegistry: {}
 });
+
+export const bcduiExport_TreeView = bcdui.component.treeView;

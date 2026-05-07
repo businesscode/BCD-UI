@@ -142,7 +142,7 @@ bcdui.core.transformators.IdentityTransformator = class
    * For usage by TransformationChain
    * @extends bcdui.core.transformators.IdentityTransformator
     */
-export const bcduiExport_JsTransformator = bcdui.core.transformators.JsTransformator = class extends bcdui.core.transformators.IdentityTransformator
+bcdui.core.transformators.JsTransformator = class extends bcdui.core.transformators.IdentityTransformator
 {
   /**
    * @param {(string|function)} procFkt - The js function to be used for processing. Either a real function or a string with JS code for eval.
@@ -176,7 +176,7 @@ export const bcduiExport_JsTransformator = bcdui.core.transformators.JsTransform
    * For usage by TransformationChain
    * @extends bcdui.core.transformators.IdentityTransformator
     */
-export const bcduiExport_WebworkerTransformator = bcdui.core.transformators.WebworkerTransformator = class extends bcdui.core.transformators.IdentityTransformator
+bcdui.core.transformators.WebworkerTransformator = class extends bcdui.core.transformators.IdentityTransformator
 {  
   /**
    * @param {Object} args The parameter map: contains Data to be transformed
@@ -212,7 +212,7 @@ export const bcduiExport_WebworkerTransformator = bcdui.core.transformators.Webw
    * For usage by TransformationChain
    * @extends bcdui.core.transformators.IdentityTransformator
     */
-export const bcduiExport_DotJsTransformator = bcdui.core.transformators.DotJsTransformator = class extends bcdui.core.transformators.IdentityTransformator
+bcdui.core.transformators.DotJsTransformator = class extends bcdui.core.transformators.IdentityTransformator
 {
   /**
    * @private
@@ -278,3 +278,7 @@ bcdui.core.transformators.JsTlitTransformator = class extends bcdui.core.transfo
   }
 };
 
+export const bcduiExport_JsTransformator = bcdui.core.transformators.JsTransformator;
+export const bcduiExport_WebworkerTransformator = bcdui.core.transformators.WebworkerTransformator;
+export const bcduiExport_DotJsTransformator = bcdui.core.transformators.DotJsTransformator;
+export const bcduiExport_JsTlitTransformator = bcdui.core.transformators.JsTlitTransformator;

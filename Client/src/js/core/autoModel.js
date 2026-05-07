@@ -21,7 +21,7 @@
  * To trigger a data re-load, prefer `args.isAutoRefresh` to whatch for changed f:Filters instead of `execute(true)`.
  * @extends bcdui.core.SimpleModel
  */
-export const bcduiExport_AutoModel = bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
+bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
 {
   /**
    * @param {Object} args The parameter map contains the following properties. Most parameters only apply when using default wrq-stylesheet.
@@ -216,4 +216,6 @@ export const bcduiExport_AutoModel = bcdui.core.AutoModel = class extends bcdui.
       // propagate
       super.destroy();
     }
-}
+};
+
+export const bcduiExport_AutoModel = bcdui.core.AutoModel;

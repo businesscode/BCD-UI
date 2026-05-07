@@ -23,7 +23,7 @@
  * Creates an Uploader
  * @extends bcdui.core.Renderer
  */
-export const bcduiExport_DocUpload = bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
+bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
 {
   /**
   * @param args The parameter map contains the following properties:
@@ -586,7 +586,7 @@ export const bcduiExport_DocUpload = bcdui.component.docUpload.Uploader = class 
       this._saveData();
     }
   }
-}
+};
 
 bcdui.component.docUpload = Object.assign(bcdui.component.docUpload,
 /** @lends bcdui.component.docUpload */
@@ -769,3 +769,5 @@ bcdui.component = Object.assign(bcdui.component,
     return { refId: args.id, symbolicLink: true };
   }  
 });
+
+export const bcduiExport_DocUpload = bcdui.component.docUpload.Uploader;

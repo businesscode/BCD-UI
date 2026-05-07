@@ -25,7 +25,7 @@
   * To use Cube or CubeModel, make sure to load `bcdui.js?bcduiLoadFiles=bcduiCube`
   * @extends bcdui.core.ModelWrapper
   */
-export const bcduiExport_CubeModel = bcdui.component.cube.CubeModel = class extends bcdui.core.ModelWrapper
+bcdui.component.cube.CubeModel = class extends bcdui.core.ModelWrapper
 
 {
   /**
@@ -184,6 +184,7 @@ export const bcduiExport_CubeModel = bcdui.component.cube.CubeModel = class exte
    */
   getClassName() {return "bcdui.component.cube.CubeModel";}
 };
+
 
 //default layout renderer
 
@@ -906,4 +907,5 @@ bcdui.component = Object.assign(bcdui.component,
   }
 });
 
+export const bcduiExport_CubeModel = bcdui.component.cube.CubeModel;
 export const bcduiExport_Cube = bcdui.component.cube.Cube;

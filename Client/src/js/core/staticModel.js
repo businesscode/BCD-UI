@@ -30,7 +30,7 @@
    * </ol>
    * @extends bcdui.core.AbstractUpdatableModel
    */
-export const bcduiExport_StaticModel = bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
+bcdui.core.StaticModel = class extends bcdui.core.AbstractUpdatableModel
 {
   /**
    * @typedef {Object} StaticModelParam
@@ -248,6 +248,7 @@ export const bcduiExport_StaticModel = bcdui.core.StaticModel = class extends bc
       return "[bcdui.core.StaticModel: " + this.id + "]";
     }
 }; // Create class: bcdui.core.StaticModel
+export const bcduiExport_StaticModel = bcdui.core.StaticModel;
 
 /**
  * A fixed empty model which can be used in various cases when the real model is not

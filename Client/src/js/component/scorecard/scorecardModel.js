@@ -107,7 +107,7 @@
  *
  * @extends bcdui.core.DataProvider
  */
-export const bcduiExport_ScorecardModel = bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
+bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
 {
   /**
    * @param {Object} args - Parameter map contains the following properties:
@@ -859,4 +859,5 @@ export const bcduiExport_ScorecardModel = bcdui.component.scorecard.ScorecardMod
     }
   }
 
-} ;
+};
+export const bcduiExport_ScorecardModel = bcdui.component.scorecard.ScorecardModel;

@@ -1009,7 +1009,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
 
  /**
    * This class renders data to HTML, per default a table view of Wrs, but it does support any kind of input and HTML output when providing a `chain`.
-   * A Renderer is started on page entry and asks its DataProviders to become ready and waits if necessary.
+   * A Renderer is started on page entry and makes sure its DataProviders are or become ready and waits if necessary.
    * The chain represents the exact logic of the Renderer can be implemented as JavaScript functions or XSLTs.
    * The default is htmlBuilder.xslt, which is ideal for showing Wrs tabular data. It renders an HTML table, applies number-formats, and aligns dimensions left.
    * To identify the corresponding row in Wrs, use a `tr`s attribute `bcdrowident`, which is set to the `wrs:R`'s id.

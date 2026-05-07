@@ -62,7 +62,7 @@
  *
  * @extends bcdui.core.AbstractUpdatableModel
 */
-export const bcduiExport_SimpleModel = bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
+bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
 {
    /**
    * @typedef {object} SimpleModelParamSaveOptions
@@ -460,3 +460,4 @@ export const bcduiExport_SimpleModel = bcdui.core.SimpleModel = class extends bc
       return msg + "]";
     }
 }; // Create class: bcdui.core.SimpleModel
+export const bcduiExport_SimpleModel = bcdui.core.SimpleModel;
