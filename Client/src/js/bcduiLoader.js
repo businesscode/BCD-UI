@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2025 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -67,10 +67,10 @@ bcdui.bcduiCeFiles =
         , "/js/nonmodules/core/abstractExecutable.js"
         , "/js/nonmodules/core/dataProvider.js"
         , "/js/nonmodules/core/browserCompatibility.js"
-        , "/js/nonmodules/core/commonStatusObjects.js"
-        , "/js/nonmodules/core/dataProviders.js"
         , "/js/nonmodules/core/transformators.js"
         , "/js/nonmodules/core/extendedBrowserCompatibility.js"
+        , "/js/nonmodules/core/commonStatusObjects.js"
+        , "/js/nonmodules/core/dataProviders.js"
         , "/js/nonmodules/core/xmlLoader.js"
         , "/js/nonmodules/log/backendEventsPoller.js"
         , "/js/nonmodules/log/clientEventsPublisher.js"
@@ -367,15 +367,6 @@ bcdui.bcduiCeFiles =
   ]
 };
 // JSON-PART-FOR-BUILD
-
-// remove saxonJs 3rd Party file if not required
-if (!bcdui.config.useSaxonJs) {
-  bcdui.bcduiCeFiles["groups"].forEach(function(group) {
-    if (group["id"] == "3rdParty") {
-      group["files"] = group["files"].filter(function(file) { return file != "/js/3rdParty/SaxonJS2.js"; });
-    }
-  });
-}
 
 // build browser compatibility matrix
 bcdui.browserCompatibility = (function(){

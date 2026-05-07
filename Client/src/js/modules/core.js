@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2025 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -33,6 +33,12 @@ import {
 } from "../core/dataProvider.js"
 
 import "../core/browserCompatibility.js"
+import {
+  bcduiExport_DotJsTransformator as DotJsTransformator
+, bcduiExport_JsTransformator as JsTransformator
+, bcduiExport_WebworkerTransformator as WebworkerTransformator
+, bcduiExport_JsTlitTransformator as JsTlitTransformator
+} from "../core/transformators.js"
 import "../core/extendedBrowserCompatibility.js"
 import "../core/commonStatusObjects.js"
 
@@ -50,13 +56,6 @@ import {
 , bcduiExport_RequestDocumentDataProvider as RequestDocumentDataProvider
 , bcduiExport_StringDataProvider as StringDataProvider
 } from "../core/dataProviders.js"
-
-import {
-  bcduiExport_DotJsTransformator as DotJsTransformator
-, bcduiExport_JsTransformator as JsTransformator
-, bcduiExport_WebworkerTransformator as WebworkerTransformator
-, bcduiExport_JsTlitTransformator as JsTlitTransformator
-} from "../core/transformators.js"
 
 import "../core/xmlLoader.js"
 import "../log/backendEventsPoller.js"
