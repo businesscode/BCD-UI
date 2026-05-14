@@ -182,7 +182,7 @@ task bcduiProcessXslt {
 	def copyXSLTTask = { String newTaskName, String folder, File xsltFile ->
   	tasks.register(newTaskName, Copy) {
       def path = xsltFile.path.replace("\\", "/")
-      def target = "${generatedApisDir}/sef/" + xsltFile.path.substring(path.indexOf(folder) + folder.length())
+      def target = "${generatedApisDir}/sef/" + xsltFile.path.substring(path.lastIndexOf(folder) + folder.length())
       def targetDir = file("${target}").parentFile
       from xsltFile
       into targetDir
@@ -194,8 +194,8 @@ task bcduiProcessXslt {
     tasks.register(newTaskName, Exec) {
       def xsltDir    = xsltFile.parentFile
       def path = xsltFile.path.replace("\\", "/")
-      def target = "${generatedApisDir}/sef/" + xsltFile.path.substring(path.indexOf(folder) + folder.length()).replace(".xslt", ".sef.json")
-
+      def target = "${generatedApisDir}/sef/" + path.substring(path.lastIndexOf(folder) + folder.length()).replace(".xslt", ".sef.json")
+      doFirst { print(path + "  " + target) }
       executable "node"
       args(
         "$nodeModulesDir/xslt3/xslt3.js",
