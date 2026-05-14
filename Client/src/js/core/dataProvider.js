@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2025 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -485,9 +485,15 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    * @return {string[]} array of wrsValidationErrorCode strings
    * @private
    */
-  _wrsValidateCellValue(value, colMeta, refValues) {
+  _wrsValidateCellValue(value, colMeta) {
     const errors = [];
     const type = colMeta["type-name"] || "";
+
+    // NULLABLE check. If it fails, no value is there so we can stop the check here
+    if (colMeta["nullable"] === "0" && (value === "" || value === null)) {
+      errors.push("bcd_ValidNullable");
+      return errors;
+    }
 
     // NUMERIC check
     if (/DECIMAL|DOUBLE|FLOAT|NUMERIC|REAL/.test(type) && value !== "" && /[^0-9.\-]/.test(value))
@@ -498,20 +504,16 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
       errors.push("bcd_ValidTypeName_INTEGER");
 
     // DISPLAY SIZE check (VARCHAR / CHAR)
-    if (/VARCHAR|CHAR/.test(type)) {
-      const displaySize = Number.parseInt((colMeta["display-size"] || "255"));
-      if(displaySize > 0 && value.length > displaySize)
+    if (/VARCHAR|CHAR/.test(type) && colMeta["display-size"]) {
+      const displaySize = Number.parseInt((colMeta["display-size"]));
+      if(displaySize > 0 && value.toString().length > displaySize)
         errors.push("bcd_ValidDisplaySize");
     }
 
-    // NULLABLE check
-    if (colMeta["nullable"] === "0" && value === "")
-      errors.push("bcd_ValidNullable");
-
     // SCALE check
     if (/DECIMAL|DOUBLE|FLOAT|NUMERIC|REAL/.test(type)) {
-      const dotIdx = value.indexOf(".");
-      if(dotIdx !== -1 && value.substring(dotIdx + 1).length > parseInt(colMeta["scale"] || "0", 10))
+      const dotIdx = value.toString().indexOf(".");
+      if(dotIdx !== -1 && value.toString().substring(dotIdx + 1).length > parseInt(colMeta["scale"] || "0", 10))
         errors.push("bcd_ValidScale");
     }
 
@@ -522,7 +524,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
       errors.push("bcd_ValidTypeName_TIMESTAMP");
 
     // REFERENCES check
-    if (refValues && value !== "" && !refValues.has(value))
+    if (colMeta.references && value !== "" && !new Set(colMeta.references.map(r => r.value)).has((""+value)))
       errors.push("bcd_ValidReferences");
 
     return errors;
@@ -815,7 +817,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   }
 
   /**
-   * Validates a set of column values against the WRS header constraints of this DataProvider.
+   * Validates a set of column values against the WRS header constraints of this DataProvider, i.e., would these valus be valid.
    * The check is purely client-side (no server round-trip): type, scale, display-size, nullable,
    * embedded header References, and key uniqueness within the loaded data are all covered.
    * Only columns present in args.values are validated.
@@ -823,8 +825,9 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    * For a planned tblInsert, rowId is not needed as the uniqueness check is performed against all current loaded data.
    * @param {Object}  args            - parameter bag
    * @param {Object}  args.values     - { colId: value } map of values to validate
-   * @param {string}  [args.rowId]    - only needed for key uniqueness: identifies the row being validated so it is excluded from the duplicate check. If not given values is treated like a new row to be inserted
-   * @param {Object}  [args.filter]   - alternative to rowId, only needed for key uniqueness exclusion; first matching row is used
+   * @param {string}  [args.rowId]    - only needed for key uniqueness: identifies the row being validated so it is excluded from the duplicate check. 
+   *    If not given values is treated like a new row to be inserted
+   * @param {Object}  [args.filter]   - alternative to parameter rowId; first matching row is used
    * @return {Array<{colId: string, errorCode: string}>} list of validation errors
    *
    * @example
@@ -841,32 +844,30 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
     const headerById = {};
     headers.forEach(h => { headerById[h.id] = h; });
 
-    // Build reference Sets from the refValues already collected by tblGetColumnMetadata
-    const refValuesByColId = {};
-    headers.forEach(h => {
-      if (h.refValues)
-        refValuesByColId[h.id] = new Set(h.refValues.map(r => r.value));
-    });
+    const errors = [];
+    // If no rowId/filter is set, we assume an insert, i.e. we must have values for all nullable='0' columns, otherwise can use values from the targetRow
+    if( !args.rowId && !args.filter ) {
+      headers.filter( h => h.nullable=="0" && (values[h.id]==null || values[h.id]=="") )
+             .forEach( h => errors.push({ colId: h.id, errorCode: "bcd_ValidNullable" }) );
+    }
 
     // Validate each provided column; key uniqueness is triggered on the first key column encountered
-    const errors = [];
     const keyColIds = headers.filter(h => h.isKey === "true").map(h => h.id);
     let keyChecked = false;
     for (const colId in values) {
       const colMeta = headerById[colId];
       if (!colMeta) {
         errors.push({ colId, errorCode: "bcd_ValidId" }); // TODO add to messages
-        continue
+        continue;
       };
-      const value = values[colId] === null ? "" : String(values[colId]);
-      this._wrsValidateCellValue(value, colMeta, refValuesByColId[colId] || null)
+      this._wrsValidateCellValue(values[colId], colMeta)
         .forEach(errorCode => errors.push({ colId, errorCode }));
 
       // Key uniqueness: run once when iterating over a key column, provided all key columns are in values
       if (!keyChecked && colMeta.isKey === "true") {
         keyChecked = true;
         const rowId = args.rowId || (args.filter ? (this.tblGetRowIds({ filter: args.filter })[0] || null) : null);
-        const targetRow = this.tblSelectRow({rowId: args.rowId});
+        const targetRow = this.tblSelectRow({rowId: args.rowId});        
         const keyFilter = Object.fromEntries(keyColIds.map(k => [k, typeof values[k] === 'undefined' ? targetRow[k] : String(values[k])]));
         // rowId may not exist, we will assume an insert then and do no exclusion from uniqueness check
         const idExclude = rowId ? "[@id!='" + rowId + "']" : "";
