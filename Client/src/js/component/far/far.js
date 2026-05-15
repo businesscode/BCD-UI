@@ -137,8 +137,8 @@ bcdui.component.far.Far = class
     var gridRendering = new bcdui.core.Renderer({
       targetHtml : this.gridRenderingTarget,
       chain : this.options.renderingChain || [
-        bcdui.contextPath + "/bcdui/xslt/wrs/paginate.xslt",        // apply far:Paginate
-        bcdui.contextPath + "/bcdui/xslt/renderer/htmlBuilder.xslt" // final rendering of Wrs
+        bcdui.contextPath + "/bcdui/xslt/wrs/paginate.xslt",  // apply far:Paginate
+        bcdui.wrs.htmlBuilder                                 // final rendering of Wrs
       ], // renderingChain = internal API
       inputModel : this.farModel,
       parameters : {

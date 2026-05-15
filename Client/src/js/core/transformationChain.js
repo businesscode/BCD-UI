@@ -1011,7 +1011,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
    * This class renders data to HTML, per default a table view of Wrs, but it does support any kind of input and HTML output when providing a `chain`.
    * A Renderer is started on page entry and makes sure its DataProviders are or become ready and waits if necessary.
    * The chain represents the exact logic of the Renderer can be implemented as JavaScript functions or XSLTs.
-   * The default is htmlBuilder.xslt, which is ideal for showing Wrs tabular data. It renders an HTML table, applies number-formats, and aligns dimensions left.
+   * The default is htmlBuilder, which is ideal for showing Wrs tabular data. It renders an HTML table, applies number-formats, and aligns dimensions left.
    * To identify the corresponding row in Wrs, use a `tr`s attribute `bcdrowident`, which is set to the `wrs:R`'s id.
    *
    * @example
@@ -1047,8 +1047,8 @@ bcdui.core.Renderer = class extends bcdui.core.TransformationChain
 {
   /**
    * @param {Object} args - An argument object with the following properties:
-   * @param {bcdui.core.DataProvider} args.inputModel                       - The model with the data to be transformed in html
-   * @param {chainDef} [args.chain="/bcdui/xslt/renderer/htmlBuilder.xslt"] - The definition of the transformation chain
+   * @param {bcdui.core.DataProvider} args.inputModel     - The model with the data to be transformed in html
+   * @param {chainDef} [args.chain=bcdui.wrs.htmlBuilder] - The definition of the transformation chain
    * <ul>
    *   <li>Default is a WRS-to-table renderer, capable of row and column dimensions and aware of all Wrs format specifications like scale and @caption</li>
    *   <li>But it can be a single string with the URL of the transformation XSLT or doTjs template</li>
@@ -1071,7 +1071,7 @@ bcdui.core.Renderer = class extends bcdui.core.TransformationChain
         bcdPreInit: function() {
           if (bcdPreInit)
             bcdPreInit.call(this);
-          args.chain = args.chain || this.chain || bcdui.contextPath+"/bcdui/xslt/renderer/htmlBuilder.xslt";
+          args.chain = args.chain || this.chain || bcdui.wrs.htmlBuilder;
           // remember targetHtml here only. It can even be undefined, so you can set it later via setTargetHtml member function
           // for backwardsCompatiblity, also support targetHTMLElementId/targetHtmlElementId
           this.targetHtml = args.targetHtml || args.targetHTMLElementId || args.targetHtmlElementId

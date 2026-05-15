@@ -319,7 +319,7 @@ bcdui.component.tree.Tree = class extends bcdui.core.Renderer
         var renderer = new bcdui.core.Renderer({
             targetHtml: targetElement
           , inputModel: nodeModel
-          , chain: root.getAttribute("rendererChain") || bcdui.contextPath + "/bcdui/xslt/renderer/htmlBuilder.xslt"
+          , chain: root.getAttribute("rendererChain")
           , postHtmlAttachProcess: function(treeId, nodeModelId, nodeId, jsFunct, element, pId) {
 
               var table = jQuery(element).find(".bcdReport").addBack(".bcdReport");

@@ -1734,5 +1734,63 @@ bcdui.wrs.jsUtil = Object.assign(bcdui.wrs.jsUtil,
         }
         return newO;
       }
+  },
+  
+  /**
+   * Check if a type-name string as defined by BindingSet means numeric
+   */
+  isNumericTypeName: function(typeName) {
+    return ["BIGINT", "BIT", "DECIMAL", "DOUBLE", "FLOAT", "INTEGER", "NUMERIC", "REAL", "SMALLINT", "TINYINT"].includes(typeName); 
+  },
+  
+  /**
+   * Mirrors BCD-UI's numberFormatting.xslt formatNumber logic.
+   * @param {string|number} value
+   * @param {number|null} scale
+   *   A) If abs(scale)&lt; 10 the number of decimal digits. If positive padded with trailing 0.
+   *   B) If abs(scale)> 10 then rounded to the nearest multiple of scale, negative here is only allowed for scale = 10 pow n.
+   *   C) Samples (in US format) for 14990.404: scale 2 -> 1490.40, scale -2 -> 1490.4, scale 1000 -> 15,000, scale -1000 -> 1.5.
+   * @param {string} locale      - 'en' (default) or 'de'
+   * @param {string} unit        - optional unit string. If '%', the value is multiplied by 100 and '%' is appended. Everything else (including ' %') is just appened
+   * @returns {string}
+   */
+  format: function(value, scale, locale = 'en', unit = '') 
+  {
+    if (value === null || value === undefined || value === '') return '';
+    const num = parseFloat(value);
+    if (!isFinite(num)) return "";
+
+    const isPercent   = unit === '%';
+    const unitSuffix  = (!isPercent && unit) ? ' ' + unit : '';
+    const percentSuffix = isPercent ? '%' : '';
+    const perFac = isPercent ? 100.0 : 1.0;
+
+    const sep = locale === 'de'
+      ? { decimal: ',', group: '.' }
+      : { decimal: '.', group: ',' };
+
+    function intFormat(v) {
+      const rounded = Math.round(v);
+      return rounded.toLocaleString(locale === 'de' ? 'de-DE' : 'en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }) + percentSuffix + unitSuffix;
+    }
+
+    function decFormat(v, minDec, maxDec) {
+      return (v * perFac).toLocaleString(locale === 'de' ? 'de-DE' : 'en-US', {
+        minimumFractionDigits: minDec,
+        maximumFractionDigits: maxDec,
+      }) + percentSuffix + unitSuffix;
+    }
+    
+    const s = scale !== null && scale !== undefined ? Number(scale) : null;
+
+    if (s === null || s === 0)      return intFormat(num);
+    if (s > 10)                     return intFormat(Math.round(num / s) * s);
+    if (s < -10)                    return intFormat(Math.round(num / s) * -1);
+    if (s > 0)                      return decFormat(num, s, s);   // mandatory decimals
+    /* s < 0, s >= -10 */           return decFormat(num, 0, -s);  // optional decimals
   }
+
 });

@@ -81,7 +81,7 @@ bcdui.component.scorecard.Scorecard = class extends bcdui.core.Renderer
     var id = args.id = args.id || bcdui.factory.objectRegistry.generateTemporaryIdInScope("scorecard_");
 
     // Argument defaults
-    args.chain = args.chain || bcdui.contextPath+"/bcdui/xslt/renderer/htmlBuilder.xslt";
+    args.chain = args.chain || bcdui.wrs.htmlBuilder;
     var statusModel = args.statusModel || bcdui.wkModels.guiStatusEstablished;
     var metaDataModel = args.config;
     var targetHtml = args.targetHtml;

@@ -87,6 +87,7 @@ bcdui.bcduiCeFiles =
         , "/js/nonmodules/core/lifecycle/lifecyclePackage.js"
         , "/js/nonmodules/core/lifecycle/autoRefresh.js"
         , "/js/nonmodules/wrs/wrsUtilPackage.js"
+        , "/js/nonmodules/wrs/htmlBuilder.js"
       ],
       "css": [
         "/js/3rdParty/jquery-ui.css",

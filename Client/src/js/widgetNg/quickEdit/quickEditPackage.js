@@ -132,7 +132,7 @@
    *   rowId            : "R1"                          // i.e. first row
    * });
    * 
-   * @example <caption>Sample 2: call edit form from Wrs grid rendering (default/htmlBuilder.xslt rendering)</caption>
+   * @example <caption>Sample 2: call edit form from Wrs grid rendering (default/htmlBuilder rendering)</caption>
    * const targetHtml = jQuery(".grid-rendering");  // element for grid renderer
    * const wrsModel = new bcdui.core.SimpleModel(); // Wrs data model
    * 

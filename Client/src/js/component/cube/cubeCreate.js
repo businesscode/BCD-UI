@@ -287,7 +287,7 @@ bcdui.component.cube.Cube = class extends bcdui.core.Renderer
         requestChain: args.requestChain,
         requestParameters: args.requestParameters,
         parameters: Object.assign({paramModel: enhancedConfiguration, cubeId: args.id}, args.parameters ),
-        chain: args.chain || args.url || bcdui.contextPath+"/bcdui/xslt/renderer/htmlBuilder.xslt"
+        chain: args.chain || args.url || bcdui.wrs.htmlBuilder
         , bcdPreInit: function() {
           if (bcdPreInit)
             bcdPreInit.call(this);
