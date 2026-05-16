@@ -190,19 +190,22 @@ task bcduiProcessXslt {
 	}
 
   // let the node based xslt compiler create the sef.json files
-  def createXSLTTask = { String newTaskName, String folder, File xsltFile ->
+  def createXSLTTask = { String newTaskName, String folder, File xsltFile, srcXmlXsltFiles ->
     tasks.register(newTaskName, Exec) {
-      def xsltDir    = xsltFile.parentFile
-      def path = xsltFile.path.replace("\\", "/")
-      def target = "${generatedApisDir}/sef/" + path.substring(path.lastIndexOf(folder) + folder.length()).replace(".xslt", ".sef.json")
-      doFirst { print(path + "  " + target) }
+      def xsltDir = xsltFile.parentFile
+      def path    = xsltFile.path.replace("\\", "/")
+      def target  = "${generatedApisDir}/sef/" + path.substring(path.lastIndexOf(folder) + folder.length()).replace(".xslt", ".sef.json")
+
+      inputs.files srcXmlXsltFiles
+      outputs.file target
+
       executable "node"
       args(
         "$nodeModulesDir/xslt3/xslt3.js",
         "-xsl:${xsltFile.name}",
         "-export:${target}",
-        "-nogo",
-        "-relocate"
+        "-nogo",    // Do not apply, just transform to sef
+        "-relocate" // Allows loading them in the browser while resolving rel paths for import and export correctly
       )
       workingDir xsltDir
     }
@@ -211,9 +214,10 @@ task bcduiProcessXslt {
   // translate all xslt files to sef.json unless they are named *Template.xslt (these are files which get loaded via document inside xslt files
   // and so they need to get copied to the same place in the sef location so that during the actual transformation they are found relatively
   // to the sef file
+  def srcXmlXsltFiles = fileTree(dir: "$projectDir/src", includes: ["**/*.xslt", "**/*.xml"]).files
   fileTree(dir: "src", include: "**/*.xslt").eachWithIndex { file, i ->
     if (!file.name.endsWith("Template.xslt"))
-	    dependsOn += createXSLTTask( "xslt-$i-$file.name", "src/", file )
+      dependsOn += createXSLTTask( "xslt-$i-$file.name", "src/", file, srcXmlXsltFiles )
     else
       dependsOn += copyXSLTTask( "copy-$i-$file.name", "src/", file )
   }
@@ -224,7 +228,7 @@ task bcduiProcessXslt {
 
   // we need to copy the api generated xslt files, too
   // this needs to get skipped for DE/EE though
-  generatedXslts.each{ cat -> dependsOn += createXSLTTask( "xslt-$cat", "${generatedApisDir}/", file("$generatedApisDir/js/${cat}/${cat}.xslt")) }
+  generatedXslts.each{ cat -> dependsOn += createXSLTTask( "xslt-$cat", "${generatedApisDir}/", file("$generatedApisDir/js/${cat}/${cat}.xslt"), srcXmlXsltFiles) }
 }
 
 //**********************************
@@ -242,13 +246,7 @@ task bcduiClientCollectAll( type: Copy ) {
     include '**/*.js'
     into    'js'
   }
-
-  // also copy single files into jsDist so that the module import version still has the single files available
-  from ( ['src/js', "$src3rdParty/js", "$generatedApisDir/js"] ) {
-    include '**/*.js'
-    into    'jsDist'
-  }
-
+  // Js are not copied here but only the minimized output in bcduiClientJsFileGroups
   from ( ['src/js', "$src3rdParty/js", "$generatedApisDir/js"] ) {
     exclude '**/*.js'
     into    jsDistDir
@@ -302,7 +300,7 @@ task bcduiClientJsFileGroups {
   def createBabelTask = { String newTaskName, inputFiles, outFileName, is3rdParty, replaceExports ->
     task(newTaskName, type: NodeTask) {
       mustRunAfter 'bcduiClientCollectAll'
-      inputs.files inputFiles + "./src/js/$jsBcduiLoader"
+      inputs.files inputFiles, "./src/js/$jsBcduiLoader"
       outputs.file file(outFileName)
       script = file("$nodeModulesDir/@babel/cli/bin/babel.js")
       def presets = "--presets=$nodeModulesDir/babel-preset-minify"
@@ -339,38 +337,36 @@ task bcduiClientJsFileGroups {
     }
   }
   // minimize local 3rdParty ones with esbuild instead of babel (which causes issues) and take them over to the final package
+  // We read them from clientCombinedDir/js and they go to clientCombinedDir/jsDist
   local3rdPartyFolders.each { folder ->
     fileTree(dir: 'src/js/3rdParty/' + folder, include: ['**/*.js']).eachWithIndex { jsFile, i ->
       def path = jsFile.path.replace("\\", "/");
-      def target = jsFile.path.substring(path.indexOf("src/js/3rdParty/") + "src/js/3rdParty/".length()).replace("\\", "/");
+      def target = "$clientCombinedDir/jsDist/3rdParty/" + path.substring(path.indexOf("src/js/3rdParty/") + "src/js/3rdParty/".length());
       def name = target.substring(target.lastIndexOf('/') + 1)
-      dependsOn += minifiyTask("$i-minimize-$name", path, "$clientCombinedDir/$jsDistDir/3rdParty/" + target)
+      dependsOn += minifiyTask("$i-minimize-$name", path, target)
     }
   }
 
   // minimize single js files which are kept as standalone for module import functionality
-  def bcduiSingleFiles = new JsonSlurper().parseText(origBcduiLoaderJsonSplit[1])
-  def singleFiles = bcduiSingleFiles.groups.inject([]){ fullResult, group -> return fullResult + group.files.findAll({ ! it.contains('3rdParty') }) }
-  singleFiles = singleFiles.unique(false)
-  // fix 'nonmodules' naming first 
-  singleFiles.collect { f -> f.replaceAll(/\/js\/nonmodules\//, '/js/')}.eachWithIndex { jsFile, i ->
-    // and build final path in clientCombinedDir by replacing the first "/js/" part 
-    def f = ("$clientCombinedDir" + jsFile).replaceAll("\\\\", "/").replaceAll("$clientCombined/js/", "$clientCombined/$jsDistDir/");
-    def name = f.substring(f.lastIndexOf('/') + 1)
-    dependsOn += createBabelTask("$i-minimize-$name", [f], f, false, false)
+  // We read them from clientCombinedDir/js and they go to clientCombinedDir/jsDist
+  def jSrcFiles = fileTree(dir: "$clientCombinedDir/js/", includes: ["**/*.js"], excludes: ["**/3rdParty/**"])
+  jSrcFiles.eachWithIndex { jsFile, i ->
+    def source = jsFile.absolutePath.replaceAll("\\\\", "/");
+    def target = source.replaceAll("$clientCombined/js/", "$clientCombined/jsDist/");
+    def name = source.substring(source.lastIndexOf('/') + 1)
+    dependsOn += createBabelTask("$i-minimize-$name", [source], target, false, false)
   }
 
   // All non 3rd-party files are handled here
   // Create one babel task and output file for all non-3rd-party files in a filegroup including ecma-6 transpiling
   bcduiFiles.groups.each { fileSet ->
-
     // Create a task for combining and minifying all non-3rdParty js in the current file group
     def fileGroupName = fileSet.id
     def inputFiles = files( fileSet.files.findAll { !it.contains("3rdParty") }.collect { fPathName ->
       "$clientCombinedDir/${fPathName}".replace("/js/nonmodules/", "/js/")
     }).collect{it.absolutePath}
     if( ! inputFiles.isEmpty() ) {
-      dependsOn += createBabelTask("$taskPrefix-$fileGroupName"           , inputFiles, "$clientCombinedDir/$jsDistDir/${fileGroupName}.js", false, true )
+      dependsOn += createBabelTask("$taskPrefix-$fileGroupName", inputFiles, "$clientCombinedDir/$jsDistDir/${fileGroupName}.js", false, true )
     }
   }
 
