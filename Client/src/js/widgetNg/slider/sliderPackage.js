@@ -267,15 +267,15 @@
       if (this.boundOptions) {
         var format = {
           to : function(value) {
-            return self._mapIndexToCaption(Math.round(value));
+            return (Math.abs(value - Math.round(value)) < 0.001) ? self._mapIndexToCaption(Math.round(value)) : "";
           }
         };
         opts.step = 1; // use stepping when we have bound options
         opts.pips = {
           mode : "steps",
           density : this.boundOptions.values.length,
-          filter : function(value) { // always large value on pips
-            return 1;
+          filter : function(value) {
+            return (Math.abs(value - Math.round(value)) < 0.001) ? 1 : 2;
           },
           format : format
         };
