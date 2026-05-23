@@ -62,6 +62,11 @@ bcdui.core.AbstractExecutable = class
         this.id = bcdui.core._generateTemporaryId();
       }
 
+      // If requested (_debugObjectRegistry exists), we register us in the debug ObjectRegistry
+      if(bcdui.debug._debugObjectRegistry) {
+        bcdui.debug._debugObjectRegistry?.registerObject(this);
+      }
+
       /**
        * the debug context, only available in case bcdui.isDebug is true
        * @private

@@ -1164,6 +1164,11 @@ bcdui.core.Renderer = class extends bcdui.core.TransformationChain
       this.targetHTMLElementId = bcdui.util._getTargetHtml({targetHtml: targetHtmlElement}, "renderer_");
     }
   }
+
+  /**
+   * @inheritDoc
+   */
+  getClassName() { return "bcdui.core.Renderer"; }
 };
 
  /**

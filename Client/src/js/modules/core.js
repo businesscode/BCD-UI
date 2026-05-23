@@ -23,6 +23,8 @@ import "./util.js"
 import "../bcdui.js"
 import "../settings.js"
 import "../core/corePackage.js"
+if(!!bcdui.config.debug) import("../factory/debugPanel.js")
+if(!!bcdui.config.debug) import("../widget/visualizeXml/visualizeXml.js")
 import "../core/statusHandling.js"
 import "../factory/objectRegistry.js"
 import "../log/logPackage.js"

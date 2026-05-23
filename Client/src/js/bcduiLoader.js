@@ -227,7 +227,7 @@ bcdui.bcduiCeFiles =
       "files": [
           "/js/nonmodules/component/exports/pdfExport.js"
         , "/js/nonmodules/component/exports/exportsPackage.js"
-        , "/js/3rdParty/fileSaver/fileSaver.js" 
+        , "/js/3rdParty/fileSaver/fileSaver.js"
       ],
       "buildFolders": [
         "/js/nonmodules/component/exports"
@@ -460,6 +460,9 @@ bcdui.config.loadFiles = bcdui.config.loadFiles || [];
         document.write("<link rel='stylesheet' type='text/css' href='" + bcdui.config.contextPath + "/bcdui" + group.css[c] + "'>");
     }
   }
-  // and finally signal that all scripts are loaded 
+  // In debug case, make DebugPanel available
+  if( !!bcdui.config.isDebug ) document.write("<script defer type='text/javascript' src='" + bcdui.config.contextPath + "/bcdui/js/factory/debugPanel.js'><\/script>");
+
+  // and finally signal that all scripts are loaded
   document.write("<script type='text/javascript'>bcdui.log.debug('BCD-UI lib is fully loaded');<\/script>");
 })();

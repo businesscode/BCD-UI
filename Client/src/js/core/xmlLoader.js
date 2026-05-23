@@ -363,7 +363,7 @@ bcdui.core.XMLLoader = class
               // Usually we wait for the document in parallel to doing stuff on the client
               // Here we detect whether the waiting for the server could not be used for other activities
               // In these cases it may be worth it (if possible) to trigger the load earlier
-              if( bcdui.log.isTraceEnabled() && (new Date().getTime() - bcdui.log.lastLogDate > 100 ) )
+              if( bcdui.debug._firstTimeNoCurrExecuting===-1 && bcdui.log.isTraceEnabled() && (new Date().getTime() - bcdui.log.lastLogDate > 100 ) )
                 bcdui.log.warn("Client probably lost "+(new Date().getTime()-bcdui.log.lastLogDate)+"ms when waiting for a server response without being able to use the time. Consider triggering the load earlier and delay other tasks (was triggered "+(traceLoadStart/1000)+"). Url: "+args.url);
 
               // It seems that firefox (10-17) executes async http requests sync in case the loaded resources are cached

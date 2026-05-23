@@ -118,7 +118,26 @@ bcdui = Object.assign(bcdui,
       _addProcessorExecutionTime: function( id, time ) {
         var old = bcdui.debug._totalProcessorExecutionTime[id];
         bcdui.debug._totalProcessorExecutionTime[id] = (old||0) + time;
-      }
+      },
+
+      /**
+       * @private
+       */
+      _debugObjectRegistryInternalStore: bcdui.config.debug ? new Map() : null,
+
+      /**
+       * WeakRefs of all AbstractExecutables, used for debugging purposes
+       * to be reachable by id even if not officially registered in the registry.
+       * @private
+       */
+      _debugObjectRegistry: bcdui.config.debug ? new class {
+        cleanup = new FinalizationRegistry(id => bcdui.debug._debugObjectRegistryInternalStore.delete(id))
+        registerObject(obj){
+          bcdui.debug._debugObjectRegistryInternalStore.set(obj.id, new WeakRef(obj))
+          this.cleanup.register(obj, obj.id)  // auto-removes entry when GC'd
+        }
+        getObject(id) { return bcdui.debug._debugObjectRegistryInternalStore.get(id)?.deref() }
+      } : null
     },
 
     /**
