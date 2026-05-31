@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2025 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -205,13 +205,17 @@ public class Bindings {
       }
       if (!bindingFiles[file].isFile() || !bindingFiles[file].canRead() || !bindingFiles[file].getName().toLowerCase().endsWith(".xml"))
         continue;
-      Document bindingDoc = documentBuilderFactory.newDocumentBuilder().parse(bindingFiles[file]);
-      if (bindingDoc == null || bindingDoc.getDocumentElement() == null)
-        continue;
+      try {
+        Document bindingDoc = documentBuilderFactory.newDocumentBuilder().parse(bindingFiles[file]);
+        if (bindingDoc == null || bindingDoc.getDocumentElement() == null)
+          continue;
 
-      // parsing or generating files
-      // Real CDI, hopefully coming soon...
-      es.execute(rbs.getConstructor(Document.class, String.class, Map.class).newInstance(bindingDoc, bindingFiles[file].getAbsolutePath(), newBindingMap));
+        // parsing or generating files
+        // Real CDI, hopefully coming soon...
+        es.execute(rbs.getConstructor(Document.class, String.class, Map.class).newInstance(bindingDoc, bindingFiles[file].getAbsolutePath(), newBindingMap));
+      } catch (Exception e) {
+        throw new BindingException("Error reading "+bindingFiles[file].getName(), e);
+      }
     }
   }
 

@@ -447,7 +447,7 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
       writeWrsDataRowColumnValue(item.getJDBCDataType(), item.getColumnNumber());
     }
     catch (Exception e){
-      log.error("Error writing wrs:R/wrs:C[@id='{}'] or one of its wrs:A: {}", item.getId(), e.getMessage());
+      log.error("Error writing wrs:R/wrs:C[@id='{}'] or one of its wrs:A: {}", item.getId(), e.getMessage(), e);
       setErrorDuringQuery(true);
     }
     getWriter().writeEndElement(); // C
