@@ -153,7 +153,7 @@ bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
   /**
    * @inheritDoc
    */
-  getClassName() {return "bcdui.component.scorecard.Scorecard";}
+  getClassName() { return "bcdui.component.scorecard.ScorecardModel"; }
 
   /**
    * @private
