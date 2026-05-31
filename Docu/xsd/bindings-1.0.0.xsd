@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -104,6 +104,7 @@
           </xs:element>
         </xs:sequence>
         <xs:attribute name="id" type="xs:ID" use="required" />
+        <xs:attribute name="description" type="xs:string" />
         <xs:attribute name="dbSourceName" type="xs:string" />
         <xs:attribute name="table" type="xs:NCName" use="optional">
           <xs:annotation><xs:documentation>
@@ -111,6 +112,11 @@
           </xs:documentation></xs:annotation>
         </xs:attribute>
         <xs:attribute name="allowSelectAllColumns" type="xs:boolean" default="false" />
+        <xs:anyAttribute namespace="##any" processContents="lax">
+          <xs:annotation><xs:documentation>
+            User may add any attribute, wich is accessible from Java then
+          </xs:documentation></xs:annotation>
+        </xs:anyAttribute>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>

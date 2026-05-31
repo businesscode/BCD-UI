@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2025 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -122,11 +122,20 @@ public class ReadBindingSet implements Runnable {
       throw new BindingException("The binding document should use schema " + BINDINGS_NAMESPACE + " File:" + fileName
           +"\nused is:" + bindingDoc.getDocumentElement().getNamespaceURI());
     if ("BindingSet".equals(bindingDoc.getDocumentElement().getLocalName())) {
+
+      // Add BindingSet to map
       String bsName = bindingDoc.getDocumentElement().getAttribute("id");
       if( bindingMap.containsKey(bsName) )
         throw new BindingException("Duplicate definition found for BindingSet '"+bsName+"'");
       StandardBindingSet bs = new StandardBindingSet(bsName);
       bindingMap.put(bsName, Collections.singleton(bs));
+
+      // Take over all attributes on BindingSet-level
+      NamedNodeMap attrs = bindingDoc.getDocumentElement().getAttributes();
+      for( int a = 0; attrs != null && a < attrs.getLength(); a++ ) {
+        bs.setAttribute(attrs.item(a).getNodeName(), attrs.item(a).getNodeValue());
+      }
+
       // We either have a simple table/view name in the @table attribute or a DerivedTableExpression child node with room for a more complex definition for a derived table
       NodeList dtes = bindingDoc.getDocumentElement().getElementsByTagNameNS(BINDINGS_NAMESPACE, "DerivedTableExpression");
       String tableName = null;

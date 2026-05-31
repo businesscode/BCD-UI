@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -70,6 +70,7 @@ public class StandardBindingSet implements BindingSet {
   private final WriteProcessing writeProcessing;
   private Security security = null;
   private List<Class<? extends Modifier>> wrqModifiers = new ArrayList<>();
+  protected Map<String,String> attributes = new HashMap<>();
   protected final Logger log = LogManager.getLogger(StandardBindingSet.class);
 
   /**
@@ -455,6 +456,30 @@ public class StandardBindingSet implements BindingSet {
    */
   public Set<StandardBindingSet> getResolvedBindingSets() {
     return new HashSet<StandardBindingSet>(Arrays.asList(this));
+  }
+
+  /**
+   * Set an attribute for this BindingSet.
+   * @param name
+   * @param value
+   */
+  public void setAttribute(String name, String value) {
+    attributes.put(name, value);
+  }
+
+  /**
+   * Get an attribute for this BindingSet.
+   * @param name
+   */
+  public String getAttribute(String name) {
+    return attributes.get(name);
+  }
+
+  /**
+   * Get all attributes.
+   */
+  public Map<String,String> getAttributes() {
+    return attributes;
   }
 
 
