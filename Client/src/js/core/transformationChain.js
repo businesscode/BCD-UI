@@ -641,7 +641,8 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
         // other renderers based on this transformation chain result (e.g. charts
         // attached to a cube etc.).
         var doc = !!this.targetHTMLElementId ? lastButOneNotNullOutput : lastNotNullOutput;
-        if( this.getPrimaryModel().getData() === doc ){
+        const skip = this.getClassName() == "bcdui.core.ModelUpdater" || this.targetHTMLElementId;
+        if( !skip && this.getPrimaryModel().getData() === doc ){
           this.dataDoc = bcdui.core.browserCompatibility.cloneDocument(doc); // TODO will be called for all js transf. outputting their input
         } else{
           this.dataDoc = doc;
