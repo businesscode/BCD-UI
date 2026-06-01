@@ -59,9 +59,11 @@ bcdui.core.browserCompatibility = {
      * @return {DomDocument} A clone of the given DOM document
      */
     cloneDocument: function(doc){
-      if( ! doc.nodeType )
-        return JSON.parse(JSON.stringify(doc)) // TODO: test
-      return doc == null ? null : doc.cloneNode(true);
+      return doc
+      	? doc.nodeType
+        	? new DOMParser().parseFromString(new XMLSerializer().serializeToString(doc), "text/xml")
+	        : JSON.parse(JSON.stringify(doc))
+        : null;
     },
 
     /**
