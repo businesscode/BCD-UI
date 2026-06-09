@@ -33,7 +33,7 @@ import de.businesscode.bcdui.wrs.IRequestOptions;
  */
 public class HttpRequestOptions implements IRequestOptions {
   private final HttpServletRequest httpRequest;
-  private int maxSQLBatchSize = 1000;
+  private int maxSQLBatchSize;
   private int maxRows = 10000; // default
   private ServletContext servletCtx;
   private Document requestDoc = null;

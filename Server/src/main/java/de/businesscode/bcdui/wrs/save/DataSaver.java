@@ -39,6 +39,7 @@ public class DataSaver {
 
   private Bindings bindings = null;
   private XMLEventReader dataReader = null;
+  private int maxSqlBatchSize = 0;
   private Logger logger = null;
   private ISaveEventListener listener;
   private IRequestOptions options;
@@ -88,7 +89,7 @@ public class DataSaver {
 
     fireEvent(SaveEventState.AfterTransformation);
 
-    XMLEventConsumer xmlToDataBaseHandler = new XMLToDataBase(bindings, options , options.getMaxSQLBatchSize(), logger, listener, options.isDebugMode());
+    XMLEventConsumer xmlToDataBaseHandler = new XMLToDataBase(bindings, options , maxSqlBatchSize, logger, listener, options.isDebugMode());
     try {
       while (input.hasNext()) {
         XMLEvent nextEvent = input.nextEvent();
