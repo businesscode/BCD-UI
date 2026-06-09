@@ -718,33 +718,30 @@ else {
   }
 
   XSLTProcessor.prototype.transformToDocument = async function (sourceDoc) {
-    const result = this.asyncTransform(sourceDoc);
-    return result.then( res => this.generateOutput(res, this.outputFmtNode ?? res) );
+    const result = await this.asyncTransform(sourceDoc);
+    return this.generateOutput(result, this.outputFmtNode ?? result);
   }
 
   XSLTProcessor.prototype.transformWithCache = async function (args) {
     // load sef.json or take already parsed info from cache
-    const stylesheetLoaded = this.getStylesheet(args.stylesheetLocation);
-    return stylesheetLoaded.then( stylesheet => {
-      let params = {
-          stylesheetInternal: stylesheet
-        , sourceNode: args.sourceDoc
-        , destination: "document"
-        , relocate: "on"
-        , stylesheetBaseURI: new URL(args.stylesheetLocation, window.location.href).href  // since we use an styleSheetInternal, we need to provide a base uri for resolving document()
-        , stylesheetParams: this.parameters
+    const stylesheet = await this.getStylesheet(args.stylesheetLocation);
+    let params = {
+        stylesheetInternal: stylesheet
+      , sourceNode: args.sourceDoc
+      , destination: "document"
+      , stylesheetBaseURI: new URL(args.stylesheetLocation, window.location.href).href  // since we use an styleSheetInternal, we need to provide a base uri for resolving document()
+      , stylesheetParams: this.parameters
+    }
+    if (args.genXslt) {
+      params["sourceNode"] = bcdui.core.browserCompatibility.newDOMDocument(); // need one, not used
+      params["stylesheetBaseURI"] = new URL(window.location.origin).href // all uris were made contextPath relative
+      params["stylesheetParams"] = {
+        sourceNode: args.sourceDoc
+      , stylesheetNode: this.stylesheetNode
+      , stylesheetParams: this.parameters
       }
-      if (args.genXslt) {
-        params["sourceNode"] = bcdui.core.browserCompatibility.newDOMDocument(); // need one, not used
-        params["stylesheetBaseURI"] = new URL(window.location.origin).href // all uris were made contextPath relative
-        params["stylesheetParams"] = {
-          sourceNode: args.sourceDoc
-        , stylesheetNode: this.stylesheetNode
-        , stylesheetParams: this.parameters
-        }
-      }
-      return SaxonJS.transform(params, "async");
-    });
+    }
+    return SaxonJS.transform(params, "async");
   }
 
   XSLTProcessor.prototype.asyncTransform = function(sourceDoc)
@@ -831,8 +828,9 @@ else {
 
     // create a promise and cache it immediately
     const promise = (async () => {
-      const response = fetch(sefUrl);
-      return response.then( resp => resp.text() ).then( text => JSON.parse(text) );
+      const response = await fetch(sefUrl);
+      const text = await response.text();
+      return JSON.parse(text);
     })();
     window.XSLTProcessor.sefCache.set(sefUrl, promise);
     return promise;
