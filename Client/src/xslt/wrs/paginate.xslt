@@ -49,13 +49,13 @@
   <xsl:variable name="impl.addRowCounter" select="boolean($addRowCounter)"/>
   <xsl:variable name="impl.pageSize">
     <xsl:choose>
-      <xsl:when test="number($pageSize) != 'NaN'"><xsl:value-of select="number($pageSize)"/></xsl:when>
+      <xsl:when test="string(number($pageSize)) != 'NaN'"><xsl:value-of select="number($pageSize)"/></xsl:when>
       <xsl:otherwise>-1</xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
   <xsl:variable name="impl.pageNumber">
     <xsl:choose>
-      <xsl:when test="number($pageNumber) != 'NaN'"><xsl:value-of select="number($pageNumber)"/></xsl:when>
+      <xsl:when test="string(number($pageNumber)) != 'NaN'"><xsl:value-of select="number($pageNumber)"/></xsl:when>
       <xsl:otherwise>-1</xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
