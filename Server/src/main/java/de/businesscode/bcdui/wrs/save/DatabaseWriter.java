@@ -718,32 +718,48 @@ public class DatabaseWriter {
   }
 
   /**
+   * executes and available D/I/M collected batches if available (and in that order)
+   * @throws SQLException
+   */
+  public void flushBatch() throws SQLException {
+    if (maxBatchSize > 1) {
+      if (deleteStatement != null && deleteBatchSize > 0) {
+        log.trace("DELETE BATCH EXECUTE...#" + deleteBatchSize);
+        deleteStatement.executeBatch();
+        deleteStatement.clearBatch();
+        deleteBatchSize = 0;
+        log.trace("...DELETE BATCH EXECUTED");
+      }
+      if (insertStatement != null && insertBatchSize > 0) {
+        log.trace("INSERT BATCH EXECUTE...#" + insertBatchSize);
+        insertStatement.executeBatch();
+        insertStatement.clearBatch();
+        insertBatchSize = 0;
+        log.trace("...INSERT BATCH EXECUTED");
+      }
+      if (updateStatement != null && updateBatchSize > 0) {
+        log.trace("UPDATE BATCH EXECUTE...#" + updateBatchSize);
+        updateStatement.executeBatch();
+        updateStatement.clearBatch();
+        updateBatchSize = 0;
+        log.trace("...UPDATE BATCH EXECUTED");
+      }
+      if (updateStatementExceptKeyCols != null && updateBatchSize > 0) {
+        log.trace("UPDATE NONKEYCOLS BATCH EXECUTE... #" + updateBatchSize);
+        updateStatementExceptKeyCols.executeBatch();
+        updateStatementExceptKeyCols.clearBatch();
+        updateBatchSize = 0;
+        log.trace("...UPDATE NONKEYCOLS BATCH EXECUTED");
+      }
+    }
+  }
+
+  /**
    * @throws SQLException
    */
   public void finished() throws SQLException {
     try {
-      if (maxBatchSize > 1) {
-        if (deleteStatement != null && deleteBatchSize > 0) {
-          log.trace("DELETE BATCH EXECUTE...#" + deleteBatchSize);
-          deleteStatement.executeBatch();
-          log.trace("...DELETE BATCH EXECUTED");
-        }
-        if (insertStatement != null && insertBatchSize > 0) {
-          log.trace("INSERT BATCH EXECUTE...#" + insertBatchSize);
-          insertStatement.executeBatch();
-          log.trace("...INSERT BATCH EXECUTED");
-        }
-        if (updateStatement != null && updateBatchSize > 0) {
-          log.trace("UPDATE BATCH EXECUTE...#" + updateBatchSize);
-          updateStatement.executeBatch();
-          log.trace("...UPDATE BATCH EXECUTED");
-        }
-        if (updateStatementExceptKeyCols != null && updateBatchSize > 0) {
-          log.trace("UPDATE NONKEYCOLS BATCH EXECUTE... #" + updateBatchSize);
-          updateStatementExceptKeyCols.executeBatch();
-          log.trace("...UPDATE NONKEYCOLS BATCH EXECUTED");
-        }
-      }
+      flushBatch();
     }
     finally {
 

@@ -100,6 +100,7 @@ public class XMLToDataBase implements XMLEventConsumer {
   private QName id = new QName("id");
   private QName pos = new QName("pos");
   private boolean textOccurred = false;
+  private String lastRowElementName;
 
   private List<WriteProcessingCallback> writeProcessingCallbacks = new ArrayList<WriteProcessingCallback>();
 
@@ -136,6 +137,7 @@ public class XMLToDataBase implements XMLEventConsumer {
           columnTypes = new ArrayList<Integer>();
           keyColumnNames = new ArrayList<String>();
           webRowSetsOpened++;
+          lastRowElementName = "";
         }
         else if (elementName.equals("BindingSet") && bindingSet == null) {
           delegate = tableNameSetter;
@@ -393,7 +395,16 @@ public class XMLToDataBase implements XMLEventConsumer {
    */
   private void endRow(String rowElementNameParam) throws Exception {
 
-    // rememeber initial state
+    // on a I/D/R/M change we need to flush the collected batches, no matter if the batch count is already reached
+    // or not. Otherwise you might have pending deletes which may flush after inserts as an example
+    if (this.lastRowElementName != rowElementName && !this.lastRowElementName.isEmpty()) {
+      databaseWriter.flushBatch();
+    }
+
+    // remember last row (gets reset to "" for a new wrs)
+    this.lastRowElementName = rowElementName;
+
+    // remember initial state
     ArrayList<BindingItem> bak_columns = new ArrayList<>(this.columns);
     ArrayList<String> bak_columnValues = new ArrayList<>(this.columnValues);
     ArrayList<String> bak_updateValues = new ArrayList<>(this.updateValues);

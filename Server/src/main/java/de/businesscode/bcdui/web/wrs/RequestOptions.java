@@ -35,7 +35,7 @@ import de.businesscode.bcdui.wrs.IRequestOptions;
  * When using getManagedConnection() also call returnAllThreadManagedConnections()!
  */
 public class RequestOptions implements IRequestOptions {
-  private int maxSQLBatchSize;
+  private int maxSQLBatchSize = 1000;
   private int maxRows = 10000; // default
   private Document requestDoc = null;
   private Map<String,Connection> connections = new HashMap<String, Connection>();
