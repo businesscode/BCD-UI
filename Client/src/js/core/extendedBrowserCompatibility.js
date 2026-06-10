@@ -32,7 +32,7 @@
  */
 
 
-if (!bcdui.config.useSaxonJs) {
+if (bcdui.config.saxonSefDir===null) {
 
 //-----------------------------------------------------------------------------
 //BEGIN: Webkit and Gecko overwrites (in reality this is all browsers)
@@ -621,11 +621,11 @@ if (bcdui.browserCompatibility.isGecko) {
 //END: Implementation of Gecko functions
 //-----------------------------------------------------------------------------
 
+}
 
 //-----------------------------------------------------------------------------
 //BEGIN: Adding support for SaxonJs based XSLT handling
 //-----------------------------------------------------------------------------
-}
 else {
 
   // let's create an own (pseudo) XSLTProcessor
@@ -723,6 +723,9 @@ else {
     return result.then( res => this.generateOutput(res, this.outputFmtNode ?? res) );
   }
 
+  /**
+   * @private 
+   */  
   XSLTProcessor.prototype.transformWithCache = async function (args) {
     // load sef.json or take already parsed info from cache
     const stylesheetLoaded = this.getStylesheet(args.stylesheetLocation);
@@ -818,6 +821,7 @@ else {
       this.killXmlBaseAttr(this.stylesheetNode);
       this.stylesheetNode.selectSingleNode("/*").setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:base", window.location.origin);
 
+      // Use our generic xslt-sef transformer
       resultPromise = this.transformWithCache({stylesheetLocation: bcdui.contextPath + "/bcdui/sef/xslt/xslt_transform.sef.json", sourceDoc: sourceDoc, genXslt: true});
 
       this.outputFmtNode = this.stylesheetNode;
@@ -833,7 +837,13 @@ else {
     // create a promise and cache it immediately
     const promise = (async () => {
       const response = fetch(sefUrl);
-      return response.then( resp => resp.text() ).then( text => JSON.parse(text) );
+      return response.then( resp => resp.text() ).then( text => {
+        try {
+          return JSON.parse(text);
+        } catch(e) {
+          bcdui.log.error("Could not load " + sefUrl);
+        }
+      });
     })();
     window.XSLTProcessor.sefCache.set(sefUrl, promise);
     return promise;
@@ -845,11 +855,18 @@ else {
     this.transformToDocument(args.input).then(result => { args.callBack(result); });
   }
 
+  // sef files are in 
+  // - <ctx>/bcdui/sef/..               for BCD-UI library files
+  // - <ctx>/<config.saxonSefDir>/..    project can choose by setting bcdui/saxonSefDir in context.xml
   bcdui.core.transformators.xsltToSefJson = function(xsltUrl) {
-    let url = xsltUrl;
-    url = url.replace("/bcdui/js/", "/bcdui/sef/js/");
-    url = url.replace("/bcdui/xslt/", "/bcdui/sef/xslt/");
-    return url.replace(".xslt", ".sef.json");
+    const ctx = new URL( bcdui.contextPath+"/", new URL(window.location.href)).href
+    const base = new URL(window.location.href);
+    let absXsltUrl = new URL(xsltUrl, base).href;
+    let isBcdui = absXsltUrl.startsWith(ctx+"bcdui/");
+    let saxonSefDir = isBcdui ? "sef/" : bcdui.config.saxonSefDir;
+    let prefixLen = isBcdui ? (ctx+"bcdui/").length : ctx.length;
+    absXsltUrl = absXsltUrl.substring(0, prefixLen) + saxonSefDir + absXsltUrl.substring(prefixLen);
+    return absXsltUrl.replace(".xslt", ".sef.json");
   }
 
   // add a XSLT matching rule to the first pos of ruleToTransformerMapping array

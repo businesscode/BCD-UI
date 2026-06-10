@@ -68,7 +68,7 @@ public class Configuration implements ConfigurationProvider {
   public static final String BND_WRS_ATTRIBUTES    = "bcdui/bnd/wrsAttributes";
   public static final String BND_META_WRS_ATTRIBUTES = "bcdui/bnd/wrsMetaAttribute";
 
-  public static final String USE_SAXONJS_XSLT      = "bcdui/useSaxonJsXslt";
+  public static final String SAXON_SEF_DIR         = "bcdui/saxonSefDir";
   public static final String DEFAULT_DB_CONTEXT_ID = "bcdui/defaultConnection";
   private static final String BINDING_DB_CONFIG    = "bcd_db_properties";
   private static final int DEFAULT_CONFIG_DB_RELOAD_SEC = 30; // db properties are reloaded after every 30sec

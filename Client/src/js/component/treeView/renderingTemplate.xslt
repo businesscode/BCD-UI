@@ -50,7 +50,7 @@
 
   <xsl:key name="colDefinitionLookup" match="/*/wrs:Header/wrs:Columns/wrs:C" use="@pos"/>
 
-  <xsl:variable name="sqlTypesDoc" select="document('bcduicp://bcdui/xslt/renderer/sqlTypes.xml')"/>
+  <xsl:variable name="sqlTypesDoc" select="document('../../../xslt/renderer/sqlTypes.xml')"/>
   <xsl:variable name="numericSQLTypes" select="$sqlTypesDoc/*/rnd:Numeric/rnd:Type/@name"/>
   <xsl:variable name="bcdOnLoad" select="''"/>
 

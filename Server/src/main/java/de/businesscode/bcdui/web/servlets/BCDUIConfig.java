@@ -65,12 +65,10 @@ public class BCDUIConfig extends HttpServlet {
   private static final String clientConfigFilePath="/WEB-INF/clientLog.properties";
   private Logger log = LogManager.getLogger(this.getClass());
   private final Logger virtLoggerPage = LogManager.getLogger("de.businesscode.bcdui.logging.virtlogger.page");
-  private static final boolean useSaxonJs;
+  private static final String saxonSefDir;
   static {
-    boolean saxon;
-    try { saxon = ((Boolean)BareConfiguration.getInstance().getConfigurationParameter(Configuration.USE_SAXONJS_XSLT)).booleanValue(); }
-    catch (Exception e) { saxon = false; }
-    useSaxonJs = saxon;
+    Object saxon = BareConfiguration.getInstance().getConfigurationParameterOrNull(Configuration.SAXON_SEF_DIR);
+    saxonSefDir = saxon != null ? saxon.toString() : null;
   }
 
   private String configJson;
@@ -112,7 +110,7 @@ public class BCDUIConfig extends HttpServlet {
     writer.println("  , deVersion: \"" + getVersion("BCD-UI-DE") + "\"");
 
     // write info about usage of saxonJs for XSLT
-    writer.println("  , useSaxonJs: typeof XSLTProcessor == 'undefined' || " + (useSaxonJs ? "true" : "false"));
+    writer.println("  , saxonSefDir: typeof XSLTProcessor == 'undefined' || " + (saxonSefDir!=null) + " ? '" + saxonSefDir + "' : null");
 
     // IIS has a limit also for http request URLs, i.e. data requests
     writer.println("  , serverHasRequestUrlLimit: " + environmentValue.toString());

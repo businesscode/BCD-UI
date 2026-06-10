@@ -58,7 +58,8 @@ bcdui.wrs.HtmlBuilder = class {
       div.innerHTML = `<span bcdTranslate="${parameters.emptyMessage}"></span>`;
       return div; 
     }
-    
+
+    // If we edit rows, we do not want the defaults for sort and row span
     if(rawRows.some(r=>r.rowType!=="R")) {
       parameters.makeRowSpan = false;
       parameters.sortRows = false;
@@ -66,7 +67,7 @@ bcdui.wrs.HtmlBuilder = class {
 
     
     //-------------------------------------
-    // hideTotals TODO also col totals?
+    // hideTotals and per default wrs:D rows TODO also col totals?
     if(parameters.hideTotals) rawRows = rawRows.filter( r => !r.cells.some( c => c.bcdGr===1 ) );
     if(!parameters.showDeletedRows) rawRows = rawRows.filter( r => r.rowType!=="D" );
 
@@ -76,7 +77,7 @@ bcdui.wrs.HtmlBuilder = class {
     const totalsSortVal = parameters.sortTotalsFirst ? '' : '\uFFFF';
     function sortKey(row) {
       const parts = [];
-      for (let i = 0; i < numDims; i++) { // TODO
+      for (let i = 0; i < numDims; i++) { // TODO maybe all columns, at least if there are no dims?
         const cell = row.cells[i];
         let value = '\uFFFF';
         if( cell.bcdGr === 1 ) value = totalsSortVal;
@@ -485,6 +486,7 @@ bcdui.wrs.HtmlBuilder = class {
   readParameters(parameters) {
     const NS_XP = bcdui.core.xmlConstants.namespaces.xp;
 
+    // First, let's check if there are any parameters giben in XML
     const paramSets = parameters.paramModel?.getElementsByTagNameNS(NS_XP, 'HtmlBuilder');
     let xmlParams = null;
     if( paramSets ) {
@@ -498,8 +500,6 @@ bcdui.wrs.HtmlBuilder = class {
 
     if( xmlParams ) {
       const parseBool = s => s === 'true' ? true : s === 'false' ? false : undefined;
-
-      // TDOD line can be removed: parameters.rowSpan = parseBool( xmlParams.getElementsByTagNameNS(NS_XP, 'MakeRowSpan')[0]?.text );
       const getVal = name => xmlParams.getElementsByTagNameNS(NS_XP, name)[0]?.textContent?.trim();
       const ucFirst = s => s[0].toUpperCase() + s.slice(1);
     
@@ -533,5 +533,5 @@ bcdui.wrs.HtmlBuilder = class {
 }
 
 // We want a class for easier overwrite but need a function reference here for chains
-// Use bcdui.wrs.htmlBuilder = bcdui.contextPath + "/bcdui/xslt/renderer/htmlBuilder.xslt"; to bring bach the xslt default
+// Use bcdui.wrs.htmlBuilder = bcdui.contextPath + "/bcdui/xslt/renderer/htmlBuilder.xslt"; to bring back the xslt default
 bcdui.wrs.htmlBuilder = (() => { const singleton = new bcdui.wrs.HtmlBuilder(); return singleton.transform.bind(singleton) })();

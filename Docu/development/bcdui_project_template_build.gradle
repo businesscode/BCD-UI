@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2025 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -74,6 +74,9 @@ dependencies {
 war {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
+
+// When using XSLT on client side in you application, use BCD-UI's SaxonJs support
+// See documentation in bcdui_saxon_sef_generate.gradle
 
 // Workaround gradle >= 4.6 to produce classes into WEB-INF/classes
 eclipse {

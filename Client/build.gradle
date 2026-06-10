@@ -173,70 +173,30 @@ task bcduiClientCollect3rdParty {
   }
 }
 
-//**********************************
-// transforms all xslt files to sef.json
-task bcduiProcessXslt {
-	mustRunAfter ':ApisGenerator:bcduiBuild'
 
-  // copy *Template.xslt files to the sef location
-	def copyXSLTTask = { String newTaskName, String folder, File xsltFile ->
-  	tasks.register(newTaskName, Copy) {
-      def path = xsltFile.path.replace("\\", "/")
-      def target = "${generatedApisDir}/sef/" + xsltFile.path.substring(path.lastIndexOf(folder) + folder.length())
-      def targetDir = file("${target}").parentFile
-      from xsltFile
-      into targetDir
-  	}
-	}
 
-  // let the node based xslt compiler create the sef.json files
-  def createXSLTTask = { String newTaskName, String folder, File xsltFile, srcXmlXsltFiles ->
-    tasks.register(newTaskName, Exec) {
-      def xsltDir = xsltFile.parentFile
-      def path    = xsltFile.path.replace("\\", "/")
-      def target  = "${generatedApisDir}/sef/" + path.substring(path.lastIndexOf(folder) + folder.length()).replace(".xslt", ".sef.json")
-
-      inputs.files srcXmlXsltFiles
-      outputs.file target
-
-      executable "node"
-      args(
-        "$nodeModulesDir/xslt3/xslt3.js",
-        "-xsl:${xsltFile.name}",
-        "-export:${target}",
-        "-nogo",    // Do not apply, just transform to sef
-        "-relocate" // Allows loading them in the browser while resolving rel paths for import and export correctly
-      )
-      workingDir xsltDir
-    }
+//************************************
+// Generate Saxon sef files from XSLT
+if (!project.ext.has('bcduiSaxonSefGen')) {
+  ext {
+    bcduiSaxonSefGen = [
+      taskDependencies : [':ApisGenerator:bcduiBuild'], // Make sure generated XSLTs are up-to-date
+      srcTrees         : [fileTree( dir: "./src", includes: ['**/*.xslt', 'xslt/renderer/sqlTypes.xml'])],
+      extSrcTrees      : [],
+      nodeModulesDir   : nodeModulesDir,
+      destDir          : [dir: "$buildDir/genSef/sef", bcduiExtraLevels: 0]
+    ]
   }
-  
-  // translate all xslt files to sef.json unless they are named *Template.xslt (these are files which get loaded via document inside xslt files
-  // and so they need to get copied to the same place in the sef location so that during the actual transformation they are found relatively
-  // to the sef file
-  def srcXmlXsltFiles = fileTree(dir: "$projectDir/src", includes: ["**/*.xslt", "**/*.xml"]).files
-  fileTree(dir: "src", include: "**/*.xslt").eachWithIndex { file, i ->
-    if (!file.name.endsWith("Template.xslt"))
-      dependsOn += createXSLTTask( "xslt-$i-$file.name", "src/", file, srcXmlXsltFiles )
-    else
-      dependsOn += copyXSLTTask( "copy-$i-$file.name", "src/", file )
-  }
-  fileTree(dir: "src", include: "**/*.xml").eachWithIndex { file, i ->
-    if (file.name.endsWith("sqlTypes.xml"))
-      dependsOn += copyXSLTTask( "copy-$i-$file.name", "src/", file )
-  }
-
-  // we need to copy the api generated xslt files, too
-  // this needs to get skipped for DE/EE though
-  generatedXslts.each{ cat -> dependsOn += createXSLTTask( "xslt-$cat", "${generatedApisDir}/", file("$generatedApisDir/js/${cat}/${cat}.xslt"), srcXmlXsltFiles) }
 }
+apply from: "$sharedBuildFilesRoot/Docu/development/bcdui_saxon_sef_generate.gradle"
+
 
 //**********************************
 // Copies all bcdui/js and bcdui/xslt from the various places together, except bcduiLoader, which is treated separately
 // Shrink XSLTs and other non-js for production use and put them to build/bcduiClientPrepareNonJs
 task bcduiClientCollectAll( type: Copy ) {
 
-  dependsOn bcduiProcessXslt, ':ApisGenerator:bcduiBuild', bcduiClientCollect3rdParty
+  dependsOn ':ApisGenerator:bcduiBuild', bcduiClientCollect3rdParty, bcduiSaxonSefGenerate
 
   into clientCombinedDir
   includeEmptyDirs   = false
@@ -254,7 +214,7 @@ task bcduiClientCollectAll( type: Copy ) {
   from ( ['src/xslt', "$generatedApisDir/xslt"] ) {
     into 'xslt'
   }
-  from ( ["$generatedApisDir/sef"] ) {
+  from ( bcduiSaxonSefGen.destDir.dir ) {
     into 'sef'
   }
 
@@ -489,7 +449,7 @@ task bcduiDist(type: Jar) {
     into    'bcdui/xslt'
   }
   from( "$clientCombinedDir/sef" ) {
-    into    'bcdui/sef'
+    into    'sef'
   }
 
   manifest {

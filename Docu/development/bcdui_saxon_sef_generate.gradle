@@ -1,0 +1,144 @@
+/*
+  Copyright 2025-2026 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/**
+ * Support for generating SaxonJs sef project files from XSLT
+ * BCD-UI will resolve <rel-path.xslt> to /sef/<rel-path.xslt> at runtime, 
+ * Since BCD-UI jar already comes with its sef files, only project sef files will go to destDir.
+ *
+ * Usage, add this to your build.gradle:
+ *   ext {
+ *     bcduiSaxonSefGen = [
+ *       nodeModulesDir   : "",                                       // Set to non-empty string if you want a specific node_modules/ to be used for xslt3
+ *       taskDependencies : [someTask],                               // Needed if you need preparation steps for this, like XSLT generation
+ *       srcTrees         : [fileTree( dir: "./src/main/web", includes: ['** /*.xslt'])], // Your project's XSLTs, potentially other files that go to destDir because they are referenced in document()
+ *       extSrcTrees      : [zipTree(file("<pathToBcdui.jar>"))],     // fileTree or zipTree, needed to resolve xsl:import XSLTs, for example from BCD-UI
+ *       destDir          : [dir: "main/src/web/sef", bcduiExtraLevels: 1] // Path where to put the generated sef files. If the path is deeper nested than the xslt to reach /bcdui/..sef, set bcduiExtraLevels>1, for example 2 for gensrc/sef/...
+ *     ]
+ *   }
+ *   apply from: '<path-to>/bcdui_saxon_sef_generate.gradle'
+ *
+ * Then make your build:
+ *   dependsOn bcduiSaxonSefGenerate
+ */
+
+
+ /**************************************************
+  * For Saxon sef generation, we need all XSLTs in one place in their final structure
+  * Here we collect them from the varours locations including bcd-ui.jar in case XSLTs from BCD-UI are xsl:import into project XSLTs
+  */
+ task bcduiSaxonSefGenerationCollectInput(type: Copy) {
+
+  dependsOn bcduiSaxonSefGen.taskDependencies
+
+  ext.sefGenRootDir    = "$buildDir/genSef"               // Our working directory
+  ext.sefCollectFolder = "$sefGenRootDir/collectedXslt/"  // Here we collect all XSLTs
+  ext.projectXslts = []                                   // Later we need to know which are from the project (as opposed to external jar for example)
+  ext.bcduiPrefix = project.parent != null && project.parent.name.startsWith("BCD-UI") ? "bcdui/" : ""
+
+  //----------
+  // Collect XSLTs from project, Templates are later copied 1:1 and processed during runtime
+  // Since the projects target may be something like gensrc/sef/, we will add extra levels when evaluating document() to /bcdui/
+  def extraLevels = "../" * bcduiSaxonSefGen.destDir.bcduiExtraLevels
+  bcduiSaxonSefGen.srcTrees.each { tree ->
+    from(tree) { 
+      into bcduiPrefix
+      eachFile { details ->
+        details.filter { line -> line.replaceAll(/ select="document\('\.\.\/bcdui\//, """ select="document('${extraLevels}../bcdui/""") }
+      }
+    }
+    projectXslts += tree.files.collect { f -> bcduiPrefix+tree.dir.toURI().relativize(f.toURI()).toString() }
+  }
+
+  //----------
+  // Copy 1:1 non-XSLTs from external jars or other FileTrees
+  // They are just there to resolve xsl:imports and are not generated to sef files as they are expected to be in the jar already
+  bcduiSaxonSefGen.extSrcTrees.each { tree ->
+    from tree
+  }
+  
+  into sefCollectFolder
+  includeEmptyDirs = false
+}
+
+
+/**************************************************
+ * Saxon sef generation itself
+ */
+task bcduiSaxonSefGenerate(type: Exec) {
+
+  dependsOn bcduiSaxonSefGenerationCollectInput
+
+  def sefGenRootDir = bcduiSaxonSefGenerationCollectInput.sefGenRootDir
+  def projectXslts  = bcduiSaxonSefGenerationCollectInput.projectXslts.sort()
+  def bcduiPrefix   = bcduiSaxonSefGenerationCollectInput.bcduiPrefix
+
+
+  inputs.files  fileTree( dir: bcduiSaxonSefGenerationCollectInput.sefCollectFolder ).files
+  outputs.files projectXslts.collect { new File( "$bcduiSaxonSefGen.destDir.dir/"+bcduiPrefix+it.replaceAll(/\.xslt?$/, ".sef.json") ) }
+
+  //----------
+  // Write a small JS driver script on the fly
+  def driverScript = file("$sefGenRootDir/genSef.js")
+  doFirst {
+    driverScript.parentFile.mkdirs()
+
+    // bcduiSaxonSefGen.destDir is given relative to the project, but we neeed it realive to our NodeJs working dir sefGenRootDir
+    def nodeJsRelDestDir = file(sefGenRootDir)toPath().relativize(file(bcduiSaxonSefGen.destDir.dir).toPath()).toString()
+    
+    // --- START js file we will give NodeJs for Saxon XSLT->sef generation
+    driverScript.text = """
+      // Generate sef files for project's XSLT files
+      const { execSync } = require('child_process');
+      const path = require('path');
+      const entries = ${groovy.json.JsonOutput.toJson( projectXslts.findAll{ it.endsWith('.xslt') && !it.endsWith('Template.xslt') }.collect { 
+         [ xslt: "collectedXslt/"+it.replace("\\\\", "/"), target: nodeJsRelDestDir+"/"+it.replaceAll(/\.xslt?$/, ".sef.json") ]
+      })};
+      for (const e of entries) {
+          console.log('Processing: '+e.xslt);
+          execSync(
+              'node ${bcduiSaxonSefGen.nodeModulesDir.replace("\\", "/")}/xslt3/xslt3.js -xsl:' + e.xslt + ' -export:' + e.target + ' -nogo -relocate:true',
+              { cwd: "${sefGenRootDir.replace("\\", "/")}", stdio: 'inherit', 
+                env: { ...process.env, ...${bcduiSaxonSefGen.nodeModulesDir ? "{ NODE_PATH: '${bcduiSaxonSefGen.nodeModulesDir.replace("\\", "/")}' }" : "{}"} } }
+          );
+      }
+    """.stripIndent()
+    // --- END js file we will give NodeJs
+    
+  }
+
+  //----------
+  // Call NodeJs with the script genSef.js generated above
+  executable "node"
+  args driverScript
+  
+  //----------
+  // Project *Template.xslt files go 1:1 to targetDir
+  // They are loaded via document() during runtime as plain XSLTs but need to be next to the sef files so that realive paths work
+  doLast {
+    copy {
+      bcduiSaxonSefGen.srcTrees.each { tree ->
+        from(tree)
+        eachFile { details ->
+          if (details.name.endsWith('.xslt') && !details.name.endsWith('Template.xslt')) details.exclude()
+        }
+      }
+      into "$bcduiSaxonSefGen.destDir.dir/$bcduiPrefix"
+      includeEmptyDirs = false
+    }  
+  }  
+}
+ 

@@ -49,6 +49,9 @@
   <!-- If no connection name is given in a binding set (bnd:BindingSet/@dbSourceName), this one of the ones below us used -->
   <Environment name="bcdui/defaultConnection" type="java.lang.String" value="jdbc/connectionXX"/>
 
+  <!-- Enforce SaxonJs usage instead of native browser XSLT, see bcdui_saxon_sef_generate.gradles -->
+  <Environment name="bcdui/saxonSefDir" type="java.lang.String" value="sef/"/>
+
   <!-- Some sample DB connections. Replace all values with XX in their name
     Attribute names are assuming recommended org.apache.tomcat.jdbc.pool.DataSourceFactory (Apache Java Database Connection Pool).
     From older data sources (Apache DBCP) migrate these: maxTotal, maxWaitMillis, removeAbandonedOnBorrow, connectionInitSqls to the names below -->
