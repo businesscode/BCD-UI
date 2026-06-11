@@ -299,22 +299,22 @@ task bcduiClientJsFileGroups {
   // minimize local 3rdParty ones with esbuild instead of babel (which causes issues) and take them over to the final package
   // We read them from clientCombinedDir/js and they go to clientCombinedDir/jsDist
   local3rdPartyFolders.each { folder ->
-    fileTree(dir: 'src/js/3rdParty/' + folder, include: ['**/*.js']).eachWithIndex { jsFile, i ->
+    fileTree(dir: 'src/js/3rdParty/' + folder, include: ['**/*.js']).sort { it.name } .eachWithIndex { jsFile, i ->
       def path = jsFile.path.replace("\\", "/");
       def target = "$clientCombinedDir/jsDist/3rdParty/" + path.substring(path.indexOf("src/js/3rdParty/") + "src/js/3rdParty/".length());
       def name = target.substring(target.lastIndexOf('/') + 1)
-      dependsOn += minifiyTask("$i-minimize-$name", path, target)
+      dependsOn += minifiyTask("minimize-${String.format('%03d', i)}-$name", path, target)
     }
   }
 
   // minimize single js files which are kept as standalone for module import functionality
   // We read them from clientCombinedDir/js and they go to clientCombinedDir/jsDist
   def jSrcFiles = fileTree(dir: "$clientCombinedDir/js/", includes: ["**/*.js"], excludes: ["**/3rdParty/**"])
-  jSrcFiles.eachWithIndex { jsFile, i ->
+  jSrcFiles.sort { it.name } .eachWithIndex { jsFile, i ->
     def source = jsFile.absolutePath.replaceAll("\\\\", "/");
     def target = source.replaceAll("$clientCombined/js/", "$clientCombined/jsDist/");
     def name = source.substring(source.lastIndexOf('/') + 1)
-    dependsOn += createBabelTask("$i-minimize-$name", [source], target, false, false)
+    dependsOn += createBabelTask("minimize-${String.format('%03d', i)}-$name", [source], target, false, false)
   }
 
   // All non 3rd-party files are handled here
