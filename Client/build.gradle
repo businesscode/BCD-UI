@@ -448,8 +448,8 @@ task bcduiDist(type: Jar) {
   from( "$clientCombinedDir/xslt" ) {
     into    'bcdui/xslt'
   }
-  from( "$clientCombinedDir/sef" ) {
-    into    'sef'
+  from( "$clientCombinedDir/sef/bcdui" ) {
+    into    'bcdui/sef'
   }
 
   manifest {
