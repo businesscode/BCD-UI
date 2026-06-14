@@ -22,9 +22,8 @@
   xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"
   xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
   xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
-  xmlns:msxsl="urn:schemas-microsoft-com:xslt"
   xmlns:exslt="http://exslt.org/common"
-  exclude-result-prefixes="exslt msxsl">
+  exclude-result-prefixes="exslt">
 
   <xsl:import href="../../../xslt/stringUtil.xslt"/>
 

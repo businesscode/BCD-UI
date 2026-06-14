@@ -23,13 +23,10 @@
   xmlns:rnd="http://www.businesscode.de/schema/bcdui/renderer-1.0.0"
   xmlns:scc="http://www.businesscode.de/schema/bcdui/scorecard-1.0.0"
   xmlns:exslt="http://exslt.org/common"
-  xmlns:msxsl="urn:schemas-microsoft-com:xslt"
   xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0">
 
 <xsl:import href="../../../xslt/renderer/numberFormatting.xslt"/>
 <xsl:import href="../../../xslt/stringUtil.xslt"/>
-
-<msxsl:script language="JScript" implements-prefix="exslt">this['node-set'] = function (x) { return x; }</msxsl:script>
 
 <xsl:output method="html" encoding="UTF-8" indent="no"/>
 

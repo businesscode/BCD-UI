@@ -16,7 +16,6 @@
 <xsl:stylesheet version="1.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:exslt="http://exslt.org/common"
-  xmlns:msxsl="urn:schemas-microsoft-com:xslt"
   xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
   xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0"
   xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -28,8 +27,6 @@
 
   <xsl:import href="deleteRows.xslt" />
   <xsl:import href="insertRow.xslt" />
-
-  <msxsl:script language="JScript" implements-prefix="exslt">this['node-set'] = function (x) { return x; }</msxsl:script>
 
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no" />
 

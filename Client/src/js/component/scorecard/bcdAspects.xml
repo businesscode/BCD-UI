@@ -82,12 +82,9 @@
         xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
         xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0"
         xmlns:scc="http://www.businesscode.de/schema/bcdui/scorecard-1.0.0"        
-        xmlns:exslt="http://exslt.org/common"
-        xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+        xmlns:exslt="http://exslt.org/common">
 
         <xsl:import href="bcduicp://bcdui/xslt/stringUtil.xslt"/>
-
-        <msxsl:script language="JScript" implements-prefix="exslt">this['node-set'] = function (x) { return x; }</msxsl:script>
 
         <xsl:output method="xml" version="1.0" encoding="UTF-8" />
 

@@ -26,11 +26,8 @@
                 xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
                 xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"
                 xmlns:exslt="http://exslt.org/common"
-                xmlns:msxsl="urn:schemas-microsoft-com:xslt"
                 xmlns:bcdxml="http://www.businesscode.de/schema/bcdui/bcdxml-1.0.0"
                 xmlns:generator="urn(bcd-xsltGenerator)">
-
-  <msxsl:script language="JScript" implements-prefix="exslt">this['node-set'] = function (x) { return x; }</msxsl:script>
 
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no"/>
 

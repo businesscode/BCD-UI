@@ -26,8 +26,7 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
   xmlns:exslt="http://exslt.org/common"
-  xmlns:msxsl="urn:schemas-microsoft-com:xslt"
-  exclude-result-prefixes="exslt msxsl">
+  exclude-result-prefixes="exslt">
 
 <xsl:output method="html" encoding="UTF-8" indent="yes"/>
 

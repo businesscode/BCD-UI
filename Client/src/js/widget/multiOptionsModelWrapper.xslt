@@ -50,8 +50,7 @@
   xmlns:fmla="http://www.businesscode.de/schema/bcdui/xsltFormulas-1.0.0"
   xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"
   xmlns:date="http://exslt.org/dates-and-times"
-  xmlns:tree="http://www.businesscode.de/schema/bcdui/tree-1.0.0"
-  xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+  xmlns:tree="http://www.businesscode.de/schema/bcdui/tree-1.0.0">
 
   <!-- Please note that any namespace must also me declared in this xslt
        as it does copy user given XPath expressions as literals into its output xslt

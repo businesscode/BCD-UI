@@ -24,13 +24,10 @@
   xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0"
   xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
   xmlns:exslt="http://exslt.org/common"
-  xmlns:msxsl="urn:schemas-microsoft-com:xslt"
   xmlns:cube="http://www.businesscode.de/schema/bcdui/cube-2.0.0">
 
   <xsl:import href="../../../xslt/renderer/filterFromCell.xslt"/>
   <xsl:import href="../../../xslt/stringUtil.xslt"/>
-
-  <msxsl:script language="JScript" implements-prefix="exslt">this['node-set'] = function (x) { return x; }</msxsl:script>
 
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no"/>
 

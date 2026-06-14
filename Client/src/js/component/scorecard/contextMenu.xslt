@@ -29,12 +29,9 @@
   xmlns:scc="http://www.businesscode.de/schema/bcdui/scorecard-1.0.0"
   xmlns="http://www.businesscode.de/schema/bcdui/contextMenu-1.0.0"
   xmlns:exslt="http://exslt.org/common"
-  xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
-  xmlns:msxsl="urn:schemas-microsoft-com:xslt">
+  xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0">
 
   <xsl:import href="../../../xslt/stringUtil.xslt"/>
-
-  <msxsl:script language="JScript" implements-prefix="exslt">this['node-set'] = function (x) { return x; }</msxsl:script>
 
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no"/>
 

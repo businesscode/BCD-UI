@@ -35,10 +35,7 @@
   xmlns:wrq="http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0"
   xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
   xmlns:exslt="http://exslt.org/common"
-  xmlns:msxsl="urn:schemas-microsoft-com:xslt"
-  exclude-result-prefixes="exslt msxsl">
-
-  <msxsl:script language="JScript" implements-prefix="exslt">this['node-set'] = function (x) { return x; }</msxsl:script>
+  exclude-result-prefixes="exslt">
 
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no"/>
 
