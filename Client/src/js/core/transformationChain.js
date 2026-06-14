@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2025 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -516,6 +516,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
       processor.transform( { input: input, parameters: params, callBack: function(result) 
         {
           traceXsltProcTime = Date.now() - traceXsltProcTime;
+          xslt.traceXsltProcTimeMs = (Number.isFinite(xslt.traceXsltProcTimeMs) ? xslt.traceXsltProcTimeMs : 0) + traceXsltProcTime;
           bcdui.debug._addProcessorExecutionTime( this.id, traceXsltProcTime );
           if( bcdui.log.isTraceEnabled() ) {
             var inputAsString = xslt.input.nodeType ? new XMLSerializer().serializeToString(xslt.input) : typeof input==="string" ? input : JSON.stringify(xslt.input);
@@ -1189,7 +1190,7 @@ bcdui.core.ModelWrapper = class extends bcdui.core.TransformationChain
   * </ul>
   * @param {bcdui.core.DataProvider} args.inputModel - The model with the data to be transformed
   * @param {Object}     [args.parameters]            - An object, where each property holds a DataProvideras a transformation parameter
-  * Once this ModelWapper is {@link bcdui.core.AbstractExecutable#execute executed}, it will check each parameter and execute it, if it is not {@link bcdui.core.AbstractExecutable .isReady()}
+  * Once this ModelWrapper is {@link bcdui.core.AbstractExecutable#execute executed}, it will check each parameter and execute it, if it is not {@link bcdui.core.AbstractExecutable .isReady()}
   * @param {string}     [args.id]                    - Globally unique id for use in declarative contexts
   * @param {bcdui.core.DataProvider}    [args.statusModel=bcdui.wkModels.guiStatus]                       - custom model to use as 'guiStatus' parameter
   * @param {bcdui.core.DataProvider}    [args.statusModelEstablished=bcdui.wkModels.guiStatusEstablished] - custom model to use as 'guiStatusEstablished' parameter
@@ -1210,7 +1211,7 @@ bcdui.core.ModelWrapper = class extends bcdui.core.TransformationChain
   /**
    * @inheritDoc
    */
-  getClassName() {return "bcdui.core.ModelWapper";}
+  getClassName() {return "bcdui.core.ModelWrapper";}
 };
 
  /**

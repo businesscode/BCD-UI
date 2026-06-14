@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2025 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -682,6 +682,7 @@ bcdui.core.XMLLoader = class
         var traceXsltProcTime = Date.now();
         newProcessor.transform( { input: args.sourceDoc, parameters: args.params, callBack: function(result) {
             traceXsltProcTime = Date.now() - traceXsltProcTime;
+            args.xslt.traceXsltProcTimeMs = (Number.isFinite(args.xslt.traceXsltProcTimeMs) ? args.xslt.traceXsltProcTimeMs : 0) + traceXsltProcTime;
             bcdui.debug._addProcessorExecutionTime( args.transformationChain.id, traceXsltProcTime );
             if( !result ) {
               bcdui.log.error({id: args.transformationChain.id, message: "ERROR during xslt transformation "+(args.stylesheetURL)+", "+args.transformationChain.id});

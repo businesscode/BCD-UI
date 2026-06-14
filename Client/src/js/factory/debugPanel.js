@@ -174,12 +174,15 @@ bcdui.factory.DebugPanel = (() => {
     .bcd-input-chain { margin-top: 2px; padding-left: 14px; border-left: 2px solid #378ADD; }
     .bcd-chain-label { font-size: 120%; color: #378ADD; margin: 3px 0; }  
     .bcd-xslt-chain { margin-top: 6px; }
-    .bcd-xslt-step { border-left: 2px solid #ddd; padding-left: 8px; margin: 4px 0; }
+    .bcd-xslt-steps { border-spacing: 4px 4px; border-collapse: separate; }
+    .bcd-xslt-steps td:nth-child(n+3) {
+      text-align: right;
+    }
     @media (prefers-color-scheme: dark) { .bcd-xslt-step { border-color: #4a4a4a; } }
     .bcd-xslt-header { display: flex; align-items: center; gap: 5px; font-size: 11px; }
     .bcd-xslt-idx { background: #E6F1FB; color: #185FA5; border-radius: 99px; padding: 0 6px; font-size: 10px; flex-shrink: 0; }
     @media (prefers-color-scheme: dark) { .bcd-xslt-idx { background: #0C447C; color: #B5D4F4; } }
-    .bcd-xslt-out { font-family: monospace; font-size: 11px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #555; }
+    .bcd-xslt-out { font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #555; }
     @media (prefers-color-scheme: dark) { .bcd-xslt-out { color: #ccc; } }
     #bcd-dbg-modal-backdrop {
       display: none;
@@ -284,9 +287,26 @@ bcdui.factory.DebugPanel = (() => {
    * @param dp
    */
   function openDataModal(dp) {
-    const data    = dp.getData();
+    let data = dp.getData();
+    let name = dp.getName();
+    
+    // If we have sef, we treat it as it's original XSLT
+    if( typeof data === "string" && data.startsWith("http") && data.includes(".sef.json") ) {
+      let xsltLink = data.substring(data.indexOf(".sef.json")+10);
+      jQuery.ajax({
+        url: xsltLink,
+        async: false,
+        dataType: 'xml',
+        success: function(xsltData, status, xhr) {
+          name = name + "  " + xsltLink + "  [executed as .sef.json]"
+          dp = new bcdui.core.StaticModel({data: xsltData, name});
+          dp.execute();
+          data = dp.getData();
+        }
+      });
+    };
+    
     const isXml   = isXmlDocument(data);
-    const name    = dp.getName();
     const targetId = 'bcd-modal-content-' + uid();
 
     modalTitle.innerHTML = `
@@ -303,8 +323,11 @@ bcdui.factory.DebugPanel = (() => {
         targetHtml: '#' + targetId,
         inputModel: visModel
       });
+    } else if( typeof data === "function" ) {
+      modalBody.innerHTML = `See function header in console`;
+      console.log(data);
     } else {
-      modalBody.innerHTML = `<pre>${escapeHtml}</pre>`;
+      modalBody.innerHTML = `<pre>${escapeHtml(data)}</pre>`;
     }
 
     modal.classList.add('bcd-visible');
@@ -344,11 +367,11 @@ bcdui.factory.DebugPanel = (() => {
       return '<span style="font-size:11px;color:#aaa;">max depth reached</span>';
     }
 
-    const deps= (dp.dataProviders || []);
+    const deps = (dp.dataProviders || []);
     const inputModel = deps[0] || null;
-    const params= deps.slice(1);
-    const dpId= uid();
-    dpMap[dpId]      = dp;
+    const params = deps.slice(1);
+    const dpId   = uid();
+    dpMap[dpId]  = dp;
 
     // Get exec time of TransformationChains
     const processorExecTime = (() => {
@@ -424,19 +447,24 @@ bcdui.factory.DebugPanel = (() => {
         const modelObj   = xslt.model;
         const modelData  = typeof modelObj?.getData === 'function' ? modelObj.getData() : modelObj;
         const modelIsXml = isXmlDocument(modelData);
-        const modelLabel = modelIsXml ? 'transformer [xslt]' : 'transformer';
+        let transformerType = "";
+        if( typeof modelData === "function" ) transformerType += " [function]";
+        else if( xslt.processor?.sefJson ) transformerType += " xslt.processor?.sefJson";
+        else if( xslt.model?.urlProvider?.getData() ) transformerType += ` ${xslt.model.urlProvider.getData().split('/').pop()}`;
+        else if( modelIsXml ) transformerType += " [xslt]";
 
         let modelLink = '';
         if (modelObj != null) {
           const modelId = uid();
           dpMap[modelId] = {
-            getName: () => `xslt[${i}].model`,
+            getName: () => `xslt[${i}].model ${xslt.model?.urlProvider?.getData() ? xslt.model?.urlProvider?.getData() : transformerType}`,
             isReady: () => typeof modelObj.isReady === 'function' ? modelObj.isReady() : true,
             getData: () => modelData,
             dataProviders: []
           };
-          modelLink = `<button class="bcd-data-btn" style="font-size:11px;" data-dp="${modelId}">${modelLabel}</button>`;
+          modelLink = `<button class="bcd-data-btn" style="font-size:11px;" data-dp="${modelId}">${transformerType}</button>`;
         }
+        let execTime = xslt.traceXsltProcTimeMs ? ` (${xslt.traceXsltProcTimeMs}ms)` : "";
 
         // processor.params — collapsed behind [+]
         const procParams  = xslt.processor?.params || xslt.processor?.parameters || {};
@@ -469,22 +497,21 @@ bcdui.factory.DebugPanel = (() => {
           <div id="${paramsSub}" class="bcd-nested" style="display:none;">${procParamsHtml}</div>` : '';
 
         return `
-          <div class="bcd-xslt-step">
-            <div class="bcd-xslt-header">
-              <span class="bcd-xslt-idx">${i + 1}</span>
-              ${outLink}
-              ${modelLink}
-              ${paramsToggle}
-            </div>
-          </div>`;
+          <tr>
+            <td><span class="bcd-xslt-idx">${i + 1}</span></td>
+            <td>${modelLink}</td>
+            <td style="text-align: right">${execTime}</td>
+            <td>${outLink}</td>
+            <td>${paramsToggle}</td>
+          </tr>`;
       }).join('');
 
       return `
         <div class="bcd-xslt-chain">
           <div class="bcd-sec" style="cursor:pointer;" data-sub="${chainId}">
-            &rsaquo; xslt chain (${xslts.length})
+            &rsaquo; transformation chain (${xslts.length})
           </div>
-          <div id="${chainId}" style="display:none;">${steps}</div>
+          <table class="bcd-xslt-steps" id="${chainId}" style="display:none;">${steps}</table>
         </div>`;
     })() : '';
 
