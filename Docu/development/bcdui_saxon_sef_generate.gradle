@@ -98,8 +98,13 @@ task bcduiSaxonSefInstall(type: Exec) {
   //----------
   // Copy 1:1 non-XSLTs from external jars or other FileTrees
   // They are just there to resolve xsl:imports and are not generated to sef files as they are expected to be in the jar already
+  // Because a zipTree cannot have an include/exclude, we filter here
   bcduiSaxonSefGen.extSrcTrees.each { tree ->
-    from tree
+    def xsltsInTree = tree.matching {
+      include '**/*.xslt'
+      exclude '**/bcdui/**/*Template.xslt'
+    }
+    from xsltsInTree
   }
   
   into sefCollectFolder
