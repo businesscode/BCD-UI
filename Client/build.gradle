@@ -62,7 +62,7 @@ def local3rdPartyFolders = ["ckeditor", "handsontable", "fileSaver", "log4javasc
 
 //**********************************
 // Install node modules for our runtime. Needed for the (client) distribution
-// (as opposed to those neede for the build, which are handled in installTools.gradle)
+// (as opposed to those needed for the build, which are handled in installTools.gradle)
 def clientNodeModulesDir  = "$clientRoot/build/node_modules"
 task bcduiClient3rdPartyNpm( type: NpmTask ) {
 
@@ -181,7 +181,7 @@ if (!project.ext.has('bcduiSaxonSefGen')) {
   ext {
     bcduiSaxonSefGen = [
       taskDependencies : [':ApisGenerator:bcduiBuild'], // Make sure generated XSLTs are up-to-date
-      srcTrees         : [fileTree( dir: "./src", includes: ['**/*.xslt', 'xslt/renderer/sqlTypes.xml'])],
+      srcTrees         : [fileTree( dir: "./src", includes: ['**/*.xslt']), fileTree( dir: "../ApisGenerator/build/gensrc", includes: ['**/*.xslt'])],
       extSrcTrees      : [],
       nodeModulesDir   : nodeModulesDir,
       destDir          : [dir: "$buildDir/genSef/sef", bcduiExtraLevels: 0]
