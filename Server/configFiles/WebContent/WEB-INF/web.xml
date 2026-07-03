@@ -15,7 +15,7 @@
   limitations under the License.
 -->
 <!--
-  Standard web.xml for BCD-UI 5 applications.
+  Standard web.xml for BCD-UI 6 applications.
   -->
 <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

@@ -19,22 +19,30 @@
 // BCD-UI will resolve <rel-path.xslt> to /sef/<rel-path.xslt> at runtime, 
 // Since BCD-UI jar already comes with its sef files, only project sef files will go to destDir.
 //
-// 1) Usage, add this to your build.gradle:
+// 1) To have xslt3 installed, add it to your package.json:
+//  {
+//    "name": "My-Project",
+//    "dependencies": {
+//      "xslt3": "^2.7.0"
+//    }
+//  }
+//
+// 2) Add this to your build.gradle:
 //  ext {
 //    bcduiSaxonSefGen = [
-//      nodeModulesDir   : "",                                       // Set to non-empty string if you want a specific node_modules/ to be used for xslt3
-//      taskDependencies : [someTask],                               // Needed if you need preparation steps for this, like XSLT generation
-//      srcTrees         : [fileTree( dir: "./src/main/web", includes: ['**/*.xslt'])], // Your project's XSLTs, potentially other files that go to destDir because they are referenced in document()
-//      extSrcTrees      : [zipTree(file("<pathToBcdui.jar>"))],     // fileTree or zipTree, needed to resolve xsl:import XSLTs, for example from BCD-UI
-//      destDir          : [dir: "main/src/web/sef", bcduiExtraLevels: 1] // Path where to put the generated sef files. If the path is deeper nested than the xslt to reach /bcdui/..sef, set bcduiExtraLevels>1, for example 2 for gensrc/sef/...
+//      nodeModulesDir   : "$project.projectDir/node_modules",       // Where to find SaxonJs (i.e. xslt3.js)
+//      taskDependencies : [someBeforeTask],                         // Needed if you need preparation steps for this, like XSLT generation
+//      srcTrees         : [fileTree( dir: "./src/main/web", includes: ['**/*.xslt'])], // Your project's XSLTs to be turned into sef files. "dir" must point to what is later the context-path as relative paths are calculated based on that. You may limit "includes" to those XSLTs you are currently focussing on
+//      extSrcTrees      : [zipTree(file("<pathToBcdui.jar>"))],     // fileTree or zipTree, XSLTs only being xsl:import-ed but not turned into sef here, like ones from BCD-UI
+//      destDir          : [dir: "main/src/web/sef", bcduiExtraLevels: 1] // Path where to put the generated sef files. "main/src/web" to put them next to the XSLTs "main/src/web/sef" to put them all under "sef/". Set bcduiExtraLevels addintinal number of levels, like, for example 2 for gensrc/sef/
 //    ]
 //  }
 //  apply from: '<path-to>/bcdui_saxon_sef_generate.gradle'
 //
-// 2) Add to your build task:
+// 3) Make sure bcduiSaxonSefGenerate is part of your build:
 //  dependsOn bcduiSaxonSefGenerate
 //
-// 3) Add this to web.xml and make sure the env-entry-value matches the destDir above relative to the context root:
+// 4) Add this to web.xml and make sure the env-entry-value matches the destDir above relative to the context root:
 //  <!-- Enable Saxon -->
 //  <env-entry>
 //    <description>Tell SaxonJS where to find the project's pre-generated sef files</description>
@@ -44,13 +52,29 @@
 //  </env-entry>
 //
 
+/**************************************************
+ * If bcduiSaxonSefGen.nodeModulesDir we auto-run npm install
+ * We assume package.json to be in the project directory for this default behaviour
+ */
+task bcduiSaxonSefInstall(type: Exec) {
+  onlyIf { !file(bcduiSaxonSefGen.nodeModulesDir).exists() }
+  doFirst {
+  println "node_modules not found- running npm install..." }
+  workingDir "."
+  if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+    commandLine 'cmd', '/c', 'npm', 'install'
+  } else {
+    commandLine 'npm', 'install'
+  }
+}
+
  /**************************************************
   * For Saxon sef generation, we need all XSLTs in one place in their final structure
   * Here we collect them from the varours locations including bcd-ui.jar in case XSLTs from BCD-UI are xsl:import into project XSLTs
   */
  task bcduiSaxonSefGenerationCollectInput(type: Copy) {
 
-  dependsOn bcduiSaxonSefGen.taskDependencies
+  dependsOn bcduiSaxonSefInstall, bcduiSaxonSefGen.taskDependencies
 
   ext.sefGenRootDir    = "$buildDir/genSef"               // Our working directory
   ext.sefCollectFolder = "$sefGenRootDir/collectedXslt/"  // Here we collect all XSLTs
@@ -65,7 +89,7 @@
     from(tree) { 
       into bcduiPrefix
       eachFile { details ->
-        details.filter { line -> line.replaceAll(/ select="document\('\.\.\/bcdui\//, """ select="document('${extraLevels}../bcdui/""") }
+        details.filter { line -> line.replaceAll(/ select="document\('\.([.\/]*\/bcdui\/)/, """ select="document('${extraLevels}.\$1""") }
       }
     }
     projectXslts += tree.files.collect { f -> bcduiPrefix+tree.dir.toURI().relativize(f.toURI()).toString() }

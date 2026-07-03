@@ -11,7 +11,9 @@ ___
 
 .Client
 * Added option to use BCD-UI as JavaScript modules like `import { AutoModel, Renderer } from "../bcdui/js/modules/core.js"`
-* Added SaxxonJS2 option to be used instead of browser native XSLT
+* Added SaxonJS2 option to be used instead of browser native XSLT
+    - BCD-UI now comes with sef files at /bcdui/sef/. They are automatically loaded if /bcdui/**/*.xslt is addressed
+    - Projects can use Docu/development/bcdui_saxon_sef_generate.gradle to have sef files created. From the setup BCD-UI knows where to find them if a project XSLT is loaded
 * Switched to JavaScript HtmlBuilder per default
 
 .Server:
@@ -31,6 +33,10 @@ ___
 
 .Incompatibilities:
 * In web.xml, add new env entries `bcdui/bnd/wrsAttributes` and `bcdui/bnd/wrsMetaAttribute`, see `Server/configFiles/WebContent/WEB-INF/web.xml` for backward compatible defaults
+* If you xsl:import, the document() paths in these need to be relative to the including XSLT, was relative to the included. So you will have to overwrite this, like this then importing htmlBuilder.xslt
+  ````xml
+    <xsl:variable name="sqlTypesDoc" select="document('../../../../bcdui/xslt/renderer/sqlTypes.xml')"/>
+  ````
 ---.
 
 ___
