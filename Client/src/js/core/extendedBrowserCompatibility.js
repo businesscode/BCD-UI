@@ -748,7 +748,8 @@ else {
         }
       }
       return SaxonJS.transform(params, "async");
-    });
+    })
+    .catch( res => console.error("SaxonJS transformation failed for", args.stylesheetLocation, res) );
   }
 
   XSLTProcessor.prototype.asyncTransform = function(sourceDoc)
