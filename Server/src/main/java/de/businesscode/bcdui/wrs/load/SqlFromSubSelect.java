@@ -283,24 +283,6 @@ public class SqlFromSubSelect
         boundVariables.addAll( item.getBoundVariables() );
     }
 
-    // For backward-compatibility, in case of pagination, we add ordering by key columns if no other order is given
-    // This is only for very simple cases (for example, a plain table access, no sub-selects, no access to multiple BindingSets, no grouping)
-    // It is preferred that you provide the ordering explicitly
-    if( wrqInfo.getOrderingBRefs().isEmpty()
-        && wrqInfo.getGroupingBRefs().isEmpty()
-        && rowStart < rowEnd && (rowStart > 1 || rowEnd != -1) )
-    {
-      String keyBsAlias = getWrqInfo().getResultingBindingSet().getSqlAlias();
-      i = 0;
-      for( BindingItem key: getWrqInfo().getResultingBindingSet().getResolvedBindingSets().iterator().next().getKeyBindingItems() ) {
-        BindingItem resultingKey = getWrqInfo().getResultingBindingSet().get("."+key.getId());
-        if( resultingKey == null ) continue;
-        if( ++i == 1) sql.append("  ORDER BY ");
-        if( i > 1) sql.append(", ");
-        sql.append( resultingKey.getQColumnExpression(keyBsAlias) );
-      }
-    }
-
     sqlStatement.append(sql.toString(), boundVariables, wrqInfo.getResultingBindingSet());
   }
 
