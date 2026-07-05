@@ -15,12 +15,18 @@
 */
 package de.businesscode.bcdui.subjectsettings;
 
+import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
@@ -36,6 +42,9 @@ import org.apache.shiro.subject.Subject;
 
 import de.businesscode.bcdui.subjectsettings.config.Security;
 import de.businesscode.bcdui.subjectsettings.config.Security.Operation;
+import org.apache.shiro.web.env.WebEnvironment;
+import org.apache.shiro.web.filter.mgt.FilterChainResolver;
+import org.apache.shiro.web.util.WebUtils;
 
 /**
  * helper to evaluate shiro security on {@link Security} settings
@@ -370,5 +379,65 @@ public class SecurityHelper {
       throw new RuntimeException("failed to retrieve permissions", e);
     }
     return valueSet;
+  }
+
+  /**
+   * Check if the user would be allowed to call GET on a certain application url
+   * Since Shiro does not allow this per se, we simulate a call here
+   * @return true, if the user is allowed that URL
+   */
+  public static boolean isUrlAllowed(String path, ServletContext servletContext) {
+    // Current user context
+    WebEnvironment environment = WebUtils.getRequiredWebEnvironment(servletContext);
+    FilterChainResolver resolver = environment.getFilterChainResolver();
+    // Dummy request and response
+    HttpServletRequest stubRequest = (HttpServletRequest) Proxy.newProxyInstance(
+        SecurityHelper.class.getClassLoader(),
+        new Class[]{HttpServletRequest.class},
+        (proxy, m, args) -> switch (m.getName()) {
+          case "getRequestURI" -> path;
+          case "getContextPath" -> "";
+          case "getMethod" -> "GET";
+          case "getServletPath" -> path;
+          case "getSession" -> null;
+          default -> {
+            Class<?> t = m.getReturnType();
+            yield (t == boolean.class) ? false : ( t.isPrimitive() ? 0 : null );
+          }
+        }
+    );
+    HttpServletRequest requestForPath = new HttpServletRequestWrapper(stubRequest) {
+      @Override
+      public String getRequestURI() {
+        return servletContext.getContextPath() + path;
+      }
+      @Override
+      public String getServletPath() {
+        return path;
+      }
+    };
+
+    HttpServletResponse stubResponse = (HttpServletResponse) Proxy.newProxyInstance(
+        SecurityHelper.class.getClassLoader(),
+        new Class[]{HttpServletResponse.class},
+        (proxy, m, args) ->
+          (m.getReturnType() == boolean.class) ? false : ( m.getReturnType().isPrimitive() ? 0 : null )
+    );
+
+    // Simulate a chain and test if Shiro let's us through
+    boolean[] reachedEnd = {false};
+    FilterChain terminalChain = (req, resp) -> reachedEnd[0] = true;
+
+    FilterChain chain = resolver.getChain(requestForPath, stubResponse, terminalChain);
+    if (chain == null) {
+      return true; // no rule configured for this path -> not restricted
+    }
+
+    try {
+      chain.doFilter(requestForPath, stubResponse);
+      return reachedEnd[0];
+    } catch (Exception e) {
+      return false; // any exception during the chain (auth/authz failure) = not allowed
+    }
   }
 }
