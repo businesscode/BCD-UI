@@ -58,8 +58,8 @@
  */
 task bcduiSaxonSefInstall(type: Exec) {
   onlyIf { !file(bcduiSaxonSefGen.nodeModulesDir).exists() }
-  doFirst {
-  println "node_modules not found- running npm install..." }
+  doFirst { println "node_modules ${file(bcduiSaxonSefGen.nodeModulesDir)} not found - running npm install..." }
+
   workingDir "."
   if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
     commandLine 'cmd', '/c', 'npm', 'install'
@@ -88,6 +88,9 @@ task bcduiSaxonSefInstall(type: Exec) {
   bcduiSaxonSefGen.srcTrees.each { tree ->
     from(tree) { 
       into bcduiPrefix
+      exclude { details ->
+        details.file.absolutePath.startsWith(file(bcduiSaxonSefGen.destDir.dir).absolutePath)
+      }
       eachFile { details ->
         details.filter { line -> line.replaceAll(/ select="document\('\.([.\/]*\/bcdui\/)/, """ select="document('${extraLevels}.\$1""") }
       }
@@ -123,9 +126,8 @@ task bcduiSaxonSefGenerate(type: Exec) {
   def projectXslts  = bcduiSaxonSefGenerationCollectInput.projectXslts.sort()
   def bcduiPrefix   = bcduiSaxonSefGenerationCollectInput.bcduiPrefix
 
-
-  inputs.files  fileTree( dir: bcduiSaxonSefGenerationCollectInput.sefCollectFolder ).files
-  outputs.files projectXslts.collect { new File( "$bcduiSaxonSefGen.destDir.dir/"+bcduiPrefix+it.replaceAll(/\.xslt?$/, ".sef.json") ) }
+  inputs.dir  bcduiSaxonSefGenerationCollectInput.sefCollectFolder
+  outputs.dir bcduiSaxonSefGen.destDir.dir
 
   //----------
   // Write a small JS driver script on the fly
@@ -161,21 +163,5 @@ task bcduiSaxonSefGenerate(type: Exec) {
   // Call NodeJs with the script genSef.js generated above
   executable "node"
   args driverScript
-  
-  //----------
-  // Project *Template.xslt files go 1:1 to targetDir
-  // They are loaded via document() during runtime as plain XSLTs but need to be next to the sef files so that realive paths work
-  doLast {
-    copy {
-      bcduiSaxonSefGen.srcTrees.each { tree ->
-        from(tree)
-        eachFile { details ->
-          if (details.name.endsWith('.xslt') && !details.name.endsWith('Template.xslt')) details.exclude()
-        }
-      }
-      into "$bcduiSaxonSefGen.destDir.dir/$bcduiPrefix"
-      includeEmptyDirs = false
-    }  
-  }  
 }
  
