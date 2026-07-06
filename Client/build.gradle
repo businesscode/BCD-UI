@@ -189,7 +189,10 @@ if (!project.ext.has('bcduiSaxonSefGen')) {
   }
 }
 apply from: "$sharedBuildFilesRoot/Docu/development/bcdui_saxon_sef_generate.gradle"
-
+// Run our central NodeJS install, so that sef does not run its own
+tasks.named('bcduiSaxonSefInstall') {
+  dependsOn ':bcduiToolsOnetimeInit'
+}
 
 //**********************************
 // Copies all bcdui/js and bcdui/xslt from the various places together, except bcduiLoader, which is treated separately
@@ -462,24 +465,14 @@ task bcduiDist(type: Jar) {
 
 //*********************************
 // Create a jar containing source map BCD Client sources
-task bcduiDebugDist(type: Jar) {
-
-  dependsOn bcduiClientJsFileGroups
+task bcduiDebugDist(type: Jar) 
+{
+  with tasks.named('bcduiDist').get()  // inherit all config from bcduiDist
 
   archiveBaseName = "$artifactsBaseName-client-debug"
-  archiveVersion  = bcduiVersion
-  destinationDirectory = file("$buildDir/libs")
-
   from( "$clientCombinedDir/$jsDistDir" ) {
     into    'bcdui/js'
-    include '**/*.js.map'
-  }
-
-  manifest {
-    attributes( bcduiManifestAttributes() )
-  }
-  metaInf {
-    from bcduiMetaInf
+    include '** /*.js.map'
   }
 }
 

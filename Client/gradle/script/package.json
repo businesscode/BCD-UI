@@ -2,6 +2,7 @@
   "name": "bcd-ui",
   "version": "6.0.0",
   "description": "BCD-UI is a full-stack framework for building business applications",
+  "notes":       "These dependencies are for client runtime. For additional dependencies for build see /gradle/build_package.json",
   "author":      "BusinessCode GmbH, Germany",
   "license":     "Apache-2.0",
   "repository": {

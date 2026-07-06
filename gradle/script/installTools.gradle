@@ -57,6 +57,7 @@ task bcduiNodeJsTools( type: NpmTask ) {
     it.workingDir = file(nodeJsDir)
   }
   doFirst {
+    println("Initial install of NodeJS tools needed for build...")
     // create a local node_modules folder as we want to keep stuff local
     new File(nodeModulesDir).mkdirs()
     copy {
