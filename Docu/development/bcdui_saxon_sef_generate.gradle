@@ -113,7 +113,6 @@ task bcduiSaxonSefInstall(type: Exec) {
         details.file.absolutePath.startsWith(file(bcduiSaxonSefGen.destDir.dir).absolutePath)
       }
       eachFile { details ->
-        println( resolveDocumentPath )
         details.filter { line -> 
           line.replaceAll(/ select="document\('([^']*)'\)/) { match, docPath ->
             def resolved = resolveDocumentPath(docPath, details.relativePath.pathString)
