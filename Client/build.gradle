@@ -184,7 +184,7 @@ if (!project.ext.has('bcduiSaxonSefGen')) {
       srcTrees         : [fileTree( dir: "./src", includes: ['**/*.xslt']), fileTree( dir: "../ApisGenerator/build/gensrc", includes: ['**/*.xslt'])],
       extSrcTrees      : [],
       nodeModulesDir   : nodeModulesDir,
-      destDir          : [dir: "$buildDir/genSef/sef", bcduiExtraLevels: 0]
+      destDir          : [dir: "$buildDir/genSef/sef", bcduiExtraLevels: 1]
     ]
   }
 }

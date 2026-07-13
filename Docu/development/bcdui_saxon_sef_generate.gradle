@@ -68,6 +68,7 @@ task bcduiSaxonSefInstall(type: Exec) {
   }
 }
 
+ import java.nio.file.Paths
  /**************************************************
   * For Saxon sef generation, we need all XSLTs in one place in their final structure
   * Here we collect them from the varours locations including bcd-ui.jar in case XSLTs from BCD-UI are xsl:import into project XSLTs
@@ -82,9 +83,29 @@ task bcduiSaxonSefInstall(type: Exec) {
   ext.bcduiPrefix = project.parent != null && project.parent.name.startsWith("BCD-UI") ? "bcdui/" : ""
 
   //----------
-  // Collect XSLTs from project, Templates are later copied 1:1 and processed during runtime
-  // Since the projects target may be something like gensrc/sef/, we will add extra levels when evaluating document() to /bcdui/
-  def extraLevels = "../" * bcduiSaxonSefGen.destDir.bcduiExtraLevels
+  // Collect XSLTs from project
+  // Since the projects target may be something like /sef/, we need to adjust all relative document() paths with the following procedure:
+  // 1) We resolve all paths relative from the context path down and then 2) add extraLevelsUp
+  // 1) This turns for example currentDir = 'bcdui/xslt/wrs/paste.xslt', docPath = '../templates/pasteTemplate.xslt' into ../../../bcdui/xslt/templates/pasteTemplate.xslt
+  //    i.e. we always go up from the xslt to the contextPath and then down to the addressed document
+  // 2) If there is an extra level the sef are under like /sef/, that is added with extraLevelsUp further down then
+
+  // 1) Up from XSLT to context path
+  def resolveDocumentPath = { String docPath, String currentDir ->
+    // Strip filename from currentDir if it has one
+    def currentDirOnly = currentDir.contains('/') ? currentDir.substring(0, currentDir.lastIndexOf('/')) : ''
+    def depth = currentDirOnly.split('/').findAll { it && it != '.' }.size()
+    def goUp = '../' * depth
+    Paths.get(goUp)
+        .resolve(currentDirOnly)
+        .resolve(docPath)
+        .normalize()
+        .toString()
+        .replace('\\', '/')
+  }
+  // 2) Up extra levels for sef location
+  def extraLevelsUp = "../" * bcduiSaxonSefGen.destDir.bcduiExtraLevels
+
   bcduiSaxonSefGen.srcTrees.each { tree ->
     from(tree) { 
       into bcduiPrefix
@@ -92,20 +113,27 @@ task bcduiSaxonSefInstall(type: Exec) {
         details.file.absolutePath.startsWith(file(bcduiSaxonSefGen.destDir.dir).absolutePath)
       }
       eachFile { details ->
-        details.filter { line -> line.replaceAll(/ select="document\('\.([.\/]*\/bcdui\/)/, """ select="document('${extraLevels}.\$1""") }
+        println( resolveDocumentPath )
+        details.filter { line -> 
+          line.replaceAll(/ select="document\('([^']*)'\)/) { match, docPath ->
+            def resolved = resolveDocumentPath(docPath, details.relativePath.pathString)
+            // println "  translate: ${details.relativePath.pathString}, ${docPath} -> ${extraLevelsUp}${resolved}"
+            """ select="document('${extraLevelsUp}${resolved}')"""
+          }
+        }
       }
     }
     projectXslts += tree.files.collect { f -> bcduiPrefix+tree.dir.toURI().relativize(f.toURI()).toString() }
   }
 
   //----------
-  // Copy 1:1 non-XSLTs from external jars or other FileTrees
-  // They are just there to resolve xsl:imports and are not generated to sef files as they are expected to be in the jar already
+  // Copy non-project-XSLTs from external jars or other FileTrees
+  // They are just there to resolve xsl:imports in project XSLTs and are not generated to sef files (projectXslts) as they are expected to be in the jar already
   // Because a zipTree cannot have an include/exclude, we filter here
   bcduiSaxonSefGen.extSrcTrees.each { tree ->
     def xsltsInTree = tree.matching {
       include '**/*.xslt'
-      exclude '**/bcdui/**/*Template.xslt'
+      exclude '**/bcdui/**/*Template.xslt' // Templates are not imported, so not needed here
     }
     from xsltsInTree
   }

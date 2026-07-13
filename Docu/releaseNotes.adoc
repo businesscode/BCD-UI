@@ -37,6 +37,8 @@ ___
   ````xml
     <xsl:variable name="sqlTypesDoc" select="document('../../../../bcdui/xslt/renderer/sqlTypes.xml')"/>
   ````
+  If that is not done, an error like `/bcdui/sef/xslt/xslt_transform.sef.json XError: xsl:stylesheet lacks @version` may show up
+  because the document is tried to be loaded from the wrong place and could not be parsed
 ---.
 
 ___
