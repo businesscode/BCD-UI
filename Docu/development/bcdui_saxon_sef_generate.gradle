@@ -16,7 +16,7 @@
 
 //
 // Support for generating SaxonJs sef project files from XSLT
-// BCD-UI will resolve <rel-path.xslt> to /sef/<rel-path.xslt> at runtime, 
+// BCD-UI will resolve project XSLTs <rel-path.xslt> to /<destDir.dir>/<rel-path.sef.json> at runtime,
 // Since BCD-UI jar already comes with its sef files, only project sef files will go to destDir.
 //
 // 1) To have xslt3 installed, add it to your package.json:
@@ -68,12 +68,12 @@ task bcduiSaxonSefInstall(type: Exec) {
   }
 }
 
- import java.nio.file.Paths
- /**************************************************
-  * For Saxon sef generation, we need all XSLTs in one place in their final structure
-  * Here we collect them from the varours locations including bcd-ui.jar in case XSLTs from BCD-UI are xsl:import into project XSLTs
-  */
- task bcduiSaxonSefGenerationCollectInput(type: Copy) {
+import java.nio.file.Paths
+/**************************************************
+ * For Saxon sef generation, we need all XSLTs in one place in their final structure
+ * Here we collect them from the varours locations including bcd-ui.jar in case XSLTs from BCD-UI are xsl:import into project XSLTs
+ */
+task bcduiSaxonSefGenerationCollectInput(type: Copy) {
 
   dependsOn bcduiSaxonSefInstall, bcduiSaxonSefGen.taskDependencies
 
@@ -82,17 +82,17 @@ task bcduiSaxonSefInstall(type: Exec) {
   ext.projectXslts = []                                   // Later we need to know which are from the project (as opposed to external jar for example)
   ext.bcduiPrefix = project.parent != null && project.parent.name.startsWith("BCD-UI") ? "bcdui/" : ""
 
+   // We need this to set the original file changed ts (which gradle Copy destroys), so that we can later only re-compile XSLTs which are out of date
+  def copyDetails = []
+
   //----------
   // Collect XSLTs from project
   // Since the projects target may be something like /sef/, we need to adjust all relative document() paths with the following procedure:
-  // 1) We resolve all paths relative from the context path down and then 2) add extraLevelsUp
+  // 1) We resolve all paths relative from the context path down and then
+  // 2) add extraLevelsUp to take care for sef being potentially in a subfolder
+  //
   // 1) This turns for example currentDir = 'bcdui/xslt/wrs/paste.xslt', docPath = '../templates/pasteTemplate.xslt' into ../../../bcdui/xslt/templates/pasteTemplate.xslt
-  //    i.e. we always go up from the xslt to the contextPath and then down to the addressed document
-  // 2) If there is an extra level the sef are under like /sef/, that is added with extraLevelsUp further down then
-
-  // 1) Up from XSLT to context path
   def resolveDocumentPath = { String docPath, String currentDir ->
-    // Strip filename from currentDir if it has one
     def currentDirOnly = currentDir.contains('/') ? currentDir.substring(0, currentDir.lastIndexOf('/')) : ''
     def depth = currentDirOnly.split('/').findAll { it && it != '.' }.size()
     def goUp = '../' * depth
@@ -106,21 +106,23 @@ task bcduiSaxonSefInstall(type: Exec) {
   // 2) Up extra levels for sef location
   def extraLevelsUp = "../" * bcduiSaxonSefGen.destDir.bcduiExtraLevels
 
+  //----------
+  // Copy project-XSLTs. These are transpiled to sef files
   bcduiSaxonSefGen.srcTrees.each { tree ->
-    from(tree) { 
+    from(tree) {
       into bcduiPrefix
       exclude { details ->
         details.file.absolutePath.startsWith(file(bcduiSaxonSefGen.destDir.dir).absolutePath)
       }
       eachFile { details ->
-        details.filter { line -> 
+        details.filter { line ->
           line.replaceAll(/ select="document\('([^']*)'\)/) { match, docPath ->
             def resolved = resolveDocumentPath(docPath, details.relativePath.pathString)
-            // println "  translate: ${details.relativePath.pathString}, ${docPath} -> ${extraLevelsUp}${resolved}"
             """ select="document('${extraLevelsUp}${resolved}')"""
           }
         }
       }
+      eachFile { copyDetails << it }
     }
     projectXslts += tree.files.collect { f -> bcduiPrefix+tree.dir.toURI().relativize(f.toURI()).toString() }
   }
@@ -135,8 +137,17 @@ task bcduiSaxonSefInstall(type: Exec) {
       exclude '**/bcdui/**/*Template.xslt' // Templates are not imported, so not needed here
     }
     from xsltsInTree
+    eachFile { copyDetails << it }
   }
-  
+
+  doLast {
+    // Bring back original file lastModified
+    copyDetails.each { FileCopyDetails details ->
+      def target = new File(sefCollectFolder, details.path)
+      if(target.exists()) { target.setLastModified(details.lastModified) }
+    }
+  }
+
   into sefCollectFolder
   includeEmptyDirs = false
 }
@@ -144,6 +155,7 @@ task bcduiSaxonSefInstall(type: Exec) {
 
 /**************************************************
  * Saxon sef generation itself
+ * Mostly done in an NodeJs file which we generate and execute here
  */
 task bcduiSaxonSefGenerate(type: Exec) {
 
@@ -151,43 +163,99 @@ task bcduiSaxonSefGenerate(type: Exec) {
 
   def sefGenRootDir = bcduiSaxonSefGenerationCollectInput.sefGenRootDir
   def projectXslts  = bcduiSaxonSefGenerationCollectInput.projectXslts.sort()
+  def projectXsltsJsArray = groovy.json.JsonOutput.toJson( projectXslts.findAll{ it.endsWith('.xslt') && !it.endsWith('Template.xslt') }.collect{ it } )
   def bcduiPrefix   = bcduiSaxonSefGenerationCollectInput.bcduiPrefix
 
   inputs.dir  bcduiSaxonSefGenerationCollectInput.sefCollectFolder
   outputs.dir bcduiSaxonSefGen.destDir.dir
 
   //----------
-  // Write a small JS driver script on the fly
+  // Write a JS driver script on the fly
+  // It first does detect which XSLTs need a recompile.
+  // These are those files, which are from projectXslts and where the sef file is missing or older than its XSLT or any XSLT that is xs:import-ed
   def driverScript = file("$sefGenRootDir/genSef.js")
   doFirst {
     driverScript.parentFile.mkdirs()
 
     // bcduiSaxonSefGen.destDir is given relative to the project, but we neeed it realive to our NodeJs working dir sefGenRootDir
-    def nodeJsRelDestDir = file(sefGenRootDir)toPath().relativize(file(bcduiSaxonSefGen.destDir.dir).toPath()).toString()
-    
-    // --- START js file we will give NodeJs for Saxon XSLT->sef generation
+    def nodeJsRelDestDir = file(sefGenRootDir)toPath().relativize(file(bcduiSaxonSefGen.destDir.dir).toPath()).toString().replace('\\', '/')
+
+    // ******************************
+    // START js file we will give to NodeJs for Saxon XSLT->sef generation
     driverScript.text = """
-      // Generate sef files for project's XSLT files
       const { execSync } = require('child_process');
       const path = require('path');
-      const entries = ${groovy.json.JsonOutput.toJson( projectXslts.findAll{ it.endsWith('.xslt') && !it.endsWith('Template.xslt') }.collect { 
-         [ xslt: "collectedXslt/"+it.replace("\\\\", "/"), target: nodeJsRelDestDir+"/"+it.replaceAll(/\.xslt?$/, ".sef.json") ]
-      })};
+      const fs = require('fs');
+
+      //--------------------------------------  
+      // First we need to find out, which files are out-of date
+      const IMPORT_RE = /<xsl:(?:import)\s+[^>]*href\s*=\s*["']([^"']+)["']/g;
+
+      function extractImports(xsltPath) {
+        const content = fs.readFileSync(xsltPath, 'utf8');
+        const imports = [];
+        let match;
+        IMPORT_RE.lastIndex = 0;
+        while ((match = IMPORT_RE.exec(content)) !== null) {
+          imports.push(path.resolve(path.dirname(xsltPath), match[1]));
+        }
+        return imports;
+      }
+
+      // Recursively compute the most recent mtime among a file and everything it imports
+      function latestMtime(xsltPath, cache = new Map(), visiting = new Set()) {
+        if (cache.has(xsltPath)) return cache.get(xsltPath);
+        if (visiting.has(xsltPath)) return fs.statSync(xsltPath).mtimeMs; // circular import guard
+
+        visiting.add(xsltPath);
+        let latest = fs.statSync(xsltPath).mtimeMs;
+
+        for (const imp of extractImports(xsltPath)) {
+          if (!fs.existsSync(imp)) {
+            console.warn('Warning: ', xsltPath, ' references missing file ', imp);
+            continue;
+          }
+          latest = Math.max(latest, latestMtime(imp, cache, visiting));
+        }
+
+        visiting.delete(xsltPath);
+        cache.set(xsltPath, latest);
+        return latest;
+      }
+
+      const sefPathFor = (xsltPath) => xsltPath.replace(".xslt", '.sef.json').replace("collectedXslt/", "${nodeJsRelDestDir}/");
+
+      function needsRecompile(xsltPath, cache) {
+        const sefPath = sefPathFor(xsltPath);
+        if (!fs.existsSync(sefPath)) return true;
+        const sefTime = fs.statSync(sefPath).mtimeMs;
+        const sourceTime = latestMtime(xsltPath, cache);
+        return sourceTime > sefTime;
+      }
+
+      // For each project XSLT (only) find whether is outdated
+      const mtimeCache = new Map();
+      let outOfDateXslts = ${projectXsltsJsArray}.filter( f => needsRecompile( "collectedXslt/"+f, mtimeCache) );
+
+      //--------------------------------------
+      // Generate sef files for the outdated project XSLT files
+      const entries = outOfDateXslts.map( f => ({ xslt: "collectedXslt/"+f.split("\\\\").join("/"), target: "${nodeJsRelDestDir}/"+f.replace(".xslt", ".sef.json") }) )
       for (const e of entries) {
-          console.log('Processing: '+e.xslt);
+          console.log('Processing: '+e.xslt+' -> '+e.target);
           execSync(
-              'node ${bcduiSaxonSefGen.nodeModulesDir.replace("\\", "/")}/xslt3/xslt3.js -xsl:' + e.xslt + ' -export:' + e.target + ' -nogo -relocate:true',
-              { cwd: "${sefGenRootDir.replace("\\", "/")}", stdio: 'inherit', 
+              'node "${bcduiSaxonSefGen.nodeModulesDir.replace("\\", "/")}/xslt3/xslt3.js" -xsl:' + e.xslt + ' -export:' + e.target + ' -nogo -relocate:true',
+              { cwd: "${sefGenRootDir.replace("\\", "/")}", stdio: 'inherit',
                 env: { ...process.env, ...${bcduiSaxonSefGen.nodeModulesDir ? "{ NODE_PATH: '${bcduiSaxonSefGen.nodeModulesDir.replace("\\", "/")}' }" : "{}"} } }
           );
       }
     """.stripIndent()
-    // --- END js file we will give NodeJs
-    
+    // END js file we will give to NodeJs
+    // ******************************
   }
 
   //----------
   // Call NodeJs with the script genSef.js generated above
+  workingDir sefGenRootDir
   executable "node"
   args driverScript
 }
