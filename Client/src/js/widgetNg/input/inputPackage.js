@@ -676,7 +676,7 @@
       // tag that we're writing data ourself so that XMLUpdateListener
       // ignores and does not propagate this update.
       // the listener resets this flag on its own once it is run
-      el._writingData=true;
+      this._writingData=true;
       var result = bcdui.widget._copyDataFromHTMLElementToTargetModel(
           bcdui.factory.objectRegistry.getObject(config.target.modelId),
           config.target.xPath,
