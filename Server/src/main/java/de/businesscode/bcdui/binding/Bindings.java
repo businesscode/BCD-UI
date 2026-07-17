@@ -300,6 +300,7 @@ public class Bindings {
   }
   
   /**
+   * Handling BindingDefaults
    * recursively reading binding default files and creating a map of bindingItem id and a map of the collected attributes
    * 
    * @param bindingsDefaultFolder initially bcdDefaults subfolder in bindings folder
@@ -313,7 +314,7 @@ public class Bindings {
 
     // early exit on failure
     if (bindingFiles == null) {
-      log.warn("Cannot read BCD-UI default bindings from " + bindingsDefaultFolder + ". The path is not a directory.");
+      log.debug("No BCD-UI default bindings found at " + bindingsDefaultFolder + ". The path is not a directory.");
       return;
     }
 
@@ -335,7 +336,7 @@ public class Bindings {
     
           if (!BINDINGS_NAMESPACE.equals(bindingDefaultsDoc.getDocumentElement().getNamespaceURI()))
             throw new BindingException("The binding default document should use schema " + BINDINGS_NAMESPACE + " File:" + bindingFiles[file].getAbsolutePath());
-          if ("BindingDefault".equals(bindingDefaultsDoc.getDocumentElement().getLocalName())) {
+          if ("BindingDefaults".equals(bindingDefaultsDoc.getDocumentElement().getLocalName())) {
             StandardNamespaceContext nsContext = StandardNamespaceContext.getInstance();
             XPath xPath = XPathUtils.newXPath();
             String xPathNS = nsContext.getXMLPrefix(BINDINGS_NAMESPACE);
@@ -351,8 +352,10 @@ public class Bindings {
 
               // store column expression string in an extra,  well known attribute name in the map
               NodeList columnElements = bindingItemElem.getElementsByTagNameNS(BINDINGS_NAMESPACE, "Column");
-              String column = columnElements.item(0).getTextContent().trim();
-              bindingItemDefaults.get(name).put(columnExpression, column);
+              if(columnElements.getLength()==1) {
+                String column = columnElements.item(0).getTextContent().trim();
+                bindingItemDefaults.get(name).put(columnExpression, column);
+              }
   
               // add all attributes to the map for the current id 
               NamedNodeMap atts = bindingItemElem.getAttributes();
@@ -372,7 +375,7 @@ public class Bindings {
         }
       }
       catch (Exception e) {
-        throw new BindingException("Error while reading binding defaults document! File:" + bindingFiles[file].getAbsolutePath());
+        throw new BindingException("Error while reading binding defaults document! File:" + bindingFiles[file].getAbsolutePath(), e);
       }
     }
   }
