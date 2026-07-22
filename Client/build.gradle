@@ -256,7 +256,7 @@ task bcduiClientJsFileGroups {
   def bcduiFiles = new JsonSlurper().parseText(origBcduiLoaderJsonSplit[1])
 
   // Some preparation
-  def taskPrefix = 'bcduiClientBabelJs'
+  def taskPrefix = 'bcduiJsFileGroups'
   file("$clientCombinedDir/js/3rdParty").mkdirs()
 
   // A babel task for combining multiple files, minifying and optional ecma6-transpiling
@@ -302,23 +302,29 @@ task bcduiClientJsFileGroups {
   // minimize local 3rdParty ones with esbuild instead of babel (which causes issues) and take them over to the final package
   // We read them from clientCombinedDir/js and they go to clientCombinedDir/jsDist
   local3rdPartyFolders.each { folder ->
-    fileTree(dir: 'src/js/3rdParty/' + folder, include: ['**/*.js']).sort { it.name } .eachWithIndex { jsFile, i ->
+    def tree = fileTree(dir: 'src/js/3rdParty/' + folder, include: ['**/*.js'])
+    tree.sort { it.path }.eachWithIndex { jsFile, i ->
       def path = jsFile.path.replace("\\", "/");
       def target = "$clientCombinedDir/jsDist/3rdParty/" + path.substring(path.indexOf("src/js/3rdParty/") + "src/js/3rdParty/".length());
-      def name = target.substring(target.lastIndexOf('/') + 1)
-      dependsOn += minifiyTask("minimize-${String.format('%03d', i)}-$name", path, target)
+      def name = tree.dir.toURI().relativize(jsFile.toURI()).toString().replace("\\", ".").replace("/", ".")
+      dependsOn += minifiyTask("minimize-3rdParty.$name", path, target)
     }
   }
 
-  // minimize single js files which are kept as standalone for module import functionality
-  // We read them from clientCombinedDir/js and they go to clientCombinedDir/jsDist
-  def jSrcFiles = fileTree(dir: "$clientCombinedDir/js/", includes: ["**/*.js"], excludes: ["**/3rdParty/**"])
-  jSrcFiles.sort { it.name } .eachWithIndex { jsFile, i ->
-    def source = jsFile.absolutePath.replaceAll("\\\\", "/");
-    def target = source.replaceAll("$clientCombined/js/", "$clientCombined/jsDist/");
-    def name = source.substring(source.lastIndexOf('/') + 1)
-    dependsOn += createBabelTask("minimize-${String.format('%03d', i)}-$name", [source], target, false, false)
-  }
+  // minimize all single js files which are kept as standalone for module import functionality
+  // We cannot read them from clientCombinedDir/js, as that is only created later, so we collect them directly
+  // and they go to clientCombinedDir/jsDist
+  def jsSrcFileTree = fileTree(dir: "src/js", includes: ['**/*.js'], excludes: ["**/3rdParty/**", "**/bcduiLoader.js"])
+  def jsGenSrcFileTree = fileTree(dir: "$generatedApisDir/js/", includes: ['**/*.js', "**/*.js"])
+  [jsSrcFileTree, jsGenSrcFileTree].each { tree -> {
+    tree.sort { it.path } .eachWithIndex { jsFile, i ->
+      def source = jsFile.absolutePath.replaceAll("\\\\", "/");
+      def relative = tree.dir.toURI().relativize(jsFile.toURI()).toString()
+      def target = "$clientCombinedDir/jsDist/$relative"
+      def name = relative.toString().replace("\\", ".").replace("/", ".")
+      dependsOn += createBabelTask("minimize-bcdui.$name", [source], target, false, false)
+    }
+  }}
 
   // All non 3rd-party files are handled here
   // Create one babel task and output file for all non-3rd-party files in a filegroup including ecma-6 transpiling
