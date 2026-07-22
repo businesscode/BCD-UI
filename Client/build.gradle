@@ -204,10 +204,13 @@ task bcduiClientCollectAll( type: Copy ) {
   into clientCombinedDir
   includeEmptyDirs   = false
   duplicatesStrategy = 'fail'
+   // We need this to set the original file changed ts (which gradle Copy destroys), so that we can later only re-compile XSLTs which are out of date
+  def copyDetails = []
 
   from ( ['src/js', "$src3rdParty/js", "$generatedApisDir/js"] ) {
     include '**/*.js'
     into    'js'
+    eachFile { copyDetails << it }
   }
   // Js are not copied here but only the minimized output in bcduiClientJsFileGroups
   from ( ['src/js', "$src3rdParty/js", "$generatedApisDir/js"] ) {
@@ -232,6 +235,14 @@ task bcduiClientCollectAll( type: Copy ) {
       fileContent = fileContent.replaceAll(/\r\n( *\r\n)+/,newLine);
       fileContent = fileContent.replaceFirst(">\r\n",">"+newLine+"<!-- $bcdCopyRightText -->"+newLine)
       xmlSource.text = fileContent
+    }
+  }
+
+  doLast {
+    // Bring back original file lastModified for later up-to-date checks
+    copyDetails.each { FileCopyDetails details ->
+      def target = new File(clientCombinedDir, details.path)
+      if(target.exists()) { target.setLastModified(details.lastModified) }
     }
   }
 
@@ -307,25 +318,10 @@ task bcduiClientJsFileGroups {
       def path = jsFile.path.replace("\\", "/");
       def target = "$clientCombinedDir/jsDist/3rdParty/" + path.substring(path.indexOf("src/js/3rdParty/") + "src/js/3rdParty/".length());
       def name = tree.dir.toURI().relativize(jsFile.toURI()).toString().replace("\\", ".").replace("/", ".")
-      dependsOn += minifiyTask("minimize-3rdParty.$name", path, target)
+      dependsOn += minifiyTask("bcduiMinimize-3rdParty.$name", path, target)
     }
   }
-
-  // minimize all single js files which are kept as standalone for module import functionality
-  // We cannot read them from clientCombinedDir/js, as that is only created later, so we collect them directly
-  // and they go to clientCombinedDir/jsDist
-  def jsSrcFileTree = fileTree(dir: "src/js", includes: ['**/*.js'], excludes: ["**/3rdParty/**", "**/bcduiLoader.js"])
-  def jsGenSrcFileTree = fileTree(dir: "$generatedApisDir/js/", includes: ['**/*.js', "**/*.js"])
-  [jsSrcFileTree, jsGenSrcFileTree].each { tree -> {
-    tree.sort { it.path } .eachWithIndex { jsFile, i ->
-      def source = jsFile.absolutePath.replaceAll("\\\\", "/");
-      def relative = tree.dir.toURI().relativize(jsFile.toURI()).toString()
-      def target = "$clientCombinedDir/jsDist/$relative"
-      def name = relative.toString().replace("\\", ".").replace("/", ".")
-      dependsOn += createBabelTask("minimize-bcdui.$name", [source], target, false, false)
-    }
-  }}
-
+ 
   // All non 3rd-party files are handled here
   // Create one babel task and output file for all non-3rd-party files in a filegroup including ecma-6 transpiling
   bcduiFiles.groups.each { fileSet ->
@@ -439,12 +435,105 @@ task bcduiClientJsFileGroups {
   }
 }
 
+//**********************************
+// Here we minimize all js files as individual files, which is used for js modules
+// Standard script loading will use the file groups processed above
+task bcduiIndividualJsFiles(type: Exec) {
+  dependsOn bcduiClientCollectAll
+
+  def nodeModules = nodeModulesDir.replace("\\", "/")
+
+  def driverScript = file("$clientCombinedDir/bcdMinimizeJs.js")
+  doFirst {
+    def srcRoot = file("$clientCombinedDir/js/")
+    def destRoot = file("$clientCombinedDir/jsDist")
+    def outOfDate = []
+  
+    fileTree(dir: srcRoot).each { srcFile ->
+      def relative = srcRoot.toURI().relativize(srcFile.toURI()).toString()
+      def destFile = new File(destRoot, relative)
+
+      if(!destFile.exists() || srcFile.lastModified() > destFile.lastModified()) {
+        outOfDate << relative
+      }
+    }
+
+    driverScript.parentFile.mkdirs()
+    // ******************************
+    // START js file we will give to NodeJs for Saxon XSLT->sef generation
+    driverScript.text = """
+      const { execFile } = require('child_process');
+      const fs = require('fs');
+  
+      async function minifyAll(entries) {
+        const allWarnings = [];
+        
+        // To speed things up, we process 5 in parallel
+        for (let i = 0; i < entries.length; i += 5) {
+          const chunk = entries.slice(i, i + 5);
+          await Promise.all(chunk.map(e => {
+            console.log("Minimizing " + e.js + " -> jsDist/");
+
+            // One js file
+            return new Promise((resolve, reject) => {
+              execFile (
+                // Minimize the file
+                "node", ["$nodeModules/esbuild/bin/esbuild", e.js, "--minify", "--outfile="+e.target],
+                { cwd: "${clientCombinedDir.replace('\\', '/')}" },
+                (err, stdout, stderr) => {
+                  if (err) {
+                    reject(new Error(e.js+" failed: "+(stderr || err.message)));
+                    return;
+                  }
+                  // esbuild writes warnings to stderr even on success
+                  if (stderr && stderr.trim() && (stderr.includes("WARNING") || stderr.includes("ERROR")) ) {
+                    allWarnings.push({ file: e.js, warning: stderr.trim() });
+                  }
+  
+                  // Append copyright and source mapping
+                  let copyRight = "\\n// # sourceMappingURL="+e.js.slice(e.js.lastIndexOf('/') + 1)+".map";
+                  copyRight += "\\n\\n// Copyright 2010-"+new Date().getFullYear()+" BusinessCode GmbH, Germany";
+                  copyRight += "\\n// SPDX-License-Identifier: Apache-2.0\\n";
+                  fs.appendFileSync(e.target, copyRight);
+  
+                  resolve();
+                }
+              )
+            });
+          }));
+        }
+
+        // Output collected warnings        
+        console.log("Done. "+allWarnings.length+" file(s) had warnings.");
+        allWarnings.forEach(w => console.log("  ["+w.file+"] "+ w.warning));
+      }
+  
+      // Start the processing
+      let outOfDateJs = ${groovy.json.JsonOutput.toJson(outOfDate)}; // This turns the list we build in gradle into a js string
+      const entries = outOfDateJs.map( f => ({ js: "js/"+f, target: "jsDist/"+f.split("\\\\").join("/") }) )
+      minifyAll(entries).catch(err => {
+        console.error(err);
+        process.exit(1);
+      });
+    """.stripIndent()
+    // END js file we will give to NodeJs
+    // ******************************
+  }
+ 
+   //----------
+  // Call NodeJs with the script generated above
+  workingDir clientCombinedDir
+  executable "node"
+  args driverScript
+ 
+}
+
 //*********************************
 // Create a jar containing BCD Client sources
 // When being deployed, it relies in StaticResourceServlet in BCD-UI-Server.jar to be found in jar
 task bcduiDist(type: Jar) {
 
-  dependsOn bcduiClientJsFileGroups
+  dependsOn bcduiClientJsFileGroups, bcduiIndividualJsFiles
 
   archiveBaseName = "$artifactsBaseName-client"
   archiveVersion  = bcduiVersion
