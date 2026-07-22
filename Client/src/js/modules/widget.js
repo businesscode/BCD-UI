@@ -14,7 +14,7 @@
   limitations under the License.
 */
 
-import {BlindUpDown} from "./widget/blindUpDown.js"
+import {BlindUpDown} from "./widget/blindUpDownArea.js"
 import {ContextMenu} from "./widget/contextMenu.js"
 import {CredentialsMenu} from "./widget/credentialsMenu.js"
 import "./widget/detailView.js"
@@ -27,7 +27,7 @@ import "./widget/navPath.js"
 import "./widget/notification.js"
 import {PeriodChooser} from "./widget/periodChooser.js"
 import {SingleSelect} from "./widget/singleSelect.js"
-import {Tab} from "./widget/tab.js"
+import {Tab} from "./widget/tabMenu.js"
 import {Tooltip} from "./widget/tooltip.js"
 import "./widget/visualizeXml.js"
 
