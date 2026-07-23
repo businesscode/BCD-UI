@@ -504,6 +504,14 @@
     <env-entry-type>java.lang.String</env-entry-type>
     <env-entry-value>aggr,caption,display-size,isKey,isReadOnly,nullable,scale,signed,type-name,unit,description</env-entry-value>
   </env-entry>
+  
+  <!-- Configure SaxonJs for client side XSLT, in which folder the project's sef files are found -->
+  <env-entry>
+    <description>Tell SaxonJS where to find the project's pre-generated sef files</description>
+    <env-entry-name>bcdui/saxonSefDir</env-entry-name>
+    <env-entry-type>java.lang.String</env-entry-type>
+    <env-entry-value>sef/</env-entry-value>
+  </env-entry>
 
   <!--
     This timeout is also used by shiro's default web session manager
