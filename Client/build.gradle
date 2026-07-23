@@ -490,6 +490,30 @@ task bcduiIndividualJsFiles(type: Exec) {
               copyRight += "\\n// SPDX-License-Identifier: Apache-2.0\\n";
               fs.appendFileSync(e.target, copyRight);
 
+              resolve();
+            }
+          )
+        });
+      }
+  
+      //--------------------------------------
+      // Build chunks matching the nuber of CPUs-2 and work on each in parallel
+      const WORKERS = require('os').cpus().length - 2;
+      async function minifyAll(entries) {
+        const workerChunks = entries.reduce((acc, f, i) => {
+          acc[i % WORKERS].push(f);
+          return acc;
+        }, Array.from({length: WORKERS}, () => []));
+        await Promise.all( 
+          // Loop over CPU chunks
+          workerChunks.map(async workerFiles => {
+            // Within each chunk process its files sync
+            for (const e of workerFiles) {
+              await processFile(e);
+            }
+          }
+        ));
+
         // Output collected warnings        
         if(entries.length <= 10) entries.forEach( (f) => console.log("Minimized "+f.js) );
         console.log("Minimized "+entries.length+" js files. "+allWarnings.length+" file(s) had warnings.");
