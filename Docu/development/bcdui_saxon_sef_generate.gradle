@@ -178,12 +178,12 @@ task bcduiSaxonSefGenerate(type: Exec) {
     driverScript.parentFile.mkdirs()
 
     // bcduiSaxonSefGen.destDir is given relative to the project, but we neeed it realive to our NodeJs working dir sefGenRootDir
-    def nodeJsRelDestDir = file(sefGenRootDir)toPath().relativize(file(bcduiSaxonSefGen.destDir.dir).toPath()).toString().replace('\\', '/')
+    def nodeJsRelDestDir = file(sefGenRootDir).toPath().relativize(file(bcduiSaxonSefGen.destDir.dir).toPath()).toString().replace('\\', '/')
 
     // ******************************
     // START js file we will give to NodeJs for Saxon XSLT->sef generation
     driverScript.text = """
-      const { execSync } = require('child_process');
+      const { execFile } = require('child_process');
       const path = require('path');
       const fs = require('fs');
 
@@ -223,6 +223,7 @@ task bcduiSaxonSefGenerate(type: Exec) {
         return latest;
       }
 
+      // Turn input file name into output file name
       const sefPathFor = (xsltPath) => xsltPath.replace(".xslt", '.sef.json').replace("collectedXslt/", "${nodeJsRelDestDir}/");
 
       function needsRecompile(xsltPath, cache) {
@@ -233,21 +234,67 @@ task bcduiSaxonSefGenerate(type: Exec) {
         return sourceTime > sefTime;
       }
 
-      // For each project XSLT (only) find whether is outdated
+      // For each project XSLT (only) find whether it is outdated
       const mtimeCache = new Map();
       let outOfDateXslts = ${projectXsltsJsArray}.filter( f => needsRecompile( "collectedXslt/"+f, mtimeCache) );
 
-      //--------------------------------------
-      // Generate sef files for the outdated project XSLT files
-      const entries = outOfDateXslts.map( f => ({ xslt: "collectedXslt/"+f.split("\\\\").join("/"), target: "${nodeJsRelDestDir}/"+f.replace(".xslt", ".sef.json") }) )
-      for (const e of entries) {
-          console.log('Processing: '+e.xslt+' -> '+e.target);
-          execSync(
-              'node "${bcduiSaxonSefGen.nodeModulesDir.replace("\\", "/")}/xslt3/xslt3.js" -xsl:' + e.xslt + ' -export:' + e.target + ' -nogo -relocate:true',
-              { cwd: "${sefGenRootDir.replace("\\", "/")}", stdio: 'inherit',
-                env: { ...process.env, ...${bcduiSaxonSefGen.nodeModulesDir ? "{ NODE_PATH: '${bcduiSaxonSefGen.nodeModulesDir.replace("\\", "/")}' }" : "{}"} } }
-          );
+      // Some logging. For a few files we just output them, for more we give n*25% ect
+      let processed = 0;
+      let total = 0;
+      function increaseProcessed(file) {
+        processed++;
+        if( total <= 10 ) console.log(file);
+        else if (total >= 4 && processed % Math.floor(total / 4) === 0) {
+          console.log("Sef generation "+Math.round((processed / total) * 100)+"% of "+total+" processed");
+        }
       }
+
+      // Process a single file
+      function processFile(e) {
+        return new Promise((resolve, reject) => {
+          execFile (
+            "node", ["${bcduiSaxonSefGen.nodeModulesDir.replace("\\", "/")}/xslt3/xslt3.js", "-xsl:" + e.xslt, "-export:" + e.target, "-nogo", "-relocate:true"],
+            { cwd: "${sefGenRootDir.replace("\\", "/")}", stdio: 'inherit',
+              env: { ...process.env, ...${bcduiSaxonSefGen.nodeModulesDir ? "{ NODE_PATH: '${bcduiSaxonSefGen.nodeModulesDir.replace("\\", "/")}' }" : "{}"} } },
+            (err, stdout, stderr) => { 
+              if (err) {
+                reject(new Error(e.js+" failed: "+(stderr || err.message)));
+                return;
+              }
+              increaseProcessed(e.xslt);
+              resolve(); 
+            }
+          );
+        });
+      }
+      
+      //--------------------------------------
+      // Build chunks matching the nuber of CPUs-2 and work on each in parallel
+      const WORKERS = require('os').cpus().length - 2;
+      async function processAllXslts(entries) {
+        let processed = 0;
+        total = entries.length;
+        const workerChunks = entries.reduce((acc, f, i) => {
+          acc[i % WORKERS].push(f);
+          return acc;
+        }, Array.from({length: WORKERS}, () => []));
+        await Promise.all( 
+          // Loop over CPU chunks
+          workerChunks.map(async workerFiles => {
+            // Within each chunk process its files sync
+            for (const e of workerFiles) {
+              await processFile(e);
+            }
+          }
+        ));
+      }
+
+      // Start
+      const entries = outOfDateXslts.map( f => ({ xslt: "collectedXslt/"+f.split("\\\\").join("/"), target: "${nodeJsRelDestDir}/"+f.replace(".xslt", ".sef.json") }) )
+      processAllXslts(entries).catch(err => {
+        console.error(err);
+        process.exit(1);
+      });
     """.stripIndent()
     // END js file we will give to NodeJs
     // ******************************
