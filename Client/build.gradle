@@ -29,6 +29,7 @@ apply plugin: 'com.github.node-gradle.node'
 
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
 def bcdCopyRightText = file("$rootProject.rootDir.path/gradle/LICENSE_header.txt").text
 def newLine = System.properties['line.separator']
@@ -66,10 +67,8 @@ def local3rdPartyFolders = ["ckeditor", "handsontable", "fileSaver", "log4javasc
 def clientNodeModulesDir  = "$clientRoot/build/node_modules"
 task bcduiClient3rdPartyNpm( type: NpmTask ) {
 
-  outputs.upToDateWhen { file(clientNodeModulesDir).exists() &&  file(clientNodeModulesDir).list().length > 0 }
-
   // Not everybody importing this script, needs this
-  onlyIf { file("$clientRoot/gradle/script/package.json").exists() }
+  onlyIf { file("$clientRoot/gradle/script/package.json").exists() && ! file(clientNodeModulesDir).exists()}
 
   doFirst {
     // Create a package.json for npm in buildDir based on out template
@@ -297,17 +296,23 @@ task bcduiClientJsFileGroups {
     }
   }
 
+  // bin/esbuild is a NodeJs wrapper for windows but comes as a binary for MAC
   def minifiyTask = { String newTaskName, inputFile, outputFile ->
-    task(newTaskName, type: NodeTask) {
-      mustRunAfter 'bcduiClientCollectAll'
-      script = file("$nodeModulesDir/esbuild/bin/esbuild")
-      args = [
-        "${inputFile}",
-        "--minify",
-        "--outfile=${outputFile}"
-      ]
-      inputs.file(inputFile)
-      outputs.file(outputFile)
+    if( DefaultNativePlatform.currentOperatingSystem.isWindows() ) {
+      return task(newTaskName, type: NodeTask) {
+        mustRunAfter 'bcduiClientCollectAll'
+        script = file("$nodeModulesDir/esbuild/bin/esbuild")
+        args = [ inputFile, "--minify", "--outfile=${outputFile}" ]
+        inputs.file(inputFile)
+        outputs.file(outputFile)
+      }
+    } else {
+      return task(newTaskName, type: Exec) {
+        mustRunAfter 'bcduiClientCollectAll'
+        commandLine file("$nodeModulesDir/esbuild/bin/esbuild"), inputFile, "--minify", "--outfile=${outputFile}"
+        inputs.file(inputFile)
+        outputs.file(outputFile)
+      }
     }
   }
   // minimize local 3rdParty ones with esbuild instead of babel (which causes issues) and take them over to the final package
@@ -458,6 +463,11 @@ task bcduiIndividualJsFiles(type: Exec) {
       }
     }
 
+    // bin/esbuild is a NodeJs wrapper for windows but comes as a binary for MAC
+    def execLine = DefaultNativePlatform.currentOperatingSystem.isWindows()
+        ? "\"node\", [\"${nodeModules}/esbuild/bin/esbuild\", e.js, \"--minify\", \"--outfile=\"+e.target]"
+        : "\"${nodeModules}/esbuild/bin/esbuild\", [e.js, \"--minify\", \"--outfile=\"+e.target]"
+
     driverScript.parentFile.mkdirs()
     // ******************************
     // START js file we will give to NodeJs for js minification
@@ -472,7 +482,7 @@ task bcduiIndividualJsFiles(type: Exec) {
         return new Promise((resolve, reject) => {
           execFile (
             // Minimize the file
-            "node", ["$nodeModules/esbuild/bin/esbuild", e.js, "--minify", "--outfile="+e.target],
+            $execLine,
             { cwd: "${clientCombinedDir.replace('\\', '/')}" },
             (err, stdout, stderr) => {
               if (err) {
