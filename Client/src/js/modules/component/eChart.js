@@ -25,6 +25,3 @@ import "../../component/chart/chartPackage.js"
 import "../../component/chart/chartEchart.js"
 
 import "../../component/chart/customElements.js"
-
-import {bcdChart, bcdChartLegend} from "../../component/componentClasses.js"
-export {bcdChart, bcdChartLegend};
