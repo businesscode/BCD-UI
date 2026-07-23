@@ -91,6 +91,15 @@ task bcduiBuildCore( type: Jar ) {
 // Clean artifacts
 task bcduiClean( type: Delete ) {
   group "bcd-ui"
+  
+  afterEvaluate {
+    tasks.named('bcduiClean') {
+      dependsOn subprojects
+        .findAll { subproject -> subproject.tasks.findByName('bcduiClean') != null }
+        .collect { ":${it.name}:bcduiClean" }
+    }
+  }
+  
   description "Clean binary and docu generated artifacts, leaves 3rdParty tools"
   delete buildDir
 }

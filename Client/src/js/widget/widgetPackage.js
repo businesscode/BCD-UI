@@ -793,7 +793,7 @@ jQuery.extend(bcdui.widget,
       }
     },
   /**
-  * Enumeration with modalBox types. Values: ok | ‚warning | error | plainText
+  * Enumeration with modalBox types. Values: ok | warning | error | plainText
   * @readonly
   * @enum {number}
   */
@@ -3896,9 +3896,14 @@ jQuery.extend(bcdui.widget,
      /**
       * js implementation of filterRowsTemplate.xslt
       * Allows filtering of rows of a wrs input document by specifying column filters
-      * @returns filtered document
-      * @param {doc} chain function input wrs document
-      * @param {args} chain parameters
+      * @returns {XMLDocument} filtered document
+      * @param {XMLDocument} doc function input wrs document
+      * @param {Object}      args parameter object
+      * @param {XMLDocument} args.guiStatus Status model
+      * @param {XMLDocument} args.paramModel (DOM) Parameter model according to xmlns http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0
+      * @param {string}     [args.paramSetId] Optional specific parameter set ID
+      * @param {string}     [args.filtersXpath] Optional XPath where are the filter values, like $guiStatus/guiStatus:Status/guiStatus:ClientSettings/Grid[@id='myGrid']/Filter
+      *                                         default: $paramModel//xp:FilterXPath[@paramSetId=$paramSetId or not(@paramSetId) and not($paramSetId)]/xp:Value
       */
      filterRows: function(doc, args) {
 

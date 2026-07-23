@@ -42,7 +42,7 @@ task bcduiDocuJsApiStubsAndMd( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) 
   inputs.dir  inputsDir
   outputs.dirs ext.jsApiStubsTaskDestDirName, taskDestDirNameMd
 
-  onlyIf { getGradle().getStartParameter().getTaskNames().contains("bcduiBuildDocu") }
+  onlyIf { getGradle().getStartParameter().getTaskNames().any { it.contains("bcduiBuildDocu") } }
 
   // Which files are part of this distribution? We only want this to happen in execution phase
   def jsonSlurper = new JsonSlurper()
@@ -63,6 +63,8 @@ task bcduiDocuJsApiStubsAndMd( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) 
 //******************************
 // Generate Typescript types .d.ts files from JA API stubs generated above
 task bcduiTypescriptDefs ( type: NodeTask, dependsOn: bcduiDocuJsApiStubsAndMd ) {
+
+  dependsOn bcduiDocuJsApiStubsAndMd
 
   def outputDir = layout.buildDirectory.dir("tsTypes/node_modules/@types/bcdui/")
 

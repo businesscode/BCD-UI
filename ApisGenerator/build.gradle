@@ -198,6 +198,8 @@ task bcduiGensrcTld {
 // Generates JISON artefacts from jison/ folder to js/jison
 // $genSrcOutputDir/js/jison/: target folder for jison generated artefacts
 task bcduiJisonArtefacts ( type: NodeTask ) {
+  dependsOn ':bcduiToolsOnetimeInit'
+
   def jisonFile = "../ApisGenerator/jison/bcdui_util_xml_filterExpressionParser.jison";
   def jsFilename = "$genSrcOutputDir/js/jison/bcdui_util_xml_filterExpressionParser.js";
   onlyIf { file(jisonFile).exists() }
