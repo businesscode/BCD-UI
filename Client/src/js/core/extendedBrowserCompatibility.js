@@ -862,7 +862,9 @@ else {
   bcdui.core.transformators.xsltToSefJson = function(xsltUrl) {
     const ctx = new URL( bcdui.contextPath+"/", new URL(window.location.href)).href
     const base = new URL(window.location.href);
-    let absXsltUrl = new URL(xsltUrl, base).href;
+    let url = new URL(xsltUrl, base);
+    url.pathname = url.pathname.replace(/\/{2,}/g, '/'); // happens for example for ../bcdui/component
+    let absXsltUrl = url.href;
     let isBcdui = absXsltUrl.startsWith(ctx+"bcdui/");
     let saxonSefDir = isBcdui ? "sef/" : bcdui.config.saxonSefDir;
     let prefixLen = isBcdui ? (ctx+"bcdui/").length : ctx.length;
