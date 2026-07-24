@@ -272,35 +272,63 @@ task bcduiClientJsFileGroups {
   // A babel task for combining multiple files, minifying and optional ecma6-transpiling
   def createBabelTask = { String newTaskName, inputFiles, outFileName, is3rdParty, replaceExports ->
     task(newTaskName, type: NodeTask) {
-      mustRunAfter 'bcduiClientCollectAll'
+      dependsOn 'bcduiClientCollectAll'
       inputs.files inputFiles, "./src/js/$jsBcduiLoader"
       outputs.file file(outFileName)
-      script = file("$nodeModulesDir/@babel/cli/bin/babel.js")
-      def presets = "--presets=$nodeModulesDir/babel-preset-minify"
-      args = [] + inputFiles + "--out-file=$outFileName" + "--source-maps" + presets
 
-      // Postpend copyright. We do not prepend it to keep the source map indices intact
-      doLast {
-        def outFile = file(outFileName)
-        if (! is3rdParty) {
-          outFile.text = outFile.text.replace('"use strict";', "")
-          if (replaceExports) {
-            outFile.text = outFile.text.replaceAll('export const bcduiExport_[\\w]+ *= *[\\w.]+;?', '')
-            outFile.text = outFile.text.replaceAll('await import\\(\\"\\.\\./modules/[\\w/]+\\.js\\"\\),', '')
-            outFile.text = outFile.text.replaceAll('import\\"[\\.\\/]+/modules/core.js\\";', '')
-          }
-          outFile.text = '"use strict";' + outFile.text
-        }
-        outFile.text += newLine + ( is3rdParty ? '/* For license see THIRDPARTYLICENSEREADME.txt */' : "/* $bcdCopyRightText */" )
-      }
+      def scriptFile = file("$buildDir/tmp/babelTasks/${newTaskName}.js")
+      scriptFile.parentFile.mkdirs()
+      scriptFile.text = $/
+        const { execFileSync } = require('child_process');
+        const fs = require('fs');
+
+        // Run babel
+        execFileSync(
+          "node",
+          [
+            "${nodeModulesDir.replace('\\','/')}/@babel/cli/bin/babel.js",
+            ${inputFiles.collect { '"' + it.replace('\\','/') + '"' }.join(', ')},
+            "--out-file=${outFileName.replace('\\','/')}",
+            "--source-maps",
+            "--presets=${nodeModulesDir.replace('\\','/')}/babel-preset-minify"
+          ],
+          { stdio: ['ignore', 'ignore', 'pipe'] }
+        );
+
+        // Post-process
+        let content = fs.readFileSync("${outFileName.replace('\\','/')}", 'utf8');
+
+        ${!is3rdParty ? $/
+        content = content.replaceAll('"use strict";', '');
+        /$ : ''}
+
+        ${!is3rdParty && replaceExports ? $/
+        content = content.replaceAll(/export const bcduiExport_\w+ *= *[\w.]+;?/g, '');
+        content = content.replaceAll(/await import\("\.\.\/modules\/[\w/]+\.js"\),/g, '');
+        content = content.replaceAll(/import"[.\/]+\/modules\/core\.js";/g, '');
+        /$ : ''}
+
+        ${!is3rdParty ? $/
+        content = '"use strict";' + content;
+        /$ : ''}
+
+        const copyright = ${groovy.json.JsonOutput.toJson(is3rdParty ? '/* For license see THIRDPARTYLICENSEREADME.txt */' : "/* $bcdCopyRightText */")};
+        content += '\n' + copyright;
+
+        fs.writeFileSync("${outFileName.replace('\\','/')}", content);
+      /$
+
+      script = scriptFile
+      args = []
     }
   }
 
-  // bin/esbuild is a NodeJs wrapper for windows but comes as a binary for MAC
+  // Minimize with esbuild
   def minifiyTask = { String newTaskName, inputFile, outputFile ->
+    // bin/esbuild is a NodeJs wrapper for windows but comes as a binary for MAC
     if( DefaultNativePlatform.currentOperatingSystem.isWindows() ) {
       return task(newTaskName, type: NodeTask) {
-        mustRunAfter 'bcduiClientCollectAll'
+        dependsOn 'bcduiClientCollectAll'
         script = file("$nodeModulesDir/esbuild/bin/esbuild")
         args = [ inputFile, "--minify", "--outfile=${outputFile}" ]
         inputs.file(inputFile)
@@ -308,7 +336,7 @@ task bcduiClientJsFileGroups {
       }
     } else {
       return task(newTaskName, type: Exec) {
-        mustRunAfter 'bcduiClientCollectAll'
+        dependsOn 'bcduiClientCollectAll'
         commandLine file("$nodeModulesDir/esbuild/bin/esbuild"), inputFile, "--minify", "--outfile=${outputFile}"
         inputs.file(inputFile)
         outputs.file(outputFile)
