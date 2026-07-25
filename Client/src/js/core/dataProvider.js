@@ -740,7 +740,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
         bcdui.log.warn("illegal row " + rowId + " requested in " + this.id);
     }.bind(this));
 
-    if (doFire) this.fire;
+    if (doFire) this.fire();
 
     return rowIds.length;
   }
@@ -767,7 +767,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
       ? this._getFillParams({rowId: args.rowId}, "/*/wrs:Data/wrs:*[@id='{{=it.rowId}}']")
       : this._getFillParams(filter, "/*/wrs:Data/wrs:*" + this._buildXPathTemplate(filter));
     const c = bcdui.core.removeXPath(this.getData(), xPathTpl, rmi)
-    if (doFire) this.fire;
+    if (doFire) this.fire();
     return c;
   }
 
