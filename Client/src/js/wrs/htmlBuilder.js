@@ -236,7 +236,7 @@ bcdui.wrs.HtmlBuilder = class {
       // Measures, i.e. all non-dims
       measureCols.forEach((colHead, idx) => {
         const cell = row.cells[numDims + idx];
-        this.createMeasureCell({tr, cell, colHead, row, colDefs});
+        this.createMeasureCell({tr, cell, row, colDefs, parameters});
       });
     });
   
@@ -246,17 +246,27 @@ bcdui.wrs.HtmlBuilder = class {
   /**
    * Create a measure cell
    * Extension point
+   * @param {Object} args
+   * @param {HTMLTableRowElement} args.tr - the row to append the cell to
+   * @param {Object} args.cell - the cell data. .value is the content, .colDef is the colHead and all attributes become properties
+   * @param {Object} args.row - the row data, cells is an array of cells, all attributes become properties
+   * @param {Object} args.colDefs - the column definitions, array of all colHeads
+   * @param {Object} args.parameters - the parameters of transform()
+   * @returns {HTMLTableCellElement} td - created td
    */
-  createMeasureCell({tr, cell, colHead, row, colDefs})
+  createMeasureCell({tr, cell, row, colDefs, parameters})
   {
+    const colHead = cell.colDef;
     const isNumeric = cell.isNumeric || colHead.isNumeric; 
-    const scale = cell.scale || colHead.scale; 
-    const unit = cell.unit || colHead.unit; 
+    const scale = cell.scale || colHead.scale;
+    const unit = cell.unit || colHead.unit;
     const td   = document.createElement('td');
-    td.textContent = isNumeric ? bcdui.wrs.jsUtil.format(cell.value, scale, 'en', unit) : cell.value; // TODO not allways en
+    // Browsers er making sure that <script> tags are not executed but its content is displayed
+    td.innerHTML = isNumeric ? bcdui.wrs.jsUtil.format(cell.value, scale, 'en', unit) : cell.value; // TODO not always en
     if(cell.value === null || cell.value === '') td.className += " bcdNoNumber";
     if(colHead.isDimTotal) td.className += " bcdTotal";
-    tr.appendChild(td);    
+    tr.appendChild(td);
+    return td;
   }
   
   
