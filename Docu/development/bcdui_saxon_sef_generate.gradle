@@ -258,7 +258,7 @@ task bcduiSaxonSefGenerate(type: Exec) {
               env: { ...process.env, ...${bcduiSaxonSefGen.nodeModulesDir ? "{ NODE_PATH: '${bcduiSaxonSefGen.nodeModulesDir.replace("\\", "/")}' }" : "{}"} } },
             (err, stdout, stderr) => { 
               if (err) {
-                reject(new Error(e.js+" failed: "+(stderr || err.message)));
+                reject(new Error(e.xslt+" failed: "+(stderr || err.message)));
                 return;
               }
               increaseProcessed(e.xslt);
@@ -269,7 +269,7 @@ task bcduiSaxonSefGenerate(type: Exec) {
       }
       
       //--------------------------------------
-      // Build chunks matching the nuber of CPUs-2 and work on each in parallel
+      // Build chunks matching the number of CPUs-2 and work on each in parallel
       const WORKERS = require('os').cpus().length - 2;
       async function processAllXslts(entries) {
         let processed = 0;
