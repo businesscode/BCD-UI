@@ -92,7 +92,12 @@ bcdui.widget.contextMenu = Object.assign(bcdui.widget.contextMenu,
           event.bcdColIdent = jQuery(_lastTr.find("th").add("td", _lastTr).get(_srcEl.index())).attr("bcdColIdent");
         }
 
-        const elData = event.target.dataset;
+        // HTML data-sets are always strings, we translate boolean "strings" here into booleans as our js logic relies on it
+        const elData = { ...event.target.dataset };
+        for (const key of Object.keys(elData)) {
+          if (elData[key] === 'true') elData[key] = true;
+          else if (elData[key] === 'false') elData[key] = false;
+        }
         
         const wellKnown = {
           event: event
