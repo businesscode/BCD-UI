@@ -40,7 +40,7 @@
   <xsl:variable name="doc" select="/*"/>
 
   <xsl:key name="colHeadById"  match="/*/wrs:Header/wrs:Columns/wrs:C" use="@id"/>
-  <xsl:key name="colHeadByPos" match="/*/wrs:Header/wrs:Columns/wrs:C" use="@pos"/>
+  <xsl:key name="colHeadByPos" match="/*/wrs:Header/wrs:Columns/wrs:C" use="number(@pos)"/>
   <generator:Keys/>
   <xsl:variable name="firstColMeasurePos" select="number(/*/wrs:Header/wrs:Columns/wrs:C[contains(@id,'|')][1]/@pos)"/>
 
@@ -179,7 +179,7 @@
         <xsl:copy>
           <xsl:copy-of select="@*"/>
           <xsl:variable name="currPos" select="position()"/>
-          <xsl:variable name="currPosGroupMember" select="$colPosGroup/*/*[@pos=$currPos]/@sameColGroup"/>
+          <xsl:variable name="currPosGroupMember" select="$colPosGroup/*/*[number(@pos)=$currPos]/@sameColGroup"/>
           <xsl:variable name="currId" select="key('colHeadByPos',$currPos)/@id"/>
           <xsl:value-of select="sum(../wrs:C[contains($currPosGroupMember,concat(';',position(),';')) and number()=number()])"/>
         </xsl:copy>

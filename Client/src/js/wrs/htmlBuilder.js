@@ -289,6 +289,7 @@ bcdui.wrs.HtmlBuilder = class {
         th.setAttribute('bcdcolident', col.id);
         th.setAttribute('jdbccolumntypename', col.typeName);
         th.className = col.isDim ? 'bcdDimension' : 'bcdMeasure';
+        if (col.isVMeas) th.className += ' bcdVmeas';
         th.textContent = col.caption;
         htr.appendChild(th);
       }
@@ -394,6 +395,7 @@ bcdui.wrs.HtmlBuilder = class {
             th.className += ' bcdTotal';
             th.setAttribute('bcdTranslate', 'bcd_Total');
           }
+          if (col.isVMeas)  th.className += ' bcdVmeas';
           th.textContent = label;
           if (rowspan > 1) th.rowSpan = rowspan;
           if (colspan > 1) th.colSpan = colspan;
@@ -433,6 +435,7 @@ bcdui.wrs.HtmlBuilder = class {
         isMeasure: headC.hasAttribute('valueId') || !!headC.getAttribute('valueId'),
         isNumeric: bcdui.wrs.jsUtil.isNumericTypeName(headC.getAttribute('type-name')),
         scale:     headC.getAttribute('scale') ? parseInt(headC.getAttribute('scale'), 10) : null,
+        isVMeas:   !!headC.getAttribute('bcdVmeas')
       });
     }
 

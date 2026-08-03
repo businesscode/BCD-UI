@@ -40,7 +40,7 @@
   <xsl:param name="paramSet" select="$paramModel//xp:CumulAndPercOfTotal[@paramSetId=$paramSetId or not(@paramSetId) and not($paramSetId)]"/>
 
   <xsl:key name="colHeadById"  match="/*/wrs:Header/wrs:Columns/wrs:C" use="@id"/>
-  <xsl:key name="colHeadByPos" match="/*/wrs:Header/wrs:Columns/wrs:C" use="@pos"/>
+  <xsl:key name="colHeadByPos" match="/*/wrs:Header/wrs:Columns/wrs:C" use="number(@pos)"/>
 
   <xsl:variable name="doc" select="/"/>
   <xsl:variable name="cumulAndPercOfTotalTemplate" select="document('cumulAndPercOfTotalTemplate.xslt')"/>
@@ -133,7 +133,7 @@
     <xsl:param name="cols"/>
     <xsl:element name="key" namespace="http://www.w3.org/1999/XSL/Transform">
       <xsl:attribute name="name"><xsl:value-of select="$name"/></xsl:attribute>
-      <xsl:attribute name="use">@pos</xsl:attribute>
+      <xsl:attribute name="use">number(@pos)</xsl:attribute>
       <xsl:attribute name="match">
         <xsl:text>/*/wrs:Header/wrs:Columns/wrs:C[</xsl:text>
         <xsl:for-each select="$cols">

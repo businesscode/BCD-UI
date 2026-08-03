@@ -303,10 +303,10 @@
         <xsl:if test="$measure/@userDefined='true'">
           <ContextMenuSubHeader caption="Modification of measure '{$measureCaption}'"/>
           <TwoColumns>
-            <Entry caption="Edit" data-bcd-action="editUserCalc" data-calc-id="{$measureId}">
+            <Entry caption="Edit" data-bcd-action="editUserMeasure" data-calc-id="{$measureId}">
               <JavaScriptAction>bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", { actionId: 'editUserMeasure', calcId: '<xsl:value-of select="$measureId"/>'})</JavaScriptAction>
             </Entry>
-            <Entry caption="Delete" data-bcd-action="deleteUserCalc" data-calc-id="{$measureId}">
+            <Entry caption="Delete" data-bcd-action="deleteUserMeasure" data-calc-id="{$measureId}">
               <JavaScriptAction>bcdui._migPjs._$(this.eventSrcElement).trigger("cubeActions:contextMenuCubeClientRefresh", { actionId: 'deleteUserMeasure', calcId: '<xsl:value-of select="$measureId"/>'})</JavaScriptAction>
             </Entry>
           </TwoColumns>

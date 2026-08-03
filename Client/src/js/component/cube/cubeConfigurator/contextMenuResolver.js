@@ -128,11 +128,11 @@ bcdui.component.cube.configurator.resolveContextMenu = function(args) {
       },
 
       cumulateCol: function(args) {
-        jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"setCumulate", isRow: true});
+        jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"setCumulate", isRow: false});
       },
 
       cumulateRow: function(args) {
-        jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"setCumulate", clear: true});
+        jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"setCumulate", isRow: true});
       },
 
       clearCumulation: function(args) {
