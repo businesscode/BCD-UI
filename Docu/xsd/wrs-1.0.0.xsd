@@ -32,9 +32,9 @@
   <xs:import namespace="http://www.businesscode.de/schema/bcdui/renderer-1.0.0"/>
 
   <xs:element name="Wrs" type="tns:WrsType" />
-  
+
   <xs:element name="WrsContainer" type="tns:TypeWrsContainer"/>
-  
+
   <xs:complexType name="TypeWrsContainer">
     <xs:annotation><xs:documentation>
       This is a container for multi-Wrs document, which is used by various BCD-UI components,
@@ -148,7 +148,7 @@
 
   <xs:complexType name="ValidationResultWrsType">
     <xs:annotation><xs:documentation>
-    type extending tns:Wrs providing semantics of Wrs inside ValidationResult
+      type extending tns:Wrs providing semantics of Wrs inside ValidationResult
     </xs:documentation></xs:annotation>
     <xs:complexContent>
       <xs:extension base="tns:WrsType">
@@ -160,7 +160,7 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  
+
   <xs:complexType name="ValidationResultType">
     <xs:sequence>
       <xs:element name="Wrs" type="tns:ValidationResultWrsType" minOccurs="0" maxOccurs="unbounded"/>
@@ -205,11 +205,17 @@
               Name of referenced BindingItem. May be missing if only @id is given for example in case of wrq:Calc.
             </xs:documentation></xs:annotation>
           </xs:attribute>
+          <!-- Any custom attributes passed though from the BindingSet or the round-trip -->
+          <xs:anyAttribute namespace="##local" processContents="skip"/>
         </xs:complexType>
       </xs:element>
-      <xs:element name="Description" type="xs:string" minOccurs="0" maxOccurs="1">
+
+      <!-- Wrs with allowed values -->
+      <xs:element ref="tns:References" minOccurs="0">
         <xs:annotation><xs:documentation>
-          A text describing the binding item.
+          Used by the client to restrict the possible values of this column to a enumeration.
+          The wrs:References noted here become a child of wrs:Columns/wrs:C when reading this BindingItem.
+          wrs:References/wrs:Wrs contains one row per allowed value and one or two columns (first: @id="id", second: @id="caption").
         </xs:documentation></xs:annotation>
       </xs:element>
     </xs:sequence>
@@ -242,6 +248,8 @@
         If given, this column represents the given value. Especially useful if the value is repeated due to column dimensions.
       </xs:documentation></xs:annotation>
     </xs:attribute>
+    <!-- Any custom attributes passed though from the BindingSet or the round-trip -->
+    <xs:anyAttribute namespace="##local" processContents="skip"/>
   </xs:complexType>
 
   <xs:complexType name="DataType">
@@ -270,7 +278,7 @@
 
   <xs:complexType name="ColumnValueType" mixed="true">
     <xs:sequence minOccurs="0">
-      <xs:element name="null" />
+      <xs:element name="null"/>
     </xs:sequence>
     <xs:anyAttribute namespace="##local" processContents="skip"/>
   </xs:complexType>
