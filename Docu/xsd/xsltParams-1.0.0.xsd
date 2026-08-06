@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -662,7 +662,7 @@
             Currently only 'rowCol' is allowed, all other values will disable this functionality.
           </documentation></annotation>
         </attribute>
-        <attribute name="ignoreCols">
+        <attribute name="ignorePos">
           <annotation><documentation>
             Space separated list of cols pos, which are ignored in the _test_ for skipping rows.
           </documentation></annotation>
@@ -692,6 +692,7 @@
           <element name="HeaderColsCount"     type="integer" minOccurs="0"/>
           <element name="HeaderColsAreUnique" type="boolean" minOccurs="0"/>
           <element name="TotalColumnText"     type="string" minOccurs="0"/>
+          <element name="HideTotals"          type="boolean" minOccurs="0"/>
           <element name="SortTotalsFirst"     type="boolean" minOccurs="0"/>
           <element name="SortCols"            type="boolean" minOccurs="0"/>
           <element name="MakeEvenOddColoring" type="boolean" minOccurs="0"/>
