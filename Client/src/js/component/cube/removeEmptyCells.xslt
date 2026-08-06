@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -19,15 +19,13 @@
   -->
 <xsl:stylesheet version="1.0"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                xmlns:xsla="http://www.w3.org/1999/XSL/Transform/Alias"
                 xmlns:calc="http://www.businesscode.de/schema/bcdui/calc-1.0.0"
                 xmlns:cube="http://www.businesscode.de/schema/bcdui/cube-2.0.0"
                 xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
                 xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
                 xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"
                 xmlns:exslt="http://exslt.org/common"
-                xmlns:bcdxml="http://www.businesscode.de/schema/bcdui/bcdxml-1.0.0"
-                xmlns:generator="urn(bcd-xsltGenerator)">
+                xmlns:bcdxml="http://www.businesscode.de/schema/bcdui/bcdxml-1.0.0">
 
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no"/>
 
@@ -59,39 +57,69 @@
   <xsl:variable name="emptyColumnsString">
     <EmptyColumns>
       <xsl:variable name="dimensionCount" select="count(/*/wrs:Header/wrs:Columns/wrs:C/@dimId)"/>
-      <xsl:for-each select="/*/wrs:Header/wrs:Columns/wrs:C[position() > $dimensionCount]">
-        <xsl:variable name="content">
-          <xsl:value-of select="/*/wrs:Data/wrs:*/wrs:*[position()=current()/@pos and normalize-space(text())!='' and text()!='NaN']"/>
+      <xsl:for-each select="/*/wrs:Header/wrs:Columns/wrs:C[position() > $dimensionCount and not(contains($ignoreCols,concat(' ',@pos,' ')))]">
+        <xsl:variable name="content_5">
+          <xsl:value-of select="/*/wrs:Data/wrs:*[position()&lt;=5]/wrs:*[position()=current()/@pos and normalize-space(text())!='' and text()!='NaN']"/>
         </xsl:variable>
-        <xsl:if test="normalize-space($content)=''">
-          <Col><xsl:value-of select="@pos"/></Col>
+        <xsl:if test="normalize-space($content_5)=''">
+          <xsl:variable name="content">
+            <xsl:value-of select="/*/wrs:Data/wrs:*/wrs:*[position()=current()/@pos and normalize-space(text())!='' and text()!='NaN']"/>
+          </xsl:variable>
+          <xsl:if test="normalize-space($content)=''">
+            <Col><xsl:value-of select="@pos"/></Col>
+          </xsl:if>
         </xsl:if>
       </xsl:for-each>
     </EmptyColumns>
   </xsl:variable>
   <xsl:variable name="emptyColumns" select="exslt:node-set($emptyColumnsString)"/>
 
+  <!-- Node-set with row position() which have no data -->
+  <xsl:variable name="emptyRowsString">
+    <EmptyRows>
+      <xsl:for-each select="/*/wrs:Data/wrs:*">
+        <xsl:variable name="content_5">
+          <xsl:value-of select="wrs:*[position()&lt;=5][not(contains($ignoreCols,concat(' ',position(),' '))) and normalize-space(text())!='' and text()!='NaN']"/>
+        </xsl:variable>
+        <xsl:if test="normalize-space($content_5)=''">
+          <xsl:variable name="content">
+            <xsl:value-of select="wrs:*[not(contains($ignoreCols,concat(' ',position(),' '))) and normalize-space(text())!='' and text()!='NaN']"/>
+          </xsl:variable>
+          <xsl:if test="normalize-space($content)=''">
+            <Row><xsl:value-of select="position()"/></Row>
+          </xsl:if>
+        </xsl:if>
+      </xsl:for-each>
+    </EmptyRows>
+  </xsl:variable>
+  <xsl:variable name="emptyRows" select="exslt:node-set($emptyRowsString)"/>
+
   <!-- We only run if requested, otherwise we create a XsltNop to indicate that our input is to be used as out output -->
   <xsl:template match="/*">
     <xsl:choose>
-      <xsl:when test="$paramSet/@apply='rowCol'">
+      <xsl:when test="$paramSet/@apply='rowCol' and (count($emptyRows/*/Row) + count($emptyColumns/*/Col)) > 0">
         <xsl:copy>
           <xsl:apply-templates select="@*|node()"/>
         </xsl:copy>
       </xsl:when>
       <xsl:otherwise>
-        <bcdxml:XsltNop/>
+        <bcdxml:XsltNop xmlns:bcdxml="http://www.businesscode.de/schema/bcdui/bcdxml-1.0.0"/>
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+
+  <!-- Needed for proper position() in template match="wrs:R"" -->
+  <xsl:template match="wrs:Data">
+    <xsl:copy>
+      <xsl:copy-of select="@*"/>
+      <xsl:apply-templates select="*"/>
+    </xsl:copy>
   </xsl:template>
 
   <!-- Removing empty rows and columns -->
   <xsl:template match="wrs:R">
     <!-- Check, whether we have content in any cell (i.e. search the first, which has, skip cols listed in $ignoreCols -->
-    <xsl:variable name="content">
-      <xsl:value-of select="wrs:*[not(contains($ignoreCols,concat(' ',position(),' '))) and normalize-space(text()) and text()!='NaN']"/>
-    </xsl:variable>
-    <xsl:if test="normalize-space($content)">
+    <xsl:if test="not(position()=$emptyRows/*/Row)">
       <wrs:R>
         <xsl:copy-of select="@*"/>
         <xsl:copy-of select="wrs:*[not(position()=$emptyColumns/*/Col)]"/>
