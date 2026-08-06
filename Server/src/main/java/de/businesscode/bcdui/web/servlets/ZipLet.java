@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2024 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import java.sql.ResultSet;
 import java.sql.Types;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -253,6 +254,9 @@ public class ZipLet extends HttpServlet {
     DocumentBuilderFactory documentBuilderFactory = SecureXmlFactory.newDocumentBuilderFactory();
     DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
     Document doc = builder.parse(new ByteArrayInputStream(uncompressedString.getBytes("UTF-8")));
+    
+    // We add/update /@bcdLastCompress to be able to see in logging if this is for example a bookmarked link
+    doc.getDocumentElement().setAttribute("bcdLastCompress", String.valueOf( Instant.now().toEpochMilli() ));
 
     // collect all namespaces
     DocumentTraversal dt = (DocumentTraversal) doc;

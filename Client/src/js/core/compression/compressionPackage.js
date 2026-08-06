@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -413,6 +413,9 @@ bcdui.core.compression = {
    */
   compressDOMDocument: function(/* XMLDocument */ doc, /* function */ fn, /* function? */ errorFn, isSync, compressAll)
     {
+      // We add/update /@bcdLastCompress to be able to see in logging if this is for example a bookmarked link
+      doc.documentElement.setAttribute("bcdLastCompress", Date.now());
+      
       var xmlStr = this._serializeXMLWithoutComments(doc);
 
       // cleanup Namespaces, especially useful for Chrome where default namespaces were added
@@ -430,6 +433,8 @@ bcdui.core.compression = {
         var c = xmlStr.charCodeAt(i);
         if (c > 127) hasSpecialChars = true;
       }
+      
+      // We try the client-side compressing and use it, if there are no cahrs beyond 127 and the compressed result is short enough
       if (!hasSpecialChars) {
         var compressedXmlString = this._compressXMLString(xmlStr);
         var encodedWithAlphabetMapping = this._encodeStringWithAlphabetMapping(compressedXmlString);
@@ -447,6 +452,7 @@ bcdui.core.compression = {
         }
       }
 
+      // Otherwise we need the much better server-side compressing
       var isGuiStatus = (doc != null) ? (doc.selectSingleNode("/*[self::guiStatus:Status]") != null) : false;
       if (typeof compressAll != "undefined" && compressAll)
         isGuiStatus = true;
