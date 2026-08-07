@@ -52,7 +52,7 @@ bcdui.factory.DebugPanel = (() => {
   let activeEl = null;
   const LS_LOGLEVEL_KEY = 'bcd-dbg-loglevel';
 
-  let overlay, tooltip, panel, panelTitle, panelBody, closeBtn, modal, modalTitle, modalBody;
+  let overlay, tooltip, panel, panelTitle, panelBody, closeBtn, modal, modalTitle, modalBody, modalCopyBtn;
 
   /**
    * Our css styles
@@ -266,6 +266,40 @@ bcdui.factory.DebugPanel = (() => {
     return 'bcd-' + Math.random().toString(36).slice(2, 8);
   }
 
+  (() => {
+    const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    function walk(n, ns) {
+      if (n.nodeType === 3) return n.nodeValue.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      if (n.nodeType === 4) return `<![CDATA[${n.nodeValue}]]>`;
+      if (n.nodeType === 7) return `<?${n.target} ${n.data}?>`;
+      if (n.nodeType === 8) return `<!--${n.nodeValue}-->`;
+      if (n.nodeType === 9 || n.nodeType === 11) return [...n.childNodes].map(c => walk(c, ns)).join('');
+      if (n.nodeType !== 1) return '';
+      const childNs = new Map(ns);
+      const decls = [];
+      if (n.namespaceURI) {
+        const key = n.prefix || '';
+        if (childNs.get(key) !== n.namespaceURI) {
+          decls.push(key ? `xmlns:${key}="${esc(n.namespaceURI)}"` : `xmlns="${esc(n.namespaceURI)}"`);
+          childNs.set(key, n.namespaceURI);
+        }
+      }
+      let attrStr = '';
+      for (const a of n.attributes) {
+        if (a.prefix === 'xmlns' || a.name === 'xmlns') continue;
+        if (a.namespaceURI && childNs.get(a.prefix) !== a.namespaceURI) {
+          decls.push(`xmlns:${a.prefix}="${esc(a.namespaceURI)}"`);
+          childNs.set(a.prefix, a.namespaceURI);
+        }
+        attrStr += ` ${a.name}="${esc(a.value)}"`;
+      }
+      const open = `<${n.tagName}${decls.map(d => ' ' + d).join('')}${attrStr}`;
+      if (!n.childNodes.length) return open + '/>';
+      return open + '>' + [...n.childNodes].map(c => walk(c, childNs)).join('') + `</${n.tagName}>`;
+    }
+    XMLSerializer.prototype.serializeToString = node => walk(node, new Map());
+  })();
+
   /**
    * Indicates whether a DataProvider is ready
    * @param isReady
@@ -314,6 +348,15 @@ bcdui.factory.DebugPanel = (() => {
       <span class="bcd-modal-type-badge">${isXml ? 'XMLDocument' : typeof data}</span>
     `;
 
+    const copyToClipboard = text => {
+      navigator.clipboard.writeText(text).then(() => {
+        const orig = modalCopyBtn.textContent;
+        modalCopyBtn.textContent = 'Copied!';
+        modalCopyBtn.style.color = '#27500A';
+        setTimeout(() => { modalCopyBtn.textContent = orig; modalCopyBtn.style.color = ''; }, 1500);
+      }).catch(() => {});
+    };
+
     if (isXml) {
       // Use bcdui.widget.visualizeXml if available, else fall back to pretty-print
       modalBody.innerHTML = `<div id="${targetId}" style="min-height:200px;"></div>`;
@@ -323,13 +366,31 @@ bcdui.factory.DebugPanel = (() => {
         targetHtml: '#' + targetId,
         inputModel: visModel
       });
+      modalCopyBtn.style.display = '';
+      modalCopyBtn.onclick = () => copyToClipboard(new XMLSerializer().serializeToString(data));
     } else if( typeof data === "function" ) {
       modalBody.innerHTML = `See function header in console`;
       console.log(data);
+      modalCopyBtn.style.display = 'none';
     } else {
       modalBody.innerHTML = `<pre>${escapeHtml(data)}</pre>`;
+      modalCopyBtn.style.display = '';
+      modalCopyBtn.onclick = () => copyToClipboard(String(data));
     }
 
+    modal.classList.add('bcd-visible');
+  }
+
+  function openTableModal(dp) {
+    const targetId = 'bcd-modal-content-' + uid();
+    modalTitle.innerHTML = `
+      <span>${escapeHtml(dp.getName())}</span>
+      <span class="bcd-modal-type-badge">Table</span>`;
+    modalBody.innerHTML = `<div id="${targetId}" style="min-height:200px;background:#fff;color:#222;padding:6px;border-radius:4px;"></div>`;
+    modalCopyBtn.style.display = 'none';
+    const m = new bcdui.core.StaticModel(dp.getData());
+    m.execute();
+    new bcdui.core.Renderer({ targetHtml: '#' + targetId, inputModel: m });
     modal.classList.add('bcd-visible');
   }
 
@@ -403,7 +464,7 @@ bcdui.factory.DebugPanel = (() => {
             <span class="bcd-param-name" title="${escapeHtml(p.getName())}">${escapeHtml(p.getName())}</span>
             ${badgeHtml(p.isReady())}
             <button class="bcd-expand-btn" data-sub="${subId}">[+]</button>
-            <button class="bcd-data-btn" data-dp="${pId}">getData()</button>
+            <button class="bcd-data-btn" data-dp="${pId}">View Data</button>
           </div>
           <div id="${subId}" class="bcd-nested" style="display:none;">
             ${buildNode(p, inputModelDepth + 1)}
@@ -429,7 +490,7 @@ bcdui.factory.DebugPanel = (() => {
         // output
         const outObj = xslt.output;
         const outIsXml = isXmlDocument(outObj);
-        const outLabel = outObj == null ? 'output [empty]' : (outIsXml ? 'output [xml]' : 'output');
+        const outLabel = outObj == null ? '<span title="Input passed through unchanged">output [XsltNop]</span>' : (outIsXml ? 'View Data' : 'output');
 
         let outLink = `<span class="bcd-xslt-out" style="color:#aaa;">${outLabel}</span>`;
         if (outObj != null) {
@@ -440,7 +501,9 @@ bcdui.factory.DebugPanel = (() => {
             getData: () => outIsXml ? outObj : String(outObj),
             dataProviders: []
           };
-          outLink = `<button class="bcd-data-btn" style="font-size:11px;" data-dp="${fakeId}">${outLabel}</button>`;
+          outLink += `<button class="bcd-data-btn" style="font-size:11px;" data-dp="${fakeId}">${outLabel}</button>`;
+          outLink += outIsXml ? `<button class="bcd-data-btn" style="font-size:11px;" data-dp-table="${fakeId}">Table</button>` : '';
+          
         }
 
         // transformer (model)
@@ -496,6 +559,27 @@ bcdui.factory.DebugPanel = (() => {
           <button class="bcd-expand-btn" data-sub="${paramsSub}">[+] params (${procEntries.length})</button>
           <div id="${paramsSub}" class="bcd-nested" style="display:none;">${procParamsHtml}</div>` : '';
 
+        // intermediateDocuments — collapsed behind [+]
+        const intermDocs  = xslt.intermediateDocuments || [];
+        const intermSubId = uid();
+        const intermHtml  = intermDocs.map((doc, di) => {
+          const fakeId = uid();
+          dpMap[fakeId] = {
+            getName: () => `intermediateDocument[${di}]`,
+            isReady: () => true,
+            getData: () => doc,
+            dataProviders: []
+          };
+          return `
+            <div class="bcd-param-item">
+              <span class="bcd-param-name" title="intermediateDocument[${di}]">[${di}]</span>
+              <button class="bcd-data-btn" data-dp="${fakeId}" title="This is the generated XSLT that runs against the input, producing the output">Generated XSLT</button>
+            </div>`;
+        }).join('');
+        const intermToggle = intermDocs.length ? `
+          <button class="bcd-expand-btn" data-sub="${intermSubId}">[+] Intermediate XSLTs (${intermDocs.length})</button>
+          <div id="${intermSubId}" class="bcd-nested" style="display:none;">${intermHtml}</div>` : '';
+
         return `
           <tr>
             <td><span class="bcd-xslt-idx">${i + 1}</span></td>
@@ -503,6 +587,7 @@ bcdui.factory.DebugPanel = (() => {
             <td style="text-align: right">${execTime}</td>
             <td>${outLink}</td>
             <td>${paramsToggle}</td>
+            <td>${intermToggle}</td>
           </tr>`;
       }).join('');
 
@@ -622,9 +707,10 @@ bcdui.factory.DebugPanel = (() => {
         </div>
         <div class="bcd-row"><span class="bcd-lbl">status</span>${badgeHtml(dp.isReady())}</div>
         ${execHtml}
-        <button class="bcd-data-btn" style="margin-top:4px;" data-dp="${dpId}">getData()</button>
+        <button class="bcd-data-btn" data-dp="${dpId}">View Data</button>
+        <button class="bcd-data-btn" style="margin-top:4px;" data-dp-table="${dpId}">Table</button>
         <button class="bcd-data-btn" data-dp-data-console="${dpId}">data >_</button>
-        <button class="bcd-data-btn" data-dp-console="${dpId}">object >_</button>
+        <button class="bcd-data-btn" data-dp-console="${dpId}">DataProvider >_</button>
         ${extrasHtml}
         ${xsltHtml}
       </div>`;
@@ -738,7 +824,8 @@ bcdui.factory.DebugPanel = (() => {
         if (!sub) return;
         const open = sub.style.display !== 'none';
         sub.style.display = open ? 'none' : 'block';
-        btn.textContent = open ? '[+]' : '[−]';
+        const label = btn.textContent.replace(/^\[.\]/, '');
+        btn.textContent = (open ? '[+]' : '[−]') + label;
       });
     });
     // Open documentation, a popup for data or visualize on console
@@ -746,6 +833,12 @@ bcdui.factory.DebugPanel = (() => {
       btn.addEventListener('click', () => {
         const dp = dpMap[btn.dataset.dp];
         if(dp) openDataModal(dp);
+      });
+    });
+    panelBody.querySelectorAll('[data-dp-table]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const dp = dpMap[btn.dataset.dpTable];
+        if (dp) openTableModal(dp);
       });
     });
     panelBody.querySelectorAll('[data-dp-data-console]').forEach(btn => {
@@ -845,7 +938,7 @@ bcdui.factory.DebugPanel = (() => {
         const subId = uid();
         dpMap[dpId] = dp;
         dpInline = `
-          <button class="bcd-data-btn" data-dp="${dpId}">getData()</button>
+          <button class="bcd-data-btn" data-dp="${dpId}"Show Data</button>
           <button class="bcd-expand-btn" data-sub="${subId}">[+]</button>
           <div id="${subId}" style="display:none;margin-top:4px;">${buildNode(dp, 0)}</div>`;
       }
@@ -858,7 +951,7 @@ bcdui.factory.DebugPanel = (() => {
         return `
           <div style="display:flex;align-items:center;gap:5px;margin-top:2px;">
             <span class="bcd-val" style="color:#888;font-size:11px;">$${escapeHtml(refId)}</span>
-            <button class="bcd-data-btn" data-dp="${refFakeId}">getData()</button>
+            <button class="bcd-data-btn" data-dp="${refFakeId}"Show Data</button>
             <button class="bcd-expand-btn" data-sub="${refSubId}">[+]</button>
             <div id="${refSubId}" style="display:none;margin-top:4px;">${buildNode(refDp, 0)}</div>
           </div>`;
@@ -968,13 +1061,20 @@ bcdui.factory.DebugPanel = (() => {
         if (!sub) return;
         const open = sub.style.display !== 'none';
         sub.style.display = open ? 'none' : 'block';
-        btn.textContent = open ? '[+]' : '[−]';
+        const label = btn.textContent.replace(/^\[.\]/, '');
+        btn.textContent = (open ? '[+]' : '[−]') + label;
       });
     });
     panelBody.querySelectorAll('[data-dp]').forEach(btn => {
       btn.addEventListener('click', () => {
         const dp = dpMap[btn.dataset.dp];
         if(dp) openDataModal(dp);
+      });
+    });
+    panelBody.querySelectorAll('[data-dp-table]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const dp = dpMap[btn.dataset.dpTable];
+        if (dp) openTableModal(dp);
       });
     });
     panelBody.querySelectorAll('[data-dp-data-console]').forEach(btn => {
@@ -1191,6 +1291,7 @@ bcdui.factory.DebugPanel = (() => {
       <div id="bcd-dbg-modal">
         <div class="bcd-modal-header">
           <span class="bcd-modal-title" id="bcd-modal-title"></span>
+          <button class="bcd-data-btn" id="bcd-modal-copy" style="margin-left:auto;">Copy to Clipboard</button>
           <button class="bcd-ph-close" id="bcd-modal-close" aria-label="Close">×</button>
         </div>
         <div class="bcd-modal-body" id="bcd-modal-body"></div>
@@ -1198,8 +1299,9 @@ bcdui.factory.DebugPanel = (() => {
     `;
     document.body.appendChild(modal);
 
-    modalTitle = modal.querySelector('#bcd-modal-title');
-    modalBody  = modal.querySelector('#bcd-modal-body');
+    modalTitle   = modal.querySelector('#bcd-modal-title');
+    modalBody    = modal.querySelector('#bcd-modal-body');
+    modalCopyBtn = modal.querySelector('#bcd-modal-copy');
 
     const modalBox = modal.querySelector('#bcd-dbg-modal');
     makeDraggable(modalBox, modal.querySelector('.bcd-modal-header'));
