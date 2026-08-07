@@ -112,6 +112,11 @@
           <documentation>Parameters for HTML Builder style sheet</documentation>
         </annotation>
       </element>
+      <element name="CumulAndPercOfTotal" type="tns:CumulAndPercOfTotalParamType" minOccurs="0" maxOccurs="unbounded">
+        <annotation>
+          <documentation>Parameters for cumulation and percentage-of-total calculations along rows or columns of a Wrs.</documentation>
+        </annotation>
+      </element>
     </choice>
   </complexType>
 
@@ -784,6 +789,73 @@
         </sequence>
       </extension>
 
+    </complexContent>
+  </complexType>
+
+
+  <!-- CumulAndPercOfTotal param Type -->
+  <complexType name="CumulAndPercOfTotalParamType">
+    <complexContent>
+      <extension base="tns:BaseParamType">
+        <sequence>
+          <element name="RowDimensions" minOccurs="0">
+            <annotation><documentation>
+              Row dimensions defining the cumulation groups for col-wise cumulation.
+              Rows sharing the same values in all but the last of these columns form one cumulation unit.
+              Allows for cumulation/% in respect to an inner dimensions.
+            </documentation></annotation>
+            <complexType>
+              <sequence>
+                <element name="Columns" minOccurs="0">
+                  <complexType>
+                    <sequence>
+                      <element ref="wrs:C" minOccurs="0" maxOccurs="unbounded">
+                        <annotation><documentation>
+                          References a row dimension column by @id.
+                        </documentation></annotation>
+                      </element>
+                    </sequence>
+                  </complexType>
+                </element>
+              </sequence>
+            </complexType>
+          </element>
+          <element name="RowCumulate" minOccurs="0">
+            <annotation><documentation>
+              Measures to cumulate left-to-right over the columns of each row.
+              Each wrs:C identifies a measure by @valueId; the operation is given by @type.
+            </documentation></annotation>
+            <complexType>
+              <sequence>
+                <element ref="wrs:C" minOccurs="0" maxOccurs="unbounded">
+                  <annotation><documentation>
+                    @valueId: id of the measure column to operate on.
+                    @type: one of 'cumulate', 'cumulate%', or '%'.
+                  </documentation></annotation>
+                </element>
+              </sequence>
+            </complexType>
+          </element>
+          <element name="ColCumulate" minOccurs="0">
+            <annotation><documentation>
+              Measures to cumulate top-down over the rows of each column.
+              Each wrs:C identifies a measure by @valueId; the operation is given by @type.
+              The optional @cumulateColDim restricts the cumulation to a specific column-dimension segment.
+            </documentation></annotation>
+            <complexType>
+              <sequence>
+                <element ref="wrs:C" minOccurs="0" maxOccurs="unbounded">
+                  <annotation><documentation>
+                    @valueId: id of the measure column to operate on.
+                    @type: one of 'cumulate', 'cumulate%', or '%'.
+                    @cumulateColDim: optional, restricts to a specific column-dimension prefix (the part before the last '|' separator in the column id).
+                  </documentation></annotation>
+                </element>
+              </sequence>
+            </complexType>
+          </element>
+        </sequence>
+      </extension>
     </complexContent>
   </complexType>
 

@@ -88,6 +88,7 @@ bcdui.bcduiCeFiles =
         , "/js/nonmodules/core/lifecycle/autoRefresh.js"
         , "/js/nonmodules/wrs/wrsUtilPackage.js"
         , "/js/nonmodules/wrs/htmlBuilder.js"
+        , "/js/nonmodules/wrs/cumulAndPercOfTotal.js"
       ],
       "css": [
         "/js/3rdParty/jquery-ui.css",

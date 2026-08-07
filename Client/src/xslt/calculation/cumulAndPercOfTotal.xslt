@@ -25,7 +25,8 @@
   xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
   xmlns:xp="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"
   xmlns:exslt="http://exslt.org/common"
-  xmlns:generator="urn(bcd-xsltGenerator)">
+  xmlns:generator="urn(bcd-xsltGenerator)"
+  bcdxml:wrsHeaderIsEnough="true">
 
   <xsl:namespace-alias stylesheet-prefix="xsla" result-prefix="xsl"/>
 

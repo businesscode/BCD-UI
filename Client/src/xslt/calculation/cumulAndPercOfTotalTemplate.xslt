@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -151,7 +151,6 @@
       <xsl:when test="$paramSet/xp:ColCumulate/wrs:C and key('isColCumulKey',position()) and not(key('rowIsTotalKey',../@id))">
         <xsl:copy>
           <xsl:copy-of select="@*"/>
-          <xsl:variable name="currRowGenId" select="generate-id(..)"/>
           <xsl:variable name="currColPos" select="position()"/>
           <xsl:value-of select="sum($rowGroup[position()&lt;=$currRowPos]/wrs:C[position()=$currColPos and number()=number()])"/>
         </xsl:copy>
@@ -160,7 +159,7 @@
         <xsl:copy>
           <xsl:copy-of select="@*"/>
           <xsl:attribute name="unit">%</xsl:attribute>
-          <xsl:variable name="currRowGenId" select="generate-id(..)"/>
+          <xsl:attribute name="scale">1</xsl:attribute>
           <xsl:variable name="currColPos" select="position()"/>
           <xsl:variable name="subTotal" select="sum($rowGroup/wrs:C[$currColPos])"/>
           <xsl:value-of select="sum($rowGroup[position()&lt;=$currRowPos]/wrs:C[position()=$currColPos and number()=number()]) div $subTotal"/>
@@ -170,6 +169,7 @@
         <xsl:copy>
           <xsl:copy-of select="@*"/>
           <xsl:attribute name="unit">%</xsl:attribute>
+          <xsl:attribute name="scale">1</xsl:attribute>
           <xsl:variable name="currColPos" select="position()"/>
           <xsl:variable name="subTotal" select="sum($rowGroup/wrs:C[position()=$currColPos and number()=number()])"/>
           <xsl:value-of select=". div $subTotal"/>
@@ -188,6 +188,7 @@
         <xsl:copy>
           <xsl:copy-of select="@*"/>
           <xsl:attribute name="unit">%</xsl:attribute>
+          <xsl:attribute name="scale">1</xsl:attribute>
           <xsl:variable name="currPos" select="position()"/>
           <xsl:variable name="currId" select="key('colHeadByPos',$currPos)/@id"/>
           <generator:currColKeyLookup/>
@@ -200,11 +201,12 @@
         <xsl:copy>
           <xsl:copy-of select="@*"/>
           <xsl:attribute name="unit">%</xsl:attribute>
+          <xsl:attribute name="scale">1</xsl:attribute>
           <xsl:variable name="currPos" select="position()"/>
           <xsl:variable name="currId" select="key('colHeadByPos',$currPos)/@id"/>
           <generator:currColKeyLookup/>
-          <xsl:variable name="total" select="sum(../wrs:C[key('colHeadByPos',position())/@pos=key('colDimsExclLastPlusValueIdKey',$currCumulDim) and position()&lt;=$currPos and number()=number()])"/>
-          <xsl:value-of select=". div $total"/>
+          <xsl:variable name="subTotal" select="sum(../wrs:C[key('colHeadByPos',position())/@pos=key('colDimsExclLastPlusValueIdKey',$currCumulDim) and number()=number()])"/>
+          <xsl:value-of select=". div $subTotal"/>
         </xsl:copy>
       </xsl:when>
       <xsl:otherwise>
