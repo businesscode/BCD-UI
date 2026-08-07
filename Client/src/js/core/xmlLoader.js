@@ -678,7 +678,7 @@ bcdui.core.XMLLoader = class
         doc.selectSingleNode("/*").setAttribute("saxonStyleSheet", window.location.origin + saxonStyleSheet.substring(0,saxonStyleSheet.lastIndexOf("/") + 1));
 
       // Apply the just generated XSLT and recurse into postpocessing (possible applying a generated XML output and so on)
-      bcdui.core.browserCompatibility.asyncCreateXsltProcessor( { callerDebug: " generated xslt of "+args.stylesheetURL, model: doc, isGenerated: true, callBack: function(newProcessor) {
+      bcdui.core.browserCompatibility.asyncCreateXsltProcessor( { callerDebug: " generated xslt of "+args.stylesheetURL, model: doc, xsltGeneratedBy: args.stylesheetURL, callBack: function(newProcessor) {
         var traceXsltProcTime = Date.now();
         newProcessor.transform( { input: args.sourceDoc, parameters: args.params, callBack: function(result) {
             traceXsltProcTime = Date.now() - traceXsltProcTime;
