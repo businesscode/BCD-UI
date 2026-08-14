@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2025 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,6 +16,12 @@
 
 import "./export.js"
 import "../widget/contextMenu.js"
+
+import "../../wrs/colDims.js"
+import "../../wrs/orderRowsAndCols.js"
+import "../../wrs/removeEmptyCells.js"
+import "../../wrs/join.js"
+import "../../component/scorecard/verticalizeKpis.js"
 
 import {bcduiExport_ScorecardModel as ScorecardModel} from "../../component/scorecard/scorecardModel.js"
 import {bcduiExport_Scorecard as Scorecard} from "../../component/scorecard/scorecardCreate.js"

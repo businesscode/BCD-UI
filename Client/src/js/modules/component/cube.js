@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2025 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,6 +15,15 @@
 */
 
 import "../core.js"
+
+import "../../wrs/calculationFormulars.js"
+import "../../component/cube/calculation.js"
+import "../../wrs/cumulAndPercOfTotal.js"
+import "../../wrs/colDims.js"
+import "../../wrs/filterRowsAndCols.js"
+import "../../wrs/orderRowsAndCols.js"
+import "../../wrs/removeEmptyCells.js"
+
 import {bcduiExport_Cube as Cube, bcduiExport_CubeModel as CubeModel} from "../../component/cube/cubeCreate.js"
 import "../../component/cube/customElements.js"
 export {Cube, CubeModel};

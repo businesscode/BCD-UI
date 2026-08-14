@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -146,7 +146,37 @@
             <xsl:attribute name="limit"><xsl:value-of select="$configPrecalc/*/scc:Layout/scc:TopNDimMembers/scc:TopNDimMember[scc:AspectRef]/@n"/></xsl:attribute>
           </scc:OrderAndCut>
         </xsl:if>
-        
+
+        <!-- xp:OrderRowsAndCols: used by orderRowsAndCols.js after colDims.js for col-dim sorting.
+             In the original XSLT chain, col-dim sorting was done inside colDims.xslt's generated template (via generator:ColSorting). 
+             colDims.js intentionally skips sorting, so this block bridges the gap by exposing the same @sort / @total data in the format that
+             orderRowsAndCols.js expects. -->
+        <xsl:if test="$configPrecalc/*/scc:Layout/scc:Dimensions/scc:Columns/*[@sort or @total]">
+          <xp:OrderRowsAndCols>
+            <xp:ColDimsOrder>
+              <wrs:Columns>
+                <!-- Process all col-dim entries in document order (preserving sort key precedence).
+                     scc:LevelKpi has no @bRef; it maps to the pseudo-id 'bcd_kpi_id' (same as the
+                     xsltParameters template at the bottom of this file). -->
+                <xsl:for-each select="$configPrecalc/*/scc:Layout/scc:Dimensions/scc:Columns/*[@sort or @total]">
+                  <xsl:choose>
+                    <xsl:when test="self::scc:LevelKpi">
+                      <wrs:C id="bcd_kpi_id">
+                        <xsl:copy-of select="@sort | @total"/>
+                      </wrs:C>
+                    </xsl:when>
+                    <xsl:when test="self::dm:LevelRef">
+                      <wrs:C id="{@bRef}">
+                        <xsl:copy-of select="@sort | @total"/>
+                      </wrs:C>
+                    </xsl:when>
+                  </xsl:choose>
+                </xsl:for-each>
+              </wrs:Columns>
+            </xp:ColDimsOrder>
+          </xp:OrderRowsAndCols>
+        </xsl:if>
+
       </xp:XSLTParameters>
 
       <!--  XSLT parameters for scorecard-only stylesheets -->

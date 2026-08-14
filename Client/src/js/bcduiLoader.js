@@ -88,7 +88,6 @@ bcdui.bcduiCeFiles =
         , "/js/nonmodules/core/lifecycle/autoRefresh.js"
         , "/js/nonmodules/wrs/wrsUtilPackage.js"
         , "/js/nonmodules/wrs/htmlBuilder.js"
-        , "/js/nonmodules/wrs/cumulAndPercOfTotal.js"
       ],
       "css": [
         "/js/3rdParty/jquery-ui.css",
@@ -187,6 +186,13 @@ bcdui.bcduiCeFiles =
         , "/js/nonmodules/component/cube/templateManager/templateManager.js"
         , "/js/nonmodules/component/cube/rankingEditor/rankingEditor.js"
         , "/js/nonmodules/component/cube/summaryDisplay/summaryDisplay.js"
+        , "/js/nonmodules/wrs/calculationFormulars.js"
+        , "/js/nonmodules/component/cube/calculation.js"
+        , "/js/nonmodules/wrs/colDims.js"
+        , "/js/nonmodules/wrs/filterRowsAndCols.js"
+        , "/js/nonmodules/wrs/cumulAndPercOfTotal.js"
+        , "/js/nonmodules/wrs/orderRowsAndCols.js"
+        , "/js/nonmodules/wrs/removeEmptyCells.js"
       ],
       "buildFolders": [
           "/js/nonmodules/component/cube"
@@ -243,9 +249,14 @@ bcdui.bcduiCeFiles =
         , "/js/nonmodules/component/scorecard/contextMenuResolver.js"
         , "/js/nonmodules/component/scorecard/scorecardConfigurator.js"
         , "/js/nonmodules/component/scorecard/bcdAspects.js"
+        , "/js/nonmodules/component/scorecard/verticalizeKpis.js"
         , "/js/nonmodules/component/cube/templateManager/templateManager.js"
         , "/js/nonmodules/component/cube/rankingEditor/rankingEditor.js"
         , "/js/nonmodules/component/cube/summaryDisplay/summaryDisplay.js"
+        , "/js/nonmodules/wrs/colDims.js"
+        , "/js/nonmodules/wrs/orderRowsAndCols.js"
+        , "/js/nonmodules/wrs/removeEmptyCells.js"
+        , "/js/nonmodules/wrs/join.js"
       ],
       "buildFolders": [
           "/js/nonmodules/component/scorecard"

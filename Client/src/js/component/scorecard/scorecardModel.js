@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -428,7 +428,7 @@ bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
                 function( joinedDoc, aggrNode, aggrId, aggrModelId, newJoinedId ) {
                   var aggrCaption = aggrNode.getAttribute("caption");
                   bcdui.log.isTraceEnabled() && bcdui.log.trace( "Scorecard '"+this.id+"', joining aggregator '"+aggrId+"' ... " );
-                  bcdui.factory.createModelWrapper( { id: newJoinedId, url: bcdui.contextPath+"/bcdui/xslt/wrs/join.xslt",
+                  bcdui.factory.createModelWrapper( { id: newJoinedId, url: bcdui.wrs.join ,
                     inputModel: aggrModelId,
                     parameters: { dimensions: this.dimensions, makeLeftOuterJoin: true,
                                   leftDoc: bcdui.factory.objectRegistry.getObject(joinedDoc),
@@ -599,7 +599,7 @@ bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
                     captionPrefix += "|";
                     idPrefix += "agg_"+aggrOnlyId+"_";
                   }
-                  bcdui.factory.createModelWrapper( { url: bcdui.contextPath+"/bcdui/xslt/wrs/join.xslt", id: this.internalPrefix+"_asp_"+aspId+"_KpiData", inputModel: this.internalPrefix+"_asp_"+aspId+"_RowWrs",
+                  bcdui.factory.createModelWrapper( { url: bcdui.wrs.join , id: this.internalPrefix+"_asp_"+aspId+"_KpiData", inputModel: this.internalPrefix+"_asp_"+aspId+"_RowWrs",
                     parameters: { dimensions: this.dimensions, leftDoc: bcdui.factory.objectRegistry.getObject(leftDoc), makeLeftOuterJoin: true,
                                   rightIdPrefix: idPrefix, rightCaptionPrefix:  captionPrefix } } );
                 }.bind( this, leftDoc, aspId )
@@ -727,10 +727,9 @@ bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
 
       // If not we transpose it. Due to performance optimization on mobile webkit, we provide an extra implementation there
       else {
-        var rule = bcdui.browserCompatibility.isWebKit ? bcdui.wrs.wrsUtil.transposeGrouping : bcdui.contextPath+"/bcdui/xslt/wrs/transposeGrouping.xslt";
         var dimNodes = input.getData().selectNodes("/*/wrs:Header/wrs:Columns/wrs:C[@dimId and not(@id='bcd_measure_id') and not(@id='bcd_kpi_id')]");
         var dimCount = 1+dimNodes.length;
-        bcdui.factory.createModelWrapper( { id: args.resultId, url: rule,
+        bcdui.factory.createModelWrapper( { id: args.resultId, url: bcdui.wrs.wrsUtil.transposeGrouping,
           inputModel: input, parameters: { groupingColumnCount: dimCount, transposedColumnNo: dimCount } } );
       }
     }.bind(this, args));
@@ -748,7 +747,7 @@ bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
         function() {
           // 19) Verticalize KPIs, keep aspects as columns
           bcdui.log.isTraceEnabled() && bcdui.log.trace( "Scorecard '"+this.id+"', finalizing layout ..." );
-          var urls = [ this.cp + "verticalizeKpis.xslt" ];
+          var urls = [ bcdui.component.scorecard.verticalizeKpis ];
           var parameters = {
               sccDefinition: bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_refSccDefinition")
           };
@@ -762,7 +761,8 @@ bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
           // LevelKpi does not count as a coldim in this sense but is treated as a measure
           var colDims = bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_refSccDefinition").getData().selectNodes("/*/scc:Layout/scc:Dimensions/scc:Columns/dm:LevelRef");
           if(colDims.length>0) {
-            urls.push(bcdui.contextPath+"/bcdui/xslt/colDims.xslt");
+            urls.push( bcdui.wrs.colDims );
+            urls.push( bcdui.wrs.orderRowsAndCols );
             parameters.paramModel = bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_refSccDefinition");
           }
           // 21) Optionally join category data
@@ -774,7 +774,7 @@ bcdui.component.scorecard.ScorecardModel = class extends bcdui.core.DataProvider
           }
           // 22) Optionally remove empty rows and cols
           if ( bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_refSccDefinition").getData().selectSingleNode("/*/scc:Layout/@removeEmptyCells") ) {
-            urls.push(bcdui.contextPath+"/bcdui/js/component/cube/removeEmptyCells.xslt");
+            urls.push( bcdui.wrs.removeEmptyCells );
             parameters.paramModel = bcdui.factory.objectRegistry.getObject(this.internalPrefix+"_refSccDefinition");
           }
           bcdui.factory.createModelWrapper( {

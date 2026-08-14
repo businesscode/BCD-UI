@@ -249,10 +249,12 @@
             </xp:ColDimsOrder>
           </xsl:if>
 
-          <!-- Hiding of dimension members -->
-          <xsl:copy-of select="/*/cube:Layout/cube:Hide/f:Filter"/>
-
         </xp:OrderRowsAndCols>
+
+        <!-- Hiding of dimension members -->
+        <xp:Filter>
+          <xsl:copy-of select="/*/cube:Layout/cube:Hide/f:Filter/*"/>
+        </xp:Filter>
 
         <!-- Cumulation, we run this in two steps to be able to cumulate in both directions at the same time -->
         <xsl:if test="/*/cube:Layout/cube:Measures//*[@cumulateRow]">

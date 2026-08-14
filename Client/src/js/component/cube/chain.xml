@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@
   -->
   <Phase name="P1">
     <!-- calculation does measure, custom measure and row/col calculation, i.e. it applies all client side calculations -->
-    <Stylesheet url="calculation.xslt"/>
+    <Stylesheet jsProcFct="bcdui.wrs.calculation"/>
 
     <!-- optional filtering of cells for cube expand/collapse feature -->
     <Stylesheet url="expandCollapseCells.xslt"/>
@@ -33,21 +33,22 @@
     <!-- colDims, optional creates col dimensions and sorts columns to give them a reasonable order even if not all col-dim appear for all row-dims
       Also this is the last place where we know the col-dims @order value and can apply it. This later ordering will leave our col-ordering
       untouched unless order col-dim-by-measure is requested, overwriting the @order -->
-    <Stylesheet url="../../../xslt/colDims.xslt"/>
+    <Stylesheet jsProcFct="bcdui.wrs.colDims"/>
 
     <!-- orderRowsAndCols, optional applies dim-by-measure ordering, which the server cannot handle and also hide-dim-member -->
-    <Stylesheet url="../../../xslt/wrs/orderRowsAndCols.xslt"/>
+    <Stylesheet jsProcFct="bcdui.wrs.filterRowsAndCols"/>
+    <Stylesheet jsProcFct="bcdui.wrs.orderRowsAndCols"/>
 
     <!-- cumulAndPercOfTotal, optional applies cumulations and % of total calculations -->
-    <Stylesheet url="../../../xslt/calculation/cumulAndPercOfTotal.xslt">
+    <Stylesheet jsProcFct="bcdui.wrs.cumulAndPercOfTotal">
       <Param name="paramSetId">rowCumul</Param>
     </Stylesheet>
-    <Stylesheet url="../../../xslt/calculation/cumulAndPercOfTotal.xslt">
+    <Stylesheet jsProcFct="bcdui.wrs.cumulAndPercOfTotal">
       <Param name="paramSetId">colCumul</Param>
     </Stylesheet>
 
     <!-- Removing empty columns and rows in cube -->
-    <Stylesheet url="removeEmptyCells.xslt"/>
+    <Stylesheet jsProcFct="bcdui.wrs.removeEmptyCells"/>
 
     <!-- optionally generate inlineChart values for innermost row dimension -->
     <Stylesheet url="inlineChart/innerDimChart.xslt"/>

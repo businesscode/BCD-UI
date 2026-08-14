@@ -30,8 +30,9 @@
  *  - Column groups are derived per column id instead of from the segment count of the last header
  *    column, which only matters for Wrs with mixed-depth column dimensions.
  */
-bcdui.wrs.cumulAndPercOfTotal = function( docIn, params )
+bcdui.wrs.cumulAndPercOfTotal = function( doc, params )
 {
+  // Starting Transformer bcdui.wrs.cumulAndPercOfTotal
   const XP_NS = "http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0";
   const COL_TOTAL = bcdui.core.magicChar.dimTotal;   // marker of a (sub)total member in a col-dim part of @id
   const TYPES = ["cumulate", "cumulate%", "%"];   // order = precedence, as the xsl:when order
@@ -76,10 +77,6 @@ bcdui.wrs.cumulAndPercOfTotal = function( docIn, params )
   // We may have nothing to do. We return nothing to indicate the transformatino can continue with our input
   if( colSpecs.length === 0 && rowSpecs.length === 0 )
     return;
-
-  //-------------------------------------
-  // OK, we have work to do
-  const doc = bcdui.core.browserCompatibility.cloneDocument( docIn );
   
   const rowDimIds = [];
   paramSets.forEach( ps => childElems(ps, "RowDimensions").forEach( rd => childElems(rd, "Columns").forEach( cols =>
@@ -241,3 +238,5 @@ bcdui.wrs.cumulAndPercOfTotal = function( docIn, params )
   // Done
   return doc;
 };
+
+bcdui.wrs.cumulAndPercOfTotal.bcdName = "bcdui.wrs.cumulAndPercOfTotal";
