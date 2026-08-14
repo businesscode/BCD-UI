@@ -41,6 +41,7 @@ bcdui.wrs.HtmlBuilder = class {
   transform(wrsDom, parameters) 
   {
     //-------------------------------------
+    // Starting Transformer bcdui.wrs.HtmlBuilder
     // Read parameters, plain js and from XslParams
     this.readParameters(parameters);
 
@@ -299,7 +300,7 @@ bcdui.wrs.HtmlBuilder = class {
     else {
       const headerRows = Array.from({ length: numLevels }, (_, d) => {
         const tr = document.createElement('tr');
-        if (d === 0 && colDefs.colDimLevelIds) tr.setAttribute("levelId", colDefs.colDimLevelIds[0]);
+        if (colDefs.colDimLevelIds?.[d]) tr.setAttribute("levelId", colDefs.colDimLevelIds[d]);
         if (d === numLevels - 1) tr.setAttribute("bcdrowident", "bcdMeasureHeader");
         return tr;
       });
@@ -325,27 +326,30 @@ bcdui.wrs.HtmlBuilder = class {
           if (parts.length === 1) {
             partIndex = 0;
           } else if (d === numLevels - 1) {
-            partIndex = parts.length - 1; // last part always at bottom
-          } else if (d < parts.length - 1) {
-            partIndex = d;
+            partIndex = parts.length - 1; // bottom row always shows last part
+          } else if (d < parts.length) {
+            partIndex = d; // intermediate part, or last part (will span down to bottom row)
           } else {
-            i++; continue; // covered by rowspan, shouldn't normally reach here
+            i++; continue; // d >= parts.length, covered by rowspan above
           }
-    
+
           const label = parts[partIndex] ?? '';
-    
+
           // rowspan:
           // - single part → spans all rows
-          // - second-to-last part → spans gap between its row and the last row
+          // - last part but not yet at the bottom row → spans from here to the bottom row,
+          //   so that intermediate-level labels (e.g. "My Target" in "2010|My Target" when
+          //   numLevels=3) sit at their natural row and span down, instead of having "2010"
+          //   rowspan over the intermediate row and force "My Target" to the bottom.
           // - others → 1
           let rowspan = 1;
           if (parts.length === 1) {
             rowspan = numLevels;
             for (let dd = 1; dd < numLevels; dd++) covered[dd][i] = true;
-          } else if (d === parts.length - 2) {
-            // cover the gap rows between this and the last row
-            rowspan = numLevels - 1 - d;
-            for (let dd = d + 1; dd < numLevels - 1; dd++) covered[dd][i] = true;
+          } else if (d === parts.length - 1 && d < numLevels - 1) {
+            // last part of this caption, but not yet at the bottom header row → span to bottom
+            rowspan = numLevels - d;
+            for (let dd = d + 1; dd < numLevels; dd++) covered[dd][i] = true;
           }
     
           
@@ -420,7 +424,7 @@ bcdui.wrs.HtmlBuilder = class {
     //-------------------------------------
     // Parse header columns
     const colDefs = [];
-    colDefs.colDimLevelIds = evaluate("/*/wrs:Header/wrs:Columns/@colDimLevelIds").singleNode?.split("|");
+    colDefs.colDimLevelIds = evaluate("/*/wrs:Header/wrs:Columns/@colDimLevelIds").iterateNext()?.value?.split("|");
     const headerCols = evaluate("/*/wrs:Header/wrs:Columns/wrs:C");
 
     for (let headC; (headC = headerCols.iterateNext()) !== null;) {
@@ -541,10 +545,10 @@ bcdui.wrs.HtmlBuilder = class {
     parameters["isExpandCollapseCells"] = parameters["expandCollapseCells"];
     parameters["isJsHtmlbuilder"] = "true";
   }
-
-
 }
 
 // We want a class for easier overwrite but need a function reference here for chains
-// Use bcdui.wrs.htmlBuilder = bcdui.contextPath + "/bcdui/xslt/renderer/htmlBuilder.xslt"; to bring back the xslt default
 bcdui.wrs.htmlBuilder = (() => { const singleton = new bcdui.wrs.HtmlBuilder(); return singleton.transform.bind(singleton) })();
+bcdui.wrs.htmlBuilder.bcdName = 'bcdui.wrs.htmlBuilder';
+
+// Possible XSLT fallback: bcdui.wrs.htmlBuilder = bcdui.contextPath+"/bcdui/xslt/renderer/htmlBuilder.xslt";
