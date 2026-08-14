@@ -629,7 +629,12 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
       if (currentXslt == null) {
         // No currentXslt means that no XSLT has been running so
         // we start with the first.
-        this._runTransformation(this.chain.phases[0].xslts[0], this.getPrimaryModel().getData());
+        // We guarantee that our inputModel is not modified, allowing multiple independent ModelWrapper on the same model
+        // XSLT always prodices new documents, JavaScript functions don't, so to make sure, we clone the input here, if out first
+        // transformation is a JavaScript function
+        let inputModel = this.getPrimaryModel().getData();
+        if( typeof this.chain.phases[0].xslts[0].processor.procFkt === "function" ) inputModel = bcdui.core.browserCompatibility.cloneDocument( inputModel );
+        this._runTransformation(this.chain.phases[0].xslts[0], inputModel);
       } else if (nextXslt == null) {
         // Found, but no following XSLT means that we are
         // finished. Then we set the status accordingly and
