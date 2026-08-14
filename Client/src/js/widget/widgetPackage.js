@@ -1425,22 +1425,13 @@ jQuery.extend(bcdui.widget,
           }
 
           var ul = jQuery('<ul class="bcdBlindUpDown"></ul>');
-          var liCaption = jQuery("<li id='" + (actualId + "_bcduiBlindHead") + "'>" + args.caption + "</li>").addClass('bcdBlindUpDownHead' + (state=='closed'?' bcdHeadClosed':' bcdHeadOpened'));
+          var liCaption = jQuery("<li id='" + (actualId + "_bcduiBlindHead") + "'><span>" + args.caption + "</span></li>").addClass('bcdBlindUpDownHead' + (state=='closed'?' bcdHeadClosed':' bcdHeadOpened'));
           liCaption.attr("bcdTranslate", args.caption);
 
           var liClose = jQuery("<span id='" + (actualId + "_bcduiBlindHeadClose") + "'></span>").addClass("bcdBlindUpDownClose");
           liCaption.append(liClose);
-
           ul.append(liCaption);
-
-          ul.css({display:'none'});
-          bcdui.i18n.translateHTMLElement({elementOrId:ul.get(0), display:''});
-
           var liBody = jQuery("<li id='" + (actualId + "_bcduiBlindBody") + "'></li>").addClass("bcdBlindUpDownBody");
-          liBody.css({// workaround for IE Bug: disappear graphs in body
-            zoom:1
-          });
-
           // in case of a custom element, we take its body (not itself since this would end in a recusion). If no body is avaialble, an empty div is created
           if (typeof args.bodyIdOrElement == "object" && args.bodyIdOrElement.nodeName == "BCD-BLINDUPDOWNAREA") {
             if (jQuery(args.bodyIdOrElement).children().length == 0)
