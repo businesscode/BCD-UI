@@ -226,6 +226,7 @@ bcdui.wrs.HtmlBuilder = class {
         const bcdTranslate = cell.bcdOt === 1 ? "bcd_OtherDimmember" : undefined;
         if (bcdTranslate) th.setAttribute("bcdTranslate", bcdTranslate);
         if (col.isDimTotal) th.className += " bcdTotal";
+        if (row.isVdm && col.pos == numDims) th.className += " bcdVdm";
   
         tr.appendChild(th);
       });
@@ -291,6 +292,16 @@ bcdui.wrs.HtmlBuilder = class {
         th.setAttribute('jdbccolumntypename', col.typeName);
         th.className = col.isDim ? 'bcdDimension' : 'bcdMeasure';
         if (col.isVMeas) th.className += ' bcdVmeas';
+        if (col.isColCum) {
+          if (col.isRowCum)  {
+            th.className += " bcdRowColCumulate"
+          } else {
+            th.className += " bcdColCumulate"
+          }
+        } else if (col.isRowCum)  {
+          th.className += " bcdRowCumulate"
+        }
+        if (col.isVdm) th.className += " bcdVdm";
         th.textContent = col.caption;
         htr.appendChild(th);
       }
@@ -400,6 +411,18 @@ bcdui.wrs.HtmlBuilder = class {
             th.setAttribute('bcdTranslate', 'bcd_Total');
           }
           if (col.isVMeas)  th.className += ' bcdVmeas';
+          if (parts.length == 1 || d === numLevels - 1) {
+            if (col.isColCum) {
+              if (col.isRowCum)  {
+                th.className += " bcdRowColCumulate"
+              } else {
+                th.className += " bcdColCumulate"
+              }
+            } else if (col.isRowCum)  {
+              th.className += " bcdRowCumulate"
+            }
+          }
+          if (col.isVdm && (parts.length == 1 || d === numLevels - 2)) th.className += " bcdVdm";
           th.textContent = label;
           if (rowspan > 1) th.rowSpan = rowspan;
           if (colspan > 1) th.colSpan = colspan;
@@ -439,7 +462,10 @@ bcdui.wrs.HtmlBuilder = class {
         isMeasure: headC.hasAttribute('valueId') || !!headC.getAttribute('valueId'),
         isNumeric: bcdui.wrs.jsUtil.isNumericTypeName(headC.getAttribute('type-name')),
         scale:     headC.getAttribute('scale') ? parseInt(headC.getAttribute('scale'), 10) : null,
-        isVMeas:   !!headC.getAttribute('bcdVmeas')
+        isVMeas:   !!headC.getAttribute('bcdVmeas'),
+        isVdm:     !!headC.getAttribute('bcdVdm'),
+        isColCum:  !!headC.getAttribute('bcdColCumulate'),
+        isRowCum:  !!headC.getAttribute('bcdRowCumulate')
       });
     }
 
@@ -461,7 +487,7 @@ bcdui.wrs.HtmlBuilder = class {
     //-------------------------------------
     // Parse data cells
     for (const r of dataRows) {
-      const row = { id: r.getAttribute('id'), rowType: r.localName, cells: [] };
+      const row = { id: r.getAttribute('id'), rowType: r.localName, cells: [], isVdm: !!r.getAttribute("bcdVdm") };
       const cells = r.getElementsByTagNameNS(NS_WRS, 'C'); // Missing M and D
 
       for (let i = 0; i < cells.length; i++) {
