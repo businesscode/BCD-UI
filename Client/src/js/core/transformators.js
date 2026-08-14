@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2025 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -146,11 +146,13 @@ bcdui.core.transformators.JsTransformator = class extends bcdui.core.transformat
 {
   /**
    * @param {(string|function)} procFkt - The js function to be used for processing. Either a real function or a string with JS code for eval.
+   * @param {string} procFktName - Optional for debugging
    * @private
    */
-  constructor(/* object */ procFkt)
+  constructor(/* object */ procFkt, procFktName)
   {
     super( procFkt);
+    procFktName && (this.procFktName = procFktName);
     if( typeof procFkt == "string" ) {
       procFkt = bcdui.util._toJsFunction(procFkt);
     }

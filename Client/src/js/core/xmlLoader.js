@@ -678,18 +678,19 @@ bcdui.core.XMLLoader = class
         doc.selectSingleNode("/*").setAttribute("saxonStyleSheet", window.location.origin + saxonStyleSheet.substring(0,saxonStyleSheet.lastIndexOf("/") + 1));
 
       // Apply the just generated XSLT and recurse into postpocessing (possible applying a generated XML output and so on)
-      bcdui.core.browserCompatibility.asyncCreateXsltProcessor( { callerDebug: " generated xslt of "+args.stylesheetURL, model: doc, xsltGeneratedBy: args.stylesheetURL, callBack: function(newProcessor) {
+      let xsltGeneratedBy = args.stylesheetURL || args.processor.stylesheetURL;
+      bcdui.core.browserCompatibility.asyncCreateXsltProcessor( { callerDebug: " generated xslt of "+xsltGeneratedBy, model: doc, xsltGeneratedBy, callBack: function(newProcessor) {
         var traceXsltProcTime = Date.now();
         newProcessor.transform( { input: args.sourceDoc, parameters: args.params, callBack: function(result) {
             traceXsltProcTime = Date.now() - traceXsltProcTime;
             args.xslt.traceXsltProcTimeMs = (Number.isFinite(args.xslt.traceXsltProcTimeMs) ? args.xslt.traceXsltProcTimeMs : 0) + traceXsltProcTime;
             bcdui.debug._addProcessorExecutionTime( args.transformationChain.id, traceXsltProcTime );
             if( !result ) {
-              bcdui.log.error({id: args.transformationChain.id, message: "ERROR during xslt transformation "+(args.stylesheetURL)+", "+args.transformationChain.id});
+              bcdui.log.error({id: args.transformationChain.id, message: "ERROR during xslt transformation "+xsltGeneratedBy+", "+args.transformationChain.id});
             }
             if( bcdui.log.isTraceEnabled() ) {
               var inputAsString = new XMLSerializer().serializeToString(args.sourceDoc);
-              bcdui.log.trace("Finished transformation to "+newProcessor.outputFormat+" "+(traceXsltProcTime)+"ms "+(args.stylesheetURL)+", input:"+(inputAsString.length/1000).toFixed(1)+"k, "+args.transformationChain.id);
+              bcdui.log.trace("Finished transformation to "+newProcessor.outputFormat+" "+(traceXsltProcTime)+"ms "+xsltGeneratedBy+", input:"+(inputAsString.length/1000).toFixed(1)+"k, "+args.transformationChain.id);
             }
             this._asyncTransformToXMLPostProcess( jQuery.extend({}, args, {processor: newProcessor, intermediateDocumentsDoExtend: true }), result );
           }.bind(this)

@@ -149,7 +149,7 @@ bcdui.factory.DebugPanel = (() => {
       .bcd-badge.ready    { background: #1a3a10; color: #97C459; }
       .bcd-badge.notready { background: #3a1010; color: #F09595; }
     }
-    .bcd-sec { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin: 10px 0 4px; }
+    .bcd-sec { font-size: 11px; font-weight: 600; color: #888; letter-spacing: 0.05em; margin: 10px 0 4px; }
     @media (prefers-color-scheme: dark) { .bcd-sec { color: #aaa; } }
     .bcd-dep-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; flex-wrap: wrap; }
     .bcd-expand-btn, .bcd-data-btn {
@@ -490,7 +490,7 @@ bcdui.factory.DebugPanel = (() => {
         // output
         const outObj = xslt.output;
         const outIsXml = isXmlDocument(outObj);
-        const outLabel = outObj == null ? '<span title="Input passed through unchanged">output [XsltNop]</span>' : (outIsXml ? 'View Data' : 'output');
+        const outLabel = outObj == null ? '<span title="Input passed through unchanged">[XsltNop]</span>' : (outIsXml ? 'View Data' : 'output');
 
         let outLink = `<span class="bcd-xslt-out" style="color:#aaa;">${outLabel}</span>`;
         if (outObj != null) {
@@ -501,7 +501,7 @@ bcdui.factory.DebugPanel = (() => {
             getData: () => outIsXml ? outObj : String(outObj),
             dataProviders: []
           };
-          outLink += `<button class="bcd-data-btn" style="font-size:11px;" data-dp="${fakeId}">${outLabel}</button>`;
+          outLink = `<button class="bcd-data-btn" style="font-size:11px;" data-dp="${fakeId}">${outLabel}</button>`;
           outLink += outIsXml ? `<button class="bcd-data-btn" style="font-size:11px;" data-dp-table="${fakeId}">Table</button>` : '';
           
         }
@@ -511,7 +511,8 @@ bcdui.factory.DebugPanel = (() => {
         const modelData  = typeof modelObj?.getData === 'function' ? modelObj.getData() : modelObj;
         const modelIsXml = isXmlDocument(modelData);
         let transformerType = "";
-        if( typeof modelData === "function" ) transformerType += " [function]";
+        if( typeof modelData === "function" ) transformerType += xslt.processor?.procFktName ? xslt.processor?.procFktName+"()" : (modelData.bcdName ? modelData.bcdName+"()": "[function]");
+        else if( xslt.processor?.stylesheetURL ) transformerType += xslt.processor?.stylesheetURL.split('/').pop();
         else if( xslt.processor?.sefJson ) transformerType += " xslt.processor?.sefJson";
         else if( xslt.model?.urlProvider?.getData() ) transformerType += ` ${xslt.model.urlProvider.getData().split('/').pop()}`;
         else if( modelIsXml ) transformerType += " [xslt]";
@@ -527,7 +528,7 @@ bcdui.factory.DebugPanel = (() => {
           };
           modelLink = `<button class="bcd-data-btn" style="font-size:11px;" data-dp="${modelId}">${transformerType}</button>`;
         }
-        let execTime = xslt.traceXsltProcTimeMs ? ` (${xslt.traceXsltProcTimeMs}ms)` : "";
+        let execTime = isFinite(xslt.traceXsltProcTimeMs) ? ` (${xslt.traceXsltProcTimeMs}ms)` : "";
 
         // processor.params — collapsed behind [+]
         const procParams  = xslt.processor?.params || xslt.processor?.parameters || {};
@@ -545,7 +546,7 @@ bcdui.factory.DebugPanel = (() => {
               getData: () => pIsXml ? pval : String(pval),
               dataProviders: []
             };
-            pBtn = `<button class="bcd-data-btn" data-dp="${fakeId}"></button>`;
+            pBtn = `<button class="bcd-data-btn" data-dp="${fakeId}">View Data</button>`;
           }
           return `
               <div class="bcd-param-item">
@@ -594,7 +595,7 @@ bcdui.factory.DebugPanel = (() => {
       return `
         <div class="bcd-xslt-chain">
           <div class="bcd-sec" style="cursor:pointer;" data-sub="${chainId}">
-            &rsaquo; transformation chain (${xslts.length})
+            &rsaquo; Transformation Chain (${xslts.length})
           </div>
           <table class="bcd-xslt-steps" id="${chainId}" style="display:none;">${steps}</table>
         </div>`;
@@ -1381,7 +1382,7 @@ bcdui.factory.DebugPanel = (() => {
     document.addEventListener('scroll',    onHighlightAreaScroll,    true);
     document.addEventListener('keyup',     onHighlightAreaKeyup,     true);
 
-    console.info('[DebugPanel] initialized. Hover over [bcdrendererid] elements to inspect.');
+    console.info('BCD-UI DebugPanel initialized, ctrl-hover over Renderer outputs or Widgets to inspect.');
   }
 
   /**

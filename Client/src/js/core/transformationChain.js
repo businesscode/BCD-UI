@@ -916,10 +916,11 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
               /*
                * Or not a URL but a js function itself
                */
-              var jsProcFctName = stylesheet.getAttribute("jsProcFct");
-              var jsProcFct = jsProcFctName.split(".").reduce( function( fkt, f ) { return fkt[f] }, window );
+              let jsProcFctName = stylesheet.getAttribute("jsProcFct");
+              let jsProcFct = jsProcFctName.split(".").reduce( function( fkt, f ) { return fkt[f] }, window );
+              if( !jsProcFct ) throw Error(`For chain '${this.id}' jsProcFct '${jsProcFctName}' could not be found.`);
               xsltModel = new bcdui.core.ConstantDataProvider( { value: jsProcFct } );
-              xslt.transformerFactory = function( args ) { args.callBack( new bcdui.core.transformators.JsTransformator( args.model) ) };
+              xslt.transformerFactory = function( args ) { args.callBack( new bcdui.core.transformators.JsTransformator( args.model, jsProcFctName ) ) };
             } else if( stylesheet.selectSingleNode("./chain:JsProcFct") && bcdui.config.unsafeEval ) {
               var jsSource = "";
               for( var child=stylesheet.selectSingleNode("./chain:JsProcFct").firstChild; child; child=child.nextSibling ) {
@@ -1174,9 +1175,9 @@ bcdui.core.Renderer = class extends bcdui.core.TransformationChain
 };
 
  /**
-   * A concrete subclass of {@link bcdui.core.TransformationChain TransformationChain}, being a DataProvider itself, providing the transformed input.
+  * A concrete subclass of {@link bcdui.core.TransformationChain TransformationChain}, being a DataProvider itself, providing the transformed input.
   * @extends bcdui.core.TransformationChain
-   */
+  */
 bcdui.core.ModelWrapper = class extends bcdui.core.TransformationChain
 {
   /**

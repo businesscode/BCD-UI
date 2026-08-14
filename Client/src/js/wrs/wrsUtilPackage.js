@@ -849,6 +849,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
    */
   transposeGrouping: function( input )
   {
+    // Starting Transformer bcdui.wrs.wrsUtil.transposeGrouping
     var dataProvider = null;
     if (bcdui.util.isString(input))
       dataProvider = bcdui.factory.objectRegistry.getObject(input);
@@ -1545,6 +1546,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
   }
 });// end of package bcdui.wrs.wrsUtil
 
+bcdui.wrs.wrsUtil.transposeGrouping.bcdName = "bcdui.wrs.wrsUtil.transposeGrouping";
 
 /**
  * Helper for js WRS format
@@ -1794,3 +1796,4 @@ bcdui.wrs.jsUtil = Object.assign(bcdui.wrs.jsUtil,
   }
 
 });
+
