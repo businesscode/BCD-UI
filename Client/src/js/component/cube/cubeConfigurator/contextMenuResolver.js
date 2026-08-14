@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2025 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -47,27 +47,27 @@ bcdui.component.cube.configurator.resolveContextMenu = function(args) {
       },
 
       hideRowDim: function(args) {
-        const levelId = args.bcdColIdent;
+        const levelId = bcdui.wkModels.bcdColIdent.getData();
         jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"hideDimMember", levelId: levelId, isColDim: false, all: false } );
       },
 
       hideAllRowDim: function(args) {
-        const levelId = args.bcdColIdent;
+        const levelId = bcdui.wkModels.bcdColIdent.getData();
         jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"hideDimMember", levelId: levelId, isColDim: false, all: true} );
       },
 
       excludeRowDim: function(args) {
-        const levelId = args.bcdColIdent;
+        const levelId = bcdui.wkModels.bcdColIdent.getData();
         jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"excludeDimMember", levelId: levelId, isColDim: false, all: false } );
       },
 
       excludeAllRowDim: function(args) {
-        const levelId = args.bcdColIdent;
+        const levelId = bcdui.wkModels.bcdColIdent.getData();
         jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"excludeDimMember", levelId: levelId, isColDim: false, all: true } );
       },
 
       showAllRowDim: function(args) {
-        const levelId = args.bcdColIdent;
+        const levelId = bcdui.wkModels.bcdColIdent.getData();
         jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"hideDimMember", levelId: levelId, totalId: args.totalId, showAll: true} );
       },
 
