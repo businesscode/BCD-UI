@@ -868,8 +868,8 @@ jQuery.extend(bcdui.widget,
           , title: args.title
           , open: function() {
             
-            jQuery("#bcdModalBoxDiv").find("a.action").off("click");
-            jQuery("#bcdModalBoxDiv").find("a.action").on("click", bcdui.widget.hideModalBox);
+            jQuery("#bcdModalBoxDiv").off("click.timeout");
+            jQuery("#bcdModalBoxDiv").on("click.timeout", ".action", bcdui.widget.hideModalBox);
 
             // set auto width/height again since upper method does not seem to work on all browsers and jQuery seems to calculate a px value
             if (args.width == "auto") jQuery('#bcdModalBoxDiv').css('width','auto');
