@@ -356,7 +356,7 @@ export const bcduiExport_SimpleModel = bcdui.core.SimpleModel = class extends bc
             if (rUrl.indexOf(resource) == -1) {
               this.dataDoc = null;
               this.setStatus(this.loadFailedStatus);
-              bcdui.widget.showModalBox({titleTranslate: "bcd_SessionTimeout", messageTranslate: "bcd_SessionTimeoutMessage", onclick: function() {window.location.href = window.location.href;}});
+              bcdui.util.showSessionTimeoutMessage();
               return;
             }
 
@@ -367,7 +367,7 @@ export const bcduiExport_SimpleModel = bcdui.core.SimpleModel = class extends bc
               // we can use this to detect a session timeout where the login page (html) is loaded for a differently requested filetype
               // FF & Chrome will run into success in this case
               if (jqXHR.domDocument && jqXHR.domDocument.msxmlImpl && jqXHR.domDocument.msxmlImpl.parseError && jqXHR.domDocument.msxmlImpl.parseError.errorCode == -1072898035) {
-                bcdui.widget.showModalBox({titleTranslate: "bcd_SessionTimeout", messageTranslate: "bcd_SessionTimeoutMessage", onclick: function() {window.location.href = window.location.href;}});
+                bcdui.util.showSessionTimeoutMessage();
                 return;
               }
 

@@ -713,6 +713,11 @@ bcdui.util =
   htmlBuilderOnLoad: function() {
     if (bcdui.widget && bcdui.widget.effects && bcdui.widget.effects.htmlBuilderOnLoad)
       bcdui.widget.effects.htmlBuilderOnLoad.apply(this);
+  },
+
+  showSessionTimeoutMessage() {
+    jQuery.unblockUI({ fadeOut: 0 });
+    bcdui.widget.showModalBox({titleTranslate: "bcd_SessionTimeout", messageTranslate: "bcd_SessionTimeoutMessage", onclick: function() {window.location.href = window.location.href;}});
   }
 
 }
