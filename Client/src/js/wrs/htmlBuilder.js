@@ -16,13 +16,45 @@
 "use strict";
 
 /**
- * @private
+ * Creates an HTML table from a Wrs document, use default it like `chain: bcdui.wrs.htmlBuilder`
+ * It can do row- and colspans for documents that have a grouping in the first n columns.
+ * It can sort rows and columns by domension values
+ * The colspans require that the header columns have pipe-separated captions for each column dimension.
+ * Additionally, it formats numeric values by applying scale and unit, especially %.
+ * All parameters are defined in xsltParams-1.0.0.xsd and at transform() method and can be provided per XML or JavaScript.
+ *
+ * Extension point: Rendering of wrs:R/wrs:C can be overwritten by
+ * a) deriving class HtmlBuilder and overriding the createMeasureCell() method
+ * b) then providing the transform() method bound to the instance as a transformer
+ * @example
+ * // Create your specialized HtmlBuilder by overwriting createMeasureCell()
+ * class MyHtmlBuilder extends bcdui.wrs.HtmlBuilder {
+ *   createMeasureCell({tr, cell, row, colDefs, parameters}) {
+ *     // Locally overwrite values here ...
+ *     let myCell = { value: 42, colDef: cell.colDef };
+ *     let td = super.createMeasureCell({tr, myCell, row, colDefs, parameters});
+ *     // Further manipulate created td here ...
+ *     if( cell.value < 42 ) td.classList.add( "mySpecialClass" );
+ *   }
+ * }
+ *
+ * // Instantiate and bind your instance like this
+ * let myHtmlBuilder = new MyHtmlBuilder();
+ * let myTransformer = myHtmlBuilder.transform.bind(myHtmlBuilder);
+ *
+ * // Provide your transformer to a chain
+ * let renderer = new bcdui.core.Renderer({
+ *   myTargetHtml, inputModel: myModel,
+ *   chain: [myTransformer]
+ * });
  */
 bcdui.wrs.HtmlBuilder = class {
 
   /**
-   *  Empty construtor allows for wasily overwriting
-   */  
+   *  Only needed when subclassing.
+   *  Simply use global singleton `bcdui.wrs.htmlBuilder` in other cases.
+   *  @constructor
+   */
   constructor() {
 
     // Standard parameters
@@ -36,8 +68,39 @@ bcdui.wrs.HtmlBuilder = class {
   }
 
   /**
-   *  
-   */  
+   * Main entry point for transforming wrs:R/wrs:C to HTML
+   * @param {XMLDocument} wrsDom - the wrs:R/wrs:C DOM
+   * @param {Object} parameters - the parameters
+   * @param {string} parameters.bcdControllerVariableName - the name of the controller variable
+   * @param {boolean} [parameters.makeRowSpan=true] - if true, group rows with the same dimension values (defaults to the effective value of sortRows)
+   * @param {boolean} [parameters.makeColSpan=true] - if true, group cols with the same dimension values (defaults to the effective value of sortCols)
+   * @param {boolean} [parameters.sortRows=true] - if true, sort rows by dimension values
+   * @param {boolean} [parameters.sortCols=true] - if true, sort cols by dimension values
+   * @param {boolean} [parameters.hideTotals=false] - if true, hide total rows
+   * @param {boolean} [parameters.sortTotalsFirst=false] - if true, sort totals first
+   * @param {boolean} [parameters.onlyMeasureForTotal=false] - if true, the 'total' cell in the table header above the measure names is replaced by larger cells with the measure names (still styled as total)
+   * @param {boolean} [parameters.createHeaderFilters=false] - if true, create header filters (enables column filters)
+   * @param {boolean} [parameters.expandCollapseCells=false] - if true, enables the possibility to expand or collapse cells
+   * @param {boolean} [parameters.createFixHeader=false] - if true, enables a fixed header (deprecated)
+   * @param {boolean} [parameters.headerColsAreUnique=false] - if true, the row dimensions are uniquely identifying a row; if not, an additional column is used to make it unique
+   * @param {boolean} [parameters.stickyHeader=false] - if true, enables a sticky header
+   * @param {boolean} [parameters.stickyFooter=false] - if true, enables a sticky footer
+   * @param {boolean} [parameters.stickyDims=false] - if true, enables sticky dimension cells
+   * @param {boolean} [parameters.showDeletedRows=false] - if true, deleted (wrs:D) rows are shown instead of being filtered out
+   * @param {number} [parameters.stickyFirstRows=0] - make the first n rows sticky
+   * @param {number} [parameters.stickyLastRows=0] - make the last n rows sticky
+   * @param {number} [parameters.stickyFirstCols=0] - make the first n columns sticky
+   * @param {number} [parameters.stickyLastCols=0] - make the last n columns sticky
+   * @param {number} [parameters.stickyWidth=0] - sets the width of the table's parent element
+   * @param {number} [parameters.stickyHeight=0] - sets the height of the table's parent element
+   * @param {number} [parameters.headerColsCount=0] - number of leading row-dimension columns that make up the sticky/fixed header (the XSLT renderer instead defaults this to the number of dimension columns when unset)
+   * @param {number} [parameters.maxCells=0] - limit the output to approximately this number of cells; 0 means unlimited (the XSD documents a default of 25000, which this JS implementation does not currently apply)
+   * @param {string} [parameters.stickyWidthEmptyMessage=""] - i18n key for a message shown in place of the content when the sticky width leaves no room to display it
+   * @param {string} [parameters.totalColumnText=""] - text used as the caption for the totals column
+   * @param {string} [parameters.emptyMessage="bcd_EmptyReport"] - i18n key shown when the report query returns no data
+   * @param {XMLDocument} [parameters.paramModel] - optional XML document holding xp:HtmlBuilder parameter set(s), used as a fallback source for any of the parameters above that are not given directly in JavaScript
+   * @param {string} [parameters.paramSetId] - optional; by default the parameter set is found in paramModel by element name; use this if paramModel contains multiple xp:HtmlBuilder sets, to match against the paramSetId attribute of the desired set
+   */
   transform(wrsDom, parameters) 
   {
     //-------------------------------------
@@ -53,7 +116,7 @@ bcdui.wrs.HtmlBuilder = class {
 
     //-------------------------------------
     // No data
-    if( rawRows.length == 0 ) {
+    if( rawRows.length === 0 ) {
       const div = document.createElement('div');
       div.className = 'bcdInfoBox';
       div.innerHTML = `<span bcdTranslate="${parameters.emptyMessage}"></span>`;
@@ -88,7 +151,7 @@ bcdui.wrs.HtmlBuilder = class {
       }
       return parts.join('\x00');
     }
-  
+
     // We want same values grouped but keep the order of the first value appearance
     function groupRows(rows) {
       // For each dim level, map the prefix up to that level → first appearance index
@@ -163,7 +226,13 @@ bcdui.wrs.HtmlBuilder = class {
     for (const name of this.boolParams)   table.setAttribute(toDataAttr(name), parameters[name]);
     for (const name of this.intParams)    table.setAttribute(toDataAttr(name), parameters[name]);
     for (const name of this.stringParams) table.setAttribute(toDataAttr(name), parameters[name]);
-    
+    table.setAttribute('data-sticky-enabled',
+      parameters.stickyHeader || parameters.stickyFooter || parameters.stickyDims ||
+      parameters.stickyWidth || parameters.stickyHeight ||
+      parameters.stickyFirstRows || parameters.stickyFirstCols ||
+      parameters.stickyLastRows || parameters.stickyLastCols
+    );
+
 
     //-------------------------
     // thead
@@ -227,7 +296,7 @@ bcdui.wrs.HtmlBuilder = class {
         if (bcdTranslate) th.setAttribute("bcdTranslate", bcdTranslate);
         if (col.isDimTotal) th.className += " bcdTotal";
         if (row.isVdm && col.pos == numDims) th.className += " bcdVdm";
-  
+
         tr.appendChild(th);
       });
   
@@ -246,8 +315,8 @@ bcdui.wrs.HtmlBuilder = class {
   }
 
   /**
-   * Create a measure cell
-   * Extension point
+   * Only needed as an extension point for overwriting.
+   * Creates a measure cell
    * @param {Object} args
    * @param {HTMLTableRowElement} args.tr - the row to append the cell to
    * @param {Object} args.cell - the cell data. .value is the content, .colDef is the colHead and all attributes become properties
@@ -274,7 +343,12 @@ bcdui.wrs.HtmlBuilder = class {
   
   /**
    * Create thead
-   * 
+   * @private
+   * @param {Object} args
+   * @param {HTMLTableElement} args.table - the table to append the thead to
+   * @param {Object[]} args.colDefs - the column definitions, array of all colHeads
+   * @param {Object} args.parameters - the parameters of transform()
+   * @returns {HTMLTableSectionElement} thead - created thead
    */
   createTableHeader({table, colDefs}) 
   {
@@ -437,8 +511,10 @@ bcdui.wrs.HtmlBuilder = class {
     } 
     
   }
-  
-  
+
+  /**
+   * @private
+   */
   transformDomToJs(wrsDom) 
   {
     const NS_WRS = bcdui.core.xmlConstants.namespaces.wrs;
@@ -525,6 +601,7 @@ bcdui.wrs.HtmlBuilder = class {
 
   /**
    * Read parameters from JavaScipt object and from DOM given in parameters.paramModel xp:HtmlBuilder[@paramSetId=paramSetId]
+   * @private
    */
   readParameters(parameters) {
     const NS_XP = bcdui.core.xmlConstants.namespaces.xp;
