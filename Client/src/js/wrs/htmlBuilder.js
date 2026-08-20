@@ -456,20 +456,29 @@ bcdui.wrs.HtmlBuilder = class {
           }
           
           // colspan: merge consecutive cols with same label at this level and same parent labels
+          // never merge total with empty
           let colspan = 1;
+          const colIdSegs = col.id.split('|');
+          const colIdSeg = colIdSegs[d] || '';
+          const colIdHasMagic = colIdSeg.includes(bcdui.core.magicChar.dimEmpty);
           if (rowspan <= 1 || parts.length === 1) {
             while (
               i + colspan < colDefs.length &&
               !covered[d][i + colspan] &&
               (() => {
                 const p2 = colDefs[i + colspan].caption.split('|');
+                const nextIdSegs = colDefs[i + colspan].id.split('|');
                 const pi2 = parts.length === 1 ? 0
                           : d === numLevels - 1 ? p2.length - 1
                           : d;
+                const nextIdSeg = nextIdSegs[d] || '';
                 return (p2[pi2] ?? '') === label &&
-                  Array.from({ length: d }, (_, p) =>
-                    (p2[p] ?? '') === (parts[p] ?? '')
-                  ).every(Boolean);
+                  (!colIdHasMagic || nextIdSeg === colIdSeg) &&
+                  Array.from({ length: d }, (_, p) => {
+                    if ((p2[p] ?? '') !== (parts[p] ?? '')) return false;
+                    const pSeg = colIdSegs[p] || '';
+                    return !pSeg.includes(bcdui.core.magicChar.dimEmpty) || (nextIdSegs[p] || '') === pSeg;
+                  }).every(Boolean);
               })()
             ) {
               colspan++;
@@ -480,10 +489,7 @@ bcdui.wrs.HtmlBuilder = class {
           th.setAttribute('bcdcolident', col.id);
           th.setAttribute('jdbccolumntypename', col.typeName);
           th.className = col.isDim ? 'bcdDimension' : 'bcdMeasure';
-          if (col.isDimTotal) {
-            th.className += ' bcdTotal';
-            th.setAttribute('bcdTranslate', 'bcd_Total');
-          }
+          if (col.isDimTotal) th.className += ' bcdTotal';
           if (col.isVMeas)  th.className += ' bcdVmeas';
           if (parts.length == 1 || d === numLevels - 1) {
             if (col.isColCum) {
@@ -497,7 +503,14 @@ bcdui.wrs.HtmlBuilder = class {
             }
           }
           if (col.isVdm && (parts.length == 1 || d === numLevels - 2)) th.className += " bcdVdm";
-          th.textContent = label;
+          // Total id segment → bcd_Total, otherwise genuine empty dim → bcd_EmptyDimmember.
+          if (label !== '') {
+            th.textContent = label;
+          } else if (col.id.split('|')[d] === bcdui.core.magicChar.dimTotal) {
+            th.setAttribute('bcdTranslate', 'bcd_Total');
+          } else {
+            th.setAttribute('bcdTranslate', 'bcd_EmptyDimmember');
+          }
           if (rowspan > 1) th.rowSpan = rowspan;
           if (colspan > 1) th.colSpan = colspan;
     
