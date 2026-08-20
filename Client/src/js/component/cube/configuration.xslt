@@ -236,18 +236,24 @@
               </xsl:for-each>
             </wrs:Columns>
           </xp:RowsOrder>
-          <xsl:if test="/*/cube:Layout/cube:Dimensions/cube:Columns/*[@sort!='ascending' or @sortBy or @total!='trailing']">
-            <xp:ColDimsOrder>
-              <wrs:Columns>
-                <xsl:for-each select="/*/cube:Layout/cube:Dimensions/cube:Columns/*">
-                  <wrs:C id="{@bRef}" sort="{concat(@sort, substring('ascending',1,string-length('ascending') * (number(string-length(@sort) = 0))))}"
-                         total="{concat(@total,substring('trailing',1,string-length('trailing') * (number(string-length(@total) = 0))))}">
-                    <xsl:copy-of select="@sortBy"/>
-                  </wrs:C>
-                </xsl:for-each>
-              </wrs:Columns>
-            </xp:ColDimsOrder>
-          </xsl:if>
+          <!-- 
+            Because colDim does not care about order 
+            and does for example even put columns where the first row has no value put behind total,
+            We apply sorting of all column dimensions here with ascending/trailing as default
+           -->
+          <xp:ColDimsOrder>
+            <wrs:Columns>
+              <xsl:for-each select="/*/cube:Layout/cube:Dimensions/cube:Columns/*">
+                <wrs:C>
+                  <xsl:attribute name="id" select="@bRef"/> <!-- orderRowsAndCols also takes @order, @caption into account -->
+                  <xsl:attribute name="sort">ascending</xsl:attribute>
+                  <xsl:attribute name="total">trailing</xsl:attribute>
+                  <xsl:copy-of select="@sort | @total"/>
+                  <xsl:copy-of select="@sortBy"/>
+                </wrs:C>
+              </xsl:for-each>
+            </wrs:Columns>
+          </xp:ColDimsOrder>
 
         </xp:OrderRowsAndCols>
 

@@ -51,8 +51,9 @@
  *     ordering may differ in edge cases.
  *   - ColDimsOrder sort value: taken from the first non-subtotal row with a matching measure cell; 
  *     XSLT takes the string-value of the full matching node-set (same first-node semantics).
- *   - Caption tiebreaker for ColDimsOrder: uses the key segment value instead of the column
- *     @caption attribute segment (usually equivalent; avoids a header lookup).
+ *   - ColDimsOrder sort key: coalesce(@order, @caption, id); each source uses its own type-name
+ *     (colDimLevelOrderTypeNames / colDimLevelCaptionTypeNames / colDimLevelTypeNames) so that
+ *     a string caption ("Nokia") on an INTEGER id column sorts as a string, not numerically.
  */
 bcdui.wrs.orderRowsAndCols = function(docIn, params) {
 
@@ -123,8 +124,10 @@ bcdui.wrs.orderRowsAndCols = function(docIn, params) {
   // id -> { col (element), idx (0-based) }
   const colById = new Map(srcCols.map((c, i) => [c.getAttribute("id"), { col: c, idx: i }]));
 
-  const colDimLevelIds        = (headerColsElem.getAttribute("colDimLevelIds")   || "").split("|").filter(Boolean);
-  const colDimLevelTypeNames  = (headerColsElem.getAttribute("colDimLevelTypeNames")  || "").split("|");
+  const colDimLevelIds              = (headerColsElem.getAttribute("colDimLevelIds")              || "").split("|").filter(Boolean);
+  const colDimLevelTypeNames        = (headerColsElem.getAttribute("colDimLevelTypeNames")        || "").split("|");
+  const colDimLevelCaptionTypeNames = (headerColsElem.getAttribute("colDimLevelCaptionTypeNames") || "").split("|");
+  const colDimLevelOrderTypeNames   = (headerColsElem.getAttribute("colDimLevelOrderTypeNames")   || "").split("|");
 
   const isNumericCol = col => {
     if (NUMERIC_TYPES.has(col.getAttribute("type-name"))) return true;
@@ -360,6 +363,29 @@ bcdui.wrs.orderRowsAndCols = function(docIn, params) {
         return map;
       });
 
+      // Caption map: colDimKey -> [captionSeg0..N-1], or null when @caption is absent.
+      const captionMap = new Map();
+      for (const idx of pivotedColIdxs) {
+        const col = srcCols[idx];
+        const k = getKey(col.getAttribute("id"));
+        if (!captionMap.has(k)) {
+          const cap = col.getAttribute("caption");
+          captionMap.set(k, cap !== null ? cap.split("|").slice(0, N) : null);
+        }
+      }
+
+      // Order map: colDimKey -> [orderSeg0..N-1], or null when @order is absent.
+      // Set by colDims.js only when at least one col-dim level carries wrs:A[@name='order'].
+      const orderMap = new Map();
+      for (const idx of pivotedColIdxs) {
+        const col = srcCols[idx];
+        const k = getKey(col.getAttribute("id"));
+        if (!orderMap.has(k)) {
+          const ord = col.getAttribute("order");
+          orderMap.set(k, ord !== null ? ord.split("|").slice(0, N) : null);
+        }
+      }
+
       // Compare two col-dim keys level by level
       const compareKeys = (a, b) => {
         const aParts = a.split("|");
@@ -389,10 +415,33 @@ bcdui.wrs.orderRowsAndCols = function(docIn, params) {
             if (cmp !== 0) return desc ? -cmp : cmp;
           }
 
-          // Caption / value sort (also primary sort when no @sortBy): numeric for numeric types, else string
-          const ac = aParts[li] || "", bc = bParts[li] || "";
+          // Sort key: coalesce(@order segment, @caption segment, key segment).
+          // Each source uses its own numeric check: order → colDimLevelOrderTypeNames,
+          // caption → colDimLevelCaptionTypeNames, key → colDimLevelTypeNames (isNumeric).
+          // This prevents the id type (e.g. INTEGER) from being applied to a string caption
+          // ("Nokia"), which would produce NaN/NaN → cmp=0 → city sort becoming primary.
+          const aOrds = orderMap.get(a),  bOrds = orderMap.get(b);
+          const aCaps = captionMap.get(a), bCaps = captionMap.get(b);
+          const aOrd = (aOrds && aOrds[li] !== undefined && aOrds[li] !== "") ? aOrds[li] : null;
+          const bOrd = (bOrds && bOrds[li] !== undefined && bOrds[li] !== "") ? bOrds[li] : null;
+          const aCap = (aCaps !== null && aCaps !== undefined && aCaps[li] !== undefined) ? aCaps[li] : null;
+          const bCap = (bCaps !== null && bCaps !== undefined && bCaps[li] !== undefined) ? bCaps[li] : null;
+          let ac, bc, sortNumeric;
+          if (aOrd !== null || bOrd !== null) {
+            ac = aOrd !== null ? aOrd : (aParts[li] || "");
+            bc = bOrd !== null ? bOrd : (bParts[li] || "");
+            sortNumeric = NUMERIC_TYPES.has(colDimLevelOrderTypeNames[li] || "");
+          } else if (aCap !== null || bCap !== null) {
+            ac = aCap !== null ? aCap : (aParts[li] || "");
+            bc = bCap !== null ? bCap : (bParts[li] || "");
+            sortNumeric = NUMERIC_TYPES.has(colDimLevelCaptionTypeNames[li] || "");
+          } else {
+            ac = aParts[li] || "";
+            bc = bParts[li] || "";
+            sortNumeric = isNumeric;
+          }
           if (ac !== bc) {
-            if (isNumeric) {
+            if (sortNumeric) {
               const an = parseFloat(ac), bn = parseFloat(bc);
               const cmp = isNaN(an) && isNaN(bn) ? 0 : isNaN(an) ? 1 : isNaN(bn) ? -1 : an < bn ? -1 : an > bn ? 1 : 0;
               if (cmp !== 0) return desc ? -cmp : cmp;

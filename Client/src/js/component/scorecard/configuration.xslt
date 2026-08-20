@@ -147,45 +147,36 @@
           </scc:OrderAndCut>
         </xsl:if>
 
-        <!-- xp:OrderRowsAndCols: used by orderRowsAndCols.js after colDims.js for col-dim sorting.
-             In the original XSLT chain, col-dim sorting was done inside colDims.xslt's generated template (via generator:ColSorting). 
-             colDims.js intentionally skips sorting, so this block bridges the gap by exposing the same @sort / @total data in the format that
-             orderRowsAndCols.js expects. -->
-        <xsl:if test="$configPrecalc/*/scc:Layout/scc:Dimensions/scc:Columns/*[@sort or @total]">
-          <xp:OrderRowsAndCols>
-            <xp:ColDimsOrder>
-              <wrs:Columns>
-                <!-- Process all col-dim entries in document order (preserving sort key precedence).
-                     scc:LevelKpi has no @bRef; it maps to the pseudo-id 'bcd_kpi_id' (same as the
-                     xsltParameters template at the bottom of this file). -->
-                <xsl:for-each select="$configPrecalc/*/scc:Layout/scc:Dimensions/scc:Columns/*[@sort or @total]">
-                  <xsl:choose>
-                    <xsl:when test="self::scc:LevelKpi">
-                      <wrs:C id="bcd_kpi_id">
-                        <xsl:copy-of select="@sort | @total"/>
-                      </wrs:C>
-                    </xsl:when>
-                    <xsl:when test="self::dm:LevelRef[@orderBRef]">
-                      <wrs:C id="{@orderBRef}">
-                        <xsl:copy-of select="@sort | @total"/>
-                      </wrs:C>
-                    </xsl:when>
-                    <xsl:when test="self::dm:LevelRef[@captionBRef]">
-                      <wrs:C id="{@captionBRef}">
-                        <xsl:copy-of select="@sort | @total"/>
-                      </wrs:C>
-                    </xsl:when>
-                    <xsl:when test="self::dm:LevelRef">
-                      <wrs:C id="{@bRef}">
-                        <xsl:copy-of select="@sort | @total"/>
-                      </wrs:C>
-                    </xsl:when>
-                  </xsl:choose>
-                </xsl:for-each>
-              </wrs:Columns>
-            </xp:ColDimsOrder>
-          </xp:OrderRowsAndCols>
-        </xsl:if>
+        <!-- 
+          Because colDim does not care about order 
+          and does for example even put columns where the first row has no value put behind total,
+          We apply sorting of all column dimensions here with ascending/trailing as default
+         -->
+        <xp:OrderRowsAndCols>
+          <xp:ColDimsOrder>
+            <wrs:Columns>
+              <xsl:for-each select="$configPrecalc/*/scc:Layout/scc:Dimensions/scc:Columns/*">
+                <xsl:choose>
+                  <xsl:when test="self::scc:LevelKpi">
+                    <wrs:C id="bcd_kpi_id">
+                      <xsl:attribute name="sort">ascending</xsl:attribute>
+                      <xsl:attribute name="total">trailing</xsl:attribute>
+                      <xsl:copy-of select="@sort | @total"/>
+                    </wrs:C>
+                  </xsl:when>
+                  <xsl:when test="self::dm:LevelRef">
+                    <wrs:C>
+                      <xsl:attribute name="id" select="@bRef"/> <!-- orderRowsAndCols also takes @order, @caption into account -->
+                      <xsl:attribute name="sort">ascending</xsl:attribute>
+                      <xsl:attribute name="total">trailing</xsl:attribute>
+                      <xsl:copy-of select="@sort | @total"/>
+                    </wrs:C>
+                  </xsl:when>
+                </xsl:choose>
+              </xsl:for-each>
+            </wrs:Columns>
+          </xp:ColDimsOrder>
+        </xp:OrderRowsAndCols>
 
       </xp:XSLTParameters>
 

@@ -117,11 +117,16 @@ bcdui.wrs.colDims = function(docIn, params) {
     return val === "" ? (MAGIC + bcdGr + "|") : (val + "|");
   };
 
-  // Whether the header column has a caption wrs:A child (determines caption source)
+  // Whether the header column has a wrs:A[@name='caption'/'order'] child
   const hasACaption = id => {
     const c = colById.get(id);
     return c && childElems(c, "A").some(a => a.getAttribute("name") === "caption");
   };
+  const hasAOrder = id => {
+    const c = colById.get(id);
+    return c && childElems(c, "A").some(a => a.getAttribute("name") === "order");
+  };
+  const hasAnyColDimOrder = colDimBRefs.some(b => hasAOrder(b));
 
   const getColDimKey     = cells => colDimBRefs.map(b => cellKeyPart(cells, bRefToIdx(b))).join("");
   const getRowDimKey     = cells => rowDimBRefs.map(b => cellKeyPart(cells, bRefToIdx(b))).join("");
@@ -133,6 +138,12 @@ bcdui.wrs.colDims = function(docIn, params) {
         ? (cell ? (cell.getAttribute("caption") || "") : "")
         : (cell ? cell.textContent : "");
       return text + "|";
+    }).join("");
+  const getColDimOrder = cells =>
+    colDimBRefs.map(b => {
+      const idx  = bRefToIdx(b);
+      const cell = idx >= 0 ? cells[idx] : null;
+      return (hasAOrder(b) && cell ? (cell.getAttribute("order") || "") : "") + "|";
     }).join("");
 
   const getCells = r => childElems(r, "C");
@@ -161,7 +172,7 @@ bcdui.wrs.colDims = function(docIn, params) {
     if (!firstColDimHasTotal && (ck === emptyColDimKey || ck.includes("||"))) continue;
     if (!seenCk.has(ck)) {
       seenCk.add(ck);
-      colDimInfos.push({ key: ck, caption: getColDimCaption(cells), row });
+      colDimInfos.push({ key: ck, caption: getColDimCaption(cells), order: getColDimOrder(cells), row });
     }
   }
 
@@ -211,7 +222,9 @@ bcdui.wrs.colDims = function(docIn, params) {
 
   newHeaderColsElem.setAttribute("colDimLevelIds",      colDimBRefs.join("|"));
   newHeaderColsElem.setAttribute("colDimLevelCaptions", colDimLevelCaptions);
-  newHeaderColsElem.setAttribute("colDimLevelTypeNames",     colDimBRefs.map(b => { const c = colById.get(b); return c ? (c.getAttribute("type-name") || "") : ""; }).join("|"));
+  newHeaderColsElem.setAttribute("colDimLevelTypeNames",         colDimBRefs.map(b => { const c = colById.get(b); return c ? (c.getAttribute("type-name") || "") : ""; }).join("|"));
+  newHeaderColsElem.setAttribute("colDimLevelCaptionTypeNames", colDimBRefs.map(b => { const c = colById.get(b); const a = c && childElems(c, "A").find(el => el.getAttribute("name") === "caption"); return a ? (a.getAttribute("type-name") || "") : ""; }).join("|"));
+  newHeaderColsElem.setAttribute("colDimLevelOrderTypeNames",   colDimBRefs.map(b => { const c = colById.get(b); const a = c && childElems(c, "A").find(el => el.getAttribute("name") === "order");   return a ? (a.getAttribute("type-name") || "") : ""; }).join("|"));
 
   let pos = 1;
 
@@ -243,7 +256,7 @@ bcdui.wrs.colDims = function(docIn, params) {
 
   // All-dims measure columns: one set per col-dim combination (or directly if no col dims)
   if (colDimInfos.length > 0) {
-    for (const { key: ck, caption: ckCap, row: ckRow } of colDimInfos) {
+    for (const { key: ck, caption: ckCap, order: ckOrd, row: ckRow } of colDimInfos) {
       for (const bRef of allMeasBRefs) {
         const srcCol = colById.get(bRef);
         if (!srcCol) continue;
@@ -253,6 +266,7 @@ bcdui.wrs.colDims = function(docIn, params) {
         c.setAttribute("pos",     String(pos++));
         c.setAttribute("id",      ck + (srcCol.getAttribute("id") || bRef));
         c.setAttribute("caption", ckCap + (srcCol.getAttribute("caption") || ""));
+        if (hasAnyColDimOrder) c.setAttribute("order", ckOrd);
         c.setAttribute("valueId", srcCol.getAttribute("valueId") || srcCol.getAttribute("id") || bRef);
         childElems(srcCol, "A").forEach(a => c.appendChild(a.cloneNode(true)));
         newHeaderColsElem.appendChild(c);
