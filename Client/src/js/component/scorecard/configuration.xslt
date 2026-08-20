@@ -165,6 +165,16 @@
                         <xsl:copy-of select="@sort | @total"/>
                       </wrs:C>
                     </xsl:when>
+                    <xsl:when test="self::dm:LevelRef[@orderBRef]">
+                      <wrs:C id="{@orderBRef}">
+                        <xsl:copy-of select="@sort | @total"/>
+                      </wrs:C>
+                    </xsl:when>
+                    <xsl:when test="self::dm:LevelRef[@captionBRef]">
+                      <wrs:C id="{@captionBRef}">
+                        <xsl:copy-of select="@sort | @total"/>
+                      </wrs:C>
+                    </xsl:when>
                     <xsl:when test="self::dm:LevelRef">
                       <wrs:C id="{@bRef}">
                         <xsl:copy-of select="@sort | @total"/>
