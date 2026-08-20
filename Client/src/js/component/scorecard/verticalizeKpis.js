@@ -133,6 +133,8 @@ bcdui.component.scorecard.verticalizeKpis = function(docIn, params) {
   // ---- number formatting for sub-aspect cell attributes ----
   // Mirrors the formatNumber template from numberFormatting.xslt (scale-based rounding).
   const fmtNum = (rawVal, colDef) => {
+    // XPath: number("") = NaN; JS: Number("") = 0 — align by treating "" as NaN
+    if (rawVal === null || rawVal === "") return "";
     const n = Number(rawVal);
     if (isNaN(n)) return "";
     const scale = colDef ? colDef.getAttribute("scale") : null;
@@ -153,7 +155,8 @@ bcdui.component.scorecard.verticalizeKpis = function(docIn, params) {
           const colHead = colHeadById.get("asp_" + attrAspId + "_" + kpiId + prop);
           if (!colHead) continue;
           const srcCell = allCols[Number(colHead.getAttribute("pos")) - 1];
-          const n       = Number(srcCell ? srcCell.textContent : NaN);
+          const rawText = srcCell ? srcCell.textContent : "";
+          const n       = rawText !== "" ? Number(rawText) : NaN;
           if (!isNaN(n)) cellEl.setAttribute(attrAspId + prop, fmtNum(n, colHead));
         }
       } else {
