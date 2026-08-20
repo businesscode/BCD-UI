@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2025 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -82,15 +82,11 @@ bcdui.widget.contextMenu = Object.assign(bcdui.widget.contextMenu,
       if ((bcdMenuCode != null || (clickResolver && typeof clickResolver == "function")) && eventSourceElement != null) {
         event.eventSourceElement = eventSourceElement;
         event.eventSrcElement = eventSourceElement;
+        
         // set the bcdRowIdent and bcdColIdent values looking up in ancestor path of the eventSourceElement
-        var _srcEl = jQuery("#" + event.eventSourceElement);
-        event.bcdRowIdent = _srcEl.closest("[bcdRowIdent]").attr("bcdRowIdent");
-        event.bcdColIdent = _srcEl.closest("[bcdColIdent]").attr("bcdColIdent");
-        var _table;
-        if(!event.bcdColIdent && (_table=_srcEl.closest("table")).length){ // lookup in the thead/tr[last()] element of the outer table, if colIdent was not on ancestor path
-          var _lastTr = _table.find("thead tr").last();
-          event.bcdColIdent = jQuery(_lastTr.find("th").add("td", _lastTr).get(_srcEl.index())).attr("bcdColIdent");
-        }
+        var idents = bcdui.widget._computeRowAndColIdents(eventSourceElement);
+        event.bcdRowIdent = idents.bcdRowIdent || "";
+        event.bcdColIdent = idents.bcdColIdent || "";
 
         // HTML data-sets are always strings, we translate boolean "strings" here into booleans as our js logic relies on it
         const elData = { ...event.target.dataset };
