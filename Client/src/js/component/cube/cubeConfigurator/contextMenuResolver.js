@@ -47,27 +47,27 @@ bcdui.component.cube.configurator.resolveContextMenu = function(args) {
       },
 
       hideRowDim: function(args) {
-        const levelId = bcdui.wkModels.bcdColIdent.getData();
+        const levelId = args.bcdColIdent;
         jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"hideDimMember", levelId: levelId, isColDim: false, all: false } );
       },
 
       hideAllRowDim: function(args) {
-        const levelId = bcdui.wkModels.bcdColIdent.getData();
+        const levelId = args.bcdColIdent;
         jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"hideDimMember", levelId: levelId, isColDim: false, all: true} );
       },
 
       excludeRowDim: function(args) {
-        const levelId = bcdui.wkModels.bcdColIdent.getData();
+        const levelId = args.bcdColIdent;
         jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"excludeDimMember", levelId: levelId, isColDim: false, all: false } );
       },
 
       excludeAllRowDim: function(args) {
-        const levelId = bcdui.wkModels.bcdColIdent.getData();
+        const levelId = args.bcdColIdent;
         jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"excludeDimMember", levelId: levelId, isColDim: false, all: true } );
       },
 
       showAllRowDim: function(args) {
-        const levelId = bcdui.wkModels.bcdColIdent.getData();
+        const levelId = args.bcdColIdent;
         jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"hideDimMember", levelId: levelId, totalId: args.totalId, showAll: true} );
       },
 
@@ -113,7 +113,7 @@ bcdui.component.cube.configurator.resolveContextMenu = function(args) {
 
       clearSortDimByMeas: function(args) {
         jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", 
-          args.isColDim == "true"
+          args.isColDim
           ? {actionId:"setSortDimByMeasure", clear: true, colDimId: jQuery(args.bcdEventSourceElement).closest('tr').attr('levelId')}
           : {actionId:"setSortDimByMeasure", clear: true}
         );
@@ -121,7 +121,7 @@ bcdui.component.cube.configurator.resolveContextMenu = function(args) {
 
       sortDimByMeas: function(args) {
         jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh",
-          args.isColDim == "true"
+          args.isColDim
           ? {actionId: "setSortDimByMeasure", direction: args.direction, sortBy: args.sortBy, colDimId: jQuery(args.bcdEventSourceElement).closest('tr').attr('levelId')}
           : {actionId: "setSortDimByMeasure", direction: args.direction, sortBy: args.sortBy}
         );
@@ -140,7 +140,7 @@ bcdui.component.cube.configurator.resolveContextMenu = function(args) {
       },
 
       hideTotal: function(args) {
-        if (args.isColDim == "true") {
+        if (args.isColDim) {
           let levelNode = jQuery(args.bcdEventSourceElement).closest("tr");
           let levelId = levelNode.attr("levelId");
           if (levelId == null) {
@@ -159,7 +159,7 @@ bcdui.component.cube.configurator.resolveContextMenu = function(args) {
       },
 
       showTotal: function(args) {
-        if (args.isColDim == "true")
+        if (args.isColDim)
           jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"showThisTotals", levelId: args.levelId} );
         else
           jQuery(args.bcdEventSourceElement).trigger("cubeActions:contextMenuCubeClientRefresh", {actionId:"showThisTotals", levelId: args.levelId} );
