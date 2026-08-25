@@ -76,7 +76,7 @@ public class BindingItem extends SimpleBindingItem {
     this.aggr = src.aggr;
     this.customAttributesMap = new HashMap<>(src.customAttributesMap);
     this.generalAttributesMap = new HashMap<>(src.generalAttributesMap);
-    this.clientAttributesMap = new HashMap<>(src.generalAttributesMap);
+    this.clientAttributesMap = new HashMap<>(src.clientAttributesMap);
     setEscapeXML(src.isEscapeXML);
     setReadOnly(src.isReadOnly);
   }
