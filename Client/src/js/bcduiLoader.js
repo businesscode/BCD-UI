@@ -186,7 +186,7 @@ bcdui.bcduiCeFiles =
         , "/js/nonmodules/component/cube/templateManager/templateManager.js"
         , "/js/nonmodules/component/cube/rankingEditor/rankingEditor.js"
         , "/js/nonmodules/component/cube/summaryDisplay/summaryDisplay.js"
-        , "/js/nonmodules/wrs/calculationFormulars.js"
+        , "/js/nonmodules/wrs/calculationFormulas.js"
         , "/js/nonmodules/component/cube/calculation.js"
         , "/js/nonmodules/wrs/colDims.js"
         , "/js/nonmodules/wrs/filterRowsAndCols.js"

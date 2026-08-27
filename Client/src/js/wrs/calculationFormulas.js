@@ -34,11 +34,11 @@
  *   calc:Value     constant (text content)
  *
  * Entry points:
- *   bcdui.wrs.calculationFormulars.eval(calcElem, resolver, preEval)
+ *   bcdui.wrs.calculationFormulas.eval(calcElem, resolver, preEval)
  *     Evaluates a <calc:Calc> element, handling @zeroIfNullOp='true'.
  *     Optional preEval(node, resolver) may intercept and return a number.
  *
- *   bcdui.wrs.calculationFormulars.evalExpr(node, resolver, preEval)
+ *   bcdui.wrs.calculationFormulas.evalExpr(node, resolver, preEval)
  *     Evaluates any single calc:* node (no zeroIfNullOp wrapping).
  *     Used by bcdui.wrs.calculation to evaluate sub-expressions such as
  *     the denominator operand of calc:Div.
@@ -50,7 +50,7 @@
  * preEval: function(node: Element, resolver) → number|undefined
  *   Optional hook called before recursion. If it returns a number, that value is used.
  */
-bcdui.wrs.calculationFormulars = (function() {
+bcdui.wrs.calculationFormulas = (function() {
 
   const CALC_NS = "http://www.businesscode.de/schema/bcdui/calc-1.0.0";
 

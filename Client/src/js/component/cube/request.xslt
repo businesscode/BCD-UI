@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -34,8 +34,14 @@
     <wrq:WrsRequest>
       <wrq:Select>
 
+        <!-- This move the TOP-N spec from cube: to wrq:.
+             Note: Including all calcs from calc: to wrq:, so that they become server calcs here and can be used in top-n rank filtering
+             the measure in the later select list stays calc: if it is and stays client side and still can be used in tool-tip etc.
+             Note, TOP-N is only available in BCD-UI Enterprise edition.
+          -->
         <xsl:apply-templates select="/*/cube:Layout/cube:TopNDimMembers" mode="toWrqNs"/>
 
+        <!-- The main select -->
         <xsl:choose>
           <xsl:when test="/*/cube:DistinctMeasures/@storedInRows='true'">
             <wrq:Columns>

@@ -16,7 +16,7 @@
 
 import "../core.js"
 
-import "../../wrs/calculationFormulars.js"
+import "../../wrs/calculationFormulas.js"
 import "../../component/cube/calculation.js"
 import "../../wrs/cumulAndPercOfTotal.js"
 import "../../wrs/colDims.js"

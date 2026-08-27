@@ -26,7 +26,7 @@
  *   1. Rebuilds wrs:Columns from cube:Layout/cube:Dimensions + cube:Measures.
  *   2. For each wrs:R: copies dim cells, then emits one cell per measure.
  *        dm:MeasureRef  – copies the existing cell from the source column.
- *        dm:Measure     – evaluates its calc:Calc via bcdui.wrs.calculationFormulars.
+ *        dm:Measure     – evaluates its calc:Calc via bcdui.wrs.calculationFormulas.
  *   3. When any calc:ValueRef uses a total-row reference (magic-char idRef prefix
  *      &#xE0F0;1R / &#xE0F0;2R / &#xE0F0;1C / &#xE0F0;2C), it pre-builds four
  *      lookup Maps (matching the XSLT keys columnKeyAboveTotal, columnKeyOuterTotal,
@@ -38,7 +38,7 @@
  *
  * Returns a new WRS document, or undefined if there is nothing to do.
  *
- * Requires bcdui.wrs.calculationFormulars (calculationFormulars.js).
+ * Requires bcdui.wrs.calculationFormulars (calculationFormular.js).
  */
 bcdui.wrs.calculation = function(docIn, params) {
 
@@ -340,14 +340,14 @@ bcdui.wrs.calculation = function(docIn, params) {
                 if (strCell && strCell.textContent) outCell.textContent = strCell.textContent;
               }
             } else {
-              const val = bcdui.wrs.calculationFormulars.eval(calcEl, resolver);
+              const val = bcdui.wrs.calculationFormulas.eval(calcEl, resolver);
               if (!isNaN(val)) {
                 outCell.textContent = String(val);
                 // @denominator: value of the 2nd operand of the first calc:Div with 2 children
                 const divEl = Array.from(calcEl.getElementsByTagNameNS(CALC_NS, "Div"))
                   .find(d => childElems(d).length === 2);
                 if (divEl) {
-                  const denomVal = bcdui.wrs.calculationFormulars.evalExpr(childElems(divEl)[1], resolver);
+                  const denomVal = bcdui.wrs.calculationFormulas.evalExpr(childElems(divEl)[1], resolver);
                   if (!isNaN(denomVal)) outCell.setAttribute("denominator", String(denomVal));
                 }
               }

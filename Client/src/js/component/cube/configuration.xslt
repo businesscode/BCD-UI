@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -90,14 +90,14 @@
                 <wrq:A>
                   <xsl:attribute name="name">caption</xsl:attribute>
                   <xsl:attribute name="bRef"><xsl:value-of select="../@captionBRef"/></xsl:attribute>
-                  <xsl:attribute name="id"><xsl:value-of select="../@captionBRef"/>CaptionBRef</xsl:attribute>
+                  <xsl:attribute name="id"><xsl:value-of select="../@captionBRef"/>_bcdCaptionBRef</xsl:attribute>
                 </wrq:A>
               </xsl:if>
               <xsl:if test="../@orderBRef and not($hasVdms)">
                 <wrq:A>
                   <xsl:attribute name="name">order</xsl:attribute>
                   <xsl:attribute name="bRef"><xsl:value-of select="../@orderBRef"/></xsl:attribute>
-                  <xsl:attribute name="id"><xsl:value-of select="../@orderBRef"/>OrderBRef</xsl:attribute>
+                  <xsl:attribute name="id"><xsl:value-of select="../@orderBRef"/>_bcdOrderBRef</xsl:attribute>
                 </wrq:A>
               </xsl:if>
             </wrq:C>
