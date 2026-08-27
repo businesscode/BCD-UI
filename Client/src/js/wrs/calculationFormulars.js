@@ -30,20 +30,25 @@
  *   calc:Niz(a)    calc:Abs(a)    calc:Igt(a,b)  calc:Ian(a)  calc:Sgn(a)
  *
  * Leaf nodes:
- *   calc:ValueRef  @idRef looked up via resolver(idRef) → number
+ *   calc:ValueRef  @idRef (optional @aggr, @dmRef) looked up via resolver(idRef, aggr, node) → number
  *   calc:Value     constant (text content)
  *
  * Entry points:
- *   bcdui.wrs.calculationFormulars.eval(calcElem, resolver)
+ *   bcdui.wrs.calculationFormulars.eval(calcElem, resolver, preEval)
  *     Evaluates a <calc:Calc> element, handling @zeroIfNullOp='true'.
+ *     Optional preEval(node, resolver) may intercept and return a number.
  *
- *   bcdui.wrs.calculationFormulars.evalExpr(node, resolver)
+ *   bcdui.wrs.calculationFormulars.evalExpr(node, resolver, preEval)
  *     Evaluates any single calc:* node (no zeroIfNullOp wrapping).
  *     Used by bcdui.wrs.calculation to evaluate sub-expressions such as
  *     the denominator operand of calc:Div.
  *
  * resolver: function(idRef: string) => number
  *   Called for each calc:ValueRef.  Must return NaN for missing/empty cells.
+ *   Receives the ValueRef element as third argument (idRef, aggr, node) so callers can also evaluate @dmRef.
+ *
+ * preEval: function(node: Element, resolver) → number|undefined
+ *   Optional hook called before recursion. If it returns a number, that value is used.
  */
 bcdui.wrs.calculationFormulars = (function() {
 
@@ -62,11 +67,15 @@ bcdui.wrs.calculationFormulars = (function() {
    * @param {function} resolver
    * @returns {number}
    */
-  const evalExpr = (node, resolver) => {
+  const evalExpr = (node, resolver, preEval) => {
+    if (preEval) {
+      const r = preEval(node, resolver);
+      if (r !== undefined) return r;
+    }
     const ln = node.localName;
 
     // --- Leaf: column reference ---
-    if (ln === "ValueRef") return +resolver(node.getAttribute("idRef"), node.getAttribute("aggr") || "");
+    if (ln === "ValueRef") return +resolver(node.getAttribute("idRef"), node.getAttribute("aggr") || "", node);
 
     // --- Leaf: constant ---
     if (ln === "Value") return +node.textContent;
@@ -74,9 +83,9 @@ bcdui.wrs.calculationFormulars = (function() {
     // --- N-ary operators ---
     if (ln === "Add" || ln === "Sub" || ln === "Mul" || ln === "Div") {
       const ch = calcKids(node);
-      let r = +evalExpr(ch[0], resolver);
+      let r = +evalExpr(ch[0], resolver, preEval);
       for (let i = 1; i < ch.length; i++) {
-        const v = +evalExpr(ch[i], resolver);
+        const v = +evalExpr(ch[i], resolver, preEval);
         if      (ln === "Add") r += v;
         else if (ln === "Sub") r -= v;
         else if (ln === "Mul") r *= v;
@@ -87,8 +96,8 @@ bcdui.wrs.calculationFormulars = (function() {
 
     // --- Functions ---
     const ch = calcKids(node);
-    const a = () => +evalExpr(ch[0], resolver);
-    const b = () => +evalExpr(ch[1], resolver);
+    const a = () => +evalExpr(ch[0], resolver, preEval);
+    const b = () => +evalExpr(ch[1], resolver, preEval);
 
     switch (ln) {
       // Max: if av > bv take av else bv (NaN comparisons are false → bv wins, matching XPath)
@@ -125,23 +134,24 @@ bcdui.wrs.calculationFormulars = (function() {
      *   - BUT if every ValueRef in the Calc is NaN, the overall result is NaN.
      *
      * @param {Element} calcElem  The <calc:Calc> element.
-     * @param {function} resolver  function(idRef) => number
+     * @param {function} resolver  function(idRef, aggr, node) → number
+     * @param {function} [preEval] function(node, resolver) → number|undefined
      * @returns {number}
      */
-    eval(calcElem, resolver) {
+    eval(calcElem, resolver, preEval) {
       const kids = calcKids(calcElem);
       if (!kids.length) return NaN;
 
       if (calcElem.getAttribute("zeroIfNullOp") !== "true")
-        return evalExpr(kids[0], resolver);
+        return evalExpr(kids[0], resolver, preEval);
 
       // zeroIfNullOp: bail out entirely only if ALL value references are NaN
       const allRefs = Array.from(calcElem.getElementsByTagNameNS(CALC_NS, "ValueRef"));
-      if (allRefs.length > 0 && allRefs.every(vr => isNaN(+resolver(vr.getAttribute("idRef"), vr.getAttribute("aggr") || ""))))
+      if (allRefs.length > 0 && allRefs.every(vr => isNaN(+resolver(vr.getAttribute("idRef"), vr.getAttribute("aggr") || "", vr))))
         return NaN;
 
-      const zinRes = (id, aggr) => { const v = +resolver(id, aggr); return isNaN(v) ? 0 : v; };
-      return evalExpr(kids[0], zinRes);
+      const zinRes = (id, aggr, node) => { const v = +resolver(id, aggr, node); return isNaN(v) ? 0 : v; };
+      return evalExpr(kids[0], zinRes, preEval);
     }
   };
 })();
