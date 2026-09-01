@@ -184,9 +184,15 @@ bcdui.wrs.filterRowsAndCols = function(docIn, params) {
   const newRoot  = doc.documentElement;
   const mkElem   = ln => doc.createElementNS(WRS_NS, ln);
   const copyAttrs = (dst, from) => {
+    if (!from) return;
     for (let i = 0; i < from.attributes.length; i++) {
       const a = from.attributes[i];
-      dst.setAttribute(a.name, a.value);
+      if (a.name === "xmlns" || a.name.startsWith("xmlns:")) continue;
+      if (a.name.indexOf(":") !== -1 && a.namespaceURI) {
+        dst.setAttributeNS(a.namespaceURI, a.name, a.value);
+      } else {
+        dst.setAttribute(a.name, a.value);
+      }
     }
   };
 

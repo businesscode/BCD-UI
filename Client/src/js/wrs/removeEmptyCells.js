@@ -153,7 +153,12 @@ bcdui.wrs.removeEmptyCells = function(docIn, params) {
         const newRow = doc.createElementNS(srcRow.namespaceURI, srcRow.localName);
         for (let i = 0; i < srcRow.attributes.length; i++) {
           const a = srcRow.attributes[i];
-          newRow.setAttribute(a.name, a.value);
+          if (a.name === "xmlns" || a.name.startsWith("xmlns:")) continue;
+          if (a.name.indexOf(":") !== -1 && a.namespaceURI) {
+            newRow.setAttributeNS(a.namespaceURI, a.name, a.value);
+          } else {
+            newRow.setAttribute(a.name, a.value);
+          }
         }
         const cells = childElems(srcRow);
         for (let ci = 0; ci < cells.length; ci++) {

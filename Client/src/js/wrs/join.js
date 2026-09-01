@@ -58,10 +58,15 @@ bcdui.wrs.join = function(docIn, params) {
   };
 
   const copyAttrs = (dst, from) => {
+    if (!from) return;
     for (let i = 0; i < from.attributes.length; i++) {
       const a = from.attributes[i];
       if (a.name === "xmlns" || a.name.startsWith("xmlns:")) continue; // mirrors XSLT @* (namespace nodes excluded)
-      dst.setAttribute(a.name, a.value);
+      if (a.name.indexOf(":") !== -1 && a.namespaceURI) {
+        dst.setAttributeNS(a.namespaceURI, a.name, a.value);
+      } else {
+        dst.setAttribute(a.name, a.value);
+      }
     }
   };
 

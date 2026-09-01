@@ -60,9 +60,15 @@ bcdui.wrs.calculation = function(docIn, params) {
   };
 
   const copyAttrs = (dst, src) => {
+    if (!src) return;
     for (let i = 0; i < src.attributes.length; i++) {
       const a = src.attributes[i];
-      dst.setAttribute(a.name, a.value);
+      if (a.name === "xmlns" || a.name.startsWith("xmlns:")) continue;
+      if (a.name.indexOf(":") !== -1 && a.namespaceURI) {
+        dst.setAttributeNS(a.namespaceURI, a.name, a.value);
+      } else {
+        dst.setAttribute(a.name, a.value);
+      }
     }
   };
 
