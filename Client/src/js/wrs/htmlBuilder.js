@@ -101,7 +101,7 @@ bcdui.wrs.HtmlBuilder = class {
    * @param {XMLDocument} [parameters.paramModel] - optional XML document holding xp:HtmlBuilder parameter set(s), used as a fallback source for any of the parameters above that are not given directly in JavaScript
    * @param {string} [parameters.paramSetId] - optional; by default the parameter set is found in paramModel by element name; use this if paramModel contains multiple xp:HtmlBuilder sets, to match against the paramSetId attribute of the desired set
    */
-  transform(wrsDom, parameters) 
+  transform(wrsDom, parameters)
   {
     //-------------------------------------
     // Starting Transformer bcdui.wrs.HtmlBuilder
@@ -110,6 +110,18 @@ bcdui.wrs.HtmlBuilder = class {
 
     // Turn wrsDom to JavaScript object
     let {colDefs, rawRows} = this.transformDomToJs(wrsDom);
+
+    //-------------------------------------
+    // hideTotals and per default wrs:D rows
+    if(parameters.hideTotals) {
+      rawRows = rawRows.filter( r => !r.cells.some( c => c.bcdGr===1 ) );
+      rawRows.forEach( function(r) {
+        r.cells = r.cells.filter( c => !c.colDef.isDimTotal==true);
+      });
+      colDefs = colDefs.filter( c => !c.isDimTotal==true)
+    }
+    if(!parameters.showDeletedRows) rawRows = rawRows.filter( r => r.rowType!=="D" );
+
     const dimCols = colDefs.filter(c => c.isDim);
     const measureCols = colDefs.filter(c => !c.isDim);
     const numDims = dimCols.length;
@@ -120,7 +132,7 @@ bcdui.wrs.HtmlBuilder = class {
       const div = document.createElement('div');
       div.className = 'bcdInfoBox';
       div.innerHTML = `<span bcdTranslate="${parameters.emptyMessage}"></span>`;
-      return div; 
+      return div;
     }
 
     // If we edit rows, we do not want the defaults for sort and row span
@@ -128,12 +140,6 @@ bcdui.wrs.HtmlBuilder = class {
       parameters.makeRowSpan = false;
       parameters.sortRows = false;
     }
-
-    
-    //-------------------------------------
-    // hideTotals and per default wrs:D rows TODO also col totals?
-    if(parameters.hideTotals) rawRows = rawRows.filter( r => !r.cells.some( c => c.bcdGr===1 ) );
-    if(!parameters.showDeletedRows) rawRows = rawRows.filter( r => r.rowType!=="D" );
 
     //-------------------------------------
     // Sort rows: group details under their subtotals
@@ -156,7 +162,7 @@ bcdui.wrs.HtmlBuilder = class {
     function groupRows(rows) {
       // For each dim level, map the prefix up to that level → first appearance index
       const firstSeenAtLevel = Array.from({ length: numDims }, () => new Map());
-  
+
       rows.forEach((row, idx) => {
         let prefix = '';
         for (let d = 0; d < numDims; d++) {
@@ -164,7 +170,7 @@ bcdui.wrs.HtmlBuilder = class {
           if (!firstSeenAtLevel[d].has(prefix)) firstSeenAtLevel[d].set(prefix, idx);
         }
       });
-  
+
       return [...rows].sort((a, b) => {
         let prefixA = '', prefixB = '';
         for (let d = 0; d < numDims; d++) {
@@ -176,7 +182,7 @@ bcdui.wrs.HtmlBuilder = class {
         return 0;
       });
     }
-    
+
     // We apply sortRows, or for backward compatibility group and leave first appearances of valuesin order where it is
     if(parameters.sortRows) rawRows.sort((a, b) => sortKey(a).localeCompare(sortKey(b)));
     else if(parameters.makeRowSpan) rawRows = groupRows(rawRows);
@@ -187,19 +193,19 @@ bcdui.wrs.HtmlBuilder = class {
     // For each dim column, count consecutive rows with the same value
     const rowspans = rawRows.map(() => dimCols.map(() => 1));
     const skip     = rawRows.map(() => dimCols.map(() => false));
-  
+
     for (let d = 0; parameters.makeRowSpan && d < numDims; d++) {
       let i = 0;
       while (i < rawRows.length) {
         const cell = rawRows[i].cells[d];
         if (cell.bcdGr === 1) { i++; continue; } // total rows handle themselves
-  
+
         // count consecutive rows with same value in this dim
         let span = 1;
         while (
           i + span < rawRows.length &&
           rawRows[i + span].cells[d].value === cell.value  &&
-          rawRows[i + span].cells[d].bcdGr === 0 &&         
+          rawRows[i + span].cells[d].bcdGr === 0 &&
           // all preceding dim columns must have the same value for this row
           Array.from({ length: d }, (_, p) =>
             rawRows[i + span].cells[p].value === rawRows[i].cells[p].value
@@ -207,13 +213,13 @@ bcdui.wrs.HtmlBuilder = class {
         ) {
           span++;
         }
-  
+
         rowspans[i][d] = span;
         for (let k = 1; k < span; k++) skip[i + k][d] = true;
         i += span;
       }
     }
-    
+
 
     //-------------------------------------
     // Build table
@@ -241,28 +247,28 @@ bcdui.wrs.HtmlBuilder = class {
     //-------------------------
     // tbody
     const tbody = table.createTBody();
-  
+
     let that = this;
-    rawRows.forEach((row, ri) => 
+    rawRows.forEach((row, ri) =>
     {
       const tr = tbody.insertRow();
       tr.setAttribute('bcdrowident', row.id);
-  
+
       // total level class
       if (row.grpLevel > 0) {
         const level = numDims - row.grpLevel + 1;
         tr.className = `bcdTL${level} bcdTotal`;
       }
-  
+
       //-----------------------------
       // dimension cells
-      dimCols.forEach((col, di) => 
+      dimCols.forEach((col, di) =>
       {
         if (skip[ri][di]) return; // covered by rowspan above
-  
+
         const cell = row.cells[di];
         const th   = document.createElement('th');
-  
+
         // total cell
         if (cell.bcdGr === 1) {
           const level      = row.grpLevel > 0 ? numDims - row.grpLevel + 1 : 1;
@@ -271,13 +277,13 @@ bcdui.wrs.HtmlBuilder = class {
           const colspanVal = Math.max(1, numDims - di);
           th.setAttribute('colspan', colspanVal);
           th.setAttribute("bcdTranslate", "bcd_Total");
-  
+
           const bcdTranslate = "bcd_Total";
           th.setAttribute("bcdTranslate", bcdTranslate);
           if (col.isDimTotal) th.className += " bcdTotal";
-  
+
           tr.appendChild(th);
-  
+
           // skip the dim columns covered by this colspan
           di + colspanVal; // just for clarity — the forEach index can't be mutated
           // so we mark them in skip instead:
@@ -291,7 +297,7 @@ bcdui.wrs.HtmlBuilder = class {
         if (rowspans[ri][di] > 1) th.setAttribute('rowspan', rowspans[ri][di]);
         if (!cell.caption && !cell.value) th.setAttribute("bcdTranslate", "bcd_EmptyDimmember");
         else th.textContent = cell.caption || cell.value || '';
-  
+
         const bcdTranslate = cell.bcdOt === 1 ? "bcd_OtherDimmember" : undefined;
         if (bcdTranslate) th.setAttribute("bcdTranslate", bcdTranslate);
         if (col.isDimTotal) th.className += " bcdTotal";
@@ -299,10 +305,10 @@ bcdui.wrs.HtmlBuilder = class {
 
         tr.appendChild(th);
       });
-  
+
       // measure cells — skip if a total cell already spanned dims
       const alreadyTotaled = row.cells.slice(0, numDims).some(c => c.bcdGr === 1);
-  
+
       //-----------------------------
       // Measures, i.e. all non-dims
       measureCols.forEach((colHead, idx) => {
@@ -310,8 +316,8 @@ bcdui.wrs.HtmlBuilder = class {
         this.createMeasureCell({tr, cell, row, colDefs, parameters});
       });
     });
-  
-    return table;  
+
+    return table;
   }
 
   /**
@@ -328,7 +334,7 @@ bcdui.wrs.HtmlBuilder = class {
   createMeasureCell({tr, cell, row, colDefs, parameters})
   {
     const colHead = cell.colDef;
-    const isNumeric = cell.isNumeric || colHead.isNumeric; 
+    const isNumeric = cell.isNumeric || colHead.isNumeric;
     const scale = cell.scale || colHead.scale;
     const unit = cell.unit || colHead.unit;
     const td   = document.createElement('td');
@@ -339,8 +345,8 @@ bcdui.wrs.HtmlBuilder = class {
     tr.appendChild(td);
     return td;
   }
-  
-  
+
+
   /**
    * Create thead
    * @private
@@ -350,7 +356,7 @@ bcdui.wrs.HtmlBuilder = class {
    * @param {Object} args.parameters - the parameters of transform()
    * @returns {HTMLTableSectionElement} thead - created thead
    */
-  createTableHeader({table, colDefs}) 
+  createTableHeader({table, colDefs})
   {
     const thead = table.createTHead();
     const htr   = thead.insertRow();
@@ -389,20 +395,20 @@ bcdui.wrs.HtmlBuilder = class {
         if (d === numLevels - 1) tr.setAttribute("bcdrowident", "bcdMeasureHeader");
         return tr;
       });
-    
+
       const covered = Array.from({ length: numLevels }, () => new Array(colDefs.length).fill(false));
-    
+
       // Loop over dimension levels
       for (let d = 0; d < numLevels; d++) {
         let i = 0;
-        
+
         // Dimension cell
         while (i < colDefs.length) {
           if (covered[d][i]) { i++; continue; }
-    
+
           const col   = colDefs[i];
           const parts = col.caption.split('|');
-    
+
           // which part index to show at row d:
           // - single part → row 0 only (rowspan=numLevels)
           // - last row    → always the last part
@@ -436,8 +442,8 @@ bcdui.wrs.HtmlBuilder = class {
             rowspan = numLevels - d;
             for (let dd = d + 1; dd < numLevels; dd++) covered[dd][i] = true;
           }
-    
-          
+
+
           // ── extend rowspan if next non-lowest levels are both dimTotal ids ──
           if (d < numLevels - 1 && parts.length > 1) {
             const ids = col.id.split('|');
@@ -454,7 +460,7 @@ bcdui.wrs.HtmlBuilder = class {
               dd++;
             }
           }
-          
+
           // colspan: merge consecutive cols with same label at this level and same parent labels
           // never merge total with empty
           let colspan = 1;
@@ -484,7 +490,7 @@ bcdui.wrs.HtmlBuilder = class {
               colspan++;
             }
           }
-    
+
           const th = document.createElement('th');
           th.setAttribute('bcdcolident', col.id);
           th.setAttribute('jdbccolumntypename', col.typeName);
@@ -513,22 +519,22 @@ bcdui.wrs.HtmlBuilder = class {
           }
           if (rowspan > 1) th.rowSpan = rowspan;
           if (colspan > 1) th.colSpan = colspan;
-    
+
           headerRows[d].appendChild(th);
           i += colspan;
         }
       }
-    
+
       htr.replaceWith(headerRows[0]);
-      for (let d = 1; d < numLevels; d++) thead.appendChild(headerRows[d]);    
-    } 
-    
+      for (let d = 1; d < numLevels; d++) thead.appendChild(headerRows[d]);
+    }
+
   }
 
   /**
    * @private
    */
-  transformDomToJs(wrsDom) 
+  transformDomToJs(wrsDom)
   {
     const NS_WRS = bcdui.core.xmlConstants.namespaces.wrs;
     const evaluate = (xPath) => wrsDom.evaluate(xPath, wrsDom, bcdui.core.browserCompatibility.resolveNamespace, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
@@ -558,11 +564,8 @@ bcdui.wrs.HtmlBuilder = class {
       });
     }
 
-    const dimCols     = colDefs.filter(c => c.isDim);
-    let measureCols   = colDefs.filter(c => !c.isDim);
-    const numDims     = dimCols.length;
+    const numDims = colDefs.filter(c => c.isDim).length;
 
-    
     //-------------------------------------
     // Parse data rows
     let rawRows = [];
@@ -635,13 +638,13 @@ bcdui.wrs.HtmlBuilder = class {
       const parseBool = s => s === 'true' ? true : s === 'false' ? false : undefined;
       const getVal = name => xmlParams.getElementsByTagNameNS(NS_XP, name)[0]?.textContent?.trim();
       const ucFirst = s => s[0].toUpperCase() + s.slice(1);
-    
+
       // Backward compatibility
       if(getVal('AdditionalTemplates')) console.error("AdditionalTemplates not implemented for JS HtmlBuilder");
-      
-      for (const name of this.boolParams)   parameters[name] = parameters[name] ?? parseBool(getVal(ucFirst(name)));
-      for (const name of this.intParams)    parameters[name] = parameters[name] ?? (parseInt(getVal(ucFirst(name))) || 0);
-      for (const name of this.stringParams) parameters[name] = parameters[name] ?? (getVal(ucFirst(name)) || "");
+
+      for (const name of this.boolParams)   parameters[name] = parseBool(getVal(ucFirst(name))) ?? parameters[name];
+      for (const name of this.intParams)    parameters[name] = (parseInt(getVal(ucFirst(name))) || 0) ?? parameters[name];
+      for (const name of this.stringParams) parameters[name] = (getVal(ucFirst(name)) || "") ?? parameters[name];
     }
 
     // Various defaults
