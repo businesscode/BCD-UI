@@ -32,7 +32,7 @@
 //    bcduiSaxonSefGen = [
 //      nodeModulesDir   : "$project.projectDir/node_modules",       // Where to find SaxonJs (i.e. xslt3.js)
 //      taskDependencies : [someBeforeTask],                         // Needed if you need preparation steps for this, like XSLT generation
-//      srcTrees         : [fileTree( dir: "./src/main/web", includes: ['**/*.xslt'])], // Your project's XSLTs to be turned into sef files. "dir" must point to what is later the context-path as relative paths are calculated based on that. You may limit "includes" to those XSLTs you are currently focussing on
+//      srcTrees         : [fileTree( dir: "./src/main/web", excludes: ['WEB-INF/**','META-INF/**'], includes: ['**/*.xslt'])], // Your project's XSLTs to be turned into sef files. "dir" must point to what is later the context-path as relative paths are calculated based on that. You may limit "includes" to those XSLTs you are currently focussing on
 //      extSrcTrees      : [zipTree(file("<pathToBcdui.jar>"))],     // fileTree or zipTree, XSLTs only being xsl:import-ed but not turned into sef here, like ones from BCD-UI
 //      destDir          : [dir: "main/src/web/sef", bcduiExtraLevels: 1] // Path where to put the generated sef files. "main/src/web" to put them next to the XSLTs "main/src/web/sef" to put them all under "sef/". Set bcduiExtraLevels addintinal number of levels, like, for example 2 for gensrc/sef/
 //    ]
