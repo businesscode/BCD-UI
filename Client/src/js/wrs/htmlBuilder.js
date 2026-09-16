@@ -257,7 +257,8 @@ bcdui.wrs.HtmlBuilder = class {
       // total level class
       if (row.grpLevel > 0) {
         const level = numDims - row.grpLevel + 1;
-        tr.className = `bcdTL${level} bcdTotal`;
+        const levelCss = level >= 4 ? 'bcdTLGe4' : `bcdTL${level}`;
+        tr.className = `${levelCss} bcdTotal`;
       }
 
       //-----------------------------
@@ -272,7 +273,8 @@ bcdui.wrs.HtmlBuilder = class {
         // total cell
         if (cell.bcdGr === 1) {
           const level      = row.grpLevel > 0 ? numDims - row.grpLevel + 1 : 1;
-          th.className     = `bcdTL${level}`;
+          const levelCss   = level >= 4 ? 'bcdTLGe4' : `bcdTL${level}`;
+          th.className     = levelCss;
           th.setAttribute('bcdgr', '1');
           const colspanVal = Math.max(1, numDims - di);
           th.setAttribute('colspan', colspanVal);
@@ -316,6 +318,23 @@ bcdui.wrs.HtmlBuilder = class {
         this.createMeasureCell({tr, cell, row, colDefs, parameters});
       });
     });
+
+    // Display a warning when the server truncated the result set via maxRows
+    const maxRowsExceededNode = wrsDom.selectSingleNode("/*[local-name()='Wrs']/*[local-name()='Footer']/*[local-name()='MaxRowsExceeded']");
+    if (maxRowsExceededNode && table.tHead) {
+      const warnTr = table.tHead.insertRow(0);
+      const warnTd = document.createElement('td');
+      warnTd.setAttribute('colspan', colDefs.length);
+      warnTd.style.textAlign = 'left';
+      const div = document.createElement('div');
+      div.className = 'bcdInfoBox';
+      const span = document.createElement('span');
+      span.setAttribute('bcdTranslate', 'bcd_MaxRowsExceeded');
+      span.textContent = 'Please note, not all values are displayed as the report exceeds the maximum size.';
+      div.appendChild(span);
+      warnTd.appendChild(div);
+      warnTr.appendChild(warnTd);
+    }
 
     return table;
   }
