@@ -492,13 +492,13 @@
     <description>binding wrs attributes which are available on client side in wrs header</description>
     <env-entry-name>bcdui/bnd/wrsAttributes</env-entry-name>
     <env-entry-type>java.lang.String</env-entry-type>
-    <env-entry-value>aggr,caption,display-size,isKey,isReadOnly,nullable,scale,signed,type-name,unit</env-entry-value>
+    <env-entry-value>aggr,caption,display-size,isKey,isReadOnly,nullable,scale,signed,type-name,unit,cust:type-name</env-entry-value>
   </env-entry>
   <env-entry>
     <description>binding wrs attributes which are available on client side in wrs header when doing a meta data call, i.e., @rowStart > @rowEnd</description>
     <env-entry-name>bcdui/bnd/wrsMetaAttribute</env-entry-name>
     <env-entry-type>java.lang.String</env-entry-type>
-    <env-entry-value>aggr,caption,display-size,isKey,isReadOnly,nullable,scale,signed,type-name,unit,description</env-entry-value>
+    <env-entry-value>aggr,caption,display-size,isKey,isReadOnly,nullable,scale,signed,type-name,unit,description,cust:type-name</env-entry-value>
   </env-entry>
   
   <!-- Configure SaxonJs for client side XSLT, in which folder the project's sef files are found -->
