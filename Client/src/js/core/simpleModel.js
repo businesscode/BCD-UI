@@ -303,7 +303,7 @@ bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
             onFailure: function(msg, jqXHR, textStatus, errorThrown) {
               bcdui.log.error({id: this.id, message: "BCD-UI: Failed loading model: '"+this.id+"', '"+msg+"'"});
               this.dataDoc = null;
-              this.lastFailureStatus = {msg: msg, jqXHR: jqXHR, textStatus: textStatus, errorThrown: errorThrown};
+              this.lastFailureStatus = {msg, jqXHR, textStatus, errorThrown, xhr};
               this.setStatus(this.loadFailedStatus);
             }.bind(this)
           });
@@ -319,7 +319,7 @@ bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
             onFailure: function(msg, jqXHR, textStatus, errorThrown) {
               bcdui.log.error({id: this.id, message: "BCD-UI: Failed loading model: '"+this.id+"', '"+msg+"'"});
               this.dataDoc = null;
-              this.lastFailureStatus = {msg: msg, jqXHR: jqXHR, textStatus: textStatus, errorThrown: errorThrown};
+              this.lastFailureStatus = {msg, jqXHR, textStatus, errorThrown, xhr};
               this.setStatus(this.loadFailedStatus);
             }.bind(this)
           });
@@ -362,15 +362,9 @@ bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
 
           }.bind(this),
           error : function(jqXHR, textStatus, errorThrown) {
-
-              // test for C00CE00D error code which corresponds to an element used but not declared in the DTD/Schema
-              // we can use this to detect a session timeout where the login page (html) is loaded for a differently requested filetype
-              // FF & Chrome will run into success in this case
-              if (jqXHR.domDocument && jqXHR.domDocument.msxmlImpl && jqXHR.domDocument.msxmlImpl.parseError && jqXHR.domDocument.msxmlImpl.parseError.errorCode == -1072898035) {
-                bcdui.util.showSessionTimeoutMessage();
-                return;
-              }
-
+            this.lastFailureStatus = {jqXHR, textStatus, errorThrown, xhr};
+            const rUrl = bcdui.util.decodeURI(xhr.responseURL || xhr.url);
+            if (rUrl.includes("login")) bcdui.util.showSessionTimeoutMessage();
             bcdui.log.error({id: this.id, message: "BCD-UI: Failed loading model: '"+this.id+"', '"+textStatus+"' / '"+errorThrown+"'"});
             this.dataDoc = null;
             this.setStatus(this.loadFailedStatus);
