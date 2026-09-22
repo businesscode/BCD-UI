@@ -189,8 +189,11 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
   }
 
   /**
-   * ExternalAuthenticationToken indicates that the authentication has already happened externally
-   * We let the user through here.
+   * ExternalAuthenticationToken (and its subtypes OAuthToken, RequestAuthenticationToken) indicates
+   * that the authentication either already happened externally (OAuthToken, see doGetAuthenticationInfo)
+   * or is handled by another realm (RequestAuthenticationToken, see OnBehalfIdentityRealm). We let the
+   * user through here based on that - doGetAuthenticationInfo below just returns null for it, which
+   * AuthenticatingRealm#getAuthenticationInfo() already treats as a harmless non-contribution.
    */
   @Override
   public boolean supports(AuthenticationToken token) {
@@ -237,9 +240,10 @@ public class JdbcRealm extends org.apache.shiro.realm.jdbc.JdbcRealm {
       // we don't want to log our JDBC activity
       BcdSqlLogger.setLevel(Level.OFF);
 
-      // For external authentication like OAuth we rely on that realm will have handled the lookup of the user_id and the authentication validation
-      // Including creation of AuthenticationInfo and thus of a login
-      // Note: Permissions below will still be added based on the userId given there
+      // For external authentication like OAuth (or RequestAuthenticationToken, handled by
+      // OnBehalfIdentityRealm instead) we rely on that other realm having handled the lookup of the
+      // user_id and the authentication validation, including creation of AuthenticationInfo and thus
+      // of a login. Permissions below will still be added based on the userId given there.
       if (token instanceof ExternalAuthenticationToken) {
         return null;
       } else if (token instanceof UsernamePasswordToken upassToken) {

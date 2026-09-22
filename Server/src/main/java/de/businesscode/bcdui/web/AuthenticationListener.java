@@ -31,6 +31,7 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 
 import de.businesscode.bcdui.logging.LoginSqlLogger.LOGIN_RESULTS;
+import de.businesscode.bcdui.subjectsettings.services.RequestAuthenticationToken;
 import de.businesscode.bcdui.subjectsettings.SecurityHelper;
 import de.businesscode.bcdui.web.servlets.SubjectPreferences;
 
@@ -41,6 +42,12 @@ public class AuthenticationListener implements org.apache.shiro.authc.Authentica
 
   @Override
   public void onFailure(AuthenticationToken token, AuthenticationException arg1) {
+    // Trusted per-request caller (see RequestAuthenticationFilter/RequestSession): a FAILED
+    // login here never reaches RequestSession's try-with-resources body (the constructor itself
+    // throws), so its close() - which stops whatever session got created - never runs. Any session
+    // created by this listener for a failed attempt would therefore leak until it times out naturally.
+    // RequestAuthenticationFilter logs failures itself (no session involved) instead.
+    if (token instanceof RequestAuthenticationToken) return;
     String userLogin = token.getPrincipal() != null ? token.getPrincipal().toString() : "null";
     LOGIN_RESULTS result = LOGIN_RESULTS.FAILED;
     if (arg1 instanceof UnknownAccountException)
@@ -66,7 +73,12 @@ public class AuthenticationListener implements org.apache.shiro.authc.Authentica
 
   @Override
   public void onSuccess(AuthenticationToken token, AuthenticationInfo info) {
-    String userLogin = token.getPrincipal().toString();
+    // Unlike onFailure above, a successful RequestAuthenticationToken login always completes
+    // RequestSession's constructor, so its close() reliably stops the session created below -
+    // safe to use the standard session-attribute-based logging/permission bookkeeping here too.
+    // RequestAuthenticationToken itself carries no principal (it's only resolved inside the realm),
+    // so fall back to the resolved user id from info for that case.
+    String userLogin = token.getPrincipal() != null ? token.getPrincipal().toString() : SecurityHelper.getUserId(info);
     LOGIN_RESULTS result = LOGIN_RESULTS.OK;
     var session = renewSession(SecurityUtils.getSubject());
     session.setAttribute("BCD_LOGIN_USER", userLogin);

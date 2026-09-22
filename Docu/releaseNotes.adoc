@@ -18,6 +18,7 @@ ___
 
 .Server:
 * BindingSet: Added `bnd:BindingDefaults` for inheriting BindingItem attributes defaults based on their id
+* New feature for trusted machine clients to access the server with one-request-sessions, see package de.businesscode.bcdui.subjectsettings.services
 +
 [source,xml]
 ----
