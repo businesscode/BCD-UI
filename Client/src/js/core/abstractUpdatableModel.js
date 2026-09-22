@@ -139,8 +139,9 @@ bcdui.core.AbstractUpdatableModel = class extends bcdui.core.DataProvider
          * Run the next model updater in the list.
          */
 
-       var updater = this._modelUpdaters[currentUpdaterNo].updater;
-        updater.onReady({ 
+        var updater = this._modelUpdaters[currentUpdaterNo].updater;
+        updater.onReady({
+          onlyFuture: true,
           onlyOnce: true,
           onSuccess: function() {
             // take over result and call next updater
