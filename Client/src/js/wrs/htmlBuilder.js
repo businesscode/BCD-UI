@@ -48,7 +48,7 @@
  *   chain: [myTransformer]
  * });
  */
-bcdui.wrs.HtmlBuilder = class {
+bcdui.wrs.GenericHtmlBuilder = class {
 
   /**
    *  Only needed when subclassing.
@@ -101,7 +101,19 @@ bcdui.wrs.HtmlBuilder = class {
    * @param {XMLDocument} [parameters.paramModel] - optional XML document holding xp:HtmlBuilder parameter set(s), used as a fallback source for any of the parameters above that are not given directly in JavaScript
    * @param {string} [parameters.paramSetId] - optional; by default the parameter set is found in paramModel by element name; use this if paramModel contains multiple xp:HtmlBuilder sets, to match against the paramSetId attribute of the desired set
    */
-  transform(wrsDom, parameters)
+  transform = (wrsDom, parameters) =>
+  {
+    // Wrapper to make it easier to get transform as a function
+    return this.transformImpl(wrsDom, parameters);
+  }
+
+  /**
+   * @private
+   * @param wrsDom
+   * @param parameters
+   * @returns {HTMLElement}
+   */
+  transformImpl (wrsDom, parameters)
   {
     //-------------------------------------
     // Starting Transformer bcdui.wrs.HtmlBuilder
@@ -685,8 +697,15 @@ bcdui.wrs.HtmlBuilder = class {
   }
 }
 
-// We want a class for easier overwrite but need a function reference here for chains
-bcdui.wrs.htmlBuilder = (() => { const singleton = new bcdui.wrs.HtmlBuilder(); return singleton.transform.bind(singleton) })();
+/**
+ * Singleton for GenericHtmlBuilder for generating HTML from WRS data.
+ * Default for Renderer but can be used in non-default chains
+ * @example
+ * let renderer = new bcdui.core.Renderer({
+ *   myTargetHtml, inputModel: myModel, chain: [myTransformer, bcdui.wrs.htmlBuilder]
+ * });
+ */
+bcdui.wrs.htmlBuilder = new bcdui.wrs.GenericHtmlBuilder().transform;
 bcdui.wrs.htmlBuilder.bcdName = 'bcdui.wrs.htmlBuilder';
 
 // Possible XSLT fallback: bcdui.wrs.htmlBuilder = bcdui.contextPath+"/bcdui/xslt/renderer/htmlBuilder.xslt";
