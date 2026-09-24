@@ -74,6 +74,7 @@ jQuery.extend(bcdui.widget,
    * @param {boolean}       [args.hideWildcardChar]               If true, no asterisk characters are shown
    * @param {boolean}       [args.selectOrFocus]                  If true and optionsModel is given, it either focus the selection box if multiple entries are available or - if only 1 is available - automatically selects it
    * @param {string}        [args.placeholder]                    HTML placeholder property, can be an i18n key if prefixed with the i18n token
+   * @param {string}        [args.wildcardSplitCharacter=' ']     Character which is used for splitting words in the wildcard search. Default is space. If you use a special not, used character you can also create a starts with filter which always works on the 1st word.
    */
   createInputField: function(args)
     {
@@ -114,7 +115,8 @@ jQuery.extend(bcdui.widget,
           label: args.label,
           hideWildcardChar: args.hideWildcardChar,
           selectOrFocus: args.selectOrFocus,
-          placeholder: args.placeholder
+          placeholder: args.placeholder,
+          wildcardSplitCharacter: args.wildcardSplitCharacter
       };
       if (bcdui.util.isString(args.optionsModelXPath) && !!args.optionsModelXPath.trim()) {
         var optionsModelParams = bcdui.factory._extractXPathAndModelId(args.optionsModelXPath);
