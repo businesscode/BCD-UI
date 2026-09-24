@@ -28,6 +28,7 @@
   <xsl:output method="html" encoding="UTF-8" indent="yes"/>
 
   <xsl:param name="guiStatus"/>
+  <xsl:param name="bcdControllerVariableName"/>
 
   <!--
     enables autoexpand of single elements on a level
