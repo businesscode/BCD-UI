@@ -34,7 +34,7 @@
   compression="on"
   compressionMinSize="2048"
   nocompressionUserAgents="gozilla, traviata"
-  compressableMimeType="text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/xslt+xml,application/xml"
+  compressableMimeType="text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/xslt+xml,application/xml,application/json"
 />
 
 <!-- https -->
@@ -45,7 +45,7 @@
   compression="on"
   compressionMinSize="2048"
   nocompressionUserAgents="gozilla, traviata"
-  compressableMimeType="text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/xslt+xml,application/xml"
+  compressableMimeType="text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/xslt+xml,application/xml,application/json"
 
   protocol="org.apache.coyote.http11.Http11NioProtocol"
   SSLEnabled="true"

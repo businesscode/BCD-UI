@@ -180,6 +180,7 @@
       Do not cache all /* unless we are sure that *.jsp can be cached and row-level security is not used, always exclude /bcdui/servlets/ and /bcdui/bcdui.js (done above) -->
     <url-pattern>*.js</url-pattern>
     <url-pattern>*.xslt</url-pattern>
+    <url-pattern>*.sef.json</url-pattern>
     <url-pattern>*.xml</url-pattern>
     <url-pattern>*.dott</url-pattern>
     <url-pattern>*.png</url-pattern>
