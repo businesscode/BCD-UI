@@ -1261,6 +1261,7 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
         // Create one option per value and mark matches visually
         var optionsCount = 0;
         var isContains = htmlElement.getAttribute("bcdWildcard")=="contains";
+        const wildcardSplitCharacter = htmlElement.getAttribute("bcdWildcardSplitCharacter") || " ";
         var multilevelRequestNode = optionsModel.getData().selectSingleNode("/*/wrs:RequestDocument/wrq:WrsService[@serviceName='BcdMultiLevelSuggest']");
         var levelSeparator = multilevelRequestNode ? multilevelRequestNode.selectSingleNode("wrq:SearchExpression/@levelSeparator") : null;
         levelSeparator = levelSeparator ? levelSeparator.nodeValue : null;
@@ -1276,12 +1277,12 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
             for( var i=0; i<levelNodes.length; i++ ) {
               var v = levelNodes.item(i).getAttribute("caption") ? levelNodes.item(i).getAttribute("caption") : levelNodes.item(i).text;
               if( !!v )
-                valueLevels.push(v.replaceAll("<", bcdui.core.magicChar.separator).split(" "));
+                valueLevels.push(v.replaceAll("<", bcdui.core.magicChar.separator).split(wildcardSplitCharacter));
             }
           } else if ( node.nodeType === 1 ) {
-            valueLevels.push(node.text.replaceAll("<", bcdui.core.magicChar.separator).split(" "));
+            valueLevels.push(node.text.replaceAll("<", bcdui.core.magicChar.separator).split(wildcardSplitCharacter));
           } else {
-            valueLevels.push(node.nodeValue.replaceAll("<", bcdui.core.magicChar.separator).split(" "));
+            valueLevels.push(node.nodeValue.replaceAll("<", bcdui.core.magicChar.separator).split(wildcardSplitCharacter));
           }
 
           // Now we mark the matches, if search expression(s) are given          
@@ -1291,7 +1292,7 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
             var searchLevels = new Array();
             var searchLevelValues = levelSeparator ? value.replace(/\*/g,"").split(levelSeparator) : [value.replace(/\*/g,"")];
             for( var i=0; i<searchLevelValues.length; i++ ) {
-              searchLevels.push(searchLevelValues[i].split(" ").filter(function(e){return e.trim()}).map(function(e){return e.toLocaleLowerCase()}));
+              searchLevels.push(searchLevelValues[i].split(wildcardSplitCharacter).filter(function(e){return e.trim()}).map(function(e){return e.toLocaleLowerCase()}));
             }
 
             // We need to find all search expressions

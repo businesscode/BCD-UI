@@ -504,6 +504,11 @@
             The wildcards apply to filtering within the top down list and for server side filters, both plain and for retrieving drop-down values dynamically from the server.
           </Doc>
         </Param>
+        <Param name="wildcardSplitCharacter" type="string" default=" ">
+          <Doc>
+            Character which is used for splitting words in the wildcard search. Default is space. If you use a special not, used character you can also create a starts with filter which always works on the 1st word.
+          </Doc>
+        </Param>
         <Param name="mandatory" type="boolean" default="false">
           <Doc>
             An empty value is invalid if this parameters sets to true. Default is false.
