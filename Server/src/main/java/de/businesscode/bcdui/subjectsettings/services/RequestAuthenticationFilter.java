@@ -52,7 +52,7 @@ import static de.businesscode.util.Utils.getRemoteAddr;
  * securityManager.realms = ..., $bcdOnBehalfIdentityRealm, ...
  * ...
  * [urls]
- * /mcp/** = bcdRequestAuthentication
+ * /bcdui/mcp/** = bcdRequestAuthentication
  * </pre>
  *
  * By default a request without the {@value #HEADER_CLIENT_SECRET} header is rejected - this filter is

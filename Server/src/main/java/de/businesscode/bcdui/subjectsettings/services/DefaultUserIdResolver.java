@@ -59,6 +59,8 @@ public class DefaultUserIdResolver implements UserIdResolver {
     // The values are bound as parameters, keeping their order in sync with the placeholders.
     StringBuilder callerGivenRestriction = new StringBuilder();
     List<Object> params = new ArrayList<>();
+    params.add(idValue);
+    params.add(idValue);
     for (Map.Entry<String, String> e : addInfo.entrySet()) {
       if (!ID_TYPE_PATTERN.matcher(e.getKey()).matches()) throw new IllegalArgumentException("Invalid addInfo key '" + e.getKey() + "'");
       callerGivenRestriction.append(" and $k.").append(e.getKey()).append(" = ?");
@@ -72,7 +74,7 @@ public class DefaultUserIdResolver implements UserIdResolver {
         where ( $k.%s = ? or ';'||replace($k.%s,' ','')||';' like '%%;'||?||';%%' )
               and $k.user_id_ is not null and ($k.is_disabled_ is null or $k.is_disabled_<>'1')
               %s""",
-        idType, idValue, idType, idValue, callerGivenRestriction);
+        idType, idType, callerGivenRestriction);
 
     BcdSqlLogger.setLevel(Level.OFF);
     try {
