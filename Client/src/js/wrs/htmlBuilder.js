@@ -413,7 +413,8 @@ bcdui.wrs.GenericHtmlBuilder = class {
           th.className += " bcdRowCumulate"
         }
         if (col.isVdm) th.className += " bcdVdm";
-        th.textContent = col.caption;
+        if (bcdui.i18n.isI18nKey(col.caption)) th.setAttribute('bcdTranslate', col.caption.substring(1));
+        else th.textContent = col.caption;
         htr.appendChild(th);
       }
     }
@@ -541,7 +542,9 @@ bcdui.wrs.GenericHtmlBuilder = class {
           }
           if (col.isVdm && (parts.length == 1 || d === numLevels - 2)) th.className += " bcdVdm";
           // Total id segment → bcd_Total, otherwise genuine empty dim → bcd_EmptyDimmember.
-          if (label !== '') {
+          if (label !== '' && bcdui.i18n.isI18nKey(label)) {
+            th.setAttribute('bcdTranslate', label.substring(1));
+          } else if (label !== '') {
             th.textContent = label;
           } else if (col.id.split('|')[d] === bcdui.core.magicChar.dimTotal) {
             th.setAttribute('bcdTranslate', 'bcd_Total');

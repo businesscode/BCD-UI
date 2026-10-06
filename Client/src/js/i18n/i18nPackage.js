@@ -198,10 +198,10 @@ bcdui.i18n = Object.assign(bcdui.i18n,
    * when the catalog is loaded.
    *
    * @param {Object} args - Parameter object
-   * @param {targetHtmlRef}        args.targetHtml   - An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id. This is prefered over args.elementOrId 
-   * @param {HtmlElement|string} args.elementOrId  - ID or HTML element to translate, default "document"
+   * @param {targetHtmlRef}        args.targetHtml   - An existing HTML element this widget should be attached to, provide a dom element, a jQuery element or selector, or an element id. This is preferred over args.elementOrId
+   * @param {HtmlElement|string} args.elementOrId    - deprecated. ID or HTML element to translate, default "document"
    * @param {Object}               args.catalog      - Catalog with i18n entries
-   * @param {boolean}              args.doDefer=true - If true, in case at time of syncTranslateHtmlElement the catalog is not loaded yet, the translation is deferred and re-executed once catalog is loaded
+   * @param {boolean}              args.doDefer=true - If true (is default) and the i18n catalog is not loaded yet, the translation is deferred and executed once catalog is available
    */
   syncTranslateHTMLElement: function(args){
       if(!args) args={};
@@ -209,6 +209,8 @@ bcdui.i18n = Object.assign(bcdui.i18n,
         args.doDefer = true;
       }
 
+    //----------------------------------
+      // No i18n catalog yet, defer if allowed, do nothing otherwise (and warn)
       if(this._getHtmlTranslator() == null){
 
         if (args.doDefer) {
@@ -216,13 +218,15 @@ bcdui.i18n = Object.assign(bcdui.i18n,
             args.doDefer = false;
             this.syncTranslateHTMLElement(args);
           }.bind(this));
+        } else {
+          bcdui.log.warn("bcdui.i18n.syncTranslateHTMLElement() called to early. Catalog not initialized yet. Auto-defer was not allowed. ");
         }
-
-        bcdui.log.warn("bcdui.i18n.syncTranslateHTMLElement() called to early. Catalog not initialized yet. Translation deferred: " + args.doDefer);
-
         return null;
       }
 
+      //----------------------------------
+      // Catalog is there, translate immediately
+      // Handle the various ways, the element can be provided
       if (args.targetHtml)
         args.element = bcdui.util._getTargetHtml({targetHtml: args.targetHtml}, "translate_", true);
       else if(!args.elementOrId){
@@ -231,6 +235,7 @@ bcdui.i18n = Object.assign(bcdui.i18n,
         args.element = typeof args.elementOrId === "string" ? document.getElementById(args.elementOrId) : args.elementOrId;
       }
 
+      // Translate sync
       if(args.element && args.element.nodeType !== 3){ // no translation for TEXT_NODE
         this._getHtmlTranslator().translate(args);
       }
