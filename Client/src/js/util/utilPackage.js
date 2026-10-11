@@ -693,6 +693,9 @@ bcdui.util =
           concat |= gotApos;
           obj[p] = gotApos ? "Xconcat('" + fillParams[p].replace(/'/g, `', "'", '`) + "', ''X)" : fillParams[p];
         }
+        // numbers and booleans need no escaping, they would be lost otherwise
+        else if (typeof fillParams[p] == "number" || typeof fillParams[p] == "boolean")
+          obj[p] = String(fillParams[p]);
       }
       x = bcdui.util.template(xPathClean)(obj);
     }
