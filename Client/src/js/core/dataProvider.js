@@ -451,7 +451,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    _getColumnPosByBRef() {
     let columnPosByBRef = {};
     const headerCols = Array.from(this.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C"));
-    headerCols.forEach(function (e) { columnPosByBRef[e.getAttribute("id")] = parseInt((e.getAttribute("pos") || "0")), 10; });
+    headerCols.forEach(function (e) { columnPosByBRef[e.getAttribute("id")] = parseInt(e.getAttribute("pos") || "0", 10); });
     if (headerCols.length == 0)
       throw Error("data provider "+this.id+" is not WRS based or has no header columns");
     return columnPosByBRef;
@@ -481,7 +481,6 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    * Validates a single cell value against WRS column header constraints.
    * @param {string} value - the cell value as string; pass "" for null/empty
    * @param {Object} colMeta - one column object from tblGetColumnMetadata (attribute names as-is, e.g. "type-name")
-   * @param {Set<string>|null} [refValues] - set of allowed values for reference check; null skips the check
    * @return {string[]} array of wrsValidationErrorCode strings
    * @private
    */
@@ -490,17 +489,21 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
     const type = colMeta["type-name"] || "";
 
     // NULLABLE check. If it fails, no value is there so we can stop the check here
-    if (colMeta["nullable"] === "0" && (value === "" || value === null)) {
+    const isEmpty = value === "" || value === null || value === undefined;
+    if (colMeta["nullable"] === "0" && isEmpty) {
       errors.push("bcd_ValidNullable");
       return errors;
     }
+    // Empty value in a nullable column is always valid, remaining checks need a value
+    if (isEmpty)
+      return errors;
 
-    // NUMERIC check
-    if (/DECIMAL|DOUBLE|FLOAT|NUMERIC|REAL/.test(type) && value !== "" && /[^0-9.\-]/.test(value))
+    // NUMERIC check, optional sign, digits with optional fraction (also "1." and ".5") and optional exponent
+    if (/DECIMAL|DOUBLE|FLOAT|NUMERIC|REAL/.test(type) && !/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(value))
       errors.push("bcd_ValidTypeName_NUMERIC");
 
-    // INTEGER check
-    if (type === "INTEGER" && value !== "" && /[^0-9\-]/.test(value))
+    // INTEGER check, covers all integer types
+    if (/^(TINYINT|SMALLINT|INTEGER|BIGINT)$/.test(type) && !/^[+-]?\d+$/.test(value))
       errors.push("bcd_ValidTypeName_INTEGER");
 
     // DISPLAY SIZE check (VARCHAR / CHAR)
@@ -511,9 +514,10 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
     }
 
     // SCALE check
-    if (/DECIMAL|DOUBLE|FLOAT|NUMERIC|REAL/.test(type)) {
+    // Only if a scale is given, floating point types like DOUBLE usually have none
+    if (/DECIMAL|DOUBLE|FLOAT|NUMERIC|REAL/.test(type) && colMeta["scale"] != null && colMeta["scale"] !== "") {
       const dotIdx = value.toString().indexOf(".");
-      if(dotIdx !== -1 && value.toString().substring(dotIdx + 1).length > parseInt(colMeta["scale"] || "0", 10))
+      if(dotIdx !== -1 && value.toString().substring(dotIdx + 1).length > parseInt(colMeta["scale"], 10))
         errors.push("bcd_ValidScale");
     }
 
@@ -540,9 +544,9 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    */
   _getDataFromTemplate(columns, xPathTemplate, templateObj) {
     const columnPosByBRef = this._getColumnPosByBRef();
-    return Array.from(this.queryNodes(xPathTemplate, templateObj)).map(function(row) {
+    return Array.from(this.queryNodes(xPathTemplate, templateObj)).map(row => {
       let rowObj = {};
-      columns.forEach(function(c) {
+      columns.forEach(c => {
         if (c == "bcdRowId")
           rowObj["bcdRowId"] = row.getAttribute("id");
         else if (typeof columnPosByBRef[c] != "undefined") {
@@ -667,8 +671,8 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   tblInsert(args) {
     args = args || {};
     const values = args.values || {};
-    const rmi = args.rmi === false ? false : args.rmi || true;
-    const doFire = args.fire === false ? false : args.fire || true;
+    const rmi = args.rmi !== false;
+    const doFire = args.fire !== false;
     const columnCount = this.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C").length;
     if (columnCount == 0)
       throw Error("data provider "+this.id+" is not WRS based or has no header columns");
@@ -708,6 +712,8 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
     const values = args.values || {};
     const rmi = args.rmi === false ? false : args.rmi || true;
     const doFire = args.fire === false ? false : args.fire || true;
+    const rmi = args.rmi !== false;
+    const doFire = args.fire !== false;
     const columnPosByBRef = this._getColumnPosByBRef();
     const rowIds = args.rowId
       ? [args.rowId]
@@ -733,11 +739,11 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
             }
           }
           else
-            bcdui.log.warn("illegal column " + v + " requested in " + this.id);
+            bcdui.log.warn("Illegal column " + v + " requested in " + this.id);
         }
       }
       else
-        bcdui.log.warn("illegal row " + rowId + " requested in " + this.id);
+        bcdui.log.warn("Illegal row " + rowId + " requested in " + this.id);
     }.bind(this));
 
     if (doFire) this.fire();
@@ -761,8 +767,8 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   tblDelete(args) {
     args = args || {};
     const filter = args.filter || {};
-    const rmi = args.rmi === false ? false : args.rmi || true;
-    const doFire = args.fire === false ? false : args.fire || true;
+    const rmi = args.rmi !== false;
+    const doFire = args.fire !== false;
     const xPathTpl = args.rowId
       ? this._getFillParams({rowId: args.rowId}, "/*/wrs:Data/wrs:*[@id='{{=it.rowId}}']")
       : this._getFillParams(filter, "/*/wrs:Data/wrs:*" + this._buildXPathTemplate(filter));
@@ -867,15 +873,23 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
       if (!keyChecked && colMeta.isKey === "true") {
         keyChecked = true;
         const rowId = args.rowId || (args.filter ? (this.tblGetRowIds({ filter: args.filter })[0] || null) : null);
-        const targetRow = this.tblSelectRow({rowId: args.rowId});        
-        const keyFilter = Object.fromEntries(keyColIds.map(k => [k, typeof values[k] === 'undefined' ? targetRow[k] : String(values[k])]));
-        // rowId may not exist, we will assume an insert then and do no exclusion from uniqueness check
-        const idExclude = rowId ? "[@id!='" + rowId + "']" : "";
-        const xPath = this._getFillParams(keyFilter,
-          "/*/wrs:Data/wrs:*[not(self::wrs:D)]" + idExclude + this._buildXPathTemplate(keyFilter)
-        );
-        if (this.queryNodes(xPath).length > 0)
-          keyColIds.forEach(k => errors.push({ colId: k, errorCode: "bcd_ValidUniq" }));
+        const targetRow = rowId ? this.tblSelectRow({rowId: rowId}) : undefined;
+        // Key values not given in values are taken from the target row (update case)
+        const keyFilter = Object.fromEntries(keyColIds.map(k => [k,
+          typeof values[k] !== 'undefined' ? (values[k] === null ? null : String(values[k]))
+                                           : (targetRow ? targetRow[k] : undefined)
+        ]));
+        // Without a complete key (insert or unknown row with missing key values) uniqueness cannot be decided,
+        // missing non-nullable key values are already reported as bcd_ValidNullable
+        if (Object.values(keyFilter).every(v => typeof v !== 'undefined')) {
+          // rowId may not exist, we will assume an insert then and do no exclusion from uniqueness check
+          const idExclude = rowId ? "[@id!='" + rowId + "']" : "";
+          const xPath = this._getFillParams(keyFilter,
+            this._rowsXPath() + idExclude + this._buildXPathTemplate(keyFilter)
+          );
+          if (this.queryNodes(xPath).length > 0)
+            keyColIds.forEach(k => errors.push({ colId: k, errorCode: "bcd_ValidUniq" }));
+        }
       }
     }
 
@@ -943,7 +957,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   /**
    * Reads a single node from a given xPath
    * @param {string} xPath - xPath to query 
-   * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions 
+   * @param {Object} [fillParams] - array or object with values for {{=it[0]}} placeholders in the xpath. Takes care for escaping quotes correctly.
    * @return {DomNode|null} single node or null if query fails
    */
   query(xPath, fillParams) {
@@ -955,7 +969,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   /**
    * Get node list from a given xPath
    * @param {string} xPath - xPath to query 
-   * @param {Object} [fillParams] - array or object holding the values for the dot placeholders in the xpath. Values with "'" get 'escaped' with a concat operation to avoid bad xpath expressions 
+   * @param {Object} [fillParams] - array or object with values for {{=it[0]}} placeholders in the xpath. Takes care for escaping quotes correctly.
    * @return {Array<DomNode>} node list or empty list if query fails
    */
   queryNodes(xPath, fillParams) {
