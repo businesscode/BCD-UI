@@ -263,7 +263,7 @@ bcdui.wrs.orderRowsAndCols = function(docIn, params) {
           aVal = aC[idx] ? (aC[idx].getAttribute("order") || "") : "";
           bVal = bC[idx] ? (bC[idx].getAttribute("order") || "") : "";
         } else {
-          // String sort with empty-last (matches XSLT concat(boolean(empty),'&#xE0F0;',value))
+          // String sort with empty-last
           const at = (aC[idx] || {}).textContent || "";
           const bt = (bC[idx] || {}).textContent || "";
           aVal = (at === "" ? "true" : "false") + MAGIC + at;
@@ -400,11 +400,17 @@ bcdui.wrs.orderRowsAndCols = function(docIn, params) {
           const svMap     = sortValMaps[specIdx];
           const isNumeric = NUMERIC_TYPES.has(colDimLevelTypeNames[li] || "");
 
-          // Total segment marker: value starts with MAGIC+"1"
+          // "Total" marker: value starts with MAGIC+"1"
           const aIsTotal = (aParts[li] || "").startsWith(MAGIC + "1");
           const bIsTotal = (bParts[li] || "").startsWith(MAGIC + "1");
           if (total && aIsTotal !== bIsTotal)
             return aIsTotal ? (total === "leading" ? -1 : 1) : (total === "leading" ? 1 : -1);
+
+          // Empty "" values last: value starts with MAGIC+"0". 
+          // Consistent with our Wrq sorting.
+          const aIsNull = (aParts[li] || "").startsWith(MAGIC + "0");
+          const bIsNull = (bParts[li] || "").startsWith(MAGIC + "0");
+          if (aIsNull !== bIsNull) return aIsNull ? 1 : -1;
 
           if (svMap) {
             const aV = svMap.get(a), bV = svMap.get(b);
