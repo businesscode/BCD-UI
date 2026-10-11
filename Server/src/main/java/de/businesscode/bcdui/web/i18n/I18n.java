@@ -133,7 +133,17 @@ public class I18n {
    * @return a resource bundle suitable to user locale
    */
   static ResourceBundle getUserBundle(HttpServletRequest request) {
-    return ResourceBundle.getBundle(BCD_BUNDLE_BASENAME, getUserLocale(request), BcdUiApplicationContextListener.getResourceBundleControl());
+    return getBundle(getUserLocale(request));
+  }
+
+  /**
+   * Server side access to the same i18n messages as provided to the client,
+   * i.e. from binding-set bcd_i18n if available, otherwise from messages.xml
+   * @param locale
+   * @return a resource bundle for the given locale
+   */
+  public static ResourceBundle getBundle(Locale locale) {
+    return ResourceBundle.getBundle(BCD_BUNDLE_BASENAME, locale, BcdUiApplicationContextListener.getResourceBundleControl());
   }
 
   /**
