@@ -12,6 +12,9 @@
 
 # IntelliJ IDEA
 .idea/*
-!.idea/codeStyles
-!.idea/inspectionProfiles
-!.idea/runConfigurations
+!.idea/codeStyles/         # shared formatting rules
+!.idea/inspectionProfiles/ # consistent code quality
+!.idea/runConfigurations/  # shared run/debug configs
+!.idea/misc.xml            # SDK and language level settings,
+!.idea/vcs.xml             # VCS mappings
+**/out/
