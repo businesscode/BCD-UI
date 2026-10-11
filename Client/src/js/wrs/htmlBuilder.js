@@ -24,17 +24,24 @@
  * All parameters are defined in xsltParams-1.0.0.xsd and at transform() method and can be provided per XML or JavaScript.
  *
  * Extension point: Rendering of wrs:R/wrs:C can be overwritten by
- * a) deriving class HtmlBuilder and overriding the createMeasureCell() method
+ * a) deriving class GenericHtmlBuilder and overriding createMeasureCell(), createDimensionCell(), createHeaderCell() and/or createTableHeader()
  * b) then providing the transform() method bound to the instance as a transformer
  * @example
  * // Create your specialized HtmlBuilder by overwriting createMeasureCell()
- * class MyHtmlBuilder extends bcdui.wrs.HtmlBuilder {
+ * class MyHtmlBuilder extends bcdui.wrs.GenericHtmlBuilder {
  *   createMeasureCell({tr, cell, row, colDefs, parameters}) {
  *     // Locally overwrite values here ...
  *     let myCell = { value: 42, colDef: cell.colDef };
- *     let td = super.createMeasureCell({tr, myCell, row, colDefs, parameters});
+ *     let td = super.createMeasureCell({tr, cell: myCell, row, colDefs, parameters});
  *     // Further manipulate created td here ...
  *     if( cell.value < 42 ) td.classList.add( "mySpecialClass" );
+ *     return td;
+ *   }
+ *   // Dimension cells work the same way, rowspan and colspan are provided by the caller
+ *   createDimensionCell(args) {
+ *     let th = super.createDimensionCell(args);
+ *     if( args.cell.wrsA.myLink ) th.innerHTML = `<a href='${args.cell.wrsA.myLink}'>${th.textContent}</a>`;
+ *     return th;
  *   }
  * }
  *
@@ -103,6 +110,7 @@ bcdui.wrs.GenericHtmlBuilder = class {
    */
   transform = (wrsDom, parameters) =>
   {
+    this.wrsDom = wrsDom;
     // Wrapper to make it easier to get transform as a function
     return this.transformImpl(wrsDom, parameters);
   }
@@ -254,7 +262,7 @@ bcdui.wrs.GenericHtmlBuilder = class {
 
     //-------------------------
     // thead
-    this.createTableHeader({table, colDefs});
+    this.createTableHeader({table, colDefs, parameters});
 
     //-------------------------
     // tbody
@@ -274,50 +282,18 @@ bcdui.wrs.GenericHtmlBuilder = class {
       }
 
       //-----------------------------
-      // dimension cells
+      // dimension cells, layout (rowspan, colspan of totals) is decided here, rendering in createDimensionCell()
       dimCols.forEach((col, di) =>
       {
-        if (skip[ri][di]) return; // covered by rowspan above
+        if (skip[ri][di]) return; // covered by rowspan above or colspan to the left
 
         const cell = row.cells[di];
-        const th   = document.createElement('th');
-
-        // total cell
-        if (cell.bcdGr === 1) {
-          const level      = row.grpLevel > 0 ? numDims - row.grpLevel + 1 : 1;
-          const levelCss   = level >= 4 ? 'bcdTLGe4' : `bcdTL${level}`;
-          th.className     = levelCss;
-          th.setAttribute('bcdgr', '1');
-          const colspanVal = Math.max(1, numDims - di);
-          th.setAttribute('colspan', colspanVal);
-          th.setAttribute("bcdTranslate", "bcd_Total");
-
-          const bcdTranslate = "bcd_Total";
-          th.setAttribute("bcdTranslate", bcdTranslate);
-          if (col.isDimTotal) th.className += " bcdTotal";
-
-          tr.appendChild(th);
-
-          // skip the dim columns covered by this colspan
-          di + colspanVal; // just for clarity — the forEach index can't be mutated
-          // so we mark them in skip instead:
-          for (let s = di + 1; s < di + colspanVal; s++) {
-            skip[ri][s] = true;
-          }
-          return;
+        const colspan = cell.bcdGr === 1 ? Math.max(1, numDims - di) : 1;
+        // mark the dim columns covered by a total's colspan
+        for (let s = di + 1; s < di + colspan; s++) {
+          skip[ri][s] = true;
         }
-        // non-total cell
-        if (cell.caption) th.setAttribute('caption', cell.caption);
-        if (rowspans[ri][di] > 1) th.setAttribute('rowspan', rowspans[ri][di]);
-        if (!cell.caption && !cell.value) th.setAttribute("bcdTranslate", "bcd_EmptyDimmember");
-        else th.textContent = cell.caption || cell.value || '';
-
-        const bcdTranslate = cell.bcdOt === 1 ? "bcd_OtherDimmember" : undefined;
-        if (bcdTranslate) th.setAttribute("bcdTranslate", bcdTranslate);
-        if (col.isDimTotal) th.className += " bcdTotal";
-        if (row.isVdm && col.pos == numDims) th.className += " bcdVdm";
-
-        tr.appendChild(th);
+        this.createDimensionCell({tr, cell, row, colDefs, parameters, rowspan: rowspans[ri][di], colspan});
       });
 
       // measure cells — skip if a total cell already spanned dims
@@ -352,7 +328,50 @@ bcdui.wrs.GenericHtmlBuilder = class {
   }
 
   /**
-   * Only needed as an extension point for overwriting.
+   * An extension point for overwriting.
+   * Creates a dimension cell. Its layout, i.e. rowspan and colspan, is decided by the caller and only applied here.
+   * @param {Object} args
+   * @param {HTMLTableRowElement} args.tr - the row to append the cell to
+   * @param {Object} args.cell - the cell data. .value is the content, .colDef is the colHead and all attributes become properties
+   * @param {Object} args.row - the row data, cells is an array of cells, all attributes become properties
+   * @param {Object} args.colDefs - the column definitions, array of all colHeads
+   * @param {Object} args.parameters - the parameters of transform()
+   * @param {number} args.rowspan - number of rows this cell spans, applies to non-total cells
+   * @param {number} args.colspan - number of dimension columns this cell spans, applies to total cells
+   * @returns {HTMLTableCellElement} th - created th
+   */
+  createDimensionCell({tr, cell, row, colDefs, parameters, rowspan, colspan})
+  {
+    const col = cell.colDef;
+    const numDims = colDefs.filter(c => c.isDim).length;
+    const th = document.createElement('th');
+
+    // total cell
+    if (cell.bcdGr === 1) {
+      const level = row.grpLevel > 0 ? numDims - row.grpLevel + 1 : 1;
+      th.className = level >= 4 ? 'bcdTLGe4' : `bcdTL${level}`;
+      th.setAttribute('bcdgr', '1');
+      th.setAttribute('colspan', colspan);
+      th.setAttribute("bcdTranslate", "bcd_Total");
+      if (col.isDimTotal) th.className += " bcdTotal";
+    }
+    // non-total cell
+    else {
+      if (cell.caption) th.setAttribute('caption', cell.caption);
+      if (rowspan > 1) th.setAttribute('rowspan', rowspan);
+      if (!cell.caption && !cell.value) th.setAttribute("bcdTranslate", "bcd_EmptyDimmember");
+      else th.textContent = cell.caption || cell.value || '';
+      if (cell.bcdOt === 1) th.setAttribute("bcdTranslate", "bcd_OtherDimmember");
+      if (col.isDimTotal) th.className += " bcdTotal";
+      if (row.isVdm && col.pos == numDims) th.className += " bcdVdm";
+    }
+
+    tr.appendChild(th);
+    return th;
+  }
+
+  /**
+   * An extension point for overwriting.
    * Creates a measure cell
    * @param {Object} args
    * @param {HTMLTableRowElement} args.tr - the row to append the cell to
@@ -379,15 +398,16 @@ bcdui.wrs.GenericHtmlBuilder = class {
 
 
   /**
-   * Create thead
-   * @private
+   * Only needed as an extension point for overwriting.
+   * Creates the thead, decides the header layout (levels, rowspan, colspan) and calls createHeaderCell() for each cell.
+   * Overwrite to post-process the whole thead, for example to add rows, or overwrite createHeaderCell() for single cells.
    * @param {Object} args
    * @param {HTMLTableElement} args.table - the table to append the thead to
    * @param {Object[]} args.colDefs - the column definitions, array of all colHeads
    * @param {Object} args.parameters - the parameters of transform()
    * @returns {HTMLTableSectionElement} thead - created thead
    */
-  createTableHeader({table, colDefs})
+  createTableHeader({table, colDefs, parameters})
   {
     const thead = table.createTHead();
     const htr   = thead.insertRow();
@@ -398,24 +418,7 @@ bcdui.wrs.GenericHtmlBuilder = class {
     // Plain header as one row
     if (numLevels === 1) {
       for (const col of colDefs) {
-        const th = document.createElement('th');
-        th.setAttribute('bcdcolident', col.id);
-        th.setAttribute('jdbccolumntypename', col.typeName);
-        th.className = col.isDim ? 'bcdDimension' : 'bcdMeasure';
-        if (col.isVMeas) th.className += ' bcdVmeas';
-        if (col.isColCum) {
-          if (col.isRowCum)  {
-            th.className += " bcdRowColCumulate"
-          } else {
-            th.className += " bcdColCumulate"
-          }
-        } else if (col.isRowCum)  {
-          th.className += " bcdRowCumulate"
-        }
-        if (col.isVdm) th.className += " bcdVdm";
-        if (bcdui.i18n.isI18nKey(col.caption)) th.setAttribute('bcdTranslate', col.caption.substring(1));
-        else th.textContent = col.caption;
-        htr.appendChild(th);
+        this.createHeaderCell({tr: htr, col, label: col.caption, level: 0, numLevels: 1, rowspan: 1, colspan: 1, parameters});
       }
     }
 
@@ -523,38 +526,7 @@ bcdui.wrs.GenericHtmlBuilder = class {
             }
           }
 
-          const th = document.createElement('th');
-          th.setAttribute('bcdcolident', col.id);
-          th.setAttribute('jdbccolumntypename', col.typeName);
-          th.className = col.isDim ? 'bcdDimension' : 'bcdMeasure';
-          if (col.isDimTotal) th.className += ' bcdTotal';
-          if (col.isVMeas)  th.className += ' bcdVmeas';
-          if (parts.length == 1 || d === numLevels - 1) {
-            if (col.isColCum) {
-              if (col.isRowCum)  {
-                th.className += " bcdRowColCumulate"
-              } else {
-                th.className += " bcdColCumulate"
-              }
-            } else if (col.isRowCum)  {
-              th.className += " bcdRowCumulate"
-            }
-          }
-          if (col.isVdm && (parts.length == 1 || d === numLevels - 2)) th.className += " bcdVdm";
-          // Total id segment → bcd_Total, otherwise genuine empty dim → bcd_EmptyDimmember.
-          if (label !== '' && bcdui.i18n.isI18nKey(label)) {
-            th.setAttribute('bcdTranslate', label.substring(1));
-          } else if (label !== '') {
-            th.textContent = label;
-          } else if (col.id.split('|')[d] === bcdui.core.magicChar.dimTotal) {
-            th.setAttribute('bcdTranslate', 'bcd_Total');
-          } else {
-            th.setAttribute('bcdTranslate', 'bcd_EmptyDimmember');
-          }
-          if (rowspan > 1) th.rowSpan = rowspan;
-          if (colspan > 1) th.colSpan = colspan;
-
-          headerRows[d].appendChild(th);
+          this.createHeaderCell({tr: headerRows[d], col, label, level: d, numLevels, rowspan, colspan, parameters});
           i += colspan;
         }
       }
@@ -563,6 +535,60 @@ bcdui.wrs.GenericHtmlBuilder = class {
       for (let d = 1; d < numLevels; d++) thead.appendChild(headerRows[d]);
     }
 
+    return thead;
+  }
+
+  /**
+   * Only needed as an extension point for overwriting.
+   * Creates a header cell. Its layout, i.e. rowspan and colspan, is decided by the caller and only applied here.
+   * @param {Object} args
+   * @param {HTMLTableRowElement} args.tr - the header row to append the cell to
+   * @param {Object} args.col - colDef of the (first) column this cell belongs to
+   * @param {string} args.label - the caption part shown at this header level
+   * @param {number} args.level - header row index, 0 is the top row
+   * @param {number} args.numLevels - number of header rows, 1 for a plain header without column dimensions
+   * @param {number} args.rowspan - number of header rows this cell spans
+   * @param {number} args.colspan - number of columns this cell spans
+   * @param {Object} args.parameters - the parameters of transform()
+   * @returns {HTMLTableCellElement} th - created th
+   */
+  createHeaderCell({tr, col, label, level, numLevels, rowspan, colspan, parameters})
+  {
+    const isSinglePart = col.caption.split('|').length === 1;
+    const th = document.createElement('th');
+    th.setAttribute('bcdcolident', col.id);
+    th.setAttribute('jdbccolumntypename', col.typeName);
+    th.className = col.isDim ? 'bcdDimension' : 'bcdMeasure';
+    if (numLevels > 1 && col.isDimTotal) th.className += ' bcdTotal';
+    if (col.isVMeas) th.className += ' bcdVmeas';
+    // Cumulation markers only at the lowest level
+    if (isSinglePart || level === numLevels - 1) {
+      if (col.isColCum) {
+        if (col.isRowCum)  {
+          th.className += " bcdRowColCumulate"
+        } else {
+          th.className += " bcdColCumulate"
+        }
+      } else if (col.isRowCum)  {
+        th.className += " bcdRowCumulate"
+      }
+    }
+    if (col.isVdm && (isSinglePart || level === numLevels - 2)) th.className += " bcdVdm";
+    // In multi-level headers an empty label is a total id segment → bcd_Total, otherwise a genuine empty dim → bcd_EmptyDimmember.
+    if (label !== '' && bcdui.i18n.isI18nKey(label)) {
+      th.setAttribute('bcdTranslate', label.substring(1));
+    } else if (label !== '' || numLevels === 1) {
+      th.textContent = label;
+    } else if (col.id.split('|')[level] === bcdui.core.magicChar.dimTotal) {
+      th.setAttribute('bcdTranslate', 'bcd_Total');
+    } else {
+      th.setAttribute('bcdTranslate', 'bcd_EmptyDimmember');
+    }
+    if (rowspan > 1) th.rowSpan = rowspan;
+    if (colspan > 1) th.colSpan = colspan;
+
+    tr.appendChild(th);
+    return th;
   }
 
   /**
@@ -619,7 +645,8 @@ bcdui.wrs.GenericHtmlBuilder = class {
       for (let i = 0; i < cells.length; i++) {
         const cell = cells[i];
         const isNull = cell.getElementsByTagNameNS(NS_WRS, 'null').length > 0;
-        const caption = cell.getAttribute("caption");
+        const wrsA= {};
+        cell.getAttributeNames().forEach(name => {wrsA[name] = cell.getAttribute(name);});
         row.cells.push({
           value:   isNull ? null : cell.textContent,
           caption: cell.getAttribute("caption"),
@@ -629,6 +656,7 @@ bcdui.wrs.GenericHtmlBuilder = class {
           bcdGr:   parseInt(cell.getAttribute('bcdGr') || '0', 10), // TODO no need to parse
           bcdOt:   parseInt(cell.getAttribute('bcdOt') || '0', 10),
           colDef:  colDefs[i],
+          wrsA
         });
       }
 
