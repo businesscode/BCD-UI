@@ -1087,11 +1087,6 @@ bcdui.core.Renderer = class extends bcdui.core.TransformationChain
   }
 
   /**
-   * Overwrites inherited execute(forced)
-   * Allows also to provide instead of the boolean forced an args object with
-   */
-   
-  /**
    * @typedef {object} Type_RendererExecute_Args
    * @property {function} [fn] A function called once when the object becomes ready again. Called immediately if we are already ready && shouldRefresh==false
    * @property {string} [partialHtmlTargets] Space separated list of html element ids. If given, only these elements within targetHmtlElement of the render
@@ -1100,9 +1095,9 @@ bcdui.core.Renderer = class extends bcdui.core.TransformationChain
    */
 
   /**
-   * @param {(boolean|Type_RendererExecute_Args)} args either true for forced or parameter map
+   * @param {(boolean|Type_RendererExecute_Args)} args either true for forced or parameter map of type {@link Type_RendererExecute_Args}
    */
-  execute( args)
+  execute(args)
   {
     // set targetHTMLElementId/targetHtmlElement on first execute
     if (! this.targetHTMLElementId) {

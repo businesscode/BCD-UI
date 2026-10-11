@@ -53,7 +53,7 @@
       // internal status model we work on
       this.internalStatusModel = new bcdui.core.StaticModel({
         id: this.id + "_status",
-        data: "<guiStatus:Status/>"
+        data: "<guiStatus:Status xmlns:guiStatus=\"" + bcdui.core.xmlConstants.namespaces.guiStatus + "\"/>"
       });
       // our mashed up widgets write to here
       this.options.internalTargetModelXPath = "$" + this.internalStatusModel.id + "/*";
