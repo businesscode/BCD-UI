@@ -15,14 +15,11 @@
   limitations under the License.
 -->
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
         targetNamespace="http://www.businesscode.de/schema/bcdui/chain-1.0.0"
         xmlns:tns="http://www.businesscode.de/schema/bcdui/chain-1.0.0" elementFormDefault="qualified">
   <annotation>
     <documentation>Definition of a transformation chain</documentation>
   </annotation>
-
-  <import namespace="http://www.w3.org/1999/XSL/Transform"/>
 
   <element name="Chain" type="tns:ChainType">
     <unique name="PhaseNameUniqueness">
@@ -46,7 +43,8 @@
   </complexType>
   <complexType name="StylesheetType">
     <sequence>
-      <element ref="xsl:stylesheet" minOccurs="0" maxOccurs="1"/>
+      <!-- There is no schema for xsl we can refer to. This allows to say, we allow elements here, while not breaking a schema validator -->
+      <any namespace="http://www.w3.org/1999/XSL/Transform" processContents="skip" minOccurs="0" maxOccurs="1"/>
       <element name="JsProcFct" minOccurs="0" maxOccurs="1" type="string"/>
       <element name="Param" type="tns:ParamType" minOccurs="0" maxOccurs="unbounded"/>
     </sequence>
