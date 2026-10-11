@@ -1046,7 +1046,7 @@ bcdui.core.TransformationChain = class extends bcdui.core.DataProvider
    *
    * // Later
    * function doUpdate(companyId, address) {
-   *   companiesModel.tblUpdate({ values: {address}, filter: {id: companyId} });
+   *   companiesModel.tblUpdate({ c: {address}, filter: {id: companyId} });
    *   companiesModel.fire(); // Changes done
    * }
    * @extends bcdui.core.TransformationChain

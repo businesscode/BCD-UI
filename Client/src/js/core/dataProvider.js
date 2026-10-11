@@ -539,23 +539,34 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    * @param {string[]} columns - positive list of column
    * @param {Object} xPathTemplate - xPath template which is used for reading (filtered) data (can have {{=it.}}) object references) 
    * @param {string} templateObj   - object holding the values for the placeholders in the xPathTemplate
-   * @return {Array<Object>} holding objects with the read data
+   * @return {Array<Object>} holding row objects `{ rowId, c: { colId: value }, a: { colId: { attrName: value } } }`, see {@link bcdui.core.DataProvider#tblSelect}
    * @private
    */
   _getDataFromTemplate(columns, xPathTemplate, templateObj) {
+    // Resolve the requested columns to their positions once, unknown columns are reported once and skipped
     const columnPosByBRef = this._getColumnPosByBRef();
+    const cols = [];
+    columns.forEach(colId => {
+      if (typeof columnPosByBRef[colId] != "undefined")
+        cols.push({ colId, xPath: "wrs:C[" + columnPosByBRef[colId] + "]" });
+      else
+        bcdui.log.warn("illegal column " + colId + " requested in " + this.id);
+    });
+
+    // Loop over rows
     return Array.from(this.queryNodes(xPathTemplate, templateObj)).map(row => {
-      let rowObj = {};
-      columns.forEach(c => {
-        if (c == "bcdRowId")
-          rowObj["bcdRowId"] = row.getAttribute("id");
-        else if (typeof columnPosByBRef[c] != "undefined") {
-          rowObj[c] = row.selectSingleNode("wrs:C["+columnPosByBRef[c]+"]").text || "";
-          if (rowObj[c] == "" && row.selectSingleNode("wrs:C["+columnPosByBRef[c]+"]/wrs:null") != null)
-            rowObj[c] = null;
-        }
-        else
-          bcdui.log.warn("illegal column " + c + " requested in " + this.id);
+      const rowObj = { rowId: row.getAttribute("id"), c: {}, a: {} };
+      // Loop over wrs:C
+      // We profit from JavaScript memory and access optimization of our row objects in the data array (shape of all c is equal -> V8 hidden class)
+      cols.forEach(({colId, xPath}) => {
+        const cell = row.selectSingleNode(xPath);
+        rowObj.c[colId] = cell.text || "";
+        if (rowObj.c[colId] == "" && cell.selectSingleNode("wrs:null") != null)
+          rowObj.c[colId] = null;
+        // Only cells having wrs:A attributes show up in a
+        const attrs = Array.from(cell.attributes).filter(a => a.namespaceURI !== "http://www.w3.org/2000/xmlns/");
+        if (attrs.length > 0)
+          rowObj.a[colId] = Object.fromEntries(attrs.map(a => [a.name, a.value]));
       });
       return rowObj;
     });
@@ -612,8 +623,16 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
 
   /**
    * Returns an array of columns of a Wrs with their metadata attributes like id, caption, type-name etc.
-   * Includes id, caption, pos, type-name, display-size, scale, isKey, nullable, references etc.
-   * For example: `[{id: 'ctr', caption: 'Country', pos: '1'}, {id: 'state', caption: 'State', pos: '2', references: [ {value: '#e00', caption: 'Red'}, {value: '#0e0', caption: 'Green'} ]}]`
+   * Includes id, caption, pos, type-name, display-size, scale, isKey, nullable, wrsA, references etc.
+   * The exact attributes depend on bcdui/bnd/wrsAttributes in your web.xml
+   * For example: ```js
+   *  [ { id: 'ctr', bRef: 'ctr', caption: 'Country', pos: '1', 'type-name': 'VARCHAR' },
+   *    { id: 'state', caption: 'State', pos: '2', 'type-name': 'NUMERIC',
+   *      wrsA: [ { name: "attr1", id: "attr1", bRef: "ctr_size", "type-name": "VARCHAR", caption="Country Name", "display-size": "22", nullable: "1" } ],
+   *      references: [ {value: '#e00', caption: 'Red'}, {value: '#0e0', caption: 'Green'} ]
+   *    }
+   *  ]
+   * ```
    * @param {object} [args]
    * @param {Array<string>} [args.columns] Limit to these column ids
    * @param {boolean} [args.doSort=false] Sort the columns according to the given columns list. If not given, the columns are returned in the order they are defined in the WRS.
@@ -642,9 +661,23 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
         col[a] = e.getAttribute(a);
       });
 
+      // Child elements wrs:A and wrs:References
+      const colXpath = "/*/wrs:Header/wrs:Columns/wrs:C[@id='"+e.getAttribute("id")+"']";
+
+      // Collect wrs:A
+      const wrsAXPath = colXpath + "/wrs:A";
+      const wrsAs = [];
+      Array.from( that.queryNodes(wrsAXPath) ).forEach(function(wrsANode) {
+        const XMLNS = 'http://www.w3.org/2000/xmlns/';
+        const wrsA = Object.fromEntries(
+          Array.from(wrsANode.attributes).filter(a => a.namespaceURI !== XMLNS).map(a => [a.name, a.value])
+        );
+        wrsAs.push(wrsA);
+      });
+      if( wrsAs.length > 0 ) col.wrsA = wrsAs;
+
       // Collect wrs:References//wrs:C, which is a limitation of allowed values
       const refValues = [];
-      const colXpath = "/*/wrs:Header/wrs:Columns/wrs:C[@id='"+e.getAttribute("id")+"']";
       const refColXpath = colXpath + "/wrs:References/wrs:Wrs/wrs:Data/wrs:R/wrs:C[1]";
       Array.from( that.queryNodes(refColXpath) ).forEach(function(refsNode) {
         refValues.push( { value: refsNode.text, caption: refsNode.getAttribute("caption") } );
@@ -664,20 +697,21 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   }
 
   /**
-   * Inserts a new row in the Wrs. The property names match the Wrs header ids.
+   * Inserts a new row in the Wrs. The property names of c and a match the Wrs header ids.
+   * A row returned by tblSelect can be passed as is, its rowId is ignored, the new row gets a new id.
    * @param {Object}  args             - parameter bag
-   * @param {Object}  args.values      - object holding cell values which should be inserted, e.g. { country: 'DE', flag: true }
+   * @param {Object}  [args.c]         - cell values to be inserted, e.g. `{ country: 'DE', flag: true }`
+   * @param {Object}  [args.a]         - wrs:A attributes of the cells, e.g. `{ country: { caption: 'Germany' } }`, see {@link bcdui.core.DataProvider#tblUpdate}
    * @param {boolean} [args.rmi=true]  - use wrs:I syntax when this is true, otherwise wrs:R is used, rmi=true also prefills default values
    * @param {boolean} [args.fire=true] - lets the listeners know, that the update was finished
    * @return {string} row id of newly inserted row
    *
    * @example
    * // Wrs has columns with matching ids wrs:header/wrs:Columns/wrs:C/@id='author' etc
-   * myModel.tblInsert({ values: {author: 'Descartes', title: "Principles of Philosophy", year: "1644"} });
+   * myModel.tblInsert({ c: {author: 'Descartes', title: "Principles of Philosophy", year: "1644"} });
    */
   tblInsert(args) {
     args = args || {};
-    const values = args.values || {};
     const rmi = args.rmi !== false;
     const doFire = args.fire !== false;
     const columnCount = this.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C").length;
@@ -689,16 +723,20 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
       newIdCount++;
     const newId = prefix + newIdCount;
     bcdui.core.createElementWithPrototype(this.getData(), "/*/wrs:Data/wrs:" + prefix + "[@id='" + newId + "']/wrs:C[" + columnCount + "]");
-    this.tblUpdate({rmi: rmi, fire: doFire, rowId: newId, values: values});
+    this.tblUpdate({rmi: rmi, fire: doFire, rowId: newId, c: args.c, a: args.a});
     return newId;
   }
 
   /**
    * Updates one or multiple Wrs rows with given data.
    * Either a single row (via rowId) or single/multiple ones (via filter). Deleted rows (wrs:D) are never updated.
-   * The filter's and the given values' property names refer to the columns ids.
+   * The property names of filter, c and a refer to the columns ids. Columns not given in c or a are left untouched.
+   * A row returned by tblSelect can be passed as is, its rowId then identifies the row to be updated.
    * @param {Object}  args             - parameter bag
-   * @param {Object}  args.values      - columns and values to be updated. This sets 2 columns { country: 'DE', flag: true }
+   * @param {Object}  [args.c]         - cell values to be updated. This sets 2 columns `{ country: 'DE', flag: true }`
+   * @param {Object}  [args.a]         - wrs:A attributes of the cells to be set, also for columns not given in c. Any attribute name is allowed, not only those declared in the header.
+   *    Example `a: { countryCol: { caption: 'Germany', flag: true } }` becomes `<wrs:C caption='Germany' flag='true'>someValue</wrs:C>`.
+   *    An attribute value null removes the attribute, undefined leaves it untouched.
    * @param {Object}  [args.filter]    - affected row(s) for example `{ country: 'DE', flag: true }`
    * @param {boolean} [args.rmi=true]  - use wrs:M syntax when this is true, otherwise row columns element name is not touched
    * @param {boolean} [args.fire=true] - lets the listeners know, that the update was finished
@@ -707,18 +745,20 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    *
    * @example
    * // Update sales information for a book
-   * myModel.tblUpdate({ values: {sold: 16, lastSold: new Date()},
+   * myModel.tblUpdate({ c: {sold: 16, lastSold: new Date()},
    *                     filter: {author: 'Descartes', title: "Principles of Philosophy"} });
    * @example
    * // Update all values for 'AT', for example, even it has 3 sites
-   * myModel.tblUpdate({ values: {supervisor: 'Karl Popper'}, filter: {country: 'AT'} });
+   * myModel.tblUpdate({ c: {supervisor: 'Karl Popper'}, filter: {country: 'AT'} });
+   * @example
+   * // Set a value and an attribute of the same cell
+   * myModel.tblUpdate({ rowId: 'R1', c: {country: 'DE'}, a: {country: {caption: 'Germany'}} });
    */
   tblUpdate(args) {
     args = args || {};
     const filter = args.filter || {};
-    const values = args.values || {};
-    const rmi = args.rmi === false ? false : args.rmi || true;
-    const doFire = args.fire === false ? false : args.fire || true;
+    const values = args.c || {};
+    const wrsA = args.a || {};
     const rmi = args.rmi !== false;
     const doFire = args.fire !== false;
     const columnPosByBRef = this._getColumnPosByBRef();
@@ -726,16 +766,26 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
       ? [args.rowId]
       : Array.from(this.queryNodes(this._getFillParams(filter, this._rowsXPath() + this._buildXPathTemplate(filter) + "/@id"))).map(function(r) { return r.text || ""}).filter(function(f) { return f != ""; });
 
+    let updatedCount = 0;
     rowIds.forEach(function(rowId) {
       const rowNode = this.query(this._rowsXPath() + "[@id='{{=it.rowId}}']", {rowId: rowId});
       if (rowNode != null) {
-        for (let v in values) {
+        updatedCount++;
+        // A column may come with a value, with wrsA attributes or with both
+        const colIds = new Set([...Object.keys(values), ...Object.keys(wrsA)]);
+
+        for (const v of colIds) {
           if (typeof columnPosByBRef[v] != "undefined") {
-            if (rmi)
-              bcdui.wrs.wrsUtil.setCellValue(this.getData(), rowId, columnPosByBRef[v], values[v]);
-            else {
-              let node = rowNode.selectSingleNode("wrs:C["+columnPosByBRef[v]+"]");
-              if (node != null) {
+            const hasValue = Object.prototype.hasOwnProperty.call(values, v);
+            let node = null;
+            if (rmi) {
+              node = hasValue
+                ? bcdui.wrs.wrsUtil.setCellValue(this.getData(), rowId, columnPosByBRef[v], values[v])
+                // attribute-only change, still turns wrs:R into wrs:M with wrs:O, so the change is saved
+                : bcdui.core.createElementWithPrototype(this.getData(), this._getFillParams({rowId: rowId}, "/*/wrs:Data/wrs:*[@id='{{=it.rowId}}']/wrs:C[" + columnPosByBRef[v] + "]"));
+            } else {
+              node = rowNode.selectSingleNode("wrs:C["+columnPosByBRef[v]+"]");
+              if (node != null && hasValue) {
                 if (values[v] === null) {
                   node.text = "";
                   bcdui.core.browserCompatibility.appendElementWithPrefix(node, "wrs:null");
@@ -743,6 +793,16 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
                 else
                   node.text = values[v];
               }
+            }
+            // wrsA[v] are the attributes of our column and wrsA[v][k] is the value of the attribute with name k
+            // null removes the attribute, undefined leaves it untouched, everything else is written as string
+            if( node && wrsA[v]) {
+              Object.keys(wrsA[v]).forEach( k => {
+                if (wrsA[v][k] === null)
+                  node.removeAttribute(k);
+                else if (typeof wrsA[v][k] !== "undefined")
+                  node.setAttribute(k, String(wrsA[v][k]));
+              });
             }
           }
           else
@@ -755,7 +815,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
 
     if (doFire) this.fire();
 
-    return rowIds.length;
+    return updatedCount;
   }
 
   /**
@@ -785,20 +845,29 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   }
 
   /**
-   * Selects an array of row values like `[{ctr: 'DE', site: 'HAM', flag: true}, {ctr: 'DE', site: 'BER', flag: false}];` for a given filter.
-   * The filter's and the returned property names match the column ids. Deleted rows (wrs:D) are excluded.
+   * Selects an array of rows for a given filter. Deleted rows (wrs:D) are excluded.
+   * Each row is an object `{ rowId, c, a }`:
+   *    rowId is the wrs:R/@id, c holds the cell values and a the wrs:A attributes of the cells, both by column id.
+   *    a contains only cells having attributes, e.g. `{ rowId: 'R1', c: { ctr: 'DE', high: '1434' }, a: { high: { target: '1010' } } }`
+   *    This is the same format as taken by {@link bcdui.core.DataProvider#tblUpdate} and {@link bcdui.core.DataProvider#tblInsert}.
+   *
+   *    Addressing cells by column id instead of position does not waste memory or performance:
+   *    All c objects of a result get their properties in the same order, so JavaScript engines let them share one internal "hidden class" (V8) or "shape" (other engines).
+   *    The column ids are stored only once in that shape, each row only holds its values, quite like an array.
+   *    See [Fast properties in V8](https://v8.dev/blog/fast-properties) and [Shapes and Inline Caches](https://mathiasbynens.be/notes/shapes-ics).
+   *    This is one of the reasons to keep the `a` separated, we get equally shaped objects where this holds.
    * @param {Object}  args            - parameter bag
-   * @param {Object}  [args.filter]   - object holding cell values which should be used for selecting the rows for update, e.g. { country: 'DE', flag: true }
+   * @param {Object}  [args.filter]   - object holding cell values which should be used for selecting the rows, e.g. { country: 'DE', flag: true }
    * @param {Array<string>}   [args.columns]  - string array of requested columns, if not given, all columns are returned
-   * @return {Array<Object>} Array of objects holding the requested data
+   * @return {Array<Object>} Array of row objects `{ rowId, c, a }` holding the requested data.
    * @example
    * // Select all rows with country 'DE'
    * let ret = myModel.tblSelect({ filter: { ctr: 'DE' } });
-   * // ret equals [{ctr: 'DE', site: 'Hamburg', flag: true}, {ctr: 'DE', site: 'Berlin', flag: false}]
+   * // ret equals [{rowId: 'R1', c: {ctr: 'DE', site: 'Hamburg', flag: 'true'}, a: {}}, {rowId: 'R2', c: {ctr: 'DE', site: 'Berlin', flag: 'false'}, a: {}}]
    * @example
    * // Select all book titles and publishing years for author 'Hobbes'
    * let ret = myModel.tblSelect({ filter: { author: 'Hobbes' }, columns: ['title', 'year'] });
-   * // ret equals [{title: 'De Cive', year: '1642'}, {title: 'Problemata Physica', year: '1662'}]
+   * // ret.map(r => r.c) equals [{title: 'De Cive', year: '1642'}, {title: 'Problemata Physica', year: '1662'}]
    */
   tblSelect(args){
     args = args || {};
@@ -809,16 +878,16 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
 
   /**
    * Get the values of a single row, identified either by its `wrs:/@id`, or the first one matching the filter.
-   * The filter's and the returned property names match the column ids. Deleted rows (wrs:D) are excluded.
+   * The filter's property names match the column ids. Deleted rows (wrs:D) are excluded.
    * @param {Object}  args                 - parameter bag
-   * @param {Object}        [args.filter]  - object holding cell values which should be used for selecting the rows for update, e.g. { country: 'DE', flag: true }
+   * @param {Object}        [args.filter]  - object holding cell values which should be used for selecting the row, e.g. { country: 'DE', flag: true }
    * @param {string}        [args.rowId]   - rowId of row which should be queried (or use filter)
    * @param {Array<string>} [args.columns] - string array of requested columns, if not given, all columns are returned
-   * @return {Object} Array  of objects holding the requested data
+   * @return {Object} Row object `{ rowId, c, a }` or undefined if there is no matching row, see {@link bcdui.core.DataProvider#tblSelect}
    * @example
    * // Select area and population for California
    * let ret = myModel.tblSelectRow({ filter: { ctr: 'US', state: 'CA' }, columns: ['area', 'population'] });
-   * // ret equals {area: '423.970', population: '39.538.223'}}
+   * // ret.c equals {area: '423.970', population: '39.538.223'}
    */
   tblSelectRow(args){
     args = args || {};
@@ -830,27 +899,28 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   }
 
   /**
-   * Validates a set of column values against the WRS header constraints of this DataProvider, i.e., would these valus be valid.
+   * Validates a set of column values against the WRS header constraints of this DataProvider, i.e., would these values be valid.
    * The check is purely client-side (no server round-trip): type, scale, display-size, nullable,
    * embedded header References, and key uniqueness within the loaded data are all covered.
-   * Only columns present in args.values are validated.
+   * Only columns present in args.c are validated.
    * For a planned tblUpdate, provide rowId or filter to exclude the changed row from uniqueness check.
    * For a planned tblInsert, rowId is not needed as the uniqueness check is performed against all current loaded data.
+   * The arguments match those of tblUpdate, i.e. a row returned by tblSelect can be passed as is.
    * @param {Object}  args            - parameter bag
-   * @param {Object}  args.values     - { colId: value } map of values to validate
-   * @param {string}  [args.rowId]    - only needed for key uniqueness: identifies the row being validated so it is excluded from the duplicate check. 
-   *    If not given values is treated like a new row to be inserted
+   * @param {Object}  args.c          - { colId: value } map of values to validate
+   * @param {string}  [args.rowId]    - only needed for key uniqueness: identifies the row being validated so it is excluded from the duplicate check.
+   *    If not given c is treated like a new row to be inserted
    * @param {Object}  [args.filter]   - alternative to parameter rowId; first matching row is used
    * @return {Array<{colId: string, errorCode: string}>} list of validation errors
    *
    * @example
-   * const errors = myModel.tblValidateRowChange({ rowId: 'R1', values: { amount: 'abc', color: '#xyz' } });
+   * const errors = myModel.tblValidateRowChange({ rowId: 'R1', c: { amount: 'abc', color: '#xyz' } });
    * // errors: [{ colId: 'amount', errorCode: 'bcd_ValidTypeName_NUMERIC' },
    * //          { colId: 'color',  errorCode: 'bcd_ValidReferences' }]
    */
   tblValidateRowChange(args) {
     args = args || {};
-    const values = args.values || {};
+    const values = args.c || {};
 
     // Column metadata keyed by colId (attributes as-is, e.g. "type-name", "display-size")
     const headers = this.tblGetColumnMetadata({});
@@ -884,7 +954,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
         // Key values not given in values are taken from the target row (update case)
         const keyFilter = Object.fromEntries(keyColIds.map(k => [k,
           typeof values[k] !== 'undefined' ? (values[k] === null ? null : String(values[k]))
-                                           : (targetRow ? targetRow[k] : undefined)
+                                           : (targetRow ? targetRow.c[k] : undefined)
         ]));
         // Without a complete key (insert or unknown row with missing key values) uniqueness cannot be decided,
         // missing non-nullable key values are already reported as bcd_ValidNullable

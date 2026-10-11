@@ -1098,7 +1098,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
    * @param {string|number}                   columnIdOrPos      ID or 1-based position of column
    * @param {string}                          [value=null]  If NULL then wrs:null node is appended to column
    *
-   * @return {boolean} true if value has been set, false otherwise
+   * @return {DomElement|undefined} the wrs:C element, undefined otherwise
    */
   setCellValue : function(wrs, rowId, columnIdOrPos, value){
     var dataProvider = null;
@@ -1112,8 +1112,8 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
     var wrsPos = bcdui.util.isString(columnIdOrPos) ? bcdui.wrs.wrsUtil.getColPosById(wrs, columnIdOrPos) : columnIdOrPos;
     rowId = bcdui.util.isNumber(rowId) ? rowId : "@id='" + rowId + "'";
     var wrsC = bcdui.core.createElementWithPrototype(wrs,(!isWrs ? "*/" : "") + "wrs:Data/*["+rowId+"]/wrs:C["+wrsPos+"]");
-    if(!wrsC)return;
-    if(value != null){
+    if(!wrsC) return undefined;
+    if(value != null) {
       // implicit String-cast
       wrsC.text = ""+value;
     } else {
@@ -1121,6 +1121,7 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
       // the only way to handle namespaces properly
       bcdui.core.browserCompatibility.appendElementWithPrefix(wrsC, "wrs:null");
     }
+    return wrsC;
   },
 
   /**
