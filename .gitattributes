@@ -1,0 +1,7 @@
+# Store text files with LF in the repository and check them out with LF, independent of each developer's core.autocrlf.
+# Prevents commits where all lines change only due to line endings. Binary files are detected automatically and left untouched.
+* text=auto eol=lf
+
+# Windows scripts need CRLF to run reliably in cmd.exe
+*.bat text eol=crlf
+*.cmd text eol=crlf
