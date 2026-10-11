@@ -18,6 +18,7 @@
   targetNamespace="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"
   xmlns:tns="http://www.businesscode.de/schema/bcdui/xsltParams-1.0.0"
   xmlns:dm="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"
+  xmlns:f="http://www.businesscode.de/schema/bcdui/filter-1.0.0"
   xmlns:wrs="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"
   elementFormDefault="qualified" attributeFormDefault="unqualified">
   <annotation>
@@ -26,6 +27,7 @@
 
   <import namespace="http://www.businesscode.de/schema/bcdui/wrs-1.0.0"/>
   <import namespace="http://www.businesscode.de/schema/bcdui/dimmeas-1.0.0"/>
+  <import namespace="http://www.businesscode.de/schema/bcdui/filter-1.0.0"/>
 
   <!--
     Root element, parameter container
@@ -535,21 +537,22 @@
 
         <sequence>
 
-          <element name="RowsOrder" minOccurs="0">
+          <!-- Sorting rows -->
+          <element name="RowsOrder" minOccurs="0" maxOccurs="1">
             <annotation><documentation>
               Definition of the row's ordering
             </documentation></annotation>
             <complexType>
               <sequence>
-                <element name="Columns" minOccurs="0">
+                <element ref="wrs:Columns" minOccurs="0" maxOccurs="1">
                   <annotation><documentation>
-                    Order by the following columns with prio in their order
+                    Order by the following row-dimension columns with prio in their order
                   </documentation></annotation>
                   <complexType>
                     <sequence>
-                      <element name="C" minOccurs="0" maxOccurs="unbounded">
+                      <element ref="wrs:C" minOccurs="0" maxOccurs="unbounded">
                         <annotation><documentation>
-                          Order according to the attributes
+                          Row dimension to order by
                         </documentation></annotation>
                         <complexType>
                           <attribute name="id" type="NCName" use="required"/>
@@ -578,8 +581,67 @@
                           </attribute>
                           <attribute name="sortBy" type="NCName">
                             <annotation><documentation>
-                              A value-id according to which to sort the column.
-                              For example you can sort the countries according their population instead of their name
+                              A value-id according to which to sort the rows within the row dimension, using the matching sub-total.
+                              For example you can sort the countries according their population instead of their name.
+                              If now given, the sort is done by the value of the dimension member instead.
+                            </documentation></annotation>
+                          </attribute>
+                        </complexType>
+                      </element>
+                    </sequence>
+                  </complexType>
+                </element>
+              </sequence>
+            </complexType>
+          </element>
+
+          <!-- Column ordering -->
+          <element name="ColDimsOrder" minOccurs="0" maxOccurs="1">
+            <annotation><documentation>
+              Definition of the column dimension ordering
+            </documentation></annotation>
+            <complexType>
+              <sequence>
+                <element ref="wrs:Columns" minOccurs="0" maxOccurs="1">
+                  <annotation><documentation>
+                    Order by the following col-dimensions with prio in their order
+                  </documentation></annotation>
+                  <complexType>
+                    <sequence>
+                      <element ref="wrs:C" minOccurs="0" maxOccurs="unbounded">
+                        <annotation><documentation>
+                          Col dimension to order by
+                        </documentation></annotation>
+                        <complexType>
+                          <attribute name="id" type="NCName" use="required"/>
+                          <attribute name="sort" default="ascending">
+                            <annotation><documentation>
+                              Sort order
+                            </documentation></annotation>
+                            <simpleType>
+                              <restriction base="string">
+                               <enumeration value="ascending"/>
+                               <enumeration value="descending"/>
+                              </restriction>
+                            </simpleType>
+                          </attribute>
+                          <attribute name="total" default="trailing">
+                            <annotation><documentation>
+                              Whether to move totals to the end or top. Wins over other sortings.
+                              'true' means the position of the totals follows their value
+                            </documentation></annotation>
+                            <simpleType>
+                              <restriction base="string">
+                               <enumeration value="leading"/>
+                               <enumeration value="trailing"/>
+                              </restriction>
+                            </simpleType>
+                          </attribute>
+                          <attribute name="sortBy" type="NCName">
+                            <annotation><documentation>
+                              A value-id according to which to sort the column within th ecol dimension, using the matching sub-total.
+                              For example you can sort the countries according their population instead of their name.
+                              If now given, the sort is done by the value of the dimension member instead.
                             </documentation></annotation>
                           </attribute>
                         </complexType>
@@ -598,6 +660,22 @@
 
   </complexType>
 
+
+  <!-- xp:Filter-->
+  <complexType name="Filter">
+    <annotation><documentation>
+      Allows for filtering rows and columns of a Wrs client side using the standard f:Filter notation with xp:Filter a root
+    </documentation></annotation>
+    <complexContent>
+      <extension base="tns:BaseParamType">
+        <sequence>
+          <element name="Filter" type="f:Filter"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+
+
   <!-- xp:ColDims -->
   <complexType name="ColDimsType">
     <annotation><documentation>Parameters creating column row- and dimensions from a standard Wrs document</documentation></annotation>
@@ -605,7 +683,7 @@
       <element name="Measures">
         <complexType>
           <sequence>
-            <element name="AllDims" minOccurs="0">
+            <element name="AllDims" minOccurs="0" maxOccurs="1">
               <annotation><documentation>List of measures broken down by all dimensions</documentation></annotation>
               <complexType>
                 <sequence>
@@ -625,18 +703,18 @@
         </complexType>
       </element>
 
-      <element name="Dimensions" minOccurs="0">
+      <element name="Dimensions" minOccurs="0" maxOccurs="1">
         <annotation><documentation>Defining which row and column dimensions to apply</documentation></annotation>
         <complexType>
           <sequence>
-            <element name="Rows" minOccurs="0">
+            <element name="Rows" minOccurs="0" maxOccurs="1">
               <complexType>
                 <sequence>
                   <element ref="dm:LevelRef" minOccurs="0" maxOccurs="unbounded"/>
                 </sequence>
               </complexType>
             </element>
-            <element name="Columns" minOccurs="0">
+            <element name="Columns" minOccurs="0" maxOccurs="1">
               <complexType>
                 <sequence>
                   <element ref="dm:LevelRef" minOccurs="0" maxOccurs="unbounded"/>
@@ -686,7 +764,7 @@
     <complexContent>
       <extension base="tns:BaseParamType">
         <sequence>
-          <element name="NumberFormattingOption" minOccurs="0">
+          <element name="NumberFormattingOption" minOccurs="0" maxOccurs="1">
             <simpleType>
               <restriction base="string">
                 <enumeration value="standard"><annotation><documentation>the standard number formatting indicating negative numbers by minus sign, i.e. -1,234.56</documentation></annotation></enumeration>
@@ -694,30 +772,30 @@
               </restriction>
             </simpleType>
           </element>
-          <element name="HeaderColsCount"     type="integer" minOccurs="0"/>
-          <element name="HeaderColsAreUnique" type="boolean" minOccurs="0"/>
-          <element name="TotalColumnText"     type="string" minOccurs="0"/>
-          <element name="HideTotals"          type="boolean" minOccurs="0"/>
-          <element name="SortTotalsFirst"     type="boolean" minOccurs="0"/>
-          <element name="SortCols"            type="boolean" minOccurs="0"/>
-          <element name="MakeEvenOddColoring" type="boolean" minOccurs="0"/>
-          <element name="MakeRowSpan"         type="boolean" minOccurs="0"/>
-          <element name="MakeColSpan"         type="boolean" minOccurs="0"/>
-          <element name="ShowDeletedRows"     type="boolean" minOccurs="0"/>
-          <element name="EmptyMessage"        type="string" minOccurs="0">
+          <element name="HeaderColsCount"     type="integer" minOccurs="0"  maxOccurs="1"/>
+          <element name="HeaderColsAreUnique" type="boolean" minOccurs="0" maxOccurs="1"/>
+          <element name="TotalColumnText"     type="string" minOccurs="0" maxOccurs="1"/>
+          <element name="HideTotals"          type="boolean" minOccurs="0" maxOccurs="1"/>
+          <element name="SortTotalsFirst"     type="boolean" minOccurs="0" maxOccurs="1"/>
+          <element name="SortCols"            type="boolean" minOccurs="0" maxOccurs="1"/>
+          <element name="MakeEvenOddColoring" type="boolean" minOccurs="0" maxOccurs="1"/>
+          <element name="MakeRowSpan"         type="boolean" minOccurs="0" maxOccurs="1"/>
+          <element name="MakeColSpan"         type="boolean" minOccurs="0" maxOccurs="1"/>
+          <element name="ShowDeletedRows"     type="boolean" minOccurs="0" maxOccurs="1"/>
+          <element name="EmptyMessage"        type="string" minOccurs="0" maxOccurs="1">
             <annotation><documentation>
               i18n key which is shown when report query did not return any data, default is bcd_EmptyReport 
             </documentation></annotation>
           </element>
-          <element name="OnlyMeasureForTotal" type="boolean" minOccurs="0">
+          <element name="OnlyMeasureForTotal" type="boolean" minOccurs="0" maxOccurs="1">
             <annotation><documentation>
               If true, the 'total' cell in the table header above the measure names will be replaced by larger cells with the measure names (still with the style of total)
             </documentation></annotation>
           </element>
-          <element name="MaxCells" type="integer" minOccurs="0">
+          <element name="MaxCells" type="integer" minOccurs="0" maxOccurs="1">
             <annotation><documentation>Limit the output to approximately this number of cells, default is 25000</documentation></annotation>
           </element>
-          <element name="AdditionalTemplates" minOccurs="0">
+          <element name="AdditionalTemplates" minOccurs="0" maxOccurs="1">
             <annotation><documentation>
               Contains well formed xslt template(s), keys or variables like.
               They are appended to the generated htmlBuilderTemplate.xslt and allow overwriting cell renderer.
@@ -749,40 +827,40 @@
               </sequence>
             </complexType>
           </element>
-          <element name="CreateHeaderFilters" type="boolean" minOccurs="0" default="false">
+          <element name="CreateHeaderFilters" type="boolean" minOccurs="0" maxOccurs="1" default="false">
             <annotation><documentation>Enables column filters</documentation></annotation>
           </element>
-          <element name="ExpandCollapseCells" type="boolean" minOccurs="0" default="false">
+          <element name="ExpandCollapseCells" type="boolean" minOccurs="0" maxOccurs="1" default="false">
             <annotation><documentation>Enables the possibility to expand or collapse cells</documentation></annotation>
           </element>
-          <element name="CreateFixHeader" type="boolean" minOccurs="0" default="false">
+          <element name="CreateFixHeader" type="boolean" minOccurs="0" maxOccurs="1" default="false">
             <annotation><documentation>Enables a fixed header (deprecated)</documentation></annotation>
           </element>
-          <element name="StickyHeader" type="boolean" minOccurs="0" default="false">
+          <element name="StickyHeader" type="boolean" minOccurs="0" maxOccurs="1" default="false">
             <annotation><documentation>Enables a sticky header</documentation></annotation>
           </element>
-          <element name="StickyFooter" type="boolean" minOccurs="0" default="false">
+          <element name="StickyFooter" type="boolean" minOccurs="0" maxOccurs="1" default="false">
             <annotation><documentation>Enables a sticky footer</documentation></annotation>
           </element>
-          <element name="StickyDims" type="boolean" minOccurs="0" default="false">
+          <element name="StickyDims" type="boolean" minOccurs="0" maxOccurs="1" default="false">
             <annotation><documentation>Enables sticky dimensions cells</documentation></annotation>
           </element>
-          <element name="StickyWidth" type="string" minOccurs="0">
+          <element name="StickyWidth" type="string" minOccurs="0" maxOccurs="1">
             <annotation><documentation>Sets the width of the table's parent element</documentation></annotation>
           </element>
-          <element name="StickyHeight" type="string" minOccurs="0">
+          <element name="StickyHeight" type="string" minOccurs="0" maxOccurs="1">
             <annotation><documentation>Sets the height of the table's parent element</documentation></annotation>
           </element>
-          <element name="StickyFirstRows" type="integer" minOccurs="0">
+          <element name="StickyFirstRows" type="integer" minOccurs="0" maxOccurs="1">
             <annotation><documentation>make the first n rows sticky</documentation></annotation>
           </element>
-          <element name="StickyLastRows" type="integer" minOccurs="0">
+          <element name="StickyLastRows" type="integer" minOccurs="0" maxOccurs="1">
             <annotation><documentation>make the last n rows sticky</documentation></annotation>
           </element>
-          <element name="StickyFirstCols" type="integer" minOccurs="0">
+          <element name="StickyFirstCols" type="integer" minOccurs="0" maxOccurs="1">
             <annotation><documentation>make the first n columns sticky</documentation></annotation>
           </element>
-          <element name="StickyLastCols" type="integer" minOccurs="0">
+          <element name="StickyLastCols" type="integer" minOccurs="0" maxOccurs="1">
             <annotation><documentation>make the last n columns sticky</documentation></annotation>
           </element>
 
@@ -798,15 +876,14 @@
     <complexContent>
       <extension base="tns:BaseParamType">
         <sequence>
-          <element name="RowDimensions" minOccurs="0">
+          <element name="RowDimensions" minOccurs="0" maxOccurs="1">
             <annotation><documentation>
               Row dimensions defining the cumulation groups for col-wise cumulation.
               Rows sharing the same values in all but the last of these columns form one cumulation unit.
-              Allows for cumulation/% in respect to an inner dimensions.
             </documentation></annotation>
             <complexType>
               <sequence>
-                <element name="Columns" minOccurs="0">
+                <element name="Columns" minOccurs="0" maxOccurs="1">
                   <complexType>
                     <sequence>
                       <element ref="wrs:C" minOccurs="0" maxOccurs="unbounded">
@@ -820,7 +897,7 @@
               </sequence>
             </complexType>
           </element>
-          <element name="RowCumulate" minOccurs="0">
+          <element name="RowCumulate" minOccurs="0" maxOccurs="1">
             <annotation><documentation>
               Measures to cumulate left-to-right over the columns of each row.
               Each wrs:C identifies a measure by @valueId; the operation is given by @type.
@@ -836,7 +913,7 @@
               </sequence>
             </complexType>
           </element>
-          <element name="ColCumulate" minOccurs="0">
+          <element name="ColCumulate" minOccurs="0" maxOccurs="1">
             <annotation><documentation>
               Measures to cumulate top-down over the rows of each column.
               Each wrs:C identifies a measure by @valueId; the operation is given by @type.

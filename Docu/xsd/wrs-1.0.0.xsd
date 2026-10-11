@@ -176,6 +176,16 @@
         If given, indicates a pipe | separated list of column dimensions.
       </xs:documentation></xs:annotation>
     </xs:attribute>
+    <xs:attribute name="colDimLevelTypeNames">
+      <xs:annotation><xs:documentation>
+        If given, indicates a pipe | separated list of column dimensions' data types.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="colDimLevelCaptions">
+      <xs:annotation><xs:documentation>
+        If given, indicates a pipe | separated list of column dimensions' captions.
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <xs:complexType name="MetaDataColumnType">
