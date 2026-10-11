@@ -585,11 +585,18 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
     return (xPaths.length == 0 ? "" : "[" + xPaths.join(" and ") + "]");
   }
 
-
+  /**
+   * xPath addressing the Wrs data rows, deleted rows (wrs:D) are excluded
+   * @return {string} xPath of the data rows, ready to be extended by a predicate
+   * @private
+   */
+  _rowsXPath() {
+    return "/*/wrs:Data/wrs:*[not(self::wrs:D)]";
+  }
 
   /**
    * Returns an array of row ids (wrs:R/@id) of the rows matching the filter.
-   * If no filter is given, all row ids are returned.
+   * If no filter is given, all row ids are returned. Deleted rows (wrs:D) are excluded.
    * The order of ids matches the order of the rows in the Wrs.
    * @param {object} args
    * @param {object} [args.filter] - object holding requested filter conditions, e.g. `{ country: 'DE', flag: true }`
@@ -597,7 +604,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    */
   tblGetRowIds(args) {
     const filter = args?.filter ? this._buildXPathTemplate(args.filter) : "";
-    const predicate = "/*/wrs:Data/wrs:*" + filter;
+    const predicate = this._rowsXPath() + filter;
     const xPath = this._getFillParams(args?.filter ?? "",  predicate+ "/@id");
     const rowIds = Array.from( this.queryNodes(xPath) ).map( rId => rId.text );
     return rowIds;
@@ -688,7 +695,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
 
   /**
    * Updates one or multiple Wrs rows with given data.
-   * Either a single row (via rowId) or single/multiple ones (via filter)
+   * Either a single row (via rowId) or single/multiple ones (via filter). Deleted rows (wrs:D) are never updated.
    * The filter's and the given values' property names refer to the columns ids.
    * @param {Object}  args             - parameter bag
    * @param {Object}  args.values      - columns and values to be updated. This sets 2 columns { country: 'DE', flag: true }
@@ -717,10 +724,10 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
     const columnPosByBRef = this._getColumnPosByBRef();
     const rowIds = args.rowId
       ? [args.rowId]
-      : Array.from(this.queryNodes(this._getFillParams(filter, "/*/wrs:Data/wrs:*" + this._buildXPathTemplate(filter) + "/@id"))).map(function(r) { return r.text || ""}).filter(function(f) { return f != ""; });
+      : Array.from(this.queryNodes(this._getFillParams(filter, this._rowsXPath() + this._buildXPathTemplate(filter) + "/@id"))).map(function(r) { return r.text || ""}).filter(function(f) { return f != ""; });
 
     rowIds.forEach(function(rowId) {
-      const rowNode = this.query("/*/wrs:Data/wrs:*[@id='{{=it.rowId}}']", {rowId: rowId});
+      const rowNode = this.query(this._rowsXPath() + "[@id='{{=it.rowId}}']", {rowId: rowId});
       if (rowNode != null) {
         for (let v in values) {
           if (typeof columnPosByBRef[v] != "undefined") {
@@ -752,7 +759,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   }
 
   /**
-   * Delete Wrs rows. Either a single row (via rowId) or single/multiple ones via filter
+   * Delete Wrs rows. Either a single row (via rowId) or single/multiple ones via filter. Already deleted rows (wrs:D) are not touched.
    * The filter's property names refer to the columns ids.
    * @param {Object}  args             - parameter bag
    * @param {Object}  [args.filter]    - affected row(s) for example `{ country: 'DE', flag: true }`
@@ -770,8 +777,8 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
     const rmi = args.rmi !== false;
     const doFire = args.fire !== false;
     const xPathTpl = args.rowId
-      ? this._getFillParams({rowId: args.rowId}, "/*/wrs:Data/wrs:*[@id='{{=it.rowId}}']")
-      : this._getFillParams(filter, "/*/wrs:Data/wrs:*" + this._buildXPathTemplate(filter));
+      ? this._getFillParams({rowId: args.rowId}, this._rowsXPath() + "[@id='{{=it.rowId}}']")
+      : this._getFillParams(filter, this._rowsXPath() + this._buildXPathTemplate(filter));
     const c = bcdui.core.removeXPath(this.getData(), xPathTpl, rmi)
     if (doFire) this.fire();
     return c;
@@ -779,7 +786,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
 
   /**
    * Selects an array of row values like `[{ctr: 'DE', site: 'HAM', flag: true}, {ctr: 'DE', site: 'BER', flag: false}];` for a given filter.
-   * The filter's and the returned property names match the column ids.
+   * The filter's and the returned property names match the column ids. Deleted rows (wrs:D) are excluded.
    * @param {Object}  args            - parameter bag
    * @param {Object}  [args.filter]   - object holding cell values which should be used for selecting the rows for update, e.g. { country: 'DE', flag: true }
    * @param {Array<string>}   [args.columns]  - string array of requested columns, if not given, all columns are returned
@@ -797,12 +804,12 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
     args = args || {};
     const filter = args.filter || {}
     const columns = args.columns || Array.from(this.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C")).map(function (e) { return e.getAttribute("id"); });
-    return this._getDataFromTemplate(columns, "/*/wrs:Data/wrs:*" + this._buildXPathTemplate(filter), filter);
+    return this._getDataFromTemplate(columns, this._rowsXPath() + this._buildXPathTemplate(filter), filter);
   }
 
   /**
    * Get the values of a single row, identified either by its `wrs:/@id`, or the first one matching the filter.
-   * The filter's and the returned property names match the column ids.
+   * The filter's and the returned property names match the column ids. Deleted rows (wrs:D) are excluded.
    * @param {Object}  args                 - parameter bag
    * @param {Object}        [args.filter]  - object holding cell values which should be used for selecting the rows for update, e.g. { country: 'DE', flag: true }
    * @param {string}        [args.rowId]   - rowId of row which should be queried (or use filter)
@@ -817,7 +824,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
     args = args || {};
     if (args.rowId) {
       const columns = args.columns || Array.from(this.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C")).map(function (e) { return e.getAttribute("id"); });
-      return this._getDataFromTemplate(columns, "/*/wrs:Data/wrs:*[@id='{{=it.rowId}}']", {rowId: args.rowId})[0];
+      return this._getDataFromTemplate(columns, this._rowsXPath() + "[@id='{{=it.rowId}}']", {rowId: args.rowId})[0];
     }
     return this.tblSelect(args)[0];
   }
