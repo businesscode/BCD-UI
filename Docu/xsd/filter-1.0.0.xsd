@@ -107,7 +107,7 @@
           Area of bRef is contained in param's area. Param is expected to be provided as WKT.
         </xs:documentation></xs:annotation>
       </xs:enumeration>
-      <xs:enumeration value="spatIntersect"/>
+      <xs:enumeration value="spatIntersects"/>
     </xs:restriction>
   </xs:simpleType>
 
