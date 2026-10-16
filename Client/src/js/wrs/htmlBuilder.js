@@ -29,18 +29,26 @@
  * @example
  * // Create your specialized HtmlBuilder by overwriting createMeasureCell()
  * class MyHtmlBuilder extends bcdui.wrs.GenericHtmlBuilder {
- *   createMeasureCell({tr, cell, row, colDefs, parameters}) {
- *     // Locally overwrite values here ...
- *     let myCell = { value: 42, colDef: cell.colDef };
- *     let td = super.createMeasureCell({tr, cell: myCell, row, colDefs, parameters});
- *     // Further manipulate created td here ...
- *     if( cell.value < 42 ) td.classList.add( "mySpecialClass" );
+ *   createMeasureCell(args) {
+ *     // Available are {tr, colId, rowData, wrsJs, parameters}, pass args to super unchanged
+ *     const {colId, rowData} = args;
+ *     const value = rowData.wrsC[colId];
+ *     // A. Overwrite the value here, goes to the underlying WrsJs
+ *     rowData.wrsC[colId] = 42;
+ *     let td = super.createMeasureCell(args);
+ *     // B. ... or, to not touch the underlying WrsJs:
+ *     let td = super.createMeasureCell({...args, rowData: {...rowData, wrsC: {...rowData.wrsC, [colId]: 42}}});
+ *     // Furher change the created td here ...
+ *     if( value < 42 ) td.classList.add( "mySpecialClass" );
  *     return td;
  *   }
- *   // Dimension cells work the same way, rowspan and colspan are provided by the caller
+ *   // Dimension cells work mainly the same way as measure cells
  *   createDimensionCell(args) {
+ *     // Available are {tr, colId, rowData, wrsJs, parameters, rowspan, colspan}
+ *     const {colId, rowData} = args;
  *     let th = super.createDimensionCell(args);
- *     if( args.cell.wrsA.myLink ) th.innerHTML = `<a href='${args.cell.wrsA.myLink}'>${th.textContent}</a>`;
+ *     const myLink = rowData.wrsA?.[colId]?.myLink;
+ *     if( myLink ) th.innerHTML = `<a href='${myLink}'>${th.textContent}</a>`;
  *     return th;
  *   }
  * }
@@ -128,8 +136,10 @@ bcdui.wrs.GenericHtmlBuilder = class {
     // Read parameters, plain js and from XslParams
     this.readParameters(parameters);
 
-    // Turn wrsDom to JavaScript object
-    let {colDefs, rawRows} = this.transformDomToJs(wrsDom);
+    // Turn wrsDom to JavaScript
+    // bcdui.wrs.wrs2Js does the main XML parsing, createLayoutData is for internal use
+    const wrsJs = bcdui.wrs.wrs2Js(wrsDom);
+    let {colDefs, rawRows} = this.createLayoutData(wrsJs);
 
     //-------------------------------------
     // hideTotals and per default wrs:D rows
@@ -145,6 +155,10 @@ bcdui.wrs.GenericHtmlBuilder = class {
     const dimCols = colDefs.filter(c => c.isDim);
     const measureCols = colDefs.filter(c => !c.isDim);
     const numDims = dimCols.length;
+    // Internal column info for the default create*Cell() implementations
+    this._colDefs = colDefs;
+    this._colDefsById = new Map(colDefs.map(c => [c.id, c]));
+    this._dimColIds = dimCols.map(c => c.id);
 
     //-------------------------------------
     // No data
@@ -262,7 +276,7 @@ bcdui.wrs.GenericHtmlBuilder = class {
 
     //-------------------------
     // thead
-    this.createTableHeader({table, colDefs, parameters});
+    this.createTableHeader({table, wrsJs, parameters});
 
     //-------------------------
     // tbody
@@ -293,7 +307,8 @@ bcdui.wrs.GenericHtmlBuilder = class {
         for (let s = di + 1; s < di + colspan; s++) {
           skip[ri][s] = true;
         }
-        this.createDimensionCell({tr, cell, row, colDefs, parameters, rowspan: rowspans[ri][di], colspan});
+		// Possible extension point
+        this.createDimensionCell({tr, colId: cell.colDef.id, rowData: row.rowData, wrsJs, parameters, rowspan: rowspans[ri][di], colspan});
       });
 
       // measure cells — skip if a total cell already spanned dims
@@ -303,13 +318,13 @@ bcdui.wrs.GenericHtmlBuilder = class {
       // Measures, i.e. all non-dims
       measureCols.forEach((colHead, idx) => {
         const cell = row.cells[numDims + idx];
-        this.createMeasureCell({tr, cell, row, colDefs, parameters});
+		// Possible extension point
+        this.createMeasureCell({tr, colId: cell.colDef.id, rowData: row.rowData, wrsJs, parameters});
       });
     });
 
     // Display a warning when the server truncated the result set via maxRows
-    const maxRowsExceededNode = wrsDom.selectSingleNode("/*[local-name()='Wrs']/*[local-name()='Footer']/*[local-name()='MaxRowsExceeded']");
-    if (maxRowsExceededNode && table.tHead) {
+    if (wrsJs.footer?.maxRowsExceeded && table.tHead) {
       const warnTr = table.tHead.insertRow(0);
       const warnTd = document.createElement('td');
       warnTd.setAttribute('colspan', colDefs.length);
@@ -332,38 +347,42 @@ bcdui.wrs.GenericHtmlBuilder = class {
    * Creates a dimension cell. Its layout, i.e. rowspan and colspan, is decided by the caller and only applied here.
    * @param {Object} args
    * @param {HTMLTableRowElement} args.tr - the row to append the cell to
-   * @param {Object} args.cell - the cell data. .value is the content, .colDef is the colHead and all attributes become properties
-   * @param {Object} args.row - the row data, cells is an array of cells, all attributes become properties
-   * @param {Object} args.colDefs - the column definitions, array of all colHeads
+   * @param {string} args.colId - id of the cell's column, the value is `rowData.wrsC[colId]`, its attributes like caption or bcdGr are `rowData.wrsA?.[colId]`
+   * @param {WrsJsRow} args.rowData - the row. Before calling super, you can simply change the underlying WrsJs with `rowData.wrsC[colId] = 'new value'`,
+   *   or overwrite the value for rendering only with `super.createDimensionCell({...args, rowData: {...rowData, wrsC: {...rowData.wrsC, [colId]: 'new value'}}});`
+   * @param {WrsJs} args.wrsJs - the whole Wrs, for example the column definitions are `wrsJs.header.columns.wrsC`
    * @param {Object} args.parameters - the parameters of transform()
    * @param {number} args.rowspan - number of rows this cell spans, applies to non-total cells
    * @param {number} args.colspan - number of dimension columns this cell spans, applies to total cells
    * @returns {HTMLTableCellElement} th - created th
    */
-  createDimensionCell({tr, cell, row, colDefs, parameters, rowspan, colspan})
+  createDimensionCell({tr, colId, rowData, wrsJs, parameters, rowspan, colspan})
   {
-    const col = cell.colDef;
-    const numDims = colDefs.filter(c => c.isDim).length;
+    const colDef = this._colDefsById.get(colId);
+    const value = rowData.wrsC[colId];
+    const wrsA = rowData.wrsA?.[colId] || {};
+    const numDims = this._dimColIds.length;
     const th = document.createElement('th');
 
     // total cell
-    if (cell.bcdGr === 1) {
-      const level = row.grpLevel > 0 ? numDims - row.grpLevel + 1 : 1;
+    if (wrsA.bcdGr === "1") {
+      const grpLevel = this._dimColIds.filter(id => rowData.wrsA?.[id]?.bcdGr === "1").length;
+      const level = numDims - grpLevel + 1;
       th.className = level >= 4 ? 'bcdTLGe4' : `bcdTL${level}`;
       th.setAttribute('bcdgr', '1');
       th.setAttribute('colspan', colspan);
       th.setAttribute("bcdTranslate", "bcd_Total");
-      if (col.isDimTotal) th.className += " bcdTotal";
+      if (colDef.isDimTotal) th.className += " bcdTotal";
     }
     // non-total cell
     else {
-      if (cell.caption) th.setAttribute('caption', cell.caption);
+      if (wrsA.caption) th.setAttribute('caption', wrsA.caption);
       if (rowspan > 1) th.setAttribute('rowspan', rowspan);
-      if (!cell.caption && !cell.value) th.setAttribute("bcdTranslate", "bcd_EmptyDimmember");
-      else th.textContent = cell.caption || cell.value || '';
-      if (cell.bcdOt === 1) th.setAttribute("bcdTranslate", "bcd_OtherDimmember");
-      if (col.isDimTotal) th.className += " bcdTotal";
-      if (row.isVdm && col.pos == numDims) th.className += " bcdVdm";
+      if (!wrsA.caption && !value) th.setAttribute("bcdTranslate", "bcd_EmptyDimmember");
+      else th.textContent = wrsA.caption || value || '';
+      if (wrsA.bcdOt === "1") th.setAttribute("bcdTranslate", "bcd_OtherDimmember");
+      if (colDef.isDimTotal) th.className += " bcdTotal";
+      if (rowData.row.bcdVdm && colDef.pos == numDims) th.className += " bcdVdm";
     }
 
     tr.appendChild(th);
@@ -375,40 +394,46 @@ bcdui.wrs.GenericHtmlBuilder = class {
    * Creates a measure cell
    * @param {Object} args
    * @param {HTMLTableRowElement} args.tr - the row to append the cell to
-   * @param {Object} args.cell - the cell data. .value is the content, .colDef is the colHead and all attributes become properties
-   * @param {Object} args.row - the row data, cells is an array of cells, all attributes become properties
-   * @param {Object} args.colDefs - the column definitions, array of all colHeads
+   * @param {string} args.colId - id of the cell's column, the value is `rowData.wrsC[colId]`, its attributes like type-name, scale or unit are `rowData.wrsA?.[colId]`
+   * @param {WrsJsRow} args.rowData - the row. Before calling super, you can simply change the underlying WrsJs with `rowData.wrsC[colId] = 'new value'`,
+   *   or overwrite the value for rendering only with `super.createMeasureCell({...args, rowData: {...rowData, wrsC: {...rowData.wrsC, [colId]: 'new value'}}});`
+   * @param {WrsJs} args.wrsJs - the whole Wrs, for example the column definitions are `wrsJs.header.columns.wrsC`
    * @param {Object} args.parameters - the parameters of transform()
    * @returns {HTMLTableCellElement} td - created td
    */
-  createMeasureCell({tr, cell, row, colDefs, parameters})
+  createMeasureCell({tr, colId, rowData, wrsJs, parameters})
   {
-    const colHead = cell.colDef;
-    const isNumeric = cell.isNumeric || colHead.isNumeric;
-    const scale = cell.scale || colHead.scale;
-    const unit = cell.unit || colHead.unit;
+    const colDef = this._colDefsById.get(colId);
+    const value = rowData.wrsC[colId];
+    const wrsA = rowData.wrsA?.[colId] || {};
+	// Some header values can be overwritten per cell, so each row can have a different value for the same column
+    const isNumeric = bcdui.wrs.jsUtil.isNumericTypeName(wrsA['type-name']) || colDef.isNumeric;
+    const scale = wrsA.scale || colDef.scale;
+    const unit = wrsA.unit || colDef.unit;
     const td   = document.createElement('td');
-    // Browsers er making sure that <script> tags are not executed but its content is displayed
-    td.innerHTML = isNumeric ? bcdui.wrs.jsUtil.format(cell.value, scale, 'en', unit) : cell.value; // TODO not always en
-    if(cell.value === null || cell.value === '') td.className += " bcdNoNumber";
-    if(colHead.isDimTotal) td.className += " bcdTotal";
+    // Browsers are making sure that <script> tags are not executed but its content is displayed, so no injection issue here
+    td.innerHTML = isNumeric ? bcdui.wrs.jsUtil.format(value, scale, 'en', unit) : value; // TODO not always en
+    if(value === null || value === '') td.className += " bcdNoNumber";
+    if(colDef.isDimTotal) td.className += " bcdTotal";
     tr.appendChild(td);
     return td;
   }
 
 
   /**
-   * Only needed as an extension point for overwriting.
+   * Possible extension point for overwriting.
    * Creates the thead, decides the header layout (levels, rowspan, colspan) and calls createHeaderCell() for each cell.
    * Overwrite to post-process the whole thead, for example to add rows, or overwrite createHeaderCell() for single cells.
    * @param {Object} args
    * @param {HTMLTableElement} args.table - the table to append the thead to
-   * @param {Object[]} args.colDefs - the column definitions, array of all colHeads
+   * @param {WrsJs} args.wrsJs - the whole Wrs, for example the column definitions are `wrsJs.header.columns.wrsC`
    * @param {Object} args.parameters - the parameters of transform()
    * @returns {HTMLTableSectionElement} thead - created thead
    */
-  createTableHeader({table, colDefs, parameters})
+  createTableHeader({table, wrsJs, parameters})
   {
+    // The layout works on the internal column info, which for example already respects hideTotals
+    const colDefs = this._colDefs;
     const thead = table.createTHead();
     const htr   = thead.insertRow();
     htr.setAttribute('bcdrowident', 'bcdMeasureHeader');
@@ -418,7 +443,8 @@ bcdui.wrs.GenericHtmlBuilder = class {
     // Plain header as one row
     if (numLevels === 1) {
       for (const col of colDefs) {
-        this.createHeaderCell({tr: htr, col, label: col.caption, level: 0, numLevels: 1, rowspan: 1, colspan: 1, parameters});
+		// Possible extension point
+        this.createHeaderCell({tr: htr, colId: col.id, label: col.caption, level: 0, numLevels: 1, rowspan: 1, colspan: 1, wrsJs, parameters});
       }
     }
 
@@ -526,7 +552,8 @@ bcdui.wrs.GenericHtmlBuilder = class {
             }
           }
 
-          this.createHeaderCell({tr: headerRows[d], col, label, level: d, numLevels, rowspan, colspan, parameters});
+		  // Possible extension point
+          this.createHeaderCell({tr: headerRows[d], colId: col.id, label, level: d, numLevels, rowspan, colspan, wrsJs, parameters});
           i += colspan;
         }
       }
@@ -539,21 +566,23 @@ bcdui.wrs.GenericHtmlBuilder = class {
   }
 
   /**
-   * Only needed as an extension point for overwriting.
+   * Possible extension point for overwriting.
    * Creates a header cell. Its layout, i.e. rowspan and colspan, is decided by the caller and only applied here.
    * @param {Object} args
    * @param {HTMLTableRowElement} args.tr - the header row to append the cell to
-   * @param {Object} args.col - colDef of the (first) column this cell belongs to
+   * @param {string} args.colId - id of the (first) column this cell belongs to, its definition is in wrsJs.header.columns.wrsC
    * @param {string} args.label - the caption part shown at this header level
    * @param {number} args.level - header row index, 0 is the top row
    * @param {number} args.numLevels - number of header rows, 1 for a plain header without column dimensions
    * @param {number} args.rowspan - number of header rows this cell spans
    * @param {number} args.colspan - number of columns this cell spans
+   * @param {WrsJs} args.wrsJs - the whole Wrs
    * @param {Object} args.parameters - the parameters of transform()
    * @returns {HTMLTableCellElement} th - created th
    */
-  createHeaderCell({tr, col, label, level, numLevels, rowspan, colspan, parameters})
+  createHeaderCell({tr, colId, label, level, numLevels, rowspan, colspan, wrsJs, parameters})
   {
+    const col = this._colDefsById.get(colId);
     const isSinglePart = col.caption.split('|').length === 1;
     const th = document.createElement('th');
     th.setAttribute('bcdcolident', col.id);
@@ -592,71 +621,49 @@ bcdui.wrs.GenericHtmlBuilder = class {
   }
 
   /**
+   * Derives the internal column info and cells from wrsJs, used for sorting, row- and colspans and totals
    * @private
    */
-  transformDomToJs(wrsDom)
+  createLayoutData(wrsJs)
   {
-    const NS_WRS = bcdui.core.xmlConstants.namespaces.wrs;
-    const evaluate = (xPath) => wrsDom.evaluate(xPath, wrsDom, bcdui.core.browserCompatibility.resolveNamespace, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
-
     //-------------------------------------
-    // Parse header columns
+    // Column info
     const colDefs = [];
-    colDefs.colDimLevelIds = evaluate("/*/wrs:Header/wrs:Columns/@colDimLevelIds").iterateNext()?.value?.split("|");
-    const headerCols = evaluate("/*/wrs:Header/wrs:Columns/wrs:C");
+    colDefs.colDimLevelIds = wrsJs.header.columns.colDimLevelIds?.split("|");
 
-    for (let headC; (headC = headerCols.iterateNext()) !== null;) {
+    for (const headC of wrsJs.header.columns.wrsC) {
+      const idParts = headC.id.split("|");
       colDefs.push({
-        pos:       parseInt(headC.getAttribute('pos'), 10),
-        id:        headC.getAttribute('id'),
-        caption:   headC.getAttribute('caption') || headC.getAttribute('id'),
-        typeName:  headC.getAttribute('type-name') || '',
-        unit:      headC.getAttribute('unit'),
-        isDim:     !!headC.getAttribute('dimId'),
-        isDimTotal: headC.getAttribute('id').split("|")[headC.getAttribute('id').split("|").length-2] == bcdui.core.magicChar.dimTotal,
-        isMeasure: headC.hasAttribute('valueId') || !!headC.getAttribute('valueId'),
-        isNumeric: bcdui.wrs.jsUtil.isNumericTypeName(headC.getAttribute('type-name')),
-        scale:     headC.getAttribute('scale') ? parseInt(headC.getAttribute('scale'), 10) : null,
-        isVMeas:   !!headC.getAttribute('bcdVmeas'),
-        isVdm:     !!headC.getAttribute('bcdVdm'),
-        isColCum:  !!headC.getAttribute('bcdColCumulate'),
-        isRowCum:  !!headC.getAttribute('bcdRowCumulate')
+        pos:       parseInt(headC.pos, 10),
+        id:        headC.id,
+        caption:   headC.caption || headC.id,
+        typeName:  headC['type-name'] || '',
+        unit:      headC.unit ?? null,
+        isDim:     !!headC.dimId,
+        isDimTotal: idParts[idParts.length-2] == bcdui.core.magicChar.dimTotal,
+        isMeasure: headC.valueId != null,
+        isNumeric: bcdui.wrs.jsUtil.isNumericTypeName(headC['type-name']),
+        scale:     headC.scale ? parseInt(headC.scale, 10) : null,
+        isVMeas:   !!headC.bcdVmeas,
+        isVdm:     !!headC.bcdVdm,
+        isColCum:  !!headC.bcdColCumulate,
+        isRowCum:  !!headC.bcdRowCumulate
       });
     }
 
     const numDims = colDefs.filter(c => c.isDim).length;
 
     //-------------------------------------
-    // Parse data rows
-    let rawRows = [];
-    const rowNodes = evaluate("/wrs:Wrs/wrs:Data/wrs:*");
-    const dataRows = [];
-    for (let node; (node = rowNodes.iterateNext()) !== null;) {
-      dataRows.push(node);
-    }
-
-
-    //-------------------------------------
-    // Parse data cells
-    for (const r of dataRows) {
-      const row = { id: r.getAttribute('id'), rowType: r.localName, cells: [], isVdm: !!r.getAttribute("bcdVdm") };
-      const cells = r.getElementsByTagNameNS(NS_WRS, 'C'); // Missing M and D
-
-      for (let i = 0; i < cells.length; i++) {
-        const cell = cells[i];
-        const isNull = cell.getElementsByTagNameNS(NS_WRS, 'null').length > 0;
-        const wrsA= {};
-        cell.getAttributeNames().forEach(name => {wrsA[name] = cell.getAttribute(name);});
+    // Rows and cells
+    // Layout (sorting, spans, totals) works on cells by position, rowData is the WrsJsRow handed to create*Cell()
+    const rawRows = [];
+    for (const rowData of wrsJs.data) {
+      const row = { id: rowData.row.id, rowType: rowData.row.bcdType ?? 'R', cells: [], rowData };
+      for (const colDef of colDefs) {
         row.cells.push({
-          value:   isNull ? null : cell.textContent,
-          caption: cell.getAttribute("caption"),
-          unit: cell.getAttribute("unit"),
-          isNumeric: bcdui.wrs.jsUtil.isNumericTypeName(cell.getAttribute('type-name')),
-          scale: cell.getAttribute("scale"),
-          bcdGr:   parseInt(cell.getAttribute('bcdGr') || '0', 10), // TODO no need to parse
-          bcdOt:   parseInt(cell.getAttribute('bcdOt') || '0', 10),
-          colDef:  colDefs[i],
-          wrsA
+          value:   rowData.wrsC[colDef.id],
+          bcdGr:   rowData.wrsA?.[colDef.id]?.bcdGr === "1" ? 1 : 0,
+          colDef
         });
       }
 
