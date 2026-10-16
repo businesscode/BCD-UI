@@ -91,6 +91,7 @@ import "../i18n/i18nPackage.js"
 import "../core/lifecycle/lifecyclePackage.js"
 import "../core/lifecycle/autoRefresh.js"
 import "../wrs/wrsUtilPackage.js"
+import "../wrs/wrs2Js.js"
 import "../wrs/htmlBuilder.js"
 
 import "../core/customElements.js"
