@@ -14,7 +14,9 @@ ___
 * Added SaxonJS2 option to be used instead of browser native XSLT
     - BCD-UI now comes with sef files at /bcdui/sef/. They are automatically loaded if /bcdui/**/*.xslt is addressed
     - Projects can use Docu/development/bcdui_saxon_sef_generate.gradle to have sef files created. From the setup BCD-UI knows where to find them if a project XSLT is loaded
-* Switched to JavaScript HtmlBuilder per default
+* Switched to JavaScript GenericHtmlBuilder per default
+* Added WrsJ2 format, can be created via bcdui.wrs.wrs2Js() and usein in DataProvider.tblXX functions and is used in GenericHtmlBuilder callbacks
+* New function bcdui.wrs.wrsUtil.filterToXPath() understands f:Filter expressions for use on client side, including output of bcdui.wrs.wrsUtil.parseFilterExpression()
 
 .Server:
 * BindingSet: Added `bnd:BindingDefaults` for inheriting BindingItem attributes defaults based on their id

@@ -1496,11 +1496,178 @@ bcdui.wrs.wrsUtil = Object.assign(bcdui.wrs.wrsUtil,
   parseFilterExpression : function(expression, params){
     var parser = new bcdui.wrs.wrsUtil.filterExpressionParser.Parser();
     parser.yy = {
-      resolveVariable : v => params[parser.yy.escapeHtml(v.substring(1))],
+      // The value is written into an XML attribute, so it needs escaping, for example for "People's Republic"
+      resolveVariable : v => { const value = (params || {})[v.substring(1)]; return value == null ? value : bcdui.util.escapeHtml(value); },
       escapeHtml : v => bcdui.util.escapeHtml(v)
     };
     var str = parser.parse(expression);
     return bcdui.util.xml.parseDocument(str);
+  },
+
+  /**
+   * Translates a filter into an XPath 1.0 predicate for the data rows of a Wrs, i.e. to be used as `/*\/wrs:Data/wrs:*[predicate]`.
+   * The filter can be given as an expression in the syntax of {@link bcdui.wrs.wrsUtil.parseFilterExpression}
+   * or as f:Filter, f:And, f:Or, f:Not or f:Expression element, see filter-1.0.0.xsd, for example the filterElement of an {@link bcdui.core.AutoModel}.
+   * Column names in the filter are matched against the column ids of the Wrs header, then against their bRef.
+   *
+   * Semantics and known limitations, as the filter is evaluated with XPath 1.0 on the client instead of SQL on the server:
+   *  - Two-valued logic: an empty cell and wrs:null are both the value ''. So `x != 'DE'` and `not(x = 'DE')` also match empty cells, unlike in SQL.
+   *    `x = ''` matches empty cells (IS NULL), `x != ''` non-empty ones (IS NOT NULL).
+   *  - Numeric columns (by type-name) are compared as numbers, DATE and TIMESTAMP columns by their ISO value, other columns as strings.
+   *  - &lt;, &gt;, &lt;= and &gt;= are not possible for string columns with XPath 1.0, unless the value is a number.
+   *  - like and notLike support * as wildcard, in and notIn take a comma separated list of values. ic='true' ignores case for A-Z and umlauts.
+   *  - bRef2 compares two columns. Not supported are bitand, the spatial operators and wrq:Calc, they throw an error.
+   * @param {Document} wrsDoc                              - Wrs document, its header provides the column positions and types
+   * @param {(string|Document|Element)} filter              - Filter expression or filter element
+   * @param {Object} [filterParams]                         - Values for :name placeholders of a filter expression
+   * @return {string} XPath predicate without the enclosing [ ]
+   * @example
+   * // Rows not from DE having cw 20 or more, or having no cw at all
+   * const predicate = bcdui.wrs.wrsUtil.filterToXPath(myModel.getData(), "ctr != 'DE' and (cw >= :cw or cw = '')", { cw: 20 });
+   * const rows = myModel.queryNodes("/*\/wrs:Data/wrs:*[" + predicate + "]");
+   */
+  filterToXPath : function(wrsDoc, filter, filterParams) {
+    const NS_WRS = bcdui.core.xmlConstants.namespaces.wrs;
+    const NS_F = "http://www.businesscode.de/schema/bcdui/filter-1.0.0";
+    const elemChildren = (elem, ns, localName) => {
+      const result = [];
+      for (let c = elem?.firstElementChild; c; c = c.nextElementSibling)
+        if (c.namespaceURI === ns && (!localName || c.localName === localName)) result.push(c);
+      return result;
+    };
+
+    // Header columns by id and by bRef
+    const header = elemChildren((wrsDoc.documentElement || wrsDoc), NS_WRS, "Header")[0];
+    const headerCols = elemChildren(elemChildren(header, NS_WRS, "Columns")[0], NS_WRS, "C");
+    const column = name => {
+      const col = headerCols.find(c => c.getAttribute("id") === name) || headerCols.find(c => c.getAttribute("bRef") === name);
+      if (!col)
+        throw Error("bcdui.wrs.wrsUtil.filterToXPath: unknown column '" + name + "'");
+      const typeName = col.getAttribute("type-name") || "";
+      return {
+        path: "wrs:C[" + col.getAttribute("pos") + "]",
+        isNumeric: bcdui.wrs.jsUtil.isNumericTypeName(typeName),
+        dateDigits: typeName === "DATE" ? 8 : typeName === "TIMESTAMP" ? 14 : 0
+      };
+    };
+
+    // XPath string literal, values containing ' and " need concat()
+    const literal = v => {
+      v = String(v);
+      if (v.indexOf("'") === -1) return "'" + v + "'";
+      if (v.indexOf('"') === -1) return '"' + v + '"';
+      return "concat('" + v.replace(/'/g, "', \"'\", '") + "')";
+    };
+
+    // Ignore case for A-Z and umlauts
+    const UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ", LOWER = "abcdefghijklmnopqrstuvwxyzäöü";
+    const lowerXPath = x => "translate(" + x + ", '" + UPPER + "', '" + LOWER + "')";
+    const lowerValue = v => v.replace(/[A-ZÄÖÜ]/g, ch => LOWER[UPPER.indexOf(ch)]);
+
+    // ISO dates and timestamps are compared as numbers with digits only, i.e. 2010-12-24 becomes 20101224
+    const dateXPath = (x, digits) => "number(substring(concat(translate(" + x + ", '-:T ', ''), '00000000000000'), 1, " + digits + "))";
+    const dateValue = (v, digits) => String(Number((v.replace(/[-:T ]/g, "") + "00000000000000").substring(0, digits)));
+
+    // like with * as wildcard: prefix, ordered parts in the middle and suffix
+    const likeXPath = (x, pattern) => {
+      const parts = pattern.split("*");
+      if (parts.length === 1)
+        return x + "=" + literal(pattern);
+      const first = parts[0], last = parts[parts.length - 1];
+      const conds = [];
+      if (first)
+        conds.push("starts-with(" + x + ", " + literal(first) + ")");
+      // rest is the part of the value not yet matched, each middle part is searched after the previous one
+      let rest = first ? "substring(" + x + ", " + (first.length + 1) + ")" : x;
+      parts.slice(1, -1).filter(p => p).forEach(p => {
+        conds.push("contains(" + rest + ", " + literal(p) + ")");
+        rest = "substring-after(" + rest + ", " + literal(p) + ")";
+      });
+      if (last)
+        conds.push("string-length(" + rest + ") >= " + last.length + " and substring(" + rest + ", string-length(" + rest + ") - " + (last.length - 1) + ") = " + literal(last));
+      return conds.length ? "(" + conds.join(" and ") + ")" : "true()";
+    };
+
+    // Numbers and dates of empty cells must not depend on how an XPath engine converts '' (NaN or 0, dates would even become 0).
+    // So empty cells are handled explicitly: they never match, except for != where they always match (two-valued logic)
+    const nonEmpty = (paths, isNotEqual, cond) => isNotEqual
+      ? "(" + paths.map(p => p + "=''").join(" or ") + " or " + cond + ")"
+      : "(" + paths.map(p => p + "!=''").join(" and ") + " and " + cond + ")";
+
+    const expression = e => {
+      if (elemChildren(e,bcdui.core.xmlConstants.namespaces.wrq || "http://www.businesscode.de/schema/bcdui/wrs-request-1.0.0", "Calc").length)
+        throw Error("bcdui.wrs.wrsUtil.filterToXPath: wrq:Calc is not supported");
+      const col = column(e.getAttribute("bRef"));
+      const op = e.getAttribute("op") || "=";
+      const ic = e.getAttribute("ic") === "true";
+      const value = e.getAttribute("value") || "";
+      let x = col.path;
+
+      // Comparing two columns
+      if (e.getAttribute("bRef2")) {
+        const path2 = column(e.getAttribute("bRef2")).path;
+        const xop = op === "<>" ? "!=" : op;
+        if (!["=", "!="].includes(xop) && !col.isNumeric && !col.dateDigits)
+          throw Error("bcdui.wrs.wrsUtil.filterToXPath: operator '" + op + "' is not possible for string column '" + e.getAttribute("bRef") + "'");
+        if (col.isNumeric)
+          return nonEmpty([x, path2], xop === "!=", "number(" + x + ") " + xop + " number(" + path2 + ")");
+        if (col.dateDigits)
+          return nonEmpty([x, path2], xop === "!=", dateXPath(x, col.dateDigits) + " " + xop + " " + dateXPath(path2, col.dateDigits));
+        return ic ? lowerXPath(x) + " " + xop + " " + lowerXPath(path2) : x + " " + xop + " " + path2;
+      }
+
+      switch (op) {
+        case "=": case "!=": case "<>": case "<": case ">": case "<=": case ">=": {
+          const xop = op === "<>" ? "!=" : op;
+          // Empty value means IS NULL or IS NOT NULL
+          if (value === "")
+            return x + (xop === "=" ? "=''" : "!=''");
+          if ((col.isNumeric && !isFinite(Number(value))) || (col.dateDigits && !/^\d{4}-\d{2}-\d{2}([T ]\d{2}:\d{2}(:\d{2})?)?/.test(value)))
+            throw Error("bcdui.wrs.wrsUtil.filterToXPath: value '" + value + "' does not fit to the type of column '" + e.getAttribute("bRef") + "'");
+          if (col.isNumeric ||(!col.dateDigits && !["=", "!=", "<>"].includes(op) && isFinite(Number(value))))
+            return nonEmpty([x], xop === "!=", "number(" + x + ") " + xop + " " + Number(value));
+          if (col.dateDigits)
+            return nonEmpty([x], xop === "!=", dateXPath(x, col.dateDigits) + " " + xop + " " + dateValue(value, col.dateDigits));
+          if (xop !== "=" && xop !== "!=")
+            throw Error("bcdui.wrs.wrsUtil.filterToXPath: operator '" + op + "' is not possible for string column '" + e.getAttribute("bRef") + "'");
+          return ic ? lowerXPath(x) + " " + xop + " " + literal(lowerValue(value)) : x + " " + xop + " " + literal(value);
+        }
+        case "like": case "notLike": {
+          const cond = ic ? likeXPath(lowerXPath(x), lowerValue(value)) : likeXPath(x, value);
+          return op === "like" ? cond : "not(" + cond + ")";
+        }
+        case "in": case "notIn": {
+          const values = value.split(",");
+          if (col.isNumeric && values.some(v => !isFinite(Number(v))))
+            throw Error("bcdui.wrs.wrsUtil.filterToXPath: value '" + value + "' does not fit to the type of column '" + e.getAttribute("bRef") + "'");
+          const cond = col.isNumeric
+            ? nonEmpty([x], false, "(" + values.map(v => "number(" + x + ") = " + Number(v)).join(" or ") + ")")
+            : "(" + values.map(v => ic ? lowerXPath(x) + " = " + literal(lowerValue(v)) : x + " = " + literal(v)).join(" or ") + ")";
+          return op === "in" ? cond : "not" + cond;
+        }
+        default:
+          throw Error("bcdui.wrs.wrsUtil.filterToXPath: operator '" + op + "' is not supported on the client");
+      }
+    };
+
+    // f:Filter and f:And: all children must be true, f:Or: one of them, f:Not: none of them, i.e. not of an implicit and
+    const node = e => {
+      if (e.namespaceURI !== NS_F)
+        throw Error("bcdui.wrs.wrsUtil.filterToXPath: unexpected element " + e.nodeName);
+      const children = () => elemChildren(e, NS_F).map(node);
+      switch (e.localName) {
+        case "Filter": case "And": { const c = children(); return c.length ? "(" + c.join(" and ") + ")" : "true()"; }
+        case "Or":                  { const c = children(); return c.length ? "(" + c.join(" or ") + ")" : "false()"; }
+        case "Not":                 { const c = children(); return c.length ? "not(" + c.join(" and ") + ")" : "false()"; }
+        case "Expression":          return expression(e);
+        default:
+          throw Error("bcdui.wrs.wrsUtil.filterToXPath: unexpected element " + e.nodeName);
+      }
+    };
+
+    if (typeof filter === "string")
+      filter = bcdui.wrs.wrsUtil.parseFilterExpression(filter, filterParams);
+    return node(filter.documentElement || filter);
   },
 
   /**

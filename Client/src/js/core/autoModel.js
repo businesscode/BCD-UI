@@ -68,7 +68,7 @@ bcdui.core.AutoModel = class extends bcdui.core.SimpleModel
    *   let descartesBooks = am.tblSelect({ filter: { author: "Descartes" }, columns: ['title', 'year'] });
    *   ...
    *   // Add a row and save it
-   *   am.tblInsert({ c: {author: 'Descartes', title: "Principles of Philosophy", year: "1644"} });
+   *   am.tblInsert({ wrsC: {author: 'Descartes', title: "Principles of Philosophy", year: "1644"} });
    *   am.sendData();
    * }});
    */

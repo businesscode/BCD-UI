@@ -537,39 +537,47 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   /**
    * read the data from a wrs, filter via xpath and return data as an object array
    * @param {string[]} columns - positive list of column
-   * @param {Object} xPathTemplate - xPath template which is used for reading (filtered) data (can have {{=it.}}) object references) 
+   * @param {Object} xPathTemplate - xPath template which is used for reading (filtered) data (can have {{=it.}}) object references)
    * @param {string} templateObj   - object holding the values for the placeholders in the xPathTemplate
-   * @return {Array<Object>} holding row objects `{ rowId, c: { colId: value }, a: { colId: { attrName: value } } }`, see {@link bcdui.core.DataProvider#tblSelect}
+   * @return {WrsJsRow[]} holding row objects `{ row, wrsC, wrsA, wrsO }`, see {@link bcdui.core.DataProvider#tblSelect}
    * @private
    */
   _getDataFromTemplate(columns, xPathTemplate, templateObj) {
     // Resolve the requested columns to their positions once, unknown columns are reported once and skipped
     const columnPosByBRef = this._getColumnPosByBRef();
-    const cols = [];
+    const colIdsByPos = [];
+    const colIds = [];
     columns.forEach(colId => {
-      if (typeof columnPosByBRef[colId] != "undefined")
-        cols.push({ colId, xPath: "wrs:C[" + columnPosByBRef[colId] + "]" });
+      if (typeof columnPosByBRef[colId] != "undefined") {
+        colIdsByPos[columnPosByBRef[colId] - 1] = colId;
+        colIds.push(colId);
+      }
       else
         bcdui.log.warn("illegal column " + colId + " requested in " + this.id);
     });
 
-    // Loop over rows
-    return Array.from(this.queryNodes(xPathTemplate, templateObj)).map(row => {
-      const rowObj = { rowId: row.getAttribute("id"), c: {}, a: {} };
-      // Loop over wrs:C
-      // We profit from JavaScript memory and access optimization of our row objects in the data array (shape of all c is equal -> V8 hidden class)
-      cols.forEach(({colId, xPath}) => {
-        const cell = row.selectSingleNode(xPath);
-        rowObj.c[colId] = cell.text || "";
-        if (rowObj.c[colId] == "" && cell.selectSingleNode("wrs:null") != null)
-          rowObj.c[colId] = null;
-        // Only cells having wrs:A attributes show up in a
-        const attrs = Array.from(cell.attributes).filter(a => a.namespaceURI !== "http://www.w3.org/2000/xmlns/");
-        if (attrs.length > 0)
-          rowObj.a[colId] = Object.fromEntries(attrs.map(a => [a.name, a.value]));
-      });
-      return rowObj;
-    });
+    // Same conversion as bcdui.wrs.wrs2Js, wrsC and wrsO get the requested columns in the requested order
+    return Array.from(this.queryNodes(xPathTemplate, templateObj)).map(bcdui.wrs._createRow2Js(colIdsByPos, colIds));
+  }
+
+  /**
+   * Row id given either as args.rowId or as args.row.id, the latter allows passing a row returned by tblSelect as is
+   * @private
+   */
+  _tblRowId(args) {
+    return args.rowId ?? args.row?.id;
+  }
+
+  /**
+   * True if a row is given but without id, for example a row of wrs:References. Without this guard, such a call would affect all rows
+   * @private
+   */
+  _tblRowWithoutId(args, fnName) {
+    if (args.row && this._tblRowId(args) == null) {
+      bcdui.log.warn(fnName + "() called with a row without id in " + this.id + ", nothing done");
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -606,17 +614,36 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   }
 
   /**
+   * XPath predicate for args.filter, ready to be appended to _rowsXPath(), values are already filled in
+   * @param {Object} args - holding filter and filterParams, see {@link bcdui.core.DataProvider#tblSelect}
+   * @return {string} predicate including [ ] or "" if there is no filter
+   * @private
+   */
+  _tblFilterXPath(args) {
+    const filter = args?.filter;
+    if (filter == null)
+      return "";
+    // Expression string or f:Filter element
+    if (typeof filter === "string" || filter.nodeType)
+      return "[" + bcdui.wrs.wrsUtil.filterToXPath(this.getData(), filter, args.filterParams) + "]";
+    // Object with column values
+    return this._getFillParams(filter, this._buildXPathTemplate(filter));
+  }
+
+  /**
    * Returns an array of row ids (wrs:R/@id) of the rows matching the filter.
    * If no filter is given, all row ids are returned. Deleted rows (wrs:D) are excluded.
    * The order of ids matches the order of the rows in the Wrs.
    * @param {object} args
-   * @param {object} [args.filter] - object holding requested filter conditions, e.g. `{ country: 'DE', flag: true }`
+   * @param {(Object|string|Element)} [args.filter]       - rows to be returned, one of
+   *    - an object holding cell values, all of which must match, for example `{ country: 'DE', flag: true }`, null matches wrs:null
+   *    - a filter expression, for example `"country != 'DE' and (sales >= :minSales or sales = '')"`, see {@link bcdui.wrs.wrsUtil.filterToXPath} for syntax and limitations
+   *    - an f:Filter, f:And, f:Or, f:Not or f:Expression element, for example the filterElement of an AutoModel
+   * @param {Object}  [args.filterParams] - values for :name placeholders in a filter expression, for example `{ minSales: 1000 }`
    * @returns {Array<string>} row ids
    */
   tblGetRowIds(args) {
-    const filter = args?.filter ? this._buildXPathTemplate(args.filter) : "";
-    const predicate = this._rowsXPath() + filter;
-    const xPath = this._getFillParams(args?.filter ?? "",  predicate+ "/@id");
+    const xPath = this._rowsXPath() + this._tblFilterXPath(args) + "/@id";
     const rowIds = Array.from( this.queryNodes(xPath) ).map( rId => rId.text );
     return rowIds;
   }
@@ -697,18 +724,18 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   }
 
   /**
-   * Inserts a new row in the Wrs. The property names of c and a match the Wrs header ids.
-   * A row returned by tblSelect can be passed as is, its rowId is ignored, the new row gets a new id.
+   * Inserts a new row in the Wrs. The property names of wrsC and wrsA match the Wrs header ids.
+   * A row returned by tblSelect can be passed as is, its row (id and bcdType) and wrsO are ignored, the new row gets a new id.
    * @param {Object}  args             - parameter bag
-   * @param {Object}  [args.c]         - cell values to be inserted, e.g. `{ country: 'DE', flag: true }`
-   * @param {Object}  [args.a]         - wrs:A attributes of the cells, e.g. `{ country: { caption: 'Germany' } }`, see {@link bcdui.core.DataProvider#tblUpdate}
+   * @param {Object}  [args.wrsC]      - cell values to be inserted, e.g. `{ country: 'DE', flag: true }`
+   * @param {Object}  [args.wrsA]      - wrs:A attributes of the cells, e.g. `{ country: { caption: 'Germany' } }`, see {@link bcdui.core.DataProvider#tblUpdate}
    * @param {boolean} [args.rmi=true]  - use wrs:I syntax when this is true, otherwise wrs:R is used, rmi=true also prefills default values
    * @param {boolean} [args.fire=true] - lets the listeners know, that the update was finished
    * @return {string} row id of newly inserted row
    *
    * @example
    * // Wrs has columns with matching ids wrs:header/wrs:Columns/wrs:C/@id='author' etc
-   * myModel.tblInsert({ c: {author: 'Descartes', title: "Principles of Philosophy", year: "1644"} });
+   * myModel.tblInsert({ wrsC: {author: 'Descartes', title: "Principles of Philosophy", year: "1644"} });
    */
   tblInsert(args) {
     args = args || {};
@@ -723,48 +750,58 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
       newIdCount++;
     const newId = prefix + newIdCount;
     bcdui.core.createElementWithPrototype(this.getData(), "/*/wrs:Data/wrs:" + prefix + "[@id='" + newId + "']/wrs:C[" + columnCount + "]");
-    this.tblUpdate({rmi: rmi, fire: doFire, rowId: newId, c: args.c, a: args.a});
+    this.tblUpdate({rmi: rmi, fire: doFire, rowId: newId, wrsC: args.wrsC, wrsA: args.wrsA});
     return newId;
   }
 
   /**
    * Updates one or multiple Wrs rows with given data.
-   * Either a single row (via rowId) or single/multiple ones (via filter). Deleted rows (wrs:D) are never updated.
-   * The property names of filter, c and a refer to the columns ids. Columns not given in c or a are left untouched.
-   * A row returned by tblSelect can be passed as is, its rowId then identifies the row to be updated.
+   * Either a single row (via rowId or row.id) or single/multiple ones (via filter). Deleted rows (wrs:D) are never updated.
+   * The property names of filter, wrsC and wrsA refer to the columns ids. Columns not given in wrsC or wrsA are left untouched.
+   * A row returned by tblSelect can be passed as is, its row.id then identifies the row to be updated, its row.bcdType and wrsO are ignored.
    * @param {Object}  args             - parameter bag
-   * @param {Object}  [args.c]         - cell values to be updated. This sets 2 columns `{ country: 'DE', flag: true }`
-   * @param {Object}  [args.a]         - wrs:A attributes of the cells to be set, also for columns not given in c. Any attribute name is allowed, not only those declared in the header.
-   *    Example `a: { countryCol: { caption: 'Germany', flag: true } }` becomes `<wrs:C caption='Germany' flag='true'>someValue</wrs:C>`.
+   * @param {Object}  [args.wrsC]      - cell values to be updated. This sets 2 columns `{ country: 'DE', flag: true }`
+   * @param {Object}  [args.wrsA]      - wrs:A attributes of the cells to be set, also for columns not given in wrsC. Any attribute name is allowed, not only those declared in the header.
+   *    Example `wrsA: { countryCol: { caption: 'Germany', flag: true } }` becomes `<wrs:C caption='Germany' flag='true'>someValue</wrs:C>`.
    *    An attribute value null removes the attribute, undefined leaves it untouched.
-   * @param {Object}  [args.filter]    - affected row(s) for example `{ country: 'DE', flag: true }`
+   * @param {(Object|string|Element)} [args.filter]       - affected row(s), one of
+   *    - an object holding cell values, all of which must match, for example `{ country: 'DE', flag: true }`, null matches wrs:null
+   *    - a filter expression, for example `"country != 'DE' and (sales >= :minSales or sales = '')"`, see {@link bcdui.wrs.wrsUtil.filterToXPath} for syntax and limitations
+   *    - an f:Filter, f:And, f:Or, f:Not or f:Expression element, for example the filterElement of an AutoModel
+   * @param {Object}  [args.filterParams] - values for :name placeholders in a filter expression, for example `{ minSales: 1000 }`
    * @param {boolean} [args.rmi=true]  - use wrs:M syntax when this is true, otherwise row columns element name is not touched
    * @param {boolean} [args.fire=true] - lets the listeners know, that the update was finished
-   * @param {string}  [args.rowId]     - id specifying row which should be updated (or use filter)
+   * @param {string}  [args.rowId]     - id specifying row which should be updated (or use row.id or filter)
+   * @param {Object}  [args.row]       - row as returned by tblSelect, row.id specifies the row which should be updated
    * @return {number} count of updated rows
    *
    * @example
    * // Update sales information for a book
-   * myModel.tblUpdate({ c: {sold: 16, lastSold: new Date()},
+   * myModel.tblUpdate({ wrsC: {sold: 16, lastSold: new Date()},
    *                     filter: {author: 'Descartes', title: "Principles of Philosophy"} });
    * @example
    * // Update all values for 'AT', for example, even it has 3 sites
-   * myModel.tblUpdate({ c: {supervisor: 'Karl Popper'}, filter: {country: 'AT'} });
+   * myModel.tblUpdate({ wrsC: {supervisor: 'Karl Popper'}, filter: {country: 'AT'} });
+   * @example
+   * // Mark all rows with low sales outside of DE, using a filter expression
+   * myModel.tblUpdate({ wrsA: {sales: {low: true}}, filter: "country != 'DE' and sales < :limit", filterParams: {limit: 1000} });
    * @example
    * // Set a value and an attribute of the same cell
-   * myModel.tblUpdate({ rowId: 'R1', c: {country: 'DE'}, a: {country: {caption: 'Germany'}} });
+   * myModel.tblUpdate({ rowId: 'R1', wrsC: {country: 'DE'}, wrsA: {country: {caption: 'Germany'}} });
    */
   tblUpdate(args) {
     args = args || {};
-    const filter = args.filter || {};
-    const values = args.c || {};
-    const wrsA = args.a || {};
+    if (this._tblRowWithoutId(args, "tblUpdate"))
+      return 0;
+    const values = args.wrsC || {};
+    const wrsA = args.wrsA || {};
     const rmi = args.rmi !== false;
     const doFire = args.fire !== false;
     const columnPosByBRef = this._getColumnPosByBRef();
-    const rowIds = args.rowId
-      ? [args.rowId]
-      : Array.from(this.queryNodes(this._getFillParams(filter, this._rowsXPath() + this._buildXPathTemplate(filter) + "/@id"))).map(function(r) { return r.text || ""}).filter(function(f) { return f != ""; });
+    const argsRowId = this._tblRowId(args);
+    const rowIds = argsRowId
+      ? [argsRowId]
+      : Array.from(this.queryNodes(this._rowsXPath() + this._tblFilterXPath(args) + "/@id")).map(function(r) { return r.text || ""}).filter(function(f) { return f != ""; });
 
     let updatedCount = 0;
     rowIds.forEach(function(rowId) {
@@ -819,13 +856,18 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
   }
 
   /**
-   * Delete Wrs rows. Either a single row (via rowId) or single/multiple ones via filter. Already deleted rows (wrs:D) are not touched.
-   * The filter's property names refer to the columns ids.
+   * Delete Wrs rows. Either a single row (via rowId or row.id) or single/multiple ones via filter. Already deleted rows (wrs:D) are not touched.
+   * The filter's property names refer to the columns ids. A row returned by tblSelect can be passed as is.
    * @param {Object}  args             - parameter bag
-   * @param {Object}  [args.filter]    - affected row(s) for example `{ country: 'DE', flag: true }`
+   * @param {(Object|string|Element)} [args.filter]       - affected row(s), one of
+   *    - an object holding cell values, all of which must match, for example `{ country: 'DE', flag: true }`, null matches wrs:null
+   *    - a filter expression, for example `"country != 'DE' and (sales >= :minSales or sales = '')"`, see {@link bcdui.wrs.wrsUtil.filterToXPath} for syntax and limitations
+   *    - an f:Filter, f:And, f:Or, f:Not or f:Expression element, for example the filterElement of an AutoModel
+   * @param {Object}  [args.filterParams] - values for :name placeholders in a filter expression, for example `{ minSales: 1000 }`
    * @param {boolean} [args.rmi=true]  - use wrs:M syntax when this is true, otherwise row columns element name is not touched
    * @param {boolean} [args.fire=true] - lets the listeners know, that the update was finished
-   * @param {string}  [args.rowId]     - id specifying row which should be deleted (or use filter) 
+   * @param {string}  [args.rowId]     - id specifying row which should be deleted (or use row.id or filter)
+   * @param {Object}  [args.row]       - row as returned by tblSelect, row.id specifies the row which should be deleted
    * @return {number} count of removed rows
    * @example
    * // Update all values for 'AT', for example, even it has 3 sites
@@ -833,12 +875,14 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    */
   tblDelete(args) {
     args = args || {};
-    const filter = args.filter || {};
+    if (this._tblRowWithoutId(args, "tblDelete"))
+      return 0;
     const rmi = args.rmi !== false;
     const doFire = args.fire !== false;
-    const xPathTpl = args.rowId
-      ? this._getFillParams({rowId: args.rowId}, this._rowsXPath() + "[@id='{{=it.rowId}}']")
-      : this._getFillParams(filter, this._rowsXPath() + this._buildXPathTemplate(filter));
+    const rowId = this._tblRowId(args);
+    const xPathTpl = rowId
+      ? this._getFillParams({rowId: rowId}, this._rowsXPath() + "[@id='{{=it.rowId}}']")
+      : this._rowsXPath() + this._tblFilterXPath(args);
     const c = bcdui.core.removeXPath(this.getData(), xPathTpl, rmi)
     if (doFire) this.fire();
     return c;
@@ -846,54 +890,69 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
 
   /**
    * Selects an array of rows for a given filter. Deleted rows (wrs:D) are excluded.
-   * Each row is an object `{ rowId, c, a }`:
-   *    rowId is the wrs:R/@id, c holds the cell values and a the wrs:A attributes of the cells, both by column id.
-   *    a contains only cells having attributes, e.g. `{ rowId: 'R1', c: { ctr: 'DE', high: '1434' }, a: { high: { target: '1010' } } }`
+   * Each row is an object {@link WrsJsRow} `{ row, wrsC, wrsA, wrsO }`, the same format as the data rows of {@link bcdui.wrs.wrs2Js}:
+   *    row holds the attributes of the row element like id, plus bcdType for wrs:I and wrs:M rows (default R).
+   *    wrsC holds the cell values and wrsA the wrs:A attributes of the cells, both by column id. wrsO holds the original values of wrs:M rows.
+   *    wrsA and wrsO are left out if empty, e.g. `{ row: { id: 'R1' }, wrsC: { ctr: 'DE', high: '1434' }, wrsA: { high: { target: '1010' } } }`
    *    This is the same format as taken by {@link bcdui.core.DataProvider#tblUpdate} and {@link bcdui.core.DataProvider#tblInsert}.
    *
    *    Addressing cells by column id instead of position does not waste memory or performance:
-   *    All c objects of a result get their properties in the same order, so JavaScript engines let them share one internal "hidden class" (V8) or "shape" (other engines).
+   *    All wrsC objects of a result get their properties in the same order, so JavaScript engines let them share one internal "hidden class" (V8) or "shape" (other engines).
    *    The column ids are stored only once in that shape, each row only holds its values, quite like an array.
    *    See [Fast properties in V8](https://v8.dev/blog/fast-properties) and [Shapes and Inline Caches](https://mathiasbynens.be/notes/shapes-ics).
-   *    This is one of the reasons to keep the `a` separated, we get equally shaped objects where this holds.
+   *    This is one of the reasons to keep wrsA separated, we get equally shaped objects where this holds.
    * @param {Object}  args            - parameter bag
-   * @param {Object}  [args.filter]   - object holding cell values which should be used for selecting the rows, e.g. { country: 'DE', flag: true }
+   * @param {(Object|string|Element)} [args.filter]       - rows to be selected, one of
+   *    - an object holding cell values, all of which must match, for example `{ country: 'DE', flag: true }`, null matches wrs:null
+   *    - a filter expression, for example `"country != 'DE' and (sales >= :minSales or sales = '')"`, see {@link bcdui.wrs.wrsUtil.filterToXPath} for syntax and limitations
+   *    - an f:Filter, f:And, f:Or, f:Not or f:Expression element, for example the filterElement of an AutoModel
+   * @param {Object}  [args.filterParams] - values for :name placeholders in a filter expression, for example `{ minSales: 1000 }`
    * @param {Array<string>}   [args.columns]  - string array of requested columns, if not given, all columns are returned
-   * @return {Array<Object>} Array of row objects `{ rowId, c, a }` holding the requested data.
+   * @return {WrsJsRow[]} Array of row objects `{ row, wrsC, wrsA, wrsO }` holding the requested data.
    * @example
    * // Select all rows with country 'DE'
    * let ret = myModel.tblSelect({ filter: { ctr: 'DE' } });
-   * // ret equals [{rowId: 'R1', c: {ctr: 'DE', site: 'Hamburg', flag: 'true'}, a: {}}, {rowId: 'R2', c: {ctr: 'DE', site: 'Berlin', flag: 'false'}, a: {}}]
+   * // ret equals [{row: {id: 'R1'}, wrsC: {ctr: 'DE', site: 'Hamburg', flag: 'true'}}, {row: {id: 'R2'}, wrsC: {ctr: 'DE', site: 'Berlin', flag: 'false'}}]
    * @example
    * // Select all book titles and publishing years for author 'Hobbes'
    * let ret = myModel.tblSelect({ filter: { author: 'Hobbes' }, columns: ['title', 'year'] });
-   * // ret.map(r => r.c) equals [{title: 'De Cive', year: '1642'}, {title: 'Problemata Physica', year: '1662'}]
+   * // ret.map(r => r.wrsC) equals [{title: 'De Cive', year: '1642'}, {title: 'Problemata Physica', year: '1662'}]
+   * @example
+   * // Select all books not by Hobbes published before 1650, using a filter expression
+   * let ret = myModel.tblSelect({ filter: "author != 'Hobbes' and year < :year", filterParams: { year: 1650 } });
    */
   tblSelect(args){
     args = args || {};
-    const filter = args.filter || {}
     const columns = args.columns || Array.from(this.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C")).map(function (e) { return e.getAttribute("id"); });
-    return this._getDataFromTemplate(columns, this._rowsXPath() + this._buildXPathTemplate(filter), filter);
+    return this._getDataFromTemplate(columns, this._rowsXPath() + this._tblFilterXPath(args));
   }
 
   /**
    * Get the values of a single row, identified either by its `wrs:/@id`, or the first one matching the filter.
    * The filter's property names match the column ids. Deleted rows (wrs:D) are excluded.
    * @param {Object}  args                 - parameter bag
-   * @param {Object}        [args.filter]  - object holding cell values which should be used for selecting the row, e.g. { country: 'DE', flag: true }
-   * @param {string}        [args.rowId]   - rowId of row which should be queried (or use filter)
+   * @param {(Object|string|Element)} [args.filter]       - the first matching row is returned, one of
+   *    - an object holding cell values, all of which must match, for example `{ country: 'DE', flag: true }`, null matches wrs:null
+   *    - a filter expression, for example `"country != 'DE' and (sales >= :minSales or sales = '')"`, see {@link bcdui.wrs.wrsUtil.filterToXPath} for syntax and limitations
+   *    - an f:Filter, f:And, f:Or, f:Not or f:Expression element, for example the filterElement of an AutoModel
+   * @param {Object}  [args.filterParams] - values for :name placeholders in a filter expression, for example `{ minSales: 1000 }`
+   * @param {string}        [args.rowId]   - rowId of row which should be queried (or use row.id or filter)
+   * @param {Object}        [args.row]     - row as returned by tblSelect, row.id specifies the row which should be queried
    * @param {Array<string>} [args.columns] - string array of requested columns, if not given, all columns are returned
-   * @return {Object} Row object `{ rowId, c, a }` or undefined if there is no matching row, see {@link bcdui.core.DataProvider#tblSelect}
+   * @return {WrsJsRow} Row object `{ row, wrsC, wrsA, wrsO }` or undefined if there is no matching row, see {@link bcdui.core.DataProvider#tblSelect}
    * @example
    * // Select area and population for California
    * let ret = myModel.tblSelectRow({ filter: { ctr: 'US', state: 'CA' }, columns: ['area', 'population'] });
-   * // ret.c equals {area: '423.970', population: '39.538.223'}
+   * // ret.wrsC equals {area: '423.970', population: '39.538.223'}
    */
   tblSelectRow(args){
     args = args || {};
-    if (args.rowId) {
+    if (this._tblRowWithoutId(args, "tblSelectRow"))
+      return undefined;
+    const rowId = this._tblRowId(args);
+    if (rowId) {
       const columns = args.columns || Array.from(this.queryNodes("/*/wrs:Header/wrs:Columns/wrs:C")).map(function (e) { return e.getAttribute("id"); });
-      return this._getDataFromTemplate(columns, this._rowsXPath() + "[@id='{{=it.rowId}}']", {rowId: args.rowId})[0];
+      return this._getDataFromTemplate(columns, this._rowsXPath() + "[@id='{{=it.rowId}}']", {rowId: rowId})[0];
     }
     return this.tblSelect(args)[0];
   }
@@ -902,25 +961,28 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
    * Validates a set of column values against the WRS header constraints of this DataProvider, i.e., would these values be valid.
    * The check is purely client-side (no server round-trip): type, scale, display-size, nullable,
    * embedded header References, and key uniqueness within the loaded data are all covered.
-   * Only columns present in args.c are validated.
-   * For a planned tblUpdate, provide rowId or filter to exclude the changed row from uniqueness check.
+   * Only columns present in args.wrsC are validated.
+   * For a planned tblUpdate, provide rowId, row.id or filter to exclude the changed row from uniqueness check.
    * For a planned tblInsert, rowId is not needed as the uniqueness check is performed against all current loaded data.
    * The arguments match those of tblUpdate, i.e. a row returned by tblSelect can be passed as is.
    * @param {Object}  args            - parameter bag
-   * @param {Object}  args.c          - { colId: value } map of values to validate
+   * @param {Object}  args.wrsC       - { colId: value } map of values to validate
    * @param {string}  [args.rowId]    - only needed for key uniqueness: identifies the row being validated so it is excluded from the duplicate check.
-   *    If not given c is treated like a new row to be inserted
-   * @param {Object}  [args.filter]   - alternative to parameter rowId; first matching row is used
+   *    If neither rowId, row.id nor filter is given, wrsC is treated like a new row to be inserted
+   * @param {Object}  [args.row]      - alternative to parameter rowId, row as returned by tblSelect, row.id identifies the row
+   * @param {(Object|string|Element)} [args.filter] - alternative to parameter rowId; first matching row is used, see {@link bcdui.core.DataProvider#tblSelect}
+   * @param {Object}  [args.filterParams] - values for :name placeholders in a filter expression
    * @return {Array<{colId: string, errorCode: string}>} list of validation errors
    *
    * @example
-   * const errors = myModel.tblValidateRowChange({ rowId: 'R1', c: { amount: 'abc', color: '#xyz' } });
+   * const errors = myModel.tblValidateRowChange({ rowId: 'R1', wrsC: { amount: 'abc', color: '#xyz' } });
    * // errors: [{ colId: 'amount', errorCode: 'bcd_ValidTypeName_NUMERIC' },
    * //          { colId: 'color',  errorCode: 'bcd_ValidReferences' }]
    */
   tblValidateRowChange(args) {
     args = args || {};
-    const values = args.c || {};
+    const values = args.wrsC || {};
+    const argsRowId = this._tblRowId(args);
 
     // Column metadata keyed by colId (attributes as-is, e.g. "type-name", "display-size")
     const headers = this.tblGetColumnMetadata({});
@@ -929,7 +991,7 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
 
     const errors = [];
     // If no rowId/filter is set, we assume an insert, i.e. we must have values for all nullable='0' columns, otherwise can use values from the targetRow
-    if( !args.rowId && !args.filter ) {
+    if( !argsRowId && !args.filter ) {
       headers.filter( h => h.nullable=="0" && (values[h.id]==null || values[h.id]=="") )
              .forEach( h => errors.push({ colId: h.id, errorCode: "bcd_ValidNullable" }) );
     }
@@ -949,12 +1011,12 @@ bcdui.core.DataProvider = class extends bcdui.core.AbstractExecutable
       // Key uniqueness: run once when iterating over a key column, provided all key columns are in values
       if (!keyChecked && colMeta.isKey === "true") {
         keyChecked = true;
-        const rowId = args.rowId || (args.filter ? (this.tblGetRowIds({ filter: args.filter })[0] || null) : null);
+        const rowId = argsRowId || (args.filter ? (this.tblGetRowIds({ filter: args.filter, filterParams: args.filterParams })[0] || null) : null);
         const targetRow = rowId ? this.tblSelectRow({rowId: rowId}) : undefined;
         // Key values not given in values are taken from the target row (update case)
         const keyFilter = Object.fromEntries(keyColIds.map(k => [k,
           typeof values[k] !== 'undefined' ? (values[k] === null ? null : String(values[k]))
-                                           : (targetRow ? targetRow.c[k] : undefined)
+                                           : (targetRow ? targetRow.wrsC[k] : undefined)
         ]));
         // Without a complete key (insert or unknown row with missing key values) uniqueness cannot be decided,
         // missing non-nullable key values are already reported as bcd_ValidNullable
