@@ -209,6 +209,8 @@ bcdui.wrs.wrs2Js = function(wrsDoc)
 
   const convertWrs = wrsElem =>
   {
+    if( wrsElem.localName === "Empty" ) return { wrs: {}, header: { columns: { wrsC:[] } }, data: [] };
+    
     if (wrsElem.namespaceURI !== NS_WRS || wrsElem.localName !== "Wrs")
       throw Error("bcdui.wrs.wrs2Js: input is not a wrs:Wrs document but " + wrsElem.nodeName);
 
