@@ -259,8 +259,12 @@ bcdui.wrs.wrs2Js = function(wrsDoc)
     // Column id defaults to bRef, see wrs-1.0.0.xsd
     const colIds = header.columns.wrsC.map(col => col.id ?? col.bRef);
     // Cells are addressed by column id, a column with a duplicate id would overwrite the values of the first one
-    if (new Set(colIds).size !== colIds.length)
-      bcdui.log.warn("bcdui.wrs.wrs2Js: duplicate column ids, only the last one of each is kept in wrsC: " + colIds.filter((id, i) => colIds.indexOf(id) !== i).join(", "));
+    if (new Set(colIds).size !== colIds.length) {
+      const counts = colIds.reduce((c, id) => c.set(id, (c.get(id) || 0) + 1), new Map());
+      const dups = [...counts].filter(([, n]) => n > 1).map(([id, n]) => id + " (" + n + "x)");
+      const bs = result.header.bindingSet.map(b=>b.bcdText).join(", ");
+      bcdui.log.warn("bcdui.wrs.wrs2Js: duplicate column ids, only the last one of each is kept in wrsC: " + dups.join(", ") + " on " + bs );
+    }
 
     // wrsC and wrsO get all columns in header order, a duplicate id is only kept once
     result.data = wrsChildren(wrsChild(wrsElem, "Data")).map(bcdui.wrs._createRow2Js(colIds, [...new Set(colIds)]));

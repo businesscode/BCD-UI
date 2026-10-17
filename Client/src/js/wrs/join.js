@@ -200,8 +200,9 @@ bcdui.wrs.join = function(docIn, params) {
     const isJoinCol = leftJoinIdxSet.has(lcPos);
     const c         = mkElem("C");
 
-    // Right matching column attributes first (base), then left overrides
-    const rc = rightColById.get(lcId);
+    // For join columns, attributes of the paired right join column first (base), then left overrides
+    // Non-join columns only keep their own attributes, even if the right doc has a column with the same id
+    const rc = isJoinCol ? rightColById.get(effRightIds[leftJoinIdxs.indexOf(lcPos)]) : null;
     if (rc) copyAttrs(c, rc);
     copyAttrs(c, lc);
 
@@ -234,6 +235,12 @@ bcdui.wrs.join = function(docIn, params) {
     for (const a of childElems(rc, "A")) c.appendChild(a.cloneNode(true));
     newHdrCols.appendChild(c);
   }
+
+  // Columns are addressed by id, warn if the result has ambiguous ones
+  const resultIdCounts = childElems(newHdrCols, "C").reduce((m, c) => m.set(c.getAttribute("id"), (m.get(c.getAttribute("id")) || 0) + 1), new Map());
+  const resultDupIds = [...resultIdCounts].filter(([, n]) => n > 1).map(([id, n]) => id + " (" + n + "x)");
+  if (resultDupIds.length)
+    bcdui.log.warn("bcdui.wrs.join: duplicate column ids in result: " + resultDupIds.join(", ") + ". Use rightIdPrefix/leftIdPrefix to keep them apart");
 
   // ---- Rebuild wrs:Data ----
   const newDataEl  = childElems(newRoot, "Data")[0];
