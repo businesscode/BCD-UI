@@ -32,6 +32,8 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
 import de.businesscode.util.jdbc.DatabaseCompatibility;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -55,6 +57,8 @@ import de.businesscode.util.XPathUtils;
  */
 public class WrqInfo
 {
+  private static final Logger log = LogManager.getLogger(WrqInfo.class);
+
   private Element selectElem;
   private final Bindings bindings; // Not using Bindings.getInstance() but a parameter to allow using us in batch mode!
   
@@ -93,6 +97,10 @@ public class WrqInfo
   private boolean reqHasGroupingFunction = false;
   // If a bRef from select clause was mapped to a virtual binding item due to wrq:Calc, we note the mapping here
   private Map<String,String> virtualBRefs;
+  // Select list items repeating a @bRef/@aggr combination, mapped to the item which represents their column in the sql select list
+  private Map<WrqBindingItem,WrqBindingItem> sameColumnAs;
+  // The user provided wrq:C/@id for each wrs:C of the select list, empty if none was given
+  private Map<WrqBindingItem,String> wrsCUserIds;
   private boolean reqHasGroupBy = false;
 
   int aliasCounter     = 1;
@@ -213,6 +221,8 @@ public class WrqInfo
     groupingBRefs = new HashSet<String>();
     havingBRefs = new HashSet<String>();
     virtualBRefs = new HashMap<String, String>();
+    sameColumnAs = new HashMap<WrqBindingItem, WrqBindingItem>();
+    wrsCUserIds = new HashMap<WrqBindingItem, String>();
 
     // Let's check, whether we have a filter modifiers attached to the BindingSets (and BsGroup in EE) and apply them
     // Note, we have a chicken and egg problem here. To ask a BindingSet for its modifiers, 
@@ -361,14 +371,18 @@ public class WrqInfo
           String bRef_Aggr = wrqBi.getId()+(wrqBi.getAggr()==null ? "":" "+wrqBi.getAggr());
 
           // wrs:C go to selectList
+          // Each wrs:C gets its own instance, even if the @bRef/@aggr combination is repeated, so that it can carry its own wrs:C/@id
           if( "C".equals(cAElem.getLocalName()) ) {
             lastWrqC = wrqBi;
-            WrqBindingItem prevBiwmd = allBRefAggrs.get(bRef_Aggr);
-            wrsCOnlySelectListBRefs.add(prevBiwmd!=null? prevBiwmd : wrqBi);
+            wrsCOnlySelectListBRefs.add(wrqBi);
+            wrsCUserIds.put(wrqBi, cAElem.getAttribute("id"));
           }
-          if( allBRefAggrs.get(bRef_Aggr)==null ) { // If it was already there, keep it as wrsCOnlySelectListBRefs is referencing it already
+          if( allBRefAggrs.get(bRef_Aggr)==null ) {
             allBRefAggrs.put(bRef_Aggr, wrqBi);
             allBRefs.put(wrqBi.getId(), wrqBi);
+          } else {
+            // A repeated @bRef/@aggr is only once in the sql select list, it shares that column with the first occurrence
+            sameColumnAs.put(wrqBi, allBRefAggrs.get(bRef_Aggr));
           }
           fullSelectListBRefs.add(bRef_Aggr);
           userSelectListBRefs.add(bRef_Aggr);
@@ -382,12 +396,14 @@ public class WrqInfo
           // TODO only for those taking part in grouping fct
           WrqBindingItem biWm = it.next();
           String bRef = biWm.getId();
-          if( reqHasGroupingFunction && groupingBRefs.contains(bRef) ) {
+          if( reqHasGroupingFunction && groupingBRefs.contains(bRef) && !sameColumnAs.containsKey(biWm) ) {
             WrqBindingItem grBi = new WrqBindingItem(this, ISqlGenerator.BCD_WKATTRIBUTE_GROUPING, "GROUPING","isG"+biWm.getAlias(), biWm, null);
             fullSelectListBRefs.add(bRef+" GROUPING");
             allBRefAggrs.put(bRef+" GROUPING", grBi);
           }
         }
+
+        makeWrsCIdsUnique();
       }
 
       // B.2 Take care for BindingItems used in filtering
@@ -459,6 +475,10 @@ public class WrqInfo
     for( String sl : fullSelectListBRefs ) {
       allBRefAggrs.get(sl).setColumnNumber(columnNumber++);
     }
+    // All columns pointing to the same bRef+aggr must point to the same column of the result list, as we do not repeat them there
+    for( Map.Entry<WrqBindingItem, WrqBindingItem> e : sameColumnAs.entrySet() ) {
+      e.getKey().setColumnNumber(e.getValue().getColumnNumber());
+    }
     
     fromSQLStatementWithParams.append(resultingBindingSet.getSQLStatementWithParams());
   }
@@ -482,6 +502,39 @@ public class WrqInfo
         cleanedList.add(node);
     }
     return cleanedList;
+  }
+
+  /**
+   * Makes sure that each wrs:C in the select list has a unique wrs:C/@id
+   * If the user did not provide an id, the bRef is used. If that bRef appears multiple times, for example with different @aggr,
+   * the first one keeps the bRef as id and the following ones become bRef_2, bRef_3 and so on.
+   * Ids provided by the user are kept as they are, if they are not unique, we only log a warning
+   * Empty select lists are no covered here. So this is not addressing self joins with empty select lists for example.
+   */
+  private void makeWrsCIdsUnique()
+  {
+    // User provided ids are reserved, generated ones must not collide with them
+    Set<String> usedIds = new HashSet<String>();
+    for( WrqBindingItem wrqBi : wrsCOnlySelectListBRefs ) {
+      String userId = wrsCUserIds.get(wrqBi);
+      if( userId.isEmpty() ) continue;
+      if( !usedIds.add(userId) )
+        log.warn("Wrq for BindingSet '{}' has duplicate wrq:C/@id '{}'", resultingBindingSet.getName(), userId);
+    }
+
+    // Give it the user id
+    // If none given but bRef conflicts with a previous column's id, append _2, _3 and so on
+    for( WrqBindingItem wrqBi : wrsCOnlySelectListBRefs ) {
+      if( !wrsCUserIds.get(wrqBi).isEmpty() ) continue;
+      String baseId = wrqBi.getAttribute("id");
+      if( baseId==null || baseId.isEmpty() ) continue;
+      String wrsId = baseId;
+      for( int n=2; usedIds.contains(wrsId); n++ )
+        wrsId = baseId+"_"+n;
+      usedIds.add(wrsId);
+      if( !wrsId.equals(baseId) )
+        wrqBi.setWrsId(wrsId);
+    }
   }
 
   /**

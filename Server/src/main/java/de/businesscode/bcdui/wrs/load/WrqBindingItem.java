@@ -341,6 +341,13 @@ public class WrqBindingItem implements WrsBindingItem
     this.columnNumber = columnNumber;
   }
 
+  /**
+   * Overwrites the wrs:C/@id written to the Wrs header, does not change the internal id used for sql generation
+   */
+  public void setWrsId( String wrsId ) {
+    attributesClient.put("id", wrsId);
+  }
+
   @Override
   public Boolean isEscapeXML() {
     return isEscapeXml;
