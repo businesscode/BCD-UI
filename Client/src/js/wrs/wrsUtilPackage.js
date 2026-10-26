@@ -1919,7 +1919,7 @@ bcdui.wrs.jsUtil = Object.assign(bcdui.wrs.jsUtil,
    * @param {number|null} scale
    *   A) If abs(scale)&lt; 10 the number of decimal digits. If positive padded with trailing 0.
    *   B) If abs(scale)> 10 then rounded to the nearest multiple of scale, negative here is only allowed for scale = 10 pow n.
-   *   C) Samples (in US format) for 14990.404: scale 2 -> 1490.40, scale -2 -> 1490.4, scale 1000 -> 15,000, scale -1000 -> 1.5.
+   *   C) Samples (in US format) for 14990.404: scale 2 -> 14,990.40, scale -2 -> 14,990.4, scale 1000 -> 15,000, scale -1000 -> 15.
    * @param {string} locale      - 'en' (default) or 'de'
    * @param {string} unit        - optional unit string. If '%', the value is multiplied by 100 and '%' is appended. Everything else (including ' %') is just appened
    * @returns {string}
@@ -1940,7 +1940,7 @@ bcdui.wrs.jsUtil = Object.assign(bcdui.wrs.jsUtil,
       : { decimal: '.', group: ',' };
 
     function intFormat(v) {
-      const rounded = Math.round(v);
+      const rounded = Math.round(v * perFac);
       return rounded.toLocaleString(locale === 'de' ? 'de-DE' : 'en-US', {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
