@@ -740,6 +740,12 @@ a {
   @include shadow();
 }
 
+/* At most half the window, so that it always fits on one side of the mouse, bcdui.widget._flyOverPositioning() chooses the side */
+#bcdTooltipDiv {
+  box-sizing: border-box;
+  max-width: calc(50vw - 30px);
+}
+
 #bcdWidgetBalloon {
   @include con_color($flyover-color);
   border: 1px solid $border-color;

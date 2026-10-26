@@ -2164,6 +2164,9 @@ jQuery.extend(bcdui.widget,
         var ctX = args.event.pageX + offset;
         if( ctX+ctWidth > jQuery(window).outerWidth() + jQuery(window).scrollLeft() )
           ctX -= (ctWidth + offset*2);
+        // Flipped to the left of the mouse, it must not leave the window at the left either
+        if( ctX < jQuery(window).scrollLeft() )
+          ctX = jQuery(window).scrollLeft();
         var ctY = args.event.pageY + offset;
         var topScrollOffset = jQuery(window).scrollTop();
         if( ctY+ctHeight > jQuery(window).outerHeight() + topScrollOffset )
