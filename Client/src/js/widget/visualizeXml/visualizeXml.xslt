@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2025 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -42,30 +42,32 @@
       <script type="text/javascript" src="{$contentPath}/../../src/js/widget/visualizeXml/visualizeXml.js"> </script>
     </xsl:if>
     <input type="hidden"/>
+/re    <!-- light-dark(): first value without or with a light color-scheme, second with a dark one.
+         The theme puts the view on the surface color of bcd-variables.css -->
     <STYLE>
       .visXml_c  {cursor:pointer}
-      .visXml_b  {color:red; font-family:'Courier New'; font-weight:bold; text-decoration:none}
-      .visXml_b_collaps {color:red; font-family:'Courier New'; font-weight:bold; text-decoration:none}
+      .visXml_b  {color:light-dark(red, #ff6b6b); font-family:'Courier New'; font-weight:bold; text-decoration:none}
+      .visXml_b_collaps {color:light-dark(red, #ff6b6b); font-family:'Courier New'; font-weight:bold; text-decoration:none}
       .visXml_e  {margin-left:0em; text-indent:-0em; }
       .visXml_k  {margin-left:0em; text-indent:-0em; }
-      .visXml_tattr  {color:#990000}
-      .visXml_xtattr {color:#990099}
-      .visXml_telem  {color:#000099}
-      .visXml_xtelem {color:#990099}
-      .visXml_ns {color:red}
-      .visXml_dt {color:#000099}
-      .visXml_m  {color:#000099}
-      .visXml_tx {color:#006600}
+      .visXml_tattr  {color:light-dark(#990000, #ff8a80)}
+      .visXml_xtattr {color:light-dark(#990099, #e48ae4)}
+      .visXml_telem  {color:light-dark(#000099, #8888ff)}
+      .visXml_xtelem {color:light-dark(#990099, #e48ae4)}
+      .visXml_ns {color:light-dark(red, #ff6b6b)}
+      .visXml_dt {color:light-dark(#000099, #8888ff)}
+      .visXml_m  {color:light-dark(#000099, #8888ff)}
+      .visXml_tx {color:light-dark(#006600, #9fe09f)}
       .visXml_db {text-indent:0px; margin-left:0em; margin-top:0px;
                   margin-bottom:0px;padding-left:.3em;
-                  border-left:1px solid #CCCCCC; font:small Courier}
+                  border-left:1px solid light-dark(#CCCCCC, #555555); font:small Courier}
       .visXml_di {font:small Courier}
-      .visXml_d  {color:#000099}
-      .visXml_pi {color:#000099}
+      .visXml_d  {color:light-dark(#000099, #8888ff)}
+      .visXml_pi {color:light-dark(#000099, #8888ff)}
       .visXml_cb {text-indent:0px; margin-left:0em; margin-top:0px;
                   margin-bottom:0px;padding-left:.3em; font:small Courier;
                   color:#888888}
-      .visXml_ci {color:#008800}
+      .visXml_ci {color:light-dark(#008800, #6fd36f)}
       PRE.visXml {margin:0px; display:inline}
     </STYLE>
   </xsl:template>
