@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -125,7 +125,7 @@
       el.attr("tabindex", this.options.tabindex);
       el.attr("autofocus", this.options.autofocus);
 
-      var elWrap = jQuery("<span></span>").addClass("bcdButton btn-primary");
+      var elWrap = jQuery("<span></span>").addClass("bcdButton bcdPrimaryButton btn-primary");
       if (this.options.optionsModelXPath) {
         elWrap.addClass("bcdDropDownButton");
         el.addClass("closed");
@@ -198,7 +198,7 @@
             idValue = idValue != null ? idValue.text : idValue;
           }
           idValue = bcdui.util.escapeHtml(idValue);
-          dropDown += "<li bcdValue='" + idValue + "'><span class='bcdButton btn-primary'><a style='min-width: " + (el.outerWidth() - padL - padR - borL - borR) + "px;' bcdTranslate='" + caption + "'>" + caption + "</a></span></li>";
+          dropDown += "<li bcdValue='" + idValue + "'><span class='bcdButton bcdPrimaryButton btn-primary'><a style='min-width: " + (el.outerWidth() - padL - padR - borL - borR) + "px;' bcdTranslate='" + caption + "'>" + caption + "</a></span></li>";
           i++;
         });
         dropDown += "</ul></div>";

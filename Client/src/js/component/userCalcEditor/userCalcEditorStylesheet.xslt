@@ -119,14 +119,14 @@
       </div>
     </div>
     <br style="clear:both"/>
-    <div class="bcdUserCalcEditorButtons form-row">
-      <div class="col-sm-auto">
+    <div class="bcdUserCalcEditorButtons bcdFlexRow form-row">
+      <div class="bcdFlexAuto col-sm-auto">
         <bcd-buttonNg>
           <xsl:attribute name="caption">Ok</xsl:attribute>
           <xsl:attribute name="onClickAction">bcdui.component.userCalcEditor._save</xsl:attribute>
         </bcd-buttonNg>
       </div>
-      <div class="col-sm-auto">
+      <div class="bcdFlexAuto col-sm-auto">
         <bcd-buttonNg>
           <xsl:attribute name="caption">Cancel</xsl:attribute>
           <xsl:attribute name="onClickAction">bcdui.component.userCalcEditor._cancel</xsl:attribute>

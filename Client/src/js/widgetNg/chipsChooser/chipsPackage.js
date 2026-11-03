@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -193,8 +193,8 @@
       const placeHolder = bcdui.i18n.syncTranslateFormatMessage({msgid: this.options.placeholder || defPlaceHolder}) || this.options.placeholder;
       const template =
       this.options.targetModelXPathRight
-      ? `<div class='bcdChipChooser bcdSplit' id='${this.options.id}'><div class='bcdUpper'>`+leftLabel+"<div class='bcdLeft'></div>"+rightLabel+"<div class='bcdRight'></div></div><div class='bcdMiddle'><span class='bcdDown'><input class='form-control' placeholder='"+placeHolder+"' type='text'></input></span></div><div class='bcdLowerContainer'  style='display:none'><div class='bcdLower form-control'></div></div></div>"
-      : `<div class='bcdChipChooser' id='${this.options.id}'><div class='bcdUpper'>`+leftLabel+"<div class='bcdUp'></div></div><div class='bcdMiddle'><span class='bcdDown'><input class='form-control' placeholder='"+placeHolder+"' type='text'></input></span></div><div class='bcdLowerContainer'  style='display:none'><div class='bcdLower form-control'></div></div></div>";
+      ? `<div class='bcdChipChooser bcdSplit' id='${this.options.id}'><div class='bcdUpper'>`+leftLabel+"<div class='bcdLeft'></div>"+rightLabel+"<div class='bcdRight'></div></div><div class='bcdMiddle'><span class='bcdDown'><input class='bcdFormControl form-control' placeholder='"+placeHolder+"' type='text'></input></span></div><div class='bcdLowerContainer'  style='display:none'><div class='bcdLower bcdFormControl form-control'></div></div></div>"
+      : `<div class='bcdChipChooser' id='${this.options.id}'><div class='bcdUpper'>`+leftLabel+"<div class='bcdUp'></div></div><div class='bcdMiddle'><span class='bcdDown'><input class='bcdFormControl form-control' placeholder='"+placeHolder+"' type='text'></input></span></div><div class='bcdLowerContainer'  style='display:none'><div class='bcdLower bcdFormControl form-control'></div></div></div>";
 
       // add label
       this._createLabel(this.options.id);

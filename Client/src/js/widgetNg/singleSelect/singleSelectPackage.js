@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -410,7 +410,7 @@
      * @private
      */
     _ntv_createInputControl: function(args, config){
-      const elContainer = jQuery("<span class='bcdSingleSelectNg'><select class='form-control'></select></span>");
+      const elContainer = jQuery("<span class='bcdSingleSelectNg'><select class='bcdFormControl form-control'></select></span>");
       let el = elContainer.find("select");
       el.attr("id", config.htmlElementId);
       // the hints are handled by balloons

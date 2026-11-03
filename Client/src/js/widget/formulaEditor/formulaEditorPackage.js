@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ bcdui.widget.formulaEditor = Object.assign(bcdui.widget.formulaEditor,
         "<div style='zoom:0;overflow:hidden;clear:both;height:0px;width:0px;'></div>"
       + "<label" + bcdui.widget._domFromBcdAttribute(containerHtmlElement, "bcdCaption", "bcdTranslate") + ">"
       + bcdui.widget._getBcdAttributeValue(containerHtmlElement, "bcdCaption")
-      + "</label><span class='bcdValue'><input type='text' class='bcdFormulaEditField form-control'></input></span>"
+      + "</label><span class='bcdValue'><input type='text' class='bcdFormulaEditField bcdFormControl form-control'></input></span>"
       + "<div class='bcdFormulaSkipValidationDiv'"
       + (! doValCheckbox ? " style='display:none'" : "")
       + "><input type='checkbox' class='bcdFormulaSkipValidation checkboxes'"

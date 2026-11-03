@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@
      * @private
      */
     _createInputControl: function(args, config){
-      var el = args.autogrow ? jQuery("<div class='bcdGrow'><textarea class='form-control'></textarea></div>") : jQuery("<textarea class='form-control'></textarea>");
+      var el = args.autogrow ? jQuery("<div class='bcdGrow'><textarea class='bcdFormControl form-control'></textarea></div>") : jQuery("<textarea class='bcdFormControl form-control'></textarea>");
       var control = args.autogrow ? el.find("textarea") : el;
 
       control.attr("id", config.inputElementId);

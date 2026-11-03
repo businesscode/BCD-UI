@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -294,7 +294,7 @@
      */
     _createInputControl: function(args, config){
       
-      var el = jQuery("<input class='form-control'></input>");
+      var el = jQuery("<input class='bcdFormControl form-control'></input>");
 
       el.attr("id", config.inputElementId);
       // the hints are handled by balloons

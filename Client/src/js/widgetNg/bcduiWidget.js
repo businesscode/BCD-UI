@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -135,7 +135,7 @@
       if(this.options.label !== undefined){
         if(!controlId)throw ".controlId undefined";
         
-        this.element.addClass("form-group");
+        this.element.addClass("bcdFormGroup form-group");
         
         const labelElement = $("<label></label>").attr("for", controlId);
         if(this.options.label && this.options.label.startsWith(bcdui.i18n.TAG)){

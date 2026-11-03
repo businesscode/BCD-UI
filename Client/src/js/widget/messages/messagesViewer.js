@@ -74,7 +74,7 @@ jQuery.extend(bcdui.widget, {
       const showPopup = function(msgs, timestamp) {
         // show popup message
         //jQuery(".bcdHtmlViewer").closest(".ui-dialog").remove();
-        const dialog = jQuery("<div title='" + msgs[0].title + "'><div class='bcdHtmlViewer'>" + msgs[0].message + "</div><div class='bcdHtmlViewerFooter row'><div class='col'><span class='bcdAction bcdLeft bcdButton btn-primary'><a>" + prevCaption + "</a></span><span class='bcdCount'>1/" + msgs.length + "</span><span class='bcdAction bcdRight bcdButton btn-primary'><a>" + nextCaption + "</a></span></div><div class='col'><span class='bcdAction bcdClose bcdButton btn-primary'><a>" + closeCaption + "</a></div></div></div>");
+        const dialog = jQuery("<div title='" + msgs[0].title + "'><div class='bcdHtmlViewer'>" + msgs[0].message + "</div><div class='bcdHtmlViewerFooter bcdFlexRow row'><div class='bcdFlexCol col'><span class='bcdAction bcdLeft bcdButton bcdPrimaryButton btn-primary'><a>" + prevCaption + "</a></span><span class='bcdCount'>1/" + msgs.length + "</span><span class='bcdAction bcdRight bcdButton bcdPrimaryButton btn-primary'><a>" + nextCaption + "</a></span></div><div class='bcdFlexCol col'><span class='bcdAction bcdClose bcdButton bcdPrimaryButton btn-primary'><a>" + closeCaption + "</a></div></div></div>");
         dialog.dialog({
           width: "auto",
           height: "auto",

@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@
       finalBRefs = finalBRefs.filter(function(e, idx){return finalBRefs.indexOf(e) == idx}); // make unique
 
       this._renderCell = function(row, meta, rowData) {
-        return jQuery("<div class='commentContainer'><div class='row head'><div class='col icon ts'>" + rowData["bcdUpdateStamp"] + "</div><div class='col icon user'>" + rowData["bcdUpdateBy"] + "</div></div><div class='row body'><div class='col'>" + rowData["comment_text"] + "</div></div></div>");
+        return jQuery("<div class='commentContainer'><div class='bcdFlexRow row head'><div class='bcdFlexCol col icon ts'>" + rowData["bcdUpdateStamp"] + "</div><div class='bcdFlexCol col icon user'>" + rowData["bcdUpdateBy"] + "</div></div><div class='bcdFlexRow row body'><div class='bcdFlexCol col'>" + rowData["comment_text"] + "</div></div></div>");
       };
 
       this._updateRow =  function(keyColumn, keyValue, value) {
@@ -240,8 +240,8 @@
 
       var placeholder = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Comment_Placeholder"}) || "Enter Comment");
       var addTxt = bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid:"bcd_Comment_Add"}) || "Add");
-      var add = opts.readonly ? "" : "<div class='row titleRow'><div class='col'>"+title+"</div><div title='"+addTxt+"'class='col icon edit bcdShowAddArea'></div></div><div class='row addRow'><div class='col'><"+this.inputElement+" class='form-control' placeholder='"+placeholder+"'></"+this.inputElement+"></div><div class='col add'><button class='bcdAddComment bcdButton btn-primary'>" + addTxt + "</button></div></div>";
-      var el = jQuery("<div class='bcdComment'>"+add+"<div class='row'><div class='col commentTable'></div></div></div>");
+      var add = opts.readonly ? "" : "<div class='bcdFlexRow row titleRow'><div class='bcdFlexCol col'>"+title+"</div><div title='"+addTxt+"'class='bcdFlexCol col icon edit bcdShowAddArea'></div></div><div class='bcdFlexRow row addRow'><div class='bcdFlexCol col'><"+this.inputElement+" class='bcdFormControl form-control' placeholder='"+placeholder+"'></"+this.inputElement+"></div><div class='bcdFlexCol col add'><button class='bcdAddComment bcdButton bcdPrimaryButton btn-primary'>" + addTxt + "</button></div></div>";
+      var el = jQuery("<div class='bcdComment'>"+add+"<div class='bcdFlexRow row'><div class='bcdFlexCol col commentTable'></div></div></div>");
 
       el.attr("id","comment_" + opts.id);
       el.find(this.inputElement).attr("tabindex", opts.tabindex);

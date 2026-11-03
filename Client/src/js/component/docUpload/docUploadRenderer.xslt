@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -222,7 +222,7 @@
     <xsl:param name="instance"/>
     <xsl:param name="required"/>
     
-    <div class="{concat('category col cat_', $category/@id, ' scope_', $scope)}">
+    <div class="{concat('category bcdFlexCol col cat_', $category/@id, ' scope_', $scope)}">
       <xsl:variable name="catId" select="$category/@id"/>
       <xsl:variable name="caption" select="$category/@caption"/>
       <xsl:variable name="dropAllowedClass" select="concat(' pointer_', string($hasWriteAccess))"/>
@@ -233,7 +233,7 @@
           <xsl:otherwise> req_false</xsl:otherwise>
         </xsl:choose>
       </xsl:variable>
-      <div class="{concat('bcdDropArea form-group', $docAvailableClass, $requiredClass, $dropAllowedClass)}" uuid="{$entry/@uuid}" requiredDoc="{$required}" fileSize="{$entry/@fileSize}" fileName="{$entry/@fileName}" comment="{$entry/@comment}" catId="{$catId}" rowId="{$entry/@rowId}" scope="{$scope}" instance="{$instance}">
+      <div class="{concat('bcdDropArea bcdFormGroup form-group', $docAvailableClass, $requiredClass, $dropAllowedClass)}" uuid="{$entry/@uuid}" requiredDoc="{$required}" fileSize="{$entry/@fileSize}" fileName="{$entry/@fileName}" comment="{$entry/@comment}" catId="{$catId}" rowId="{$entry/@rowId}" scope="{$scope}" instance="{$instance}">
         <xsl:if test="$hasWriteAccess">
           <xsl:attribute name="onDrop">bcdui.component.docUpload._onDndDrop(event, this)</xsl:attribute>
           <xsl:attribute name="onDragDrop">bcdui.component.docUpload._onDndDrop(event, this)</xsl:attribute>
@@ -273,7 +273,7 @@
             </xsl:if>
           </div>
         </xsl:if>
-        <div class='row title fileType'>
+        <div class='bcdFlexRow row title fileType'>
           <div class="{concat('title icon ', $entry/@ext, $docAvailableClass, $requiredClass)}">
             <xsl:if test="$maxCount &gt; 1">
               <xsl:value-of select="concat('[', $pos, '/', $maxCount, '] ')"/>
@@ -281,7 +281,7 @@
             <xsl:value-of select="$entry/@fileName"/>
           </div>
         </div>
-        <div class='row info small'>
+        <div class='bcdFlexRow row info small'>
           <xsl:choose>
             <xsl:when test="$entry">
               <div class='icon ts'><xsl:value-of select="substring($entry/@ts, 1, 16)"/></div>
@@ -296,16 +296,16 @@
             </xsl:otherwise>
           </xsl:choose>
         </div>
-        <div class='row small comment'>
+        <div class='bcdFlexRow row small comment'>
           <xsl:variable name="gotCommentCss">
             <xsl:if test="$entry/@comment!=''">comment</xsl:if>
           </xsl:variable>
           <xsl:choose>
             <xsl:when test="$hasWriteAccess">
-              <textarea rowId="{$entry/@rowId}" placeholder='{$i18_comment}' class="{concat('form-control commentinput ', $gotCommentCss)}" maxlength='200' type='text'><xsl:value-of select='$entry/@comment'/></textarea>
+              <textarea rowId="{$entry/@rowId}" placeholder='{$i18_comment}' class="{concat('bcdFormControl form-control commentinput ', $gotCommentCss)}" maxlength='200' type='text'><xsl:value-of select='$entry/@comment'/></textarea>
             </xsl:when>
             <xsl:otherwise>
-              <span class="{concat('form-control commentinput ', $gotCommentCss)}"><xsl:value-of select='$entry/@comment'/></span>
+              <span class="{concat('bcdFormControl form-control commentinput ', $gotCommentCss)}"><xsl:value-of select='$entry/@comment'/></span>
             </xsl:otherwise>
           </xsl:choose>
         </div>

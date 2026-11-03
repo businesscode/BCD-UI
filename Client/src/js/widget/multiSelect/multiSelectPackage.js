@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2022 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ bcdui.widget.multiSelect = Object.assign(bcdui.widget.multiSelect,
       jQuery(e).append(
         e.getAttribute("bcdIsCheckBox") == "true"
           ? "<span class='radio'></span>"
-          : "<select multiple='multiple' class='form-control' "
+          : "<select multiple='multiple' class='bcdFormControl form-control' "
             + bcdui.widget._domFromBcdAttribute(e, "bcdVisibleSize", "size")
             + "></select>"
         ).addClass("bcdMultiSelect");

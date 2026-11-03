@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2021 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -246,11 +246,11 @@ bcdui.component.docUpload.Uploader = class extends bcdui.core.Renderer
       if (this.downloadAll) {
         if (this.zipDownloadTargetHtml) {
           jQuery(this.zipDownloadTargetHtml).find(".downloadAll").remove();
-          jQuery(this.zipDownloadTargetHtml).append("<div class='downloadAll'><span class='bcdButton btn-primary zipLink'><a class='zipLink'>"+finalParams.i18_download_all+"</a></span></div>");
+          jQuery(this.zipDownloadTargetHtml).append("<div class='downloadAll'><span class='bcdButton bcdPrimaryButton btn-primary zipLink'><a class='zipLink'>"+finalParams.i18_download_all+"</a></span></div>");
         }
         else {
           jQuery("#" + this.targetHtml).find(".docUploaderContainer .downloadAll").remove();
-          jQuery("#" + this.targetHtml).find(".docUploaderContainer").prepend("<div class='downloadAll'><span class='bcdButton btn-primary zipLink'><a class='zipLink'>"+finalParams.i18_download_all+"</a></span></div>");
+          jQuery("#" + this.targetHtml).find(".docUploaderContainer").prepend("<div class='downloadAll'><span class='bcdButton bcdPrimaryButton btn-primary zipLink'><a class='zipLink'>"+finalParams.i18_download_all+"</a></span></div>");
         }
       }
 

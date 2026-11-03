@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2025 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -24,63 +24,53 @@
  * 2. To be use with a form with the fields and your layout like this sample:
      <bcd-loginng>
        <form class="bcd__login-form">
-         <div class="container">
-           <!-- Login form -->
-           <section>
-             <!-- username -->
-             <div class="form-group">
-               <label for="input-field-username">Username:</label>
-               <div class="input-group">
-                 <div class="input-group-prepend">
-                   <div class="input-group-text">
-                     <i class="fas fa-user"></i>
-                   </div>
-                 </div>
-                 <input type="text" class="form-control" id="input-field-username" name="username" autofocus></input>
-               </div>
+         <!-- Login form -->
+         <section>
+           <!-- username -->
+           <div class="bcdFormGroup">
+             <label for="input-field-username">Username:</label>
+             <div class="bcd__login-field">
+               <div class="bcd__login-field-icon"><i class="fas fa-user"></i></div>
+               <input type="text" class="bcdFormControl" id="input-field-username" name="username" autofocus></input>
              </div>
+           </div>
 
-             <!-- password -->
-             <div class="form-group">
-               <label for="input-field-passwd">Password:</label>
-               <div class="input-group">
-                 <div class="input-group-prepend">
-                   <div class="input-group-text">
-                     <i class="fas fa-lock"></i>
-                   </div>
-                 </div>
-                 <input type="password" class="form-control" id="input-field-passwd" name="password"></input>
-               </div>
+           <!-- password -->
+           <div class="bcdFormGroup">
+             <label for="input-field-passwd">Password:</label>
+             <div class="bcd__login-field">
+               <div class="bcd__login-field-icon"><i class="fas fa-lock"></i></div>
+               <input type="password" class="bcdFormControl" id="input-field-passwd" name="password"></input>
              </div>
+           </div>
 
-             <!-- rememberMe -->
-             <div class="form-group">
-               <input type="checkbox" class="" id="input-check-rememberme" name="rememberMe"></input>
-               <label for="input-check-rememberme">Remember me</label>
-             </div>
+           <!-- rememberMe -->
+           <div class="bcdFormGroup">
+             <input type="checkbox" class="" id="input-check-rememberme" name="rememberMe"></input>
+             <label for="input-check-rememberme">Remember me</label>
+           </div>
 
-             <!-- actions -->
-             <div class="form-group role-login">
-               <button class="btn btn-primary w-100 role-login-action"> Login </button>
-               <!-- // TODO disable temporarily
-                 <a class="text-link">Forgot password?</a>
-                -->
-             </div>
-           </section>
+           <!-- actions -->
+           <div class="bcdFormGroup role-login">
+             <button class="bcdButton bcdPrimaryButton role-login-action"> Login </button>
+             <!-- // TODO disable temporarily
+               <a class="text-link">Forgot password?</a>
+              -->
+           </div>
+         </section>
 
-           <!-- OAuth -->
-           <section>
-             <div class="bcd__login-divider">
-               <span>OR</span>
-             </div>
-             <div class="form-group">
-               <a bcdOauthProviderId="google" class="btn btn--google-login"> Login with Google </a>
-             </div>
-             <div class="form-group">
-               <a bcdOauthProviderId="azure" class="btn btn--microsoft-login"> Login with Microsoft </a>
-             </div>
-           </section>
-         </div>
+         <!-- OAuth -->
+         <section>
+           <div class="bcd__login-divider">
+             <span>OR</span>
+           </div>
+           <div class="bcdFormGroup">
+             <a bcdOauthProviderId="google" class="bcd__login-oauth bcd__login-oauth--google"> Login with Google </a>
+           </div>
+           <div class="bcdFormGroup">
+             <a bcdOauthProviderId="azure" class="bcd__login-oauth bcd__login-oauth--microsoft"> Login with Microsoft </a>
+           </div>
+         </section>
        </form>
      </bcd-loginng>
  */

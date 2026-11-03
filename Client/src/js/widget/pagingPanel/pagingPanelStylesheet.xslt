@@ -54,7 +54,7 @@
           <td title="{$backwardsTitle}" class="actionBackwards bcdPagingButton" targetModelId="{$targetModelId}" targetModelXPath="{$targetModelXPath}" delta="-1" currentPage="{$currentPage}" lastPage="{$lastPage}" elementId="{$elId}" paginatedAction="{$onChange}">&#x25C4;&#x25C4;</td>
 
           <td class="bcdPagingSelectAction">
-            <select class='form-control' id="{$elId}" targetModelId="{$targetModelId}" targetModelXPath="{$targetModelXPath}" paginatedAction="{$onChange}">
+            <select class='bcdFormControl form-control' id="{$elId}" targetModelId="{$targetModelId}" targetModelXPath="{$targetModelXPath}" paginatedAction="{$onChange}">
               <xsl:call-template name="createOptions">
                 <xsl:with-param name="rowsCount"><xsl:value-of select="$rowsCount"/></xsl:with-param>
                 <xsl:with-param name="lastPage"><xsl:value-of select="$lastPage"/></xsl:with-param>

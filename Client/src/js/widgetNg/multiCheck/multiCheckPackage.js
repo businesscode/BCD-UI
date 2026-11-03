@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2023 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -315,10 +315,10 @@
      * @private
      */
     _createMultiCheckBox: function(){
-      const header = "<div class='bcdHeader form-control'><span class='bcdCount'></span><i class='bcdDown'></i></i></div>";
-      const search = "<div class='bcdSearch'><span class='bcdSearchCount'><input placeholder='"+this.i18nPleaseType+"' class='form-control' type='text'></input></span><i class='bcdClear'></i><i class='bcdFind'></i></div>";
+      const header = "<div class='bcdHeader bcdFormControl form-control'><span class='bcdCount'></span><i class='bcdDown'></i></i></div>";
+      const search = "<div class='bcdSearch'><span class='bcdSearchCount'><input placeholder='"+this.i18nPleaseType+"' class='bcdFormControl form-control' type='text'></input></span><i class='bcdClear'></i><i class='bcdFind'></i></div>";
       const footer = this.options.singleSelect ? "" : "<div class='bcdFooter'><bcd-checkboxNg label='"+this.i18nShowSelectedOnly+"' targetModelXPath='"+this.switchTargetModelXPath+"' skin='switch'></bcd-checkboxNg><bcd-buttonNg bcdActionId='selectVisible' caption='"+this.i18nSelectVisible+"' onClickAction='bcdui.widgetNg.multiCheck._buttonClickAction'></bcd-buttonNg><bcd-buttonNg bcdActionId='clearVisible' caption='"+this.i18nClearVisible+"' onClickAction='bcdui.widgetNg.multiCheck._buttonClickAction'></bcd-buttonNg><bcd-buttonNg bcdActionId='selectAll' caption='"+this.i18nSelectAll+"' onClickAction='bcdui.widgetNg.multiCheck._buttonClickAction'></bcd-buttonNg><bcd-buttonNg bcdActionId='clearAll' caption='"+this.i18nClearAll+"' onClickAction='bcdui.widgetNg.multiCheck._buttonClickAction'></bcd-buttonNg><span></div>";
-      return jQuery("<div class='bcdMultiCheck'" + (this.options.disabled ? " disabled" : "") + " tabindex='" + (this.options.tabIndex ? this.options.tabIndex : "1") + "' id='multiCheck_" + this.options.id + "'>"+header+"<div style='display:none' class='bcdLower form-control'>"+search+"<div class='bcdItems'></div>"+footer+"</div></div>");
+      return jQuery("<div class='bcdMultiCheck'" + (this.options.disabled ? " disabled" : "") + " tabindex='" + (this.options.tabIndex ? this.options.tabIndex : "1") + "' id='multiCheck_" + this.options.id + "'>"+header+"<div style='display:none' class='bcdLower bcdFormControl form-control'>"+search+"<div class='bcdItems'></div>"+footer+"</div></div>");
     },
 
     /**

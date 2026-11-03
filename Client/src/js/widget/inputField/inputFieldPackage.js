@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2025 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ bcdui.widget.inputField = Object.assign(bcdui.widget.inputField,
       + bcdui.widget._domFromBcdAttribute(e, "bcdMaxLength", "maxlength")
       + "></input>"
     ).addClass(e.getAttribute("bcdOptionsModelXPath") ? "bcdInputField bcdComboInputField" : "bcdInputField");
-    var htmlElement = jQuery(e).children().last().addClass("form-control").get(0);
+    var htmlElement = jQuery(e).children().last().addClass("bcdFormControl form-control").get(0);
     bcdui.widget._moveBcdAttributes(e, htmlElement);
     bcdui.widget._bcdIdToDomId(htmlElement);
 

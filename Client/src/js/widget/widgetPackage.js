@@ -2552,24 +2552,24 @@ jQuery.extend(bcdui.widget,
           // prepare html template
           jQuery("body").append("<div class='bcdFilterDialog' title='"+ title +"'>" +
             "<div class='bcdFilterSelection'>" +
-              "<select class='bcdFilterSelect form-control'>" + options + "</select>" +
-              "<input class='bcdFilterInput form-control'" + selectedInput + " placeholder='" + bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_value"}) + "'></input>" +
+              "<select class='bcdFilterSelect bcdFormControl form-control'>" + options + "</select>" +
+              "<input class='bcdFilterInput bcdFormControl form-control'" + selectedInput + " placeholder='" + bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_value"}) + "'></input>" +
               "<div class='bcdFilterActions'>" +
                 "<div><input type='checkbox'></input><span class='bcdShowAll' bcdTranslate='bcd_widget_filter_showAll'></span></div>" +
                 "<p>&nbsp;</p>" +
-                "<div class='form-row'>" +
-                  "<div class='col-sm-auto'><bcd-buttonng bcdActionId='selectAll' caption='" + bcdui.i18n.TAG + "bcd_widget_filter_selectAll' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>" +
-                  "<div class='col-sm-auto'><bcd-buttonng bcdActionId='clear' caption='" + bcdui.i18n.TAG + "bcd_widget_filter_clear' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>" +
-                  "<div class='col-sm-auto'><bcd-buttonng bcdActionId='reset' caption='" + bcdui.i18n.TAG + "bcd_widget_filter_reset' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>" +
+                "<div class='bcdFlexRow form-row'>" +
+                  "<div class='bcdFlexAuto col-sm-auto'><bcd-buttonng bcdActionId='selectAll' caption='" + bcdui.i18n.TAG + "bcd_widget_filter_selectAll' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>" +
+                  "<div class='bcdFlexAuto col-sm-auto'><bcd-buttonng bcdActionId='clear' caption='" + bcdui.i18n.TAG + "bcd_widget_filter_clear' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>" +
+                  "<div class='bcdFlexAuto col-sm-auto'><bcd-buttonng bcdActionId='reset' caption='" + bcdui.i18n.TAG + "bcd_widget_filter_reset' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>" +
                 "</div>"+
               "</div>" +
               "<div class='bcdFilterMultiSelect'></div>"+
               "<p><span class='bcdCount'></span>&nbsp;<span bcdTranslate='bcd_widget_filter_itemsSelected'></span></p>"+
             "</div>"+
-            "<div class='form-row'>" +
-              "<div class='col-sm-auto'><bcd-buttonng bcdActionId='apply' caption='" + bcdui.i18n.TAG + "bcd_widget_filter_apply' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>" +
-              "<div class='col-sm-auto'><bcd-buttonng bcdActionId='remove' caption='" + bcdui.i18n.TAG + "bcd_widget_filter_remove' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>" +
-              "<div class='col-sm-auto'><bcd-buttonng bcdActionId='cancel' caption='" + bcdui.i18n.TAG + "bcd_widget_filter_cancel' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>" +
+            "<div class='bcdFlexRow form-row'>" +
+              "<div class='bcdFlexAuto col-sm-auto'><bcd-buttonng bcdActionId='apply' caption='" + bcdui.i18n.TAG + "bcd_widget_filter_apply' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>" +
+              "<div class='bcdFlexAuto col-sm-auto'><bcd-buttonng bcdActionId='remove' caption='" + bcdui.i18n.TAG + "bcd_widget_filter_remove' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>" +
+              "<div class='bcdFlexAuto col-sm-auto'><bcd-buttonng bcdActionId='cancel' caption='" + bcdui.i18n.TAG + "bcd_widget_filter_cancel' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>" +
         		"</div>" +
           "</div>");
           bcdui.i18n.syncTranslateHTMLElement({elementOrId: jQuery(".bcdFilterDialog").get(0)});
@@ -3203,7 +3203,7 @@ jQuery.extend(bcdui.widget,
      _initLabel: function(labelElement, controlId, label){
        // handle .label
        if(label){
-         labelElement.parent().addClass("form-group");
+         labelElement.parent().addClass("bcdFormGroup form-group");
          if(controlId){
            labelElement.attr("for", controlId);
          }
