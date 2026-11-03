@@ -1,0 +1,716 @@
+/*
+  Copyright 2010-2026 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/**
+ * Frame Layout Styles
+ * Main application frame structure: wrapper, header, sidebars, content
+ */
+
+/* =======================================
+ * Wrapper
+ * ======================================= */
+
+.bcd__outer-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-x: hidden;
+  background: var(--bcd-surface-color);
+}
+
+.bcd__wrapper {
+  display: block;
+  position: relative;
+  height: 100vh;
+  width: 100%;
+}
+
+.bcd__horizontal-split {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+}
+
+.bcd__header {
+  position: relative;
+  flex: 0 0 auto;
+  border-bottom: 1px solid var(--bcd-menu-border-color);
+}
+
+.bcd__vertical-split {
+  flex-grow: 1;
+  flex-shrink: 1;
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  background: var(--bcd-content-background-color);
+}
+
+/* =======================================
+ * Sidebars
+ * ======================================= */
+
+.bcd__sidebar-left {
+  overflow: visible;
+  height: 100%;
+  position: absolute;
+  transition: all 0.4s ease-in-out;
+  transform: translateX(0em);
+  width: var(--bcd-sidebar-width);
+  z-index: calc(var(--bcd-z-index-base) + 1);
+  padding-right: 1.5em;
+}
+
+.bcd__sidebar-left__inner {
+  padding-top: 0.3em;
+  background: var(--bcd-sidebar-background);
+  border-right: 1px solid var(--bcd-border-color);
+  height: 100%;
+  overflow-y: auto;
+}
+
+.bcd__sidebar-right {
+  overflow: visible;
+  height: 100%;
+  position: absolute;
+  transition: all 0.4s ease-in-out;
+  transform: translateX(0em);
+  right: 0;
+  width: var(--bcd-sidebar-width);
+  z-index: calc(var(--bcd-z-index-base) + 1);
+  padding-left: 1.5em;
+}
+
+.bcd__sidebar-right__inner {
+  padding-top: 0.3em;
+  background: var(--bcd-sidebar-background);
+  border-left: 1px solid var(--bcd-border-color);
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* =======================================
+ * Content Container
+ * ======================================= */
+
+.bcd__content-container {
+  background: var(--bcd-content-background-color);
+  flex: 1 1 auto;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  position: relative;
+  transition: all 0.4s ease-in-out;
+  padding: 0.6em 2em;
+}
+
+.bcd__content-container .table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 2em;
+}
+
+.bcd__form-container section {
+  padding: 1em 1em 0.1em 1em;
+  border-bottom: 1px solid var(--bcd-border-color);
+}
+
+.bcd__form-container section:last-of-type {
+  border-bottom: 0;
+}
+
+/* =======================================
+ * Sidebar Toggle Buttons
+ * ======================================= */
+
+.bcd__sidebar-left-collaps-toggle-wrapper {
+  position: absolute;
+  top: 1.1em;
+  right: 0em;
+  width: 1.6em;
+  height: 3.6em;
+  display: flex;
+  background: var(--bcd-sidebar-background);
+  border-style: solid;
+  border-width: 1px 1px 1px 0;
+  border-color: var(--bcd-border-color);
+  border-radius: 0 4px 4px 0;
+}
+
+.bcd__sidebar-right-collaps-toggle-wrapper {
+  position: absolute;
+  top: 1.1em;
+  left: 0em;
+  width: 1.6em;
+  height: 3.6em;
+  display: flex;
+  background: var(--bcd-sidebar-background);
+  border-style: solid;
+  border-width: 1px 0 1px 1px;
+  border-color: var(--bcd-border-color);
+  border-radius: 0 0 4px 4px;
+}
+
+.bcd__sidebar-right-collaps-toggle,
+.bcd__sidebar-left-collaps-toggle {
+  flex: 0 0 auto;
+  width: 1.5em;
+  height: 3.6em;
+  border: none;
+  background: transparent;
+  outline: none !important;
+}
+
+.bcd__sidebar-right-collaps-toggle i,
+.bcd__sidebar-left-collaps-toggle i {
+  transform: rotate(0);
+  transition: transform 0.4s ease-in-out;
+}
+
+/* =======================================
+ * Collapsed State - Left Sidebar
+ * ======================================= */
+
+.bcd__vertical-split.bcd__vertical-split--sidebar-collapsed-left .bcd__sidebar-left {
+  position: absolute;
+  transition: all 0.4s ease-in-out;
+  transform: translateX(var(--bcd-sidebar-width-offset));
+}
+
+.bcd__vertical-split.bcd__vertical-split--sidebar-collapsed-left .bcd__sidebar-left__inner {
+  box-shadow: 3px 0 12px rgba(0, 0, 0, 0.2);
+}
+
+.bcd__vertical-split.bcd__vertical-split--sidebar-collapsed-left .bcd__sidebar-left.hover {
+  transform: translateX(0em);
+}
+
+.bcd__vertical-split.bcd__vertical-split--sidebar-collapsed-left .bcd__sidebar-left-collaps-toggle-wrapper {
+  box-shadow: 3px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.bcd__vertical-split.bcd__vertical-split--sidebar-collapsed-left .bcd__sidebar-left-collaps-toggle i {
+  transform: rotate(180deg);
+}
+
+/* =======================================
+ * Collapsed State - Right Sidebar
+ * ======================================= */
+
+.bcd__vertical-split.bcd__vertical-split--sidebar-collapsed-right .bcd__sidebar-right {
+  position: absolute;
+  transition: all 0.4s ease-in-out;
+  transform: translateX(calc(-1 * var(--bcd-sidebar-width-offset)));
+}
+
+.bcd__vertical-split.bcd__vertical-split--sidebar-collapsed-right .bcd__sidebar-right__inner {
+  box-shadow: -3px 0 12px rgba(0, 0, 0, 0.2);
+}
+
+.bcd__vertical-split.bcd__vertical-split--sidebar-collapsed-right .bcd__sidebar-right.hover {
+  transform: translateX(0em);
+}
+
+.bcd__vertical-split.bcd__vertical-split--sidebar-collapsed-right .bcd__sidebar-right-collaps-toggle-wrapper {
+  box-shadow: -3px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.bcd__vertical-split.bcd__vertical-split--sidebar-collapsed-right .bcd__sidebar-right-collaps-toggle i {
+  transform: rotate(180deg);
+}
+
+/* =======================================
+ * Content Margins (with sidebars)
+ * ======================================= */
+
+.bcd__vertical-split .bcd__sidebar-left ~ .bcd__content-container {
+  margin-left: calc(var(--bcd-sidebar-width) - 1em);
+}
+
+.bcd__vertical-split.bcd__vertical-split--sidebar-collapsed-left .bcd__sidebar-left ~ .bcd__content-container {
+  margin-left: 2em;
+}
+
+.bcd__vertical-split .bcd__sidebar-right ~ .bcd__content-container {
+  margin-right: calc(var(--bcd-sidebar-width) - 1em);
+}
+
+.bcd__vertical-split.bcd__vertical-split--sidebar-collapsed-right .bcd__sidebar-right ~ .bcd__content-container {
+  margin-right: 2em;
+}
+
+/* =======================================
+ * Header Sections
+ * ======================================= */
+
+.bcd__header .statusNotReady,
+.bcd__header .bcdLoading {
+  width: inherit;
+  height: inherit;
+  background: inherit;
+  display: inherit;
+}
+
+.bcd__header__upper {
+  display: flex;
+  flex-direction: row;
+  align-items: space-between;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--bcd-menu-border-color);
+}
+
+.bcd__header__logo {
+  padding: 0 1em;
+  flex: 1 0 15em;
+  min-height: 4em;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.bcd__header__logo img {
+  width: 260px;
+  max-width: 100%;
+  height: auto;
+  filter: var(--bcd-header-logo-filter);
+}
+
+.bcd__header__navigation {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  min-height: 3em;
+}
+
+.bcd__header__credentials-widget {
+  flex: 1 0 15em;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+.bcd__header__credentials-widget i {
+  margin-left: 0.5em;
+}
+
+.bcd__header__credentials-widget a {
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  text-decoration: none;
+  color: var(--bcd-menu-text-color);
+}
+
+/* =======================================
+ * Sidebar Styling
+ * ======================================= */
+
+.bcd__sidebar-right,
+.bcd__sidebar-left {
+  font-size: var(--bcd-sidebar-font-size);
+}
+
+.bcd__sidebar-right .bcd__form-container,
+.bcd__sidebar-left .bcd__form-container {
+  font-size: var(--bcd-sidebar-font-size);
+}
+
+.bcd__sidebar-right .bcd__form-container .bcdButton,
+.bcd__sidebar-right .bcd__form-container .bcdClearButton,
+.bcd__sidebar-right .bcd__form-container input,
+.bcd__sidebar-right .bcd__form-container select,
+.bcd__sidebar-left .bcd__form-container .bcdButton,
+.bcd__sidebar-left .bcd__form-container .bcdClearButton,
+.bcd__sidebar-left .bcd__form-container input,
+.bcd__sidebar-left .bcd__form-container select {
+  font-size: var(--bcd-sidebar-font-size);
+}
+
+.bcd__sidebar-right label,
+.bcd__sidebar-left label {
+  margin-bottom: 0;
+  color: var(--bcd-sidebar-header-color);
+}
+
+.bcd__sidebar-right h1,
+.bcd__sidebar-right h2,
+.bcd__sidebar-left h1,
+.bcd__sidebar-left h2 {
+  border-bottom-color: var(--bcd-sidebar-header-border-color);
+}
+
+.bcd__sidebar-right__inner .bcdFormGroup,
+.bcd__sidebar-left__inner .bcdFormGroup {
+  margin-bottom: 0.5em;
+  width: 100%;
+  display: inline-block;
+}
+
+/* =======================================
+ * Credentials Widget Initials Avatar
+ * ======================================= */
+
+.bcd__header__credentials-widget .initials {
+  display: flex;
+  height: 2.5em;
+  width: 2.5em;
+  border-radius: 50em;
+  background: var(--bcd-corporate-color);
+  color: var(--bcd-text-on-corporate);
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.5em;
+}
+
+/* =======================================
+ * Header Navigation - Level Indicators
+ * ======================================= */
+
+.bcd__header__navigation .bcdLevel1 > li > a.bcdSubMenuContainer::after,
+.bcd__header__navigation .bcdLevel2 > li > a.bcdSubMenuContainer::after {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display: inline-block;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  line-height: 1;
+  font-family: "Font Awesome 5 Free", sans-serif;
+  font-weight: 900;
+  margin-left: 0.5em;
+}
+
+.bcd__header__navigation .bcdLevel1 > li > a.bcdSubMenuContainer::after {
+  content: "\f0d7";
+}
+
+.bcd__header__navigation .bcdLevel2 > li > a.bcdSubMenuContainer::after {
+  content: "\f0da";
+}
+
+/* =======================================
+ * Header Navigation & Credentials - Nav/Drop-Down
+ * ======================================= */
+
+.bcd__header__navigation nav,
+.bcd__header__credentials-widget nav {
+  height: 100%;
+  padding: 0 0.5em;
+}
+
+.bcd__header__navigation nav ul,
+.bcd__header__credentials-widget nav ul {
+  height: 100%;
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+.bcd__header__navigation nav ul li,
+.bcd__header__credentials-widget nav ul li {
+  display: flex;
+  padding-left: 0.6em;
+  padding-right: 0.6em;
+  height: 100%;
+  cursor: pointer;
+  position: relative;
+  white-space: nowrap;
+}
+
+.bcd__header__navigation nav ul li a,
+.bcd__header__credentials-widget nav ul li a {
+  transition: color 0.2s linear, border-color 0.2s linear;
+  color: var(--bcd-menu-text-color);
+  font-weight: 300;
+  font-size: 1em;
+  line-height: 1.1;
+  white-space: nowrap;
+  display: inline-block;
+  text-align: center;
+  border-bottom: 4px solid transparent;
+  padding-top: 1em;
+  padding-bottom: 0.6em;
+  text-decoration: none;
+}
+
+.bcd__header__navigation nav ul li a:hover,
+.bcd__header__credentials-widget nav ul li a:hover {
+  color: var(--bcd-text-color);
+}
+
+.bcd__header__navigation nav ul li.bcd__active-item > a,
+.bcd__header__credentials-widget nav ul li.bcd__active-item > a {
+  margin-right: 1px;
+  color: var(--bcd-corporate-color);
+  font-weight: bold;
+  border-bottom: 4px solid var(--bcd-corporate-color);
+}
+
+/* nested li (inside submenu) reverts to block */
+.bcd__header__navigation nav ul li li,
+.bcd__header__credentials-widget nav ul li li {
+  display: block;
+  float: left;
+  padding: 0;
+}
+
+/* Drop-Down: show submenu on hover */
+.bcd__header__navigation nav ul li:hover > ul,
+.bcd__header__credentials-widget nav ul li:hover > ul {
+  visibility: visible;
+  opacity: 1;
+  transition-delay: 0.1s;
+}
+
+/* Drop-Down: submenu container */
+.bcd__header__navigation nav ul ul,
+.bcd__header__credentials-widget nav ul ul {
+  display: flex;
+  flex-direction: column;
+  top: 3em;
+  left: 0.6em;
+  height: auto;
+  width: 12em;
+  visibility: hidden;
+  position: absolute;
+  z-index: 99999;
+  background: var(--bcd-surface-color-alt);
+  box-shadow: 3px 0px 12px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transition: opacity 0.2s linear, visibility 0.2s linear;
+  transition-delay: 0.2s;
+}
+
+/* Drop-Down: submenu items */
+.bcd__header__navigation nav ul ul li,
+.bcd__header__credentials-widget nav ul ul li {
+  clear: both;
+  width: 100%;
+  border: 0 none;
+  background: var(--bcd-surface-color);
+  border-bottom: 1px solid var(--bcd-menu-border-color);
+  height: auto;
+  display: block;
+  float: none;
+  padding: 0;
+}
+
+/* Drop-Down: submenu links */
+.bcd__header__navigation nav ul ul li a,
+.bcd__header__credentials-widget nav ul ul li a {
+  background: none;
+  padding: 0.8em 0.8em;
+  text-decoration: none;
+  display: block;
+  border: 0 none;
+  clear: both;
+  font-size: 0.9em;
+  text-align: left;
+  text-transform: none;
+  white-space: normal;
+  border-bottom: none;
+  padding-top: 0.8em;
+}
+
+.bcd__header__navigation nav ul ul li a:hover,
+.bcd__header__credentials-widget nav ul ul li a:hover {
+  color: var(--bcd-text-color);
+  text-decoration: underline;
+}
+
+.bcd__header__navigation nav ul ul li.bcd__active-item > a,
+.bcd__header__credentials-widget nav ul ul li.bcd__active-item > a {
+  background: var(--bcd-corporate-color);
+  color: var(--bcd-text-on-corporate);
+}
+
+/* Drop-Down: third-level submenu positioning */
+.bcd__header__navigation nav ul ul li ul,
+.bcd__header__credentials-widget nav ul ul li ul {
+  left: 12em;
+  top: 0;
+}
+
+/* Credentials widget: submenu aligns right instead of left */
+.bcd__header__credentials-widget nav ul li a {
+  display: inherit;
+  padding-bottom: 0;
+}
+
+.bcd__header__credentials-widget nav ul ul {
+  left: auto;
+  right: 0;
+}
+
+/* =======================================
+ * Footer
+ * ======================================= */
+
+footer {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8em 1em;
+  font-size: 0.9em;
+  border-top: 1px solid var(--bcd-border-color);
+}
+
+footer a {
+  color: var(--bcd-menu-text-color);
+  text-decoration: none;
+}
+
+footer a:hover {
+  color: var(--bcd-text-color);
+}
+
+footer p {
+  flex: 0 1 auto;
+  margin: 0;
+}
+
+footer nav {
+  flex: 0 1 auto;
+  text-align: right;
+}
+
+footer nav ul {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+footer nav ul li {
+  margin-left: 1em;
+}
+
+footer nav ul li a {
+  text-decoration: none;
+  color: var(--bcd-text-color);
+}
+
+footer nav ul li a:hover {
+  color: var(--bcd-text-color);
+}
+
+/* =======================================
+ * Sidebar Effect (animation guard)
+ * ======================================= */
+
+/* Prevent flash of transition on initial page load;
+   bcdSidebarEffect is added by JS after page renders */
+.bcd__sidebar-right,
+.bcd__sidebar-left {
+  display: none;
+}
+
+.bcd__sidebar-right,
+.bcd__sidebar-left,
+.bcd__content-container {
+  transition: none;
+}
+
+.bcdSidebarEffect {
+  transition: all 0.4s ease-in-out !important;
+}
+
+
+/* ============================================
+   Sidebar Font Sizes
+   ============================================ */
+
+.bcd__sidebar-right,
+.bcd__sidebar-left {
+  & .bcd__form-container {
+    font-size: var(--bcd-sidebar-font-size);
+
+    & .bcdButton,
+    & .bcdClearButton,
+    & input,
+    & select {
+      font-size: var(--bcd-sidebar-font-size);
+    }
+  }
+
+  & label {
+    margin-bottom: 0;
+    color: var(--bcd-sidebar-header-color);
+  }
+
+  & h1,
+  & h2 {
+    border-bottom-color: var(--bcd-sidebar-header-border-color);
+  }
+}
+
+
+/* ============================================
+   Credentials Widget
+   ============================================ */
+
+.bcd__header__credentials-widget nav.bcdMenu ul.credentials {
+  border-radius: 1em;
+}
+
+.bcd__header__credentials-widget nav.bcdMenu ul.credentials > li > a {
+  padding: 0.8em;
+  display: inline-block;
+}
+
+.bcd__header__credentials-widget nav.bcdMenu ul.credentials > li.user > a:hover {
+  color: var(--bcd-text-on-text-color-default) !important;
+  background-color: var(--bcd-text-color-default);
+}
+
+.bcd__header__credentials-widget nav.bcdMenu ul.credentials > li.user {
+  border: none;
+  color: var(--bcd-text-on-text-color-default) !important;
+  background-color: var(--bcd-text-color-default);
+}
+
+.bcd__header__credentials-widget nav.bcdMenu ul.credentials > li.user a::before {
+  font-size: 1em;
+  color: var(--bcd-text-color-inverse);
+  margin: 0 0.3em 0 0;
+  font-family: "Font Awesome 5 Free", Sans-serif;
+  font-weight: bold;
+  font-style: normal;
+}
+
+.bcd__header__credentials-widget nav.bcdMenu ul.credentials > li.user.login a::before {
+  content: "\f007";
+}
+
+.bcd__header__credentials-widget nav.bcdMenu ul.credentials > li.user.email a::before {
+  content: "\f0e0";
+}

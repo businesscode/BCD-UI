@@ -1,0 +1,471 @@
+/*
+  Copyright 2010-2026 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/**
+ * BCD-UI theme settings
+ * Override any of them in :root, after the theme is loaded.
+ * Projects copy this file 1:1, change the values they need and load it after bcdui.js. Keeping the copy complete
+ * allows to compare it with the version of a new BCD-UI release, find this file at
+ * https://github.com/businesscode/BCD-UI/blob/master/Theme/src/bcd-css/css/bcd-variables.css
+ * Values derived for the theme's own mechanics are in variables-internal.css and not meant to be overridden.
+ *
+ * Kinds of values:
+ * - plain values:          the actual settings, change as needed
+ * - var(--bcd-x):          same as another variable, follows it automatically
+ * - hsl(from var(--bcd-x) h s ...): lighter or darker variant of another variable, follows it automatically
+ * - light-dark(a, b):      a with color-scheme light, b with color-scheme dark. Used where a variant has to
+ *                          step away from the background: darker on a light, lighter on a dark background
+ * - --bcd-text-on-*:       text color on a colored background. Switch it between
+ *                          --bcd-text-color-inverse and --bcd-text-color-default when that background
+ *                          becomes strong or plain.
+ */
+
+:root {
+  /** light, dark, or "light dark" to follow the setting of the operating system.
+   *  Selects the values of light-dark() and the look of the browser's own controls and scrollbars.
+   *  Colors given as light-dark(<light>, <dark>) come with a value for both; adjust both when changing them */
+   color-scheme: light dark;
+
+  /* =======================================
+   * @group Font
+   * Font and text colors used everywhere
+   * ======================================= */
+
+  /** Font of the whole application: page, headlines, jQuery UI dialogs.
+   *  widgets: InputField, PeriodChooser; componentsDe: Grid */
+  --bcd-font-family-default: 'Titillium Web', sans-serif;
+
+  /** Font size of buttons and input fields: .bcdButton, .bcdFormControl.
+   *  widgets: PeriodChooser */
+  --bcd-font-size-base: 1em;
+
+  /** Small symbols drawn as text. widgets: InputField (drop-down arrow of the combo input) */
+  --bcd-font-size-small: 0.5em;
+
+  /** Body text of the page, links in the header navigation and the footer under the mouse.
+   *  components: Cube (configurator headers); widgets: PeriodChooser (calendar, calendar icon) */
+  --bcd-text-color: light-dark(#555, #c8c8c8);
+
+  /** Default text on the surfaces inside widgets; most --bcd-text-on-* default to it,
+   *  as do the header navigation, the footer and the sidebar labels.
+   *  components: Cube, DocUpload; widgets: ContextMenu, Tab, PagingPanel; widgetsNg: SideBySideChooser;
+   *  componentsDe: Grid */
+  --bcd-text-color-default: light-dark(#555, #c8c8c8);
+
+  /** Text on strong backgrounds, the inverse of --bcd-text-color-default; the --bcd-text-on-* of such backgrounds
+   *  default to it, such as buttons, selection and status dialog titles */
+  --bcd-text-color-inverse: #ffffff;
+
+  /** Text that needs more contrast than --bcd-text-color-default: content of HtmlBuilder tables, alerter messages,
+   *  slider tooltips, text of .bcdButton outside its link.
+   *  components: Tree (header, highlighted entry), DocUpload (actions), Grid (HTML editor link under the mouse) */
+  --bcd-text-color-strong: light-dark(#212529, #ececec);
+
+  /** Text of minor importance: labels of the slider scales.
+   *  components: DocUpload (icon of optional documents), Grid (HTML editor link).
+   *  --bcd-login-link-color defaults to it. */
+  --bcd-text-color-muted: light-dark(#999999, #8a8a8a);
+
+  /** Text that has to catch the eye.
+   *  widgets: PeriodChooser ("today" in the calendar); widgetsNg: ChipsChooser (close icon under the mouse) */
+  --bcd-text-color-highlight: light-dark(#cc0000, #ff6b6b);
+
+  /** Text of disabled and read-only elements, everywhere [disabled] or .bcdDisabled is set.
+   *  components: Grid (read-only cells), Cube (read-only templates, background of hidden items);
+   *  widgets: ContextMenu (disabled entries); widgetsNg: MultiCheck, UniversalFilter;
+   *  componentsDe: Grid (read-only cells) */
+  --bcd-text-disabled-color: light-dark(#d8d8d8, #6e6e6e);
+
+  /** Inline code, e.g. in the markdown answers of the AI chat */
+  --bcd-code-color: #e83e8c;
+
+  /** Pseudo placeholders rendered by BCD-UI: empty option, clear option, empty value.
+   *  Real input placeholders use --bcd-input-placeholder-color */
+  --bcd-placeholder-color: light-dark(hsl(from var(--bcd-text-color-default) h s min(100, l + 50)),
+                                      hsl(from var(--bcd-text-color-default) h s max(0, l - 50)));
+
+  /* =======================================
+   * @group z-Index layers
+   * Stacking order of everything floating above the page. The layers for popups, drop-down lists and
+   * help balloons build on --bcd-z-index-base (see variables-internal.css), so moving all of them only
+   * needs that one value. The handsontable Grid starts at 101.
+   * ======================================= */
+
+  /** Sidebars and the Cube's drag-and-drop panel */
+  --bcd-z-index-base: 110;
+
+  /* =======================================
+   * @group Surface
+   * Backgrounds of panels, lists and tables
+   * ======================================= */
+
+  /** Background of panels, popups and tables: page around the frame, header submenus, login window, tooltips,
+   *  dialog headers, system error box, slider handle. --bcd-input-background-color and
+   *  --bcd-sidebar-background default to it.
+   *  components: Cube, Scorecard (configurators), Tree, DocUpload, Chart (tooltip);
+   *  widgets: ContextMenu, Tab, PagingPanel, InputField (autocompletion), createTooltip, stickyTable,
+   *  createFixedTableHeader; widgetsNg: SideBySideChooser, MultiCheck, Comment, SuggestInput.
+   *  The HtmlBuilder totals and the TreeView rows default to it as well. */
+  --bcd-surface-color: light-dark(#ffffff, #1e1e1e);
+
+  /** Slightly darker background to set areas apart: header submenu frame.
+   *  components: Tree (highlighted entry), Grid (SideBySideChooser header), DocUpload (action buttons);
+   *  widgets: PeriodChooser (calendar). --bcd-control-color and --bcd-cube-color-item default to it. */
+  --bcd-surface-color-alt: light-dark(#f6f6f6, #2a2a2a);
+
+  /** Every second row in HtmlBuilder tables: a translucent tint that darkens the background behind the table.
+   *  components: HtmlBuilder */
+  --bcd-stripe-tint: light-dark(rgb(0 0 0 / 0.05), rgb(255 255 255 / 0.05));
+
+  /** Opaque background of every second row where cells must cover what scrolls underneath. widgets: stickyTable */
+  --bcd-stripe-color: color-mix(in srgb, var(--bcd-surface-color), light-dark(black, white) 5%);
+
+  /* =======================================
+   * @group Input fields
+   * Text inputs, selects and input-like boxes: .bcdFormControl and widgets copying its look
+   * ======================================= */
+
+  /** Text in input fields and in the autocompletion list and tooltips.
+   *  widgets: PeriodChooser, InputField (autocompletion), createTooltip; widgetsNg: TextArea, MultiCheck */
+  --bcd-input-text-color: var(--bcd-text-color-default);
+
+  /** Background of input fields. widgets: PeriodChooser; widgetsNg: TextArea, MultiCheck */
+  --bcd-input-background-color: var(--bcd-surface-color);
+
+  /** Border of input fields. widgets: PeriodChooser */
+  --bcd-input-border-color: var(--bcd-border-color);
+
+  /** Background of disabled and read-only input fields. widgets: PeriodChooser */
+  --bcd-input-disabled-background-color: light-dark(#e9ecef, #2f3236);
+
+  /** Placeholder text of input fields. widgets: PeriodChooser */
+  --bcd-input-placeholder-color: light-dark(#6c757d, #8a929a);
+
+  /* =======================================
+   * @group Border
+   * Borders, lines and corner radius
+   * ======================================= */
+
+  /** Borders and lines everywhere: tables, panels, popups, dialogs, header, footer, sidebar, slider scale.
+   *  Also the background of hovered items in lists and tabs, drop targets and the sortable helper.
+   *  --bcd-input-border-color, --bcd-menu-border-color and --bcd-sidebar-header-border-color default to it.
+   *  components: Cube, Scorecard (configurators, ranking, report templates), Grid, DocUpload, HtmlBuilder (incl. sort arrows);
+   *  widgets: ContextMenu, Tab, PagingPanel, BlindUpDownArea, PeriodChooser (calendar), TableHeadFilter, stickyTable;
+   *  widgetsNg: SideBySideChooser, ChipsChooser, TextArea, UniversalFilter, Connectable. */
+  --bcd-border-color: light-dark(#d8d8d8, #484848);
+
+  /** Stronger lines and hovered small buttons: Tree header underline, system error box title, ContextMenu separator,
+   *  major marks of the slider scale.
+   *  components: Grid (group action under the mouse); widgets: TableHeadFilter (filter button under the mouse);
+   *  widgetsNg: Comment, Connectable (dragged item), ChipsChooser (chips) */
+  --bcd-border-color-dark: light-dark(hsl(from var(--bcd-border-color) h s max(0, l - 10)),
+                                      hsl(from var(--bcd-border-color) h s min(100, l + 10)));
+
+  /** Corner radius of buttons and input fields: .bcdButton, .bcdFormControl, login.
+   *  --bcd-border-radius-small defaults to it.
+   *  components: HtmlBuilder (expand/collapse); widgets: PeriodChooser, DimensionChooser; widgetsNg: SideBySideChooser */
+  --bcd-border-radius-default: 0.25em;
+
+  /** Corner radius of tabs. widgets: Tab */
+  --bcd-border-radius-small: var(--bcd-border-radius-default);
+
+  /* =======================================
+   * @group Layout
+   * Flex rows of widgets (.bcdFlexRow with .bcdFlexCol / .bcdFlexAuto columns)
+   * ======================================= */
+
+  /** Gap between the columns of a .bcdFlexRow. Dialog button rows use 10px.
+   *  widgetsNg: Comment; widgets: messages viewer, filter dialog; components: DocUpload, userCalcEditor; EE: RankingChooser */
+  --bcd-flex-gutter: 30px;
+
+  /* =======================================
+   * @group Sidebar
+   * Left and right sidebar of the page frame
+   * ======================================= */
+
+  /** Width of the opened sidebars; the content area moves aside by this width */
+  --bcd-sidebar-width: 17em;
+
+  /** Background of the sidebars and their collapse toggles */
+  --bcd-sidebar-background: var(--bcd-surface-color);
+
+  /** Font size inside the sidebars, including their forms and buttons */
+  --bcd-sidebar-font-size: 0.9em;
+
+  /** Labels in the sidebars. widgets: pageEffects (section captions) */
+  --bcd-sidebar-header-color: var(--bcd-text-color-default);
+
+  /** Line under the h1 and h2 headlines in the sidebars. widgets: pageEffects (section captions) */
+  --bcd-sidebar-header-border-color: var(--bcd-border-color);
+
+  /** Padding around the hamburger icon toggling the sidebars */
+  --bcd-hamburger-padding: 0.4em 0.195em 0.195em 0.2em;
+
+  /** Width of the three bars of the hamburger icon */
+  --bcd-hamburger-layer-width: 1em;
+
+  /** Thickness of each bar of the hamburger icon; the icon's height follows from it and the spacing */
+  --bcd-hamburger-layer-height: 0.25em;
+
+  /** Gap between the bars of the hamburger icon */
+  --bcd-hamburger-layer-spacing: 0.18em;
+
+  /** Corner radius of the bars of the hamburger icon */
+  --bcd-hamburger-layer-border-radius: 0.15em;
+
+  /* =======================================
+   * @group Corporate Colors
+   * Brand colors of the application
+   * ======================================= */
+
+  /** Main brand color: links, headline h1 and the line under h2, active item of the header navigation.
+   *  --bcd-button-color (buttons) and --bcd-select-color (selection) default to it. */
+  --bcd-corporate-color: #369afb;
+
+  /** Second brand color: border of selected and hovered items, border of focused inputs, sidebar menu icon.
+   *  --bcd-button-color-active (pressed buttons) defaults to it.
+   *  components: Grid (marks of changed rows), Far (configurator header), HtmlBuilder (totals);
+   *  componentsDe: Grid (marks of changed rows, selection rectangle) */
+  --bcd-corporate-color-alt: light-dark(#161669, #9a9af5);
+
+  /* =======================================
+   * @group Layout Colors
+   * Colors of the page frame: header, content area, footer, login page
+   * ======================================= */
+
+  /** Links of the header navigation, the user menu and the footer */
+  --bcd-menu-text-color: var(--bcd-text-color-default);
+
+  /** Lines under the header and between the entries of the header submenus */
+  --bcd-menu-border-color: var(--bcd-border-color);
+
+  /** CSS filter on the header logo. Not a color, so no light-dark(): the dark value is in the
+   *  @media (prefers-color-scheme: dark) block at the end of this file */
+  --bcd-header-logo-filter: none;
+
+  /** Background of the content area between header, sidebars and footer. --bcd-login-background-color defaults to it */
+  --bcd-content-background-color: light-dark(#f6f6f6, #121212);
+
+  /** Background of the login page around the login window */
+  --bcd-login-background-color: var(--bcd-content-background-color);
+
+  /** Links on the login page and the "or" of its divider */
+  --bcd-login-link-color: var(--bcd-text-color-muted);
+
+  /* =======================================
+   * @group UI Element Colors
+   * Colors of states and of parts shared by many widgets
+   * ======================================= */
+
+  /** Background of input fields with an invalid value, in all widgets */
+  --bcd-invalid-color: light-dark(#f0a0a0, #7a2e2e);
+
+  /** Background of selected and hovered items, focus ring of inputs, text selection.
+   *  components: Cube (report templates);
+   *  widgets: ContextMenu, PeriodChooser (calendar), SingleSelect (switch), TableHeadFilter, PagingPanel;
+   *  widgetsNg: Connectable, SideBySideChooser, ChipsChooser, SuggestInput, Checkbox (switch) */
+  --bcd-select-color: var(--bcd-corporate-color);
+
+  /** Rectangle while selecting by dragging the mouse.
+   *  components: Grid; widgetsNg: Connectable */
+  --bcd-select-color-light: light-dark(hsl(from var(--bcd-select-color) h s min(100, l + 10)),
+                                       hsl(from var(--bcd-select-color) h s max(0, l - 10)));
+
+  /** Background of the item under the mouse while dragging.
+   *  components: Cube, Scorecard (configurators); widgetsNg: Connectable, SideBySideChooser, ChipsChooser */
+  --bcd-connectable-hover: light-dark(hsl(from var(--bcd-select-color) h s 93), hsl(from var(--bcd-select-color) h s 25));
+
+  /** Background of inactive tabs, of section headers and of chips.
+   *  widgets: Tab, BlindUpDownArea, ContextMenu (group headers); widgetsNg: ChipsChooser */
+  --bcd-control-color: var(--bcd-surface-color-alt);
+
+  /** Track of the slider, between --bcd-surface-color and --bcd-surface-color-alt. widgetsNg: Slider */
+  --bcd-slider-track-color: light-dark(#fafafa, #262626);
+
+  /** Buttons: .bcdButton and .bcdPrimaryButton, handle of the time slider.
+   *  widgetsNg: Button, Slider */
+  --bcd-button-color: var(--bcd-corporate-color);
+
+  /** Primary buttons while pressed */
+  --bcd-button-color-active: var(--bcd-corporate-color-alt);
+
+  /** Secondary buttons, hamburger icon of the sidebar.
+   *  components: Cube (grouping editor, ranking, report templates), HtmlBuilder (expand/collapse);
+   *  widgets: PeriodChooser, DimensionChooser, TableHeadFilter (filter dialog); widgetsNg: SideBySideChooser */
+  --bcd-secondary-button-color: #6c757d;
+
+  /** Secondary buttons under the mouse.
+   *  components: Cube (grouping editor, ranking, report templates); widgets: PeriodChooser, TableHeadFilter */
+  --bcd-secondary-button-color-hover: light-dark(#212529, #868e96);
+
+  /** Secondary buttons while pressed */
+  --bcd-secondary-button-color-active: hsl(from var(--bcd-secondary-button-color) h s max(0, l - 10));
+
+  /** Background of flyovers: help balloons of all widgets.
+   *  components: Grid (hover info), DocUpload (help) */
+  --bcd-flyover-color: light-dark(#e8e8e8, #333333);
+
+  /* =======================================
+   * @group Grid
+   * components: Grid; componentsDe: Grid. The other DE Grid settings are in bcd-ui-de.css
+   * ======================================= */
+
+  /** Text of inserted, modified and deleted rows; componentsDe: Grid also the border of the selection rectangle */
+  --bcd-grid-action-color: var(--bcd-corporate-color-alt);
+
+  /* =======================================
+   * @group Report & Cube Colors
+   * HtmlBuilder tables and the Cube configurator
+   * ======================================= */
+
+  /** Arrows of a good trend (.bcdTrendUp, .bcdTrendDownGood). components: HtmlBuilder */
+  --bcd-report-color-ok: var(--bcd-status-success-color);
+
+  /** Arrows of a bad trend (.bcdTrendDown, .bcdTrendUpBad). components: HtmlBuilder */
+  --bcd-report-color-fail: var(--bcd-status-error-color);
+
+  /** Items in the drag-and-drop configurator. components: Cube, Scorecard */
+  --bcd-cube-color-item: var(--bcd-surface-color-alt);
+
+  /** Background of total rows and cells (.bcdTotal, .bcdTL1 …, .total). components: HtmlBuilder */
+  --bcd-report-total-color: var(--bcd-surface-color);
+
+  /** Text of total rows and cells. components: HtmlBuilder */
+  --bcd-report-total-text-color: var(--bcd-corporate-color-alt);
+
+  /* =======================================
+   * @group TreeView Colors
+   * Rows of TreeView reports (.bcdReport.bcdTreeReport)
+   * ======================================= */
+
+  /** Rows of level 0; levels 1 to 3 and the lines between rows default to variants of it,
+   *  with the default white the levels 1 to 3 stay white as well. components: TreeView */
+  --bcd-treeview-color-cell: var(--bcd-surface-color);
+
+  /** Leaf rows (rows without children). components: TreeView */
+  --bcd-treeview-color-cell-leaf: var(--bcd-surface-color);
+
+  /** Rows of level 1. components: TreeView */
+  --bcd-treeview-color-cell-l1: light-dark(hsl(from var(--bcd-treeview-color-cell) h s min(100, l + 25)),
+                                           hsl(from var(--bcd-treeview-color-cell) h s max(0, l - 25)));
+
+  /** Rows of level 2. components: TreeView */
+  --bcd-treeview-color-cell-l2: light-dark(hsl(from var(--bcd-treeview-color-cell) h s min(100, l + 35)),
+                                           hsl(from var(--bcd-treeview-color-cell) h s max(0, l - 35)));
+
+  /** Rows of level 3. components: TreeView */
+  --bcd-treeview-color-cell-l3: light-dark(hsl(from var(--bcd-treeview-color-cell) h s min(100, l + 45)),
+                                           hsl(from var(--bcd-treeview-color-cell) h s max(0, l - 45)));
+
+  /** Lines above and below the rows of parent/child data (.bcdTreeReportPi). components: TreeView */
+  --bcd-treeview-color-cell-border: light-dark(hsl(from var(--bcd-treeview-color-cell) h s max(0, l - 25)),
+                                               hsl(from var(--bcd-treeview-color-cell) h s min(100, l + 25)));
+
+  /* =======================================
+   * @group Status Colors
+   * Error, success and warning outside the notification toasts: titles of message dialogs, system error box,
+   * Scheduler job status, DocUpload document status. The toasts use the --bcd-alerter-* colors instead.
+   * ======================================= */
+
+  /** --bcd-report-color-fail (trend arrows) defaults to it */
+  --bcd-status-error-color: #aa0000;
+
+  /** Light background derived from the error color: required documents that are missing. components: DocUpload */
+  --bcd-status-error-background-color: color-mix(in srgb, var(--bcd-status-error-color) 10%, var(--bcd-surface-color));
+
+  /** --bcd-report-color-ok (trend arrows) defaults to it */
+  --bcd-status-success-color: #00aa00;
+  --bcd-status-warning-color: #ffcc00;
+
+  /* =======================================
+   * @group Alerter Colors
+   * Notification toasts at the right edge of the page (bcdui.bcdAlerter), one color per message type.
+   * Used at 50% opacity as background and at 90% for border and icon.
+   * Message dialogs use the --bcd-status-* colors instead.
+   * ======================================= */
+  --bcd-alerter-warn: rgb(255, 170, 0);
+  --bcd-alerter-info: rgb(200, 200, 200);
+  --bcd-alerter-error: rgb(255, 87, 0);
+  --bcd-alerter-success: rgb(101, 208, 116);
+
+  /* =======================================
+   * @group Effects
+   * Shadows
+   * ======================================= */
+
+  /** Shadow of dialogs and of the login window */
+  --bcd-modal-dropshadow: 0 3px 30px rgba(0, 0, 0, 0.2);
+
+  /** Shadow of small popups: help balloons, ContextMenu, Cube drag-and-drop panel, utility class .bcd-shadow */
+  --bcd-box-shadow-default: 2px 2px 2px rgba(0, 0, 0, 0.1), 3px 3px 3px rgba(0, 0, 0, 0.5);
+
+  /* =======================================
+   * @group Text on colored backgrounds
+   * Text color on a colored background: --bcd-text-color-inverse on dark backgrounds, --bcd-text-color-default
+   * on light ones. @background names that background. Switch them when you change a background
+   * from light to dark or back.
+   * ======================================= */
+  /** @background --bcd-corporate-color */
+  --bcd-text-on-corporate: var(--bcd-text-color-inverse);
+  /** @background --bcd-corporate-color-alt */
+  --bcd-text-on-corporate-alt: var(--bcd-text-color-inverse);
+  /** @background --bcd-select-color */
+  --bcd-text-on-select: var(--bcd-text-color-inverse);
+  /** @background --bcd-button-color */
+  --bcd-text-on-button: var(--bcd-text-color-inverse);
+  /** @background --bcd-secondary-button-color */
+  --bcd-text-on-secondary-button: var(--bcd-text-color-inverse);
+  /** @background --bcd-invalid-color */
+  --bcd-text-on-invalid: var(--bcd-text-color-default);
+  /** @background --bcd-flyover-color */
+  --bcd-text-on-flyover: var(--bcd-text-color-default);
+  /** @background --bcd-control-color */
+  --bcd-text-on-control: var(--bcd-text-color-default);
+  /** @background --bcd-text-color-default */
+  --bcd-text-on-text-color-default: light-dark(var(--bcd-text-color-inverse), var(--bcd-surface-color));
+  /** @background --bcd-border-color */
+  --bcd-text-on-border: var(--bcd-text-color-default);
+  /** @background --bcd-connectable-hover */
+  --bcd-text-on-connectable-hover: var(--bcd-text-color-default);
+  /** @background --bcd-cube-color-item */
+  --bcd-text-on-cube-item: var(--bcd-text-color-default);
+  /** @background --bcd-treeview-color-cell */
+  --bcd-text-on-treeview-cell: var(--bcd-text-color-default);
+  /** @background --bcd-treeview-color-cell-leaf */
+  --bcd-text-on-treeview-cell-leaf: var(--bcd-text-color-default);
+  /** @background --bcd-treeview-color-cell-l1 */
+  --bcd-text-on-treeview-cell-l1: var(--bcd-text-color-default);
+  /** @background --bcd-treeview-color-cell-l2 */
+  --bcd-text-on-treeview-cell-l2: var(--bcd-text-color-default);
+  /** @background --bcd-treeview-color-cell-l3 */
+  --bcd-text-on-treeview-cell-l3: var(--bcd-text-color-default);
+  /** @background --bcd-status-error-color */
+  --bcd-text-on-status-error: var(--bcd-text-color-inverse);
+  /** @background --bcd-status-success-color */
+  --bcd-text-on-status-success: var(--bcd-text-color-inverse);
+  /** @background --bcd-status-warning-color */
+  --bcd-text-on-status-warning: var(--bcd-text-color-default);
+}
+
+/* Dark values of variables that are not colors and cannot use light-dark().
+ * The media query follows the operating system like color-scheme "light dark";
+ * with a fixed color-scheme move these values into :root above or remove them */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /** Lighten a dark logo on the dark header */
+    --bcd-header-logo-filter: brightness(2);
+  }
+}

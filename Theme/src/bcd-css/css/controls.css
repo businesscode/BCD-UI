@@ -1,0 +1,327 @@
+/*
+  Copyright 2010-2026 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/**
+ * Reset, form controls and flex layout. Colors come from bcd-variables.css.
+ */
+
+/* =======================================
+ * Reset
+ * ======================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  line-height: 1.15;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: left;
+  background-color: var(--bcd-surface-color);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.75rem; }
+h4 { font-size: 1.5rem; }
+h5 { font-size: 1.25rem; }
+h6 { font-size: 1rem; }
+
+p,
+ol,
+ul,
+dl {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+ol ol, ul ul, ol ul, ul ol {
+  margin-bottom: 0;
+}
+
+b, strong {
+  font-weight: bolder;
+}
+
+small {
+  font-size: 0.875em;
+  font-weight: 400;
+}
+
+a {
+  color: var(--bcd-corporate-color);
+  text-decoration: none;
+  background-color: transparent;
+}
+
+a:hover {
+  color: color-mix(in srgb, var(--bcd-corporate-color) 85%, black);
+  text-decoration: underline;
+}
+
+a:not([href]):not([class]),
+a:not([href]):not([class]):hover {
+  color: inherit;
+  text-decoration: none;
+}
+
+pre, code, kbd, samp {
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 1em;
+}
+
+code {
+  font-size: 87.5%;
+  color: var(--bcd-code-color);
+  word-wrap: break-word;
+}
+
+a > code {
+  color: inherit;
+}
+
+pre {
+  display: block;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  overflow: auto;
+  font-size: 87.5%;
+  color: var(--bcd-text-color-strong);
+}
+
+pre code {
+  font-size: inherit;
+  color: inherit;
+  word-break: normal;
+}
+
+blockquote {
+  margin: 0 0 1rem;
+}
+
+fieldset {
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+legend {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  line-height: inherit;
+  color: inherit;
+  white-space: normal;
+}
+
+img {
+  vertical-align: middle;
+  border-style: none;
+}
+
+svg {
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+th {
+  text-align: inherit;
+  text-align: -webkit-match-parent;
+}
+
+label {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+hr {
+  box-sizing: content-box;
+  height: 0;
+  overflow: visible;
+  margin: 1rem 0;
+  border: 0;
+  border-top: 1px solid color-mix(in srgb, var(--bcd-text-color-strong) 10%, transparent);
+}
+
+button {
+  border-radius: 0;
+}
+
+button:focus:not(:focus-visible) {
+  outline: 0;
+}
+
+input, button, select, optgroup, textarea {
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+button, input {
+  overflow: visible;
+}
+
+button, select {
+  text-transform: none;
+}
+
+button, [type="button"], [type="reset"], [type="submit"] {
+  -webkit-appearance: button;
+}
+
+button:not(:disabled), [type="button"]:not(:disabled), [type="reset"]:not(:disabled), [type="submit"]:not(:disabled), [role="button"] {
+  cursor: pointer;
+}
+
+input[type="radio"], input[type="checkbox"] {
+  padding: 0;
+}
+
+textarea {
+  overflow: auto;
+  resize: vertical;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* =======================================
+ * Form controls: .bcdFormControl gives inputs, selects, textareas and input-like boxes the field look
+ * ======================================= */
+
+.bcdFormControl {
+  display: block;
+  width: 100%;
+  height: calc(1.5em + 0.75rem + 2px);
+  padding: 0.375rem 0.75rem;
+  font-size: var(--bcd-font-size-base);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--bcd-input-text-color);
+  background-color: var(--bcd-input-background-color);
+  background-clip: padding-box;
+  border: 1px solid var(--bcd-input-border-color);
+  border-radius: var(--bcd-border-radius-default);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.bcdFormControl::placeholder {
+  color: var(--bcd-input-placeholder-color);
+  opacity: 1;
+}
+
+/* Keep the field colors while focused, border and shadow on focus come from utilities.css */
+.bcdFormControl:focus {
+  color: var(--bcd-input-text-color);
+  background-color: var(--bcd-input-background-color);
+}
+
+/* Firefox: hide the dotted focus ring of selects by drawing the text as shadow */
+.bcdFormControl:-moz-focusring {
+  color: transparent;
+  text-shadow: 0 0 0 var(--bcd-input-text-color);
+}
+
+.bcdFormControl:disabled,
+.bcdFormControl[readonly] {
+  background-color: var(--bcd-input-disabled-background-color);
+  opacity: 1;
+}
+
+select.bcdFormControl[size],
+select.bcdFormControl[multiple],
+textarea.bcdFormControl {
+  height: auto;
+}
+
+/* Label plus control of a widget */
+.bcdFormGroup {
+  margin-bottom: 1rem;
+}
+
+/* =======================================
+ * Flex layout: .bcdFlexRow holds equally wide .bcdFlexCol and content-sized .bcdFlexAuto columns.
+ * --bcd-flex-gutter is the gap between the columns, containers may change it.
+ * ======================================= */
+
+.bcdFlexRow {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: calc(var(--bcd-flex-gutter) / -2);
+  margin-left: calc(var(--bcd-flex-gutter) / -2);
+}
+
+.bcdFlexCol,
+.bcdFlexAuto {
+  position: relative;
+  width: 100%;
+  padding-right: calc(var(--bcd-flex-gutter) / 2);
+  padding-left: calc(var(--bcd-flex-gutter) / 2);
+}
+
+.bcdFlexCol {
+  flex-basis: 0;
+  flex-grow: 1;
+  max-width: 100%;
+}
+
+/* Content-sized from 576px on, below that each column takes the full width */
+@media (min-width: 576px) {
+  .bcdFlexAuto {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: 100%;
+  }
+}
+
+/* Button rows of dialogs use smaller gaps */
+.bcdFilterDialog .bcdFlexRow,
+.bcdUserCalcEditorButtons {
+  --bcd-flex-gutter: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bcdFormControl {
+    transition: none;
+  }
+}

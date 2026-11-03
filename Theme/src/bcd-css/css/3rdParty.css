@@ -1,0 +1,860 @@
+/*
+  Copyright 2010-2026 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/**
+ * Third-party widget styles adapted for BCD-UI
+ *  - Hamburgers (animated hamburger icon, base + spin variant)
+ *  - noUiSlider 14.7.0 (.noUi-*, used by bcd-slider)
+ *  - BCD-UI time slider (.bcduiTimeSlider-*, derived from noUiSlider)
+ * Pristine 3rdParty CSS (FontAwesome) lives in css/3rdParty/ instead.
+ */
+/*!
+ * Hamburgers (CSS-animated hamburger icons)
+ * Converted from bcd/vendor/hamburgers/hamburgers.scss + types/_spin.scss of the SASS theme
+ * BCD-UI settings: color --bcd-secondary-button-color, sizes --bcd-hamburger-* in bcd-variables.css
+ * Only the base + hamburger--spin variant (the BCD-UI default) are included.
+ */
+
+.hamburger {
+  padding: var(--bcd-hamburger-padding);
+  display: inline-block;
+  cursor: pointer;
+  transition-property: opacity, filter;
+  transition-duration: 0.15s;
+  transition-timing-function: linear;
+  font: inherit;
+  color: inherit;
+  text-transform: none;
+  background-color: transparent;
+  border: 0;
+  margin: 0;
+  overflow: visible;
+}
+
+.hamburger:hover {
+  opacity: 1;
+}
+
+.hamburger.is-active:hover {
+  opacity: 1;
+}
+
+.hamburger.is-active .hamburger-inner,
+.hamburger.is-active .hamburger-inner::before,
+.hamburger.is-active .hamburger-inner::after {
+  background-color: var(--bcd-secondary-button-color);
+}
+
+.hamburger-box {
+  width: var(--bcd-hamburger-layer-width);
+  height: calc(var(--bcd-hamburger-layer-height) * 3 + var(--bcd-hamburger-layer-spacing) * 2);
+  display: inline-block;
+  position: relative;
+}
+
+.hamburger-inner {
+  display: block;
+  top: 50%;
+  margin-top: calc(var(--bcd-hamburger-layer-height) / -2);
+}
+
+.hamburger-inner,
+.hamburger-inner::before,
+.hamburger-inner::after {
+  width: var(--bcd-hamburger-layer-width);
+  height: var(--bcd-hamburger-layer-height);
+  background-color: var(--bcd-secondary-button-color);
+  border-radius: var(--bcd-hamburger-layer-border-radius);
+  position: absolute;
+  transition-property: transform;
+  transition-duration: 0.15s;
+  transition-timing-function: ease;
+}
+
+.hamburger-inner::before,
+.hamburger-inner::after {
+  content: "";
+  display: block;
+}
+
+.hamburger-inner::before {
+  top: calc(-1 * (var(--bcd-hamburger-layer-spacing) + var(--bcd-hamburger-layer-height)));
+}
+
+.hamburger-inner::after {
+  bottom: calc(-1 * (var(--bcd-hamburger-layer-spacing) + var(--bcd-hamburger-layer-height)));
+}
+
+/* Spin variant (hamburger--spin) — BCD-UI default */
+
+.hamburger--spin .hamburger-inner {
+  transition-duration: 0.22s;
+  transition-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+}
+
+.hamburger--spin .hamburger-inner::before {
+  transition: top 0.1s 0.25s ease-in, opacity 0.1s ease-in;
+}
+
+.hamburger--spin .hamburger-inner::after {
+  transition: bottom 0.1s 0.25s ease-in, transform 0.22s cubic-bezier(0.55, 0.055, 0.675, 0.19);
+}
+
+.hamburger--spin.is-active .hamburger-inner {
+  transform: rotate(225deg);
+  transition-delay: 0.12s;
+  transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+.hamburger--spin.is-active .hamburger-inner::before {
+  top: 0;
+  opacity: 0;
+  transition: top 0.1s ease-out, opacity 0.1s 0.12s ease-out;
+}
+
+.hamburger--spin.is-active .hamburger-inner::after {
+  bottom: 0;
+  transform: rotate(-90deg);
+  transition: bottom 0.1s ease-out, transform 0.22s 0.12s cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+/* Sidebar color override — from _frame.scss */
+
+.bcd__sidebar-right__inner .hamburger-inner,
+.bcd__sidebar-right__inner .hamburger-inner::before,
+.bcd__sidebar-right__inner .hamburger-inner::after,
+.bcd__sidebar-right__inner .hamburger.is-active .hamburger-inner,
+.bcd__sidebar-right__inner .hamburger.is-active .hamburger-inner::before,
+.bcd__sidebar-right__inner .hamburger.is-active .hamburger-inner::after,
+.bcd__sidebar-left__inner .hamburger-inner,
+.bcd__sidebar-left__inner .hamburger-inner::before,
+.bcd__sidebar-left__inner .hamburger-inner::after,
+.bcd__sidebar-left__inner .hamburger.is-active .hamburger-inner,
+.bcd__sidebar-left__inner .hamburger.is-active .hamburger-inner::before,
+.bcd__sidebar-left__inner .hamburger.is-active .hamburger-inner::after {
+  background-color: var(--bcd-corporate-color-alt);
+}
+
+/*! nouislider - 14.7.0 - 4/6/2021 */
+
+/* Functional styling — required for noUiSlider to work */
+
+.noUi-target,
+.noUi-target * {
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-user-select: none;
+  -ms-touch-action: none;
+  touch-action: none;
+  -ms-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.noUi-target {
+  position: relative;
+}
+
+.noUi-base,
+.noUi-connects {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.noUi-connects {
+  overflow: hidden;
+  z-index: 0;
+}
+
+.noUi-connect,
+.noUi-origin {
+  will-change: transform;
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  -ms-transform-origin: 0 0;
+  -webkit-transform-origin: 0 0;
+  -webkit-transform-style: preserve-3d;
+  transform-origin: 0 0;
+  transform-style: flat;
+}
+
+.noUi-connect {
+  height: 100%;
+  width: 100%;
+}
+
+.noUi-origin {
+  height: 10%;
+  width: 10%;
+}
+
+.noUi-txt-dir-rtl.noUi-horizontal .noUi-origin {
+  left: 0;
+  right: auto;
+}
+
+.noUi-vertical .noUi-origin {
+  width: 0;
+}
+
+.noUi-horizontal .noUi-origin {
+  height: 0;
+}
+
+.noUi-handle {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  position: absolute;
+}
+
+.noUi-touch-area {
+  height: 100%;
+  width: 100%;
+}
+
+.noUi-state-tap .noUi-connect,
+.noUi-state-tap .noUi-origin {
+  -webkit-transition: transform 0.3s;
+  transition: transform 0.3s;
+}
+
+.noUi-state-drag * {
+  cursor: inherit !important;
+}
+
+/* Slider size and handle placement */
+
+.noUi-horizontal {
+  height: 18px;
+}
+
+.noUi-horizontal .noUi-handle {
+  width: 34px;
+  height: 28px;
+  right: -17px;
+  top: -6px;
+}
+
+.noUi-vertical {
+  width: 18px;
+}
+
+.noUi-vertical .noUi-handle {
+  width: 28px;
+  height: 34px;
+  right: -6px;
+  top: -17px;
+}
+
+.noUi-txt-dir-rtl.noUi-horizontal .noUi-handle {
+  left: -17px;
+  right: auto;
+}
+
+/* Styling */
+
+.noUi-target {
+  background: var(--bcd-slider-track-color);
+  border-radius: 4px;
+  border: 1px solid var(--bcd-border-color);
+  box-shadow: inset 0 1px 1px light-dark(#f0f0f0, #2a2a2a), 0 3px 6px -5px #bbb;
+}
+
+.noUi-connects {
+  border-radius: 3px;
+}
+
+.noUi-connect {
+  background: #3fb8af;
+}
+
+/* Handles and cursors */
+
+.noUi-draggable {
+  cursor: ew-resize;
+}
+
+.noUi-vertical .noUi-draggable {
+  cursor: ns-resize;
+}
+
+.noUi-handle {
+  border: 1px solid var(--bcd-border-color);
+  border-radius: 3px;
+  background: var(--bcd-surface-color);
+  cursor: default;
+  box-shadow: inset 0 0 1px light-dark(#fff, #444), inset 0 1px 7px light-dark(#ebebeb, #2a2a2a), 0 3px 6px -3px #bbb;
+}
+
+.noUi-active {
+  box-shadow: inset 0 0 1px light-dark(#fff, #444), inset 0 1px 7px light-dark(#ddd, #333), 0 3px 6px -3px #bbb;
+}
+
+/* Handle stripes */
+
+.noUi-handle:before,
+.noUi-handle:after {
+  content: "";
+  display: block;
+  position: absolute;
+  height: 14px;
+  width: 1px;
+  background: light-dark(#e8e7e6, #555);
+  left: 14px;
+  top: 6px;
+}
+
+.noUi-handle:after {
+  left: 17px;
+}
+
+.noUi-vertical .noUi-handle:before,
+.noUi-vertical .noUi-handle:after {
+  width: 14px;
+  height: 1px;
+  left: 6px;
+  top: 14px;
+}
+
+.noUi-vertical .noUi-handle:after {
+  top: 17px;
+}
+
+/* Disabled state */
+
+[disabled] .noUi-connect {
+  background: #b8b8b8;
+}
+
+[disabled].noUi-target,
+[disabled].noUi-handle,
+[disabled] .noUi-handle {
+  cursor: not-allowed;
+}
+
+/* Pips base */
+
+.noUi-pips,
+.noUi-pips * {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.noUi-pips {
+  position: absolute;
+  color: var(--bcd-text-color-muted);
+}
+
+/* Values */
+
+.noUi-value {
+  position: absolute;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.noUi-value-sub {
+  color: var(--bcd-text-color-muted);
+  font-size: 10px;
+}
+
+/* Markings */
+
+.noUi-marker {
+  position: absolute;
+  background: var(--bcd-border-color);
+}
+
+.noUi-marker-sub {
+  background: var(--bcd-border-color-dark);
+}
+
+.noUi-marker-large {
+  background: var(--bcd-border-color-dark);
+}
+
+/* Horizontal layout */
+
+.noUi-pips-horizontal {
+  padding: 10px 0;
+  height: 80px;
+  top: 100%;
+  left: 0;
+  width: 100%;
+}
+
+.noUi-value-horizontal {
+  -webkit-transform: translate(-50%, 50%);
+  transform: translate(-50%, 50%);
+}
+
+.noUi-rtl .noUi-value-horizontal {
+  -webkit-transform: translate(50%, 50%);
+  transform: translate(50%, 50%);
+}
+
+.noUi-marker-horizontal.noUi-marker {
+  margin-left: -1px;
+  width: 2px;
+  height: 5px;
+}
+
+.noUi-marker-horizontal.noUi-marker-sub {
+  height: 10px;
+}
+
+.noUi-marker-horizontal.noUi-marker-large {
+  height: 15px;
+}
+
+/* Vertical layout */
+
+.noUi-pips-vertical {
+  padding: 0 10px;
+  height: 100%;
+  top: 0;
+  left: 100%;
+}
+
+.noUi-value-vertical {
+  -webkit-transform: translate(0, -50%);
+  transform: translate(0, -50%);
+  padding-left: 25px;
+}
+
+.noUi-rtl .noUi-value-vertical {
+  -webkit-transform: translate(0, 50%);
+  transform: translate(0, 50%);
+}
+
+.noUi-marker-vertical.noUi-marker {
+  width: 5px;
+  height: 2px;
+  margin-top: -1px;
+}
+
+.noUi-marker-vertical.noUi-marker-sub {
+  width: 10px;
+}
+
+.noUi-marker-vertical.noUi-marker-large {
+  width: 15px;
+}
+
+/* Tooltip */
+
+.noUi-tooltip {
+  display: block;
+  position: absolute;
+  border: 1px solid var(--bcd-border-color);
+  border-radius: 3px;
+  background: var(--bcd-surface-color);
+  color: var(--bcd-text-color-strong);
+  padding: 5px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.noUi-horizontal .noUi-tooltip {
+  -webkit-transform: translate(-50%, 0);
+  transform: translate(-50%, 0);
+  left: 50%;
+  bottom: 120%;
+}
+
+.noUi-vertical .noUi-tooltip {
+  -webkit-transform: translate(0, -50%);
+  transform: translate(0, -50%);
+  top: 50%;
+  right: 120%;
+}
+
+.noUi-horizontal .noUi-origin > .noUi-tooltip {
+  -webkit-transform: translate(50%, 0);
+  transform: translate(50%, 0);
+  left: auto;
+  bottom: 10px;
+}
+
+.noUi-vertical .noUi-origin > .noUi-tooltip {
+  -webkit-transform: translate(0, -18px);
+  transform: translate(0, -18px);
+  top: auto;
+  right: 28px;
+}
+
+/* BCD-UI wrapping container */
+
+.bcd-slider .bcd-slider-label {
+  margin-bottom: 8px;
+}
+
+.bcd-slider .bcd-slider-has-pips {
+  margin: 0 0 60px 0;
+}
+
+.bcd-slider .noUi-value-large {
+  margin: 10px 0;
+}
+
+/*! nouislider-based time slider - BCD-UI */
+
+/* Functional styling — required for bcduiTimeSlider to work */
+
+.bcduiTimeSlider-target,
+.bcduiTimeSlider-target * {
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-user-select: none;
+  -ms-touch-action: none;
+  touch-action: none;
+  -ms-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.bcduiTimeSlider-target {
+  position: relative;
+}
+
+.bcduiTimeSlider-base,
+.bcduiTimeSlider-connects {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+  outline: none;
+}
+
+.bcduiTimeSlider-connects {
+  overflow: hidden;
+  z-index: 0;
+}
+
+.bcduiTimeSlider-connect,
+.bcduiTimeSlider-origin {
+  will-change: transform;
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  -ms-transform-origin: 0 0;
+  -webkit-transform-origin: 0 0;
+  -webkit-transform-style: preserve-3d;
+  transform-origin: 0 0;
+  transform-style: flat;
+}
+
+.bcduiTimeSlider-connect {
+  height: 100%;
+  width: 100%;
+}
+
+.bcduiTimeSlider-origin {
+  height: 10%;
+  width: 10%;
+}
+
+.bcduiTimeSlider-txt-dir-rtl.bcduiTimeSlider-horizontal .bcduiTimeSlider-origin {
+  left: 0;
+  right: auto;
+}
+
+.bcduiTimeSlider-vertical .bcduiTimeSlider-origin {
+  width: 0;
+}
+
+.bcduiTimeSlider-horizontal .bcduiTimeSlider-origin {
+  height: 0;
+}
+
+.bcduiTimeSlider-handle {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  position: absolute;
+  outline: none;
+}
+
+.bcduiTimeSlider-touch-area {
+  height: 100%;
+  width: 100%;
+}
+
+.bcduiTimeSlider-state-tap .bcduiTimeSlider-connect,
+.bcduiTimeSlider-state-tap .bcduiTimeSlider-origin {
+  -webkit-transition: transform 0.3s;
+  transition: transform 0.3s;
+}
+
+.bcduiTimeSlider-state-drag * {
+  cursor: inherit !important;
+}
+
+/* Slider size and handle placement */
+
+.bcduiTimeSlider-horizontal {
+  height: 8px;
+  margin-top: 30px;
+}
+
+.bcduiTimeSlider-horizontal .bcduiTimeSlider-handle {
+  width: 14px;
+  height: 14px;
+  right: -7px;
+  top: -24.5px;
+}
+
+.bcduiTimeSlider-vertical {
+  width: 18px;
+}
+
+.bcduiTimeSlider-vertical .bcduiTimeSlider-handle {
+  width: 28px;
+  height: 34px;
+  right: -6px;
+  top: -17px;
+}
+
+.bcduiTimeSlider-txt-dir-rtl.bcduiTimeSlider-horizontal .bcduiTimeSlider-handle {
+  left: -17px;
+  right: auto;
+}
+
+/* Styling */
+
+.bcduiTimeSlider-target {
+  background: var(--bcd-border-color);
+  box-shadow: inset 0 1px 1px #333;
+}
+
+.bcduiTimeSlider-connects {
+  border-radius: 3px;
+}
+
+.bcduiTimeSlider-connect {
+  background: #666;
+}
+
+/* Handles and cursors */
+
+.bcduiTimeSlider-draggable {
+  cursor: ew-resize;
+}
+
+.bcduiTimeSlider-vertical .bcduiTimeSlider-draggable {
+  cursor: ns-resize;
+}
+
+.bcduiTimeSlider-handle {
+  border-radius: 2px;
+  background: var(--bcd-button-color);
+  cursor: -webkit-grab;
+  cursor: grab;
+}
+
+/* Handle arrow indicators */
+
+.bcduiTimeSlider-handle:before,
+.bcduiTimeSlider-handle:after {
+  content: "";
+  display: block;
+  position: relative;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 7px solid var(--bcd-button-color);
+  top: 13px;
+  left: 0;
+}
+
+.bcduiTimeSlider-handle:after {
+  left: 17px;
+  display: none;
+}
+
+.bcduiTimeSlider-vertical .bcduiTimeSlider-handle:before,
+.bcduiTimeSlider-vertical .bcduiTimeSlider-handle:after {
+  width: 14px;
+  height: 1px;
+  left: 6px;
+  top: 14px;
+}
+
+.bcduiTimeSlider-vertical .bcduiTimeSlider-handle:after {
+  top: 17px;
+}
+
+/* Disabled state */
+
+[disabled] .bcduiTimeSlider-connect {
+  background: #b8b8b8;
+}
+
+[disabled].bcduiTimeSlider-target,
+[disabled].bcduiTimeSlider-handle,
+[disabled] .bcduiTimeSlider-handle {
+  cursor: not-allowed;
+}
+
+/* Pips base */
+
+.bcduiTimeSlider-pips,
+.bcduiTimeSlider-pips * {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.bcduiTimeSlider-pips {
+  position: absolute;
+  color: var(--bcd-text-color-muted);
+}
+
+/* Values */
+
+.bcduiTimeSlider-value {
+  position: absolute;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.bcduiTimeSlider-value-sub {
+  color: var(--bcd-text-color-muted);
+  font-size: 10px;
+}
+
+/* Markings */
+
+.bcduiTimeSlider-marker {
+  position: absolute;
+  background: var(--bcd-border-color);
+}
+
+.bcduiTimeSlider-marker-sub {
+  background: var(--bcd-border-color-dark);
+}
+
+.bcduiTimeSlider-marker-large {
+  background: var(--bcd-border-color-dark);
+}
+
+/* Horizontal layout */
+
+.bcduiTimeSlider-pips-horizontal {
+  padding: 10px 0;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.bcduiTimeSlider-value-horizontal {
+  -webkit-transform: translate(-50%, 50%);
+  transform: translate(-50%, 50%);
+}
+
+.bcduiTimeSlider-rtl .bcduiTimeSlider-value-horizontal {
+  -webkit-transform: translate(50%, 50%);
+  transform: translate(50%, 50%);
+}
+
+.bcduiTimeSlider-marker-horizontal.bcduiTimeSlider-marker {
+  margin-left: -1px;
+  width: 2px;
+  height: 5px;
+}
+
+/* Vertical layout */
+
+.bcduiTimeSlider-pips-vertical {
+  padding: 0 10px;
+  height: 100%;
+  top: 0;
+  left: 100%;
+}
+
+.bcduiTimeSlider-value-vertical {
+  -webkit-transform: translate(0, -50%);
+  transform: translate(0, -50%);
+  padding-left: 25px;
+}
+
+.bcduiTimeSlider-rtl .bcduiTimeSlider-value-vertical {
+  -webkit-transform: translate(0, 50%);
+  transform: translate(0, 50%);
+}
+
+.bcduiTimeSlider-marker-vertical.bcduiTimeSlider-marker {
+  width: 5px;
+  height: 2px;
+  margin-top: -1px;
+}
+
+.bcduiTimeSlider-marker-vertical.bcduiTimeSlider-marker-sub {
+  width: 10px;
+}
+
+.bcduiTimeSlider-marker-vertical.bcduiTimeSlider-marker-large {
+  width: 15px;
+}
+
+/* Tooltip */
+
+.bcduiTimeSlider-tooltip {
+  display: block;
+  position: absolute;
+  color: var(--bcd-text-color-strong);
+  padding: 5px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.bcduiTimeSlider-vertical .bcduiTimeSlider-tooltip {
+  -webkit-transform: translate(0, -50%);
+  transform: translate(0, -50%);
+  top: 50%;
+  right: 120%;
+}
+
+.bcduiTimeSlider-horizontal .bcduiTimeSlider-origin > .bcduiTimeSlider-tooltip {
+  -webkit-transform: translate(50%, 0);
+  transform: translate(50%, 0);
+  left: auto;
+  bottom: 10px;
+}
+
+.bcduiTimeSlider-vertical .bcduiTimeSlider-origin > .bcduiTimeSlider-tooltip {
+  -webkit-transform: translate(0, -18px);
+  transform: translate(0, -18px);
+  top: auto;
+  right: 28px;
+}
+
+.bcduiTimeSlider-handle-lower .bcduiTimeSlider-tooltip {
+  right: 100%;
+  top: 0;
+}
+
+.bcduiTimeSlider-handle-upper .bcduiTimeSlider-tooltip {
+  left: 100%;
+  top: 0;
+}

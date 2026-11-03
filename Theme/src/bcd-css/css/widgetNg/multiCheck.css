@@ -1,0 +1,170 @@
+/*
+  Copyright 2010-2026 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/**
+ * WidgetNg multiCheck
+ */
+
+/* ============================================
+   Multi Check
+   ============================================ */
+
+.bcdMultiCheck {
+  background-color: var(--bcd-surface-color);
+  position: relative;
+
+  & .bcdFormControl {
+    background-color: var(--bcd-input-background-color);
+  }
+
+  & i {
+    position: absolute;
+    cursor: pointer;
+    right: 0;
+    top: 0.1em;
+
+    &::after {
+      font-family: 'Font Awesome 5 Free', sans-serif;
+      font-weight: bold;
+      font-style: normal;
+      color: var(--bcd-input-text-color);
+      margin-left: 0.3em;
+      position: absolute;
+      right: 1em;
+      top: 0.4em;
+      padding: 0;
+    }
+  }
+}
+
+.bcdMultiCheck .bcdFind::after {
+  content: "\f002";
+  cursor: default;
+}
+
+.bcdMultiCheck .bcdDown::after {
+  content: "\f078";
+}
+
+.bcdMultiCheck .bcdUp::after {
+  content: "\f077";
+}
+
+.bcdMultiCheck .bcdClear::after {
+  content: "\f00d";
+  color: var(--bcd-text-disabled-color);
+  right: 2.5em;
+}
+
+.bcdMultiCheck ul {
+  margin: 0;
+  padding: 0 0 0 1em;
+}
+
+.bcdMultiCheck li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  & input[type='checkbox'] {
+    margin: 0 0.3em 0 0;
+    cursor: pointer;
+    vertical-align: middle;
+  }
+
+  & label {
+    cursor: pointer;
+    vertical-align: middle;
+    margin: 0;
+    padding: 0;
+
+    &:hover {
+      font-weight: bold;
+    }
+  }
+
+  & .bcdHideItem label:hover,
+  & .bcdHideParent label:hover {
+    font-weight: normal;
+  }
+}
+
+.bcdMultiCheck .bcdLower {
+  height: auto;
+  position: absolute;
+  z-index: var(--bcd-z-index-autocomplete);
+}
+
+.bcdMultiCheck .bcdItems {
+  overflow: auto;
+  height: 20em;
+  padding: 0;
+  margin: 0;
+  user-select: none;
+}
+
+.bcdMultiCheck .bcdItems > ul {
+  padding: 0;
+}
+
+.bcdMultiCheck .bcdItems .bcdHideItem label,
+.bcdMultiCheck .bcdItems .bcdHideItem input {
+  display: none;
+}
+
+.bcdMultiCheck .bcdItems .bcdParent > span.bcdHideItem label {
+  color: var(--bcd-text-disabled-color);
+  display: inline-block;
+}
+
+.bcdMultiCheck .bcdItems .bcdParent.bcdHideParent > span.bcdHideItem label {
+  display: none;
+}
+
+.bcdMultiCheck .bcdFooter {
+  text-align: right;
+  padding: 0.3em;
+  font-size: 0.8em;
+
+  & .bcdButton {
+    margin: 0 0 0 0.3em;
+    padding: 0.2em 0.6em;
+  }
+}
+
+.bcdMultiCheck .bcdHeader,
+.bcdMultiCheck .bcdSearch {
+  vertical-align: middle;
+  position: relative;
+}
+
+.bcdMultiCheck .bcdSearchCount {
+  padding-right: 0 !important;
+}
+
+.bcdMultiCheck .bcdSearchCount input {
+  padding-right: 3.5em;
+}
+
+.bcdMultiCheck .bcdSearchCount,
+.bcdMultiCheck .bcdCount {
+  display: inline-block;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  width: 100%;
+  padding-right: 1em;
+}

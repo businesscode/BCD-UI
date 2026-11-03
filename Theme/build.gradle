@@ -1,5 +1,5 @@
 /*
-  Copyright 2010-2017 BusinessCode GmbH, Germany
+  Copyright 2010-2026 BusinessCode GmbH, Germany
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,7 +16,10 @@
 
 /**
  * Generates the theme with sass into gensrc/themes
+ * A plain css theme (like bcd-css) is bundled and minified with esbuild instead
  */
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+
 plugins {
   id "com.github.node-gradle.node"
 }
@@ -25,10 +28,15 @@ def themeName         = project.properties['bcdui.theme.name']
 def themeFullLocation = file(project.properties['bcdui.theme.location'] + '/' + themeName).absolutePath
 def rootFolder = file(new File("$themeFullLocation/.genericBased")).exists() ? "generic" : "bcd"
 
+// bcd-css is a plain css theme with its entry allStyles.css in its root and no sass, it is self-contained (not based on src/bcd)
+def isCssTheme = themeName == "bcd-css"
+
 
 //*********************************************
 // Compile Scss into css
 task bcduiThemeCompileScss( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
+
+  onlyIf { !isCssTheme }
 
   def taskDestDirName = "$buildDir/tmp/${themeName}_tmp_CompileCss"
 
@@ -44,6 +52,7 @@ task bcduiThemeCompileScss( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
 // Minify css provided in allStyles.css
 task bcduiCleanCss( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
 
+  onlyIf { !isCssTheme }
   dependsOn bcduiThemeCompileScss
 
   // We keep the original level of nesting to let any relative urls in @import outside survive
@@ -70,13 +79,44 @@ task bcduiCleanCss( type: NodeTask, dependsOn: ':bcduiNodeJsTools' ) {
   args   = [ "$taskDestDirName/css/allStyles.css", "--output", "$taskDestDirName/css/allStyles-min.css"]
 }
 
+//*********************************************
+// Plain css theme: bundle allStyles.css with all its @imports into a single minified css/allStyles.css.
+// clean-css cannot be used here, it does not understand css nesting.
+// url() targets are copied with their relative location kept ([dir]/[name]), so the urls stay valid from css/.
+// Legacy FontAwesome font formats (eot, woff, svg) are referenced by its css but not part of the theme, they stay external.
+// Optional bcd-ui-de.css next to allStyles.css holds the styles for BCD-UI-DE, it becomes css/bcd-ui-de.css.
+def bcduiThemeBundleCssDir = "$buildDir/tmp/${themeName}_tmp_BundleCss"
+def bcduiThemeBundleCssEntries = [ "allStyles.css", "bcd-ui-de.css" ].findAll { file("$themeFullLocation/$it").exists() }.collect { "$themeFullLocation/$it" }
+def bcduiThemeBundleCssArgs = bcduiThemeBundleCssEntries + [ "--bundle", "--minify",
+  "--loader:.gif=copy", "--loader:.png=copy", "--loader:.jpg=copy", "--loader:.svg=copy", "--loader:.woff2=copy", "--loader:.ttf=copy",
+  "--external:*.eot", "--external:*#iefix", "--external:*.woff", "--external:*#fontawesome",
+  "--asset-names=[dir]/[name]", "--entry-names=css/[name]", "--outdir=$bcduiThemeBundleCssDir" ]
+
+// bin/esbuild is a NodeJs wrapper for windows but comes as a binary for MAC
+task bcduiThemeBundleCss( type: DefaultNativePlatform.currentOperatingSystem.isWindows() ? NodeTask : Exec, dependsOn: ':bcduiNodeJsTools' ) {
+
+  onlyIf { isCssTheme }
+
+  inputs.dir  file(themeFullLocation)
+  outputs.dir file(bcduiThemeBundleCssDir)
+
+  doFirst { delete bcduiThemeBundleCssDir }
+
+  if( DefaultNativePlatform.currentOperatingSystem.isWindows() ) {
+    script = file("$nodeModulesDir/esbuild/bin/esbuild")
+    args   = bcduiThemeBundleCssArgs
+  } else {
+    commandLine( [ file("$nodeModulesDir/esbuild/bin/esbuild") ] + bcduiThemeBundleCssArgs )
+  }
+}
+
 
 //******************************
 // Collect files for theme into build/distributions/<themeName>
 task bcduiThemeDistCollect ( type: Copy ) {
   description 'Fill ./build/themes/<themeName>/WebContent'
 
-  dependsOn bcduiCleanCss
+  dependsOn isCssTheme ? bcduiThemeBundleCss : bcduiCleanCss
 
   // This needs to point to WebContent root folder, because outputs is used from other tasks
   def taskTargetDir = "./build/themes/$themeName/WebContent"
@@ -93,19 +133,30 @@ task bcduiThemeDistCollect ( type: Copy ) {
   exclude '**/*.scssc'
   exclude '**/*.scss'
 
-  // First generic part, then the specific part. Then add the css generated from sass
   duplicatesStrategy = 'include'
-  from( "./src/" + rootFolder ) {
-    into 'bcdui/theme'
-    exclude '**/*.css'
-  }
-  from( themeFullLocation ) {
-    into 'bcdui/theme'
-    exclude '**/*.css'
-  }
-  from( bcduiCleanCss ) {
-    into 'bcdui/theme/css'
-    rename { "allStyles.css" }
+  if( isCssTheme ) {
+    // Plain css theme: its own files (without css sources and docu), then the bundled css/allStyles.css
+    from( themeFullLocation ) {
+      into 'bcdui/theme'
+      exclude '**/*.css'
+    }
+    from( bcduiThemeBundleCss ) {
+      into 'bcdui/theme'
+    }
+  } else {
+    // First generic part, then the specific part. Then add the css generated from sass
+    from( "./src/" + rootFolder ) {
+      into 'bcdui/theme'
+      exclude '**/*.css'
+    }
+    from( themeFullLocation ) {
+      into 'bcdui/theme'
+      exclude '**/*.css'
+    }
+    from( bcduiCleanCss ) {
+      into 'bcdui/theme/css'
+      rename { "allStyles.css" }
+    }
   }
 }
 

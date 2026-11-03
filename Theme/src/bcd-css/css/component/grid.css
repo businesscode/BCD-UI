@@ -1,0 +1,181 @@
+/*
+  Copyright 2010-2026 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/**
+ * Component grid (handsontable), grid editor. The DE Grid is in bcd-ui-de.css
+ */
+
+.bcdTooltip.bcdGrid {
+  max-width: 30em;
+  overflow: hidden;
+}
+
+.bcdGrid {
+  display: flex;
+  flex-direction: column;
+
+  & .bcdGridBody,
+  & .bcdGridHead,
+  & .bcdGridFoot {
+    display: flex;
+    flex-direction: row;
+  }
+
+  & .handsontable .htDimmed {
+    color: var(--bcd-text-disabled-color);
+  }
+
+  & .handsontable .bcdSideBySideChooser {
+    background-color: var(--bcd-surface-color);
+    border: 1px solid var(--bcd-border-color);
+
+    & table {
+      border-collapse: collapse;
+
+      & th,
+      & td {
+        background-color: var(--bcd-surface-color-alt);
+        border: none;
+        vertical-align: middle;
+      }
+    }
+
+    & .bcdSbscList {
+      height: 10em !important;
+      width: 20em !important;
+      border: none;
+    }
+
+    & .handsontableInput {
+      box-shadow: none;
+    }
+  }
+
+  & .bcdPagingPanel select {
+    height: inherit;
+    padding: inherit;
+  }
+
+  & .bcdGridFoot .gridAction .bcdButton {
+    margin: 0.5em 0.5em 0 0;
+  }
+
+  & .bcdGridHead .gridAction .bcdButton {
+    margin: 0 0.5em 0.5em 0;
+  }
+
+  & .bcdGridFoot .bcdPagingPanel {
+    display: inline-block;
+    margin: 0.5em 0 0 0;
+  }
+
+  & .bcdGridHead .bcdPagingPanel {
+    display: inline-block;
+    margin: 0 0 0.5em 0;
+  }
+
+  & .bcdGroupAction:after {
+    content: "\2212";
+  }
+
+  & .bcdCollapsed.bcdGroupAction:after {
+    content: "\002B";
+  }
+
+  & .bcdGroupAction {
+    background: inherit;
+    border-radius: 2px;
+    border: 1px solid var(--bcd-border-color);
+    color: var(--bcd-border-color);
+    font-size: 1em;
+    margin-right: 0.375em;
+    padding: 0 0.375em;
+    display: inline-block;
+    line-height: 1.3em;
+  }
+
+  & .bcdGroupAction:hover {
+    border: 1px solid var(--bcd-border-color-dark);
+    color: var(--bcd-border-color-dark);
+    cursor: pointer;
+  }
+
+  & .handsontable th.bcdClosed,
+  & .handsontable td.bcdClosed {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  & th.bcdKey {
+    font-weight: bold;
+  }
+
+  & .bcdReadOnly {
+    color: var(--bcd-text-disabled-color);
+    font-style: italic;
+  }
+
+  & .bcdDeleted {
+    text-decoration: line-through;
+    color: var(--bcd-grid-action-color);
+  }
+
+  & .bcdInserted,
+  & .bcdModified {
+    text-decoration: underline;
+    color: var(--bcd-grid-action-color);
+  }
+
+  & ul {
+    list-style-type: none;
+    padding: 0;
+  }
+}
+
+.bcdGridEditor {
+  & .bcdPeriodChooser .bcdValue {
+    width: 100%;
+    display: inline-block;
+  }
+
+  & textarea,
+  & input {
+    padding: 0 0.3em;
+  }
+
+  & select {
+    padding: 0em 0.3em 0 0.1em;
+  }
+}
+
+.bcdStatusModelEditor {
+  & .bcdControls {
+    text-align: center;
+
+    & .bcdButton {
+      margin: 5px;
+    }
+  }
+
+  & .bcdLoadContainer {
+    max-height: 600px;
+    overflow-y: auto;
+    position: relative;
+    margin: 5px;
+  }
+}

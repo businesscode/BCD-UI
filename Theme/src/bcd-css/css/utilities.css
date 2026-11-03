@@ -1,0 +1,244 @@
+/*
+  Copyright 2010-2026 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/**
+ * Utility classes
+ * Replacements for SASS mixins and common utilities
+ */
+
+/* =======================================
+ * User Selection Control
+ * ======================================= */
+.noselect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.select {
+  -webkit-touch-callout: text;
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* =======================================
+ * Shadow Effects
+ * ======================================= */
+.bcd-shadow {
+  box-shadow: var(--bcd-box-shadow-default);
+}
+
+.bcd-no-shadow {
+  box-shadow: none !important;
+}
+
+/* =======================================
+ * Opacity Utilities
+ * ======================================= */
+.bcd-alpha-95 {
+  opacity: 0.95;
+}
+
+.bcd-alpha-75 {
+  opacity: 0.75;
+}
+
+.bcd-alpha-50 {
+  opacity: 0.5;
+}
+
+.bcd-alpha-25 {
+  opacity: 0.25;
+}
+
+/* =======================================
+ * Background/Color Combinations
+ * These provide background color with appropriate contrasting text
+ * ======================================= */
+
+.bcd-bg-corporate {
+  background-color: var(--bcd-corporate-color);
+  color: var(--bcd-text-on-corporate);
+}
+
+.bcd-bg-corporate-alt {
+  background-color: var(--bcd-corporate-color-alt);
+  color: var(--bcd-text-on-corporate-alt);
+}
+
+.bcd-bg-select {
+  background-color: var(--bcd-select-color);
+  color: var(--bcd-text-on-select);
+  border-color: var(--bcd-corporate-color-alt);
+}
+
+.bcd-bg-invalid {
+  background-color: var(--bcd-invalid-color);
+  color: var(--bcd-text-on-invalid);
+}
+
+.bcd-bg-control {
+  background-color: var(--bcd-control-color);
+  color: var(--bcd-text-on-control);
+}
+
+.bcd-bg-flyover {
+  background-color: var(--bcd-flyover-color);
+  color: var(--bcd-text-on-flyover);
+}
+
+.bcd-bg-white {
+  background-color: #ffffff;
+  color: var(--bcd-text-color-default);
+}
+
+.bcd-bg-connectable-hover {
+  background-color: var(--bcd-connectable-hover);
+  color: var(--bcd-text-on-connectable-hover);
+}
+
+/* =======================================
+ * Common Visibility Classes
+ * ======================================= */
+
+.bcdItalic {
+  font-style: italic;
+}
+
+.bcdClosed,
+.bcdHidden {
+  display: none !important;
+}
+
+.bcdDisabled {
+  text-decoration: none !important;
+  color: var(--bcd-text-disabled-color) !important;
+  cursor: default !important;
+}
+
+.bcdInvalid {
+  background-color: var(--bcd-invalid-color) !important;
+  color: var(--bcd-text-on-invalid) !important;
+}
+
+.bcdSelected {
+  background-color: var(--bcd-select-color);
+  color: var(--bcd-text-on-select);
+  border-color: var(--bcd-corporate-color-alt) !important;
+}
+
+.bcdPlaceholder,
+.bcdClearOption,
+.bcdInputEmptyValue {
+  color: var(--bcd-placeholder-color) !important;
+}
+
+.statusNotReady,
+.bcdLoading {
+  background: url("../images/loading.gif") top left no-repeat;
+}
+
+/* deprecated; remove this since h1 is defined to be the ultimate title (html best practices) */
+.bcdTitle {
+}
+
+/* =======================================
+ * Border Utilities
+ * ======================================= */
+
+.bcdNoTop {
+  border-top: none !important;
+}
+
+.bcdNoLeft {
+  border-left: none !important;
+}
+
+.bcdNoBottom {
+  border-bottom: none !important;
+}
+
+.bcdNoRight {
+  border-right: none !important;
+}
+
+/* =======================================
+ * Form Validation States
+ * ======================================= */
+
+:invalid {
+  box-shadow: none;
+}
+
+:-moz-submit-invalid {
+  box-shadow: none;
+}
+
+:-moz-ui-invalid {
+  box-shadow: none;
+}
+
+
+*[disabled] {
+  color: var(--bcd-text-disabled-color) !important;
+}
+
+/* =======================================
+ * Text Selection Styling
+ * ======================================= */
+
+::selection {
+  background-color: var(--bcd-select-color);
+  color: var(--bcd-text-on-select);
+}
+
+::-moz-selection {
+  background-color: var(--bcd-select-color);
+  color: var(--bcd-text-on-select);
+}
+
+/* =======================================
+ * Focus States
+ * ======================================= */
+
+.bcdFormControl:focus,
+.bcdPeriodChooser input:focus {
+  box-shadow: 0 0 0 0.2em color-mix(in srgb, var(--bcd-select-color) 25%, transparent) !important;
+  border-color: var(--bcd-corporate-color-alt);
+  outline: 0;
+}
+
+select:focus option:checked {
+  background-color: var(--bcd-select-color);
+  color: var(--bcd-text-on-select);
+  background-image: linear-gradient(0deg, var(--bcd-select-color) 100%, var(--bcd-select-color) 100%);
+}
+
+/* =======================================
+ * Responsive Font Size
+ * ======================================= */
+
+@media (max-width: 1366px) {
+  html>body {
+    font-size: 0.8rem;
+  }
+}

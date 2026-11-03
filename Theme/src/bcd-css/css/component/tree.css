@@ -1,0 +1,85 @@
+/*
+  Copyright 2010-2026 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/**
+ * Component tree
+ */
+
+/* ============================================
+   Tree Component
+   ============================================ */
+
+.bcdTree .bcdTreeInner {
+  margin: 0 0 0 1.2em;
+}
+
+.bcdTree .highlight {
+  background-color: var(--bcd-surface-color-alt) !important;
+  color: var(--bcd-text-color-strong) !important;
+}
+
+.bcdTree {
+  & .bcdExpand {
+    font-family: "Font Awesome 5 Free", sans-serif;
+    font-weight: 900;
+    padding-right: 0.3em;
+    cursor: pointer;
+
+    &::before {
+      content: "\f0fe";
+    }
+  }
+
+  & .bcdCollapse {
+    font-family: "Font Awesome 5 Free", sans-serif;
+    font-weight: 900;
+    padding-right: 0.3em;
+    cursor: pointer;
+
+    &::before {
+      content: "\f146";
+    }
+  }
+
+  & tbody tr,
+  & tbody tr:nth-of-type(odd),
+  & .table-striped tbody tr:nth-of-type(odd) {
+    background-color: var(--bcd-surface-color);
+  }
+
+  & thead tr th {
+    background-color: var(--bcd-surface-color);
+    color: var(--bcd-text-color-strong);
+    border-bottom: 1px solid var(--bcd-border-color-dark);
+    font-weight: bold;
+  }
+
+  & tbody th,
+  & .bcdTree tbody td {
+    font-weight: normal;
+    border: none;
+  }
+
+  & thead th.bcdMeasure,
+  & tbody td {
+    text-align: right;
+  }
+
+  & .bcdTreeRow > th {
+    background-color: var(--bcd-surface-color);
+    padding: 0;
+  }
+}

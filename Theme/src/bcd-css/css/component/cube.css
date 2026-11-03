@@ -1,0 +1,687 @@
+/*
+  Copyright 2010-2026 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/**
+ * Component cube and scorecard configurators: DND matrix, grouping editor, ranking, report templates, tooltips, inline chart
+ */
+
+/* =======================================
+ * Cube DND Matrix / Scorecard DND Matrix
+ * ======================================= */
+
+.bcdScorecardDndMatrix,
+.bcdCubeDndMatrix {
+  background-color: var(--bcd-surface-color);
+}
+
+.bcdScorecardDndMatrix .grid_24,
+.bcdCubeDndMatrix .grid_24 {
+  /* Include .row and .no-gutters */
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: 0;
+  margin-left: 0;
+}
+
+.bcdScorecardDndMatrix .grid_5,
+.bcdScorecardDndMatrix .grid_3,
+.bcdCubeDndMatrix .grid_5,
+.bcdCubeDndMatrix .grid_3 {
+  /* Include .col */
+  flex-basis: 0;
+  flex-grow: 1;
+  max-width: 100%;
+  /* padding stays 0: in bcd the .no-gutters rule (.grid_24 > .grid_5) wins over the own padding */
+  padding-right: 0;
+  padding-left: 0;
+  height: 20em;
+  border: 1px solid var(--bcd-border-color);
+  border-radius: 10px;
+  margin: 0.5em 0.5em 0.5em 0;
+}
+
+.bcdScorecardDndMatrix .bcdDimensionList,
+.bcdScorecardDndMatrix .bcdMeasureList,
+.bcdScorecardDndMatrix .bcdKpiList,
+.bcdCubeDndMatrix .bcdDimensionList,
+.bcdCubeDndMatrix .bcdMeasureList,
+.bcdCubeDndMatrix .bcdKpiList {
+  height: 90%;
+}
+
+.bcdScorecardDndMatrix .bcdScDimensionList,
+.bcdScorecardDndMatrix .bcdAspectList,
+.bcdCubeDndMatrix .bcdScDimensionList,
+.bcdCubeDndMatrix .bcdAspectList {
+  height: 40%;
+}
+
+.bcdScorecardDndMatrix .bcdCurrentColDimensionList,
+.bcdScorecardDndMatrix .bcdCurrentMeasureList,
+.bcdScorecardDndMatrix .bcdCurrentRowDimensionList,
+.bcdScorecardDndMatrix .bcdCurrentColMeasureList,
+.bcdScorecardDndMatrix .bcdCurrentKpiList,
+.bcdScorecardDndMatrix .bcdCurrentAspectList,
+.bcdCubeDndMatrix .bcdCurrentColDimensionList,
+.bcdCubeDndMatrix .bcdCurrentMeasureList,
+.bcdCubeDndMatrix .bcdCurrentRowDimensionList,
+.bcdCubeDndMatrix .bcdCurrentColMeasureList,
+.bcdCubeDndMatrix .bcdCurrentKpiList,
+.bcdCubeDndMatrix .bcdCurrentAspectList {
+  padding-bottom: 1em;
+}
+
+.bcdScorecardDndMatrix .bcdCurrentColDimensionList,
+.bcdScorecardDndMatrix .bcdCurrentMeasureList,
+.bcdScorecardDndMatrix .bcdCurrentScColDimensionList,
+.bcdScorecardDndMatrix .bcdCurrentAspectList,
+.bcdCubeDndMatrix .bcdCurrentColDimensionList,
+.bcdCubeDndMatrix .bcdCurrentMeasureList,
+.bcdCubeDndMatrix .bcdCurrentScColDimensionList,
+.bcdCubeDndMatrix .bcdCurrentAspectList {
+  height: 50%;
+}
+
+.bcdScorecardDndMatrix .bcdCurrentColDimensionList,
+.bcdScorecardDndMatrix .bcdCurrentScColDimensionList,
+.bcdCubeDndMatrix .bcdCurrentColDimensionList,
+.bcdCubeDndMatrix .bcdCurrentScColDimensionList {
+  border-bottom: 1px solid var(--bcd-border-color);
+}
+
+.bcdScorecardDndMatrix .bcdCurrentMeasureList,
+.bcdScorecardDndMatrix .bcdCurrentAspectList,
+.bcdCubeDndMatrix .bcdCurrentMeasureList,
+.bcdCubeDndMatrix .bcdCurrentAspectList {
+  border-top: 1px solid var(--bcd-border-color);
+}
+
+.bcdScorecardDndMatrix .bcdHeader,
+.bcdCubeDndMatrix .bcdHeader {
+  height: 10%;
+  padding: 0.3em;
+  background-color: var(--bcd-surface-color);
+  color: var(--bcd-text-color);
+  border: none;
+  font-size: 0.8em;
+}
+
+.bcdScorecardDndMatrix div,
+.bcdCubeDndMatrix div {
+  position: relative;
+}
+
+.bcdScorecardDndMatrix ul:after,
+.bcdCubeDndMatrix ul:after {
+  font-size: 0.8em;
+  bottom: 0;
+  left: 0.3em;
+  position: absolute;
+  opacity: 0.75;
+  color: var(--bcd-text-color);
+  z-index: 0;
+}
+
+.bcdScorecardDndMatrix .bcdConnectable .bcdItem,
+.bcdCubeDndMatrix .bcdConnectable .bcdItem {
+  display: inline-block;
+  width: 100%;
+  padding: 0.25em;
+}
+
+.bcdScorecardDndMatrix .bcdDropTarget,
+.bcdCubeDndMatrix .bcdDropTarget {
+  background-color: var(--bcd-border-color);
+}
+
+.bcdScorecardDndMatrix .ui-sortable-placeholder,
+.bcdScorecardDndMatrix .ui-selectee,
+.bcdCubeDndMatrix .ui-sortable-placeholder,
+.bcdCubeDndMatrix .ui-selectee {
+  padding: 0.3em;
+  margin: 0.3em;
+  list-style-type: none;
+  border-radius: 0.25em;
+  border: 1px solid var(--bcd-border-color);
+}
+
+.bcdScorecardDndMatrix .ui-selectee,
+.bcdCubeDndMatrix .ui-selectee {
+  background-color: var(--bcd-cube-color-item);
+  color: var(--bcd-text-on-cube-item);
+  z-index: 1;
+}
+
+.bcdScorecardDndMatrix .ui-sortable-placeholder,
+.bcdCubeDndMatrix .ui-sortable-placeholder {
+  height: 1.6em; /* 1em + .3em + .3em */
+}
+
+.bcdScorecardDndMatrix .ui-sortable-helper:after,
+.bcdCubeDndMatrix .ui-sortable-helper:after {
+  content: "";
+}
+
+.bcdCubeDNDBlind .bcdButton {
+  margin-top: 0.3em;
+}
+
+/* =======================================
+ * bcdCubeDndMatrix2 - additive variant of the cube DND matrix:
+ * rounded corners on all boxes plus gaps between them.
+ * Add the class alongside/above bcdCubeDndMatrix; without it
+ * everything renders exactly as before.
+ * ======================================= */
+
+.bcdCubeDndMatrix2 {
+  --bcd-cube-color-item: var(--bcd-surface-color);
+}
+
+/* Consistent margin around every box so borders stay fully visible;
+   adjacent margins add up to 0.6em between boxes (flex margins do not
+   collapse), matching the gap inside the middle column */
+.bcdCubeDndMatrix2 .grid_5,
+.bcdCubeDndMatrix2 .grid_3 {
+  border-radius: 0.5em;
+  border-width: 1.5px;
+  margin: 0.3em;
+}
+
+/* The middle column is a plain .grid_3 holding two stacked lists that
+   normally share one box with divider borders — here the border moves
+   onto each list so they become two separate rounded boxes */
+.bcdCubeDndMatrix2 .grid_3:not(.bcdCurrentRowDimensionList):not(.bcdCurrentColMeasureList) {
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+}
+
+.bcdCubeDndMatrix2 .bcdCurrentColDimensionList,
+.bcdCubeDndMatrix2 .bcdCurrentMeasureList {
+  height: auto;
+  flex: 1 1 50%;
+  min-height: 0;
+  border: 1px solid var(--bcd-border-color);
+  border-radius: 0.5em;
+}
+
+/* Rounded list items with a gap all around (base style: square, 0.1em
+   vertical margin only) — the side margin also keeps them clear of the
+   rounded box corners */
+.bcdCubeDndMatrix2 .ui-sortable-placeholder,
+.bcdCubeDndMatrix2 .ui-selectee {
+  border-radius: 0.35em;
+  margin: 0.25em;
+}
+
+/* All connectable lists: drop the browser-default ul left padding,
+   center the items and give them a rounded border with side gaps */
+.bcdCubeDndMatrix2 .bcdConnectable {
+  padding-left: 0;
+}
+
+.bcdCubeDndMatrix2 .bcdConnectable .ui-selectee {
+  text-align: center;
+  border: 1.5px solid var(--bcd-border-color);
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+}
+
+/* Compact toolbar replaces the full blind in bcdCubeDndMatrix2 */
+.bcdCubeDndMatrix2Bar {
+  display: none;
+}
+
+.bcdCubeDndMatrix2 .bcdCubeDNDBlind {
+  display: none;
+}
+
+.bcdCubeDndMatrix2 .bcdCubeDndMatrix2Bar {
+  display: flex;
+  gap: 0.5em;
+  padding: 0.4em 0;
+}
+
+.bcdCubeDndMatrix2Bar .bcdDndBarApplySlot {
+  margin-right: 5em;
+}
+
+/* Overlay panel anchored to bcdModalBoxDiv when opened from the toolbar */
+#bcdModalBoxDiv.bcdDndPanel {
+  display: block;
+  position: fixed;
+  background-color: var(--bcd-surface-color);
+  border: 1px solid var(--bcd-border-color);
+  box-shadow: var(--bcd-box-shadow-default);
+  padding: 0.75em;
+  z-index: calc(var(--bcd-z-index-base) + 200);
+  max-height: 80vh;
+  overflow: auto;
+  text-align: left;
+  width: 75vW;  
+}
+
+.bcdDndBarOpener .bcdButton.bcdPrimaryButton,
+.bcdDndBarOpener .bcdButton.bcdPrimaryButton:focus,
+.bcdDndBarOpener .bcdButton.bcdPrimaryButton.focus,
+.bcdDndBarOpener .bcdButton.bcdPrimaryButton:active,
+.bcdDndBarOpener .bcdButton.bcdPrimaryButton:focus-within,
+.bcdDndBarOpener .bcdButton.bcdPrimaryButton:not(:disabled):not(.disabled):active {
+  background-color: transparent;
+  border-color: var(--bcd-border-color);
+  box-shadow: none;
+}
+
+.bcdDndBarOpener .bcdButton.bcdPrimaryButton a,
+.bcdDndBarOpener .bcdButton.bcdPrimaryButton a:focus,
+.bcdDndBarOpener .bcdButton.bcdPrimaryButton a:active,
+.bcdDndBarOpener .bcdButton.bcdPrimaryButton a:visited {
+  color: var(--bcd-text-color);
+}
+
+.bcdDndBarOpener .bcdButton.bcdPrimaryButton:hover {
+  background-color: var(--bcd-border-color);
+}
+
+.bcdDndBarOpener .bcdButton.bcdPrimaryButton:hover a {
+  color: var(--bcd-text-color-default);
+}
+/* ============================================
+   Secondary buttons
+   ============================================ */
+
+#bcdGroupingEditor .bcdGE_remove .bcdButton,
+#bcdGroupingEditor .bcdGE_add .bcdButton,
+.bcdCubeRanking span.bcdCubeRemoveRank,
+.bcdCubeRanking span.bcdCubeAddRank,
+.bcdReportTemplates .bcdTemplateButton {
+  color: var(--bcd-text-on-secondary-button);
+  background-color: var(--bcd-secondary-button-color);
+  border-color: var(--bcd-secondary-button-color);
+
+  &:hover,
+  &:focus {
+    color: var(--bcd-text-on-secondary-button);
+    background-color: var(--bcd-secondary-button-color-hover);
+    border-color: var(--bcd-secondary-button-color-hover);
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--bcd-secondary-button-color) 50%, transparent);
+  }
+
+  &:disabled {
+    color: var(--bcd-text-on-secondary-button);
+    background-color: var(--bcd-secondary-button-color);
+    border-color: var(--bcd-secondary-button-color);
+  }
+
+  &:not(:disabled):not(.disabled):active,
+  &:not(:disabled):not(.disabled).active {
+    color: var(--bcd-text-on-secondary-button);
+    background-color: var(--bcd-secondary-button-color-active);
+    border-color: var(--bcd-secondary-button-color-active);
+  }
+
+  &:not(:disabled):not(.disabled):active:focus,
+  &:not(:disabled):not(.disabled).active:focus {
+    box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--bcd-secondary-button-color) 50%, transparent);
+  }
+}
+
+
+/* ============================================
+   Cube Grouping Editor
+   ============================================ */
+
+#bcdGroupingEditor {
+  & table {
+    margin-bottom: 1em;
+  }
+
+  & .bcdClose {
+    cursor: pointer;
+    position: absolute;
+    right: 0;
+    top: 0;
+
+    &::after {
+      content: "\274C";
+    }
+  }
+
+  & .bcdGE_level {
+    font-weight: bold;
+  }
+
+  & .bcdGE_ok {
+    margin-right: 0.3em;
+  }
+
+  & .bcdGE_add {
+    margin-left: 0.3em;
+  }
+
+  & .bcdSideBySideChooser,
+  & .bcdGroupingEditorList {
+    width: 100%;
+
+    & li:hover {
+      background-color: var(--bcd-border-color);
+      color: var(--bcd-text-on-border);
+    }
+  }
+
+  & div {
+    text-align: left;
+  }
+
+  & .bcdCol4 {
+    display: none;
+  }
+}
+
+#bcdGroupingEditor #groupName {
+  display: flex;
+
+  & .bcdGE_name {
+    width: 100%;
+
+    & input {
+      width: 100%;
+    }
+  }
+}
+
+
+/* ============================================
+   Ranking
+   ============================================ */
+
+.bcdCubeRanking .bcdCubeRankBad {
+  width: 12px;
+  background: url(../../images/cube/warning.png) center center no-repeat;
+}
+
+.bcdCubeRanking {
+  & span.bcdCubeRemoveRank,
+  & span.bcdCubeAddRank {
+    padding: 0.375em 0.75em;
+    display: inline-block;
+  }
+
+  & span.bcdCubeAddRank::after {
+    content: "\002B";
+  }
+
+  & span.bcdCubeRemoveRank::after {
+    content: "\2212";
+  }
+}
+
+
+/* ============================================
+   Summary (DND)
+   ============================================ */
+
+.bcdDnDSummary ul {
+  list-style: initial;
+  border: none;
+
+  & li {
+    padding-left: 0.375em;
+    list-style-position: inside;
+    list-style-type: disc;
+
+    & li {
+      list-style-type: circle;
+    }
+  }
+}
+
+
+/* ============================================
+   Report Templates
+   ============================================ */
+
+.bcdReportTemplateList {
+  margin-bottom: 0.375em;
+}
+
+/* Gap between the template action links (they render two per row at 50%
+   width, so the horizontal gap must come out of the width) */
+.bcdReportTemplateList .bcdAction:not(.bcdTemplateRemove) {
+  margin: 0.25em 1em 0.25em 0;
+  width: calc(50% - 1em);
+  border: 1px solid var(--bcd-border-color);
+  border-radius: 0.35em;
+}
+
+.bcdReportTemplates {
+  max-width: 48em;
+
+  & a {
+    background-color: var(--bcd-surface-color);
+    color: var(--bcd-text-color-default);
+    border: 1px solid var(--bcd-surface-color);
+    padding: 0.125em;
+    text-decoration: none;
+    cursor: pointer;
+    width: 50%;
+    display: inline-block;
+    position: relative;
+
+    &:hover {
+      text-decoration: none;
+      background-color: var(--bcd-select-color);
+      color: var(--bcd-text-on-select);
+    }
+  }
+
+  & .bcdReportTemplateButtons {
+    border-bottom: 1px solid var(--bcd-border-color);
+    padding-bottom: 0.375em;
+  }
+
+  & .bcdReportTemplatesItemsReadOnly,
+  & .bcdReportTemplatesItems {
+    padding-top: 0.375em;
+  }
+
+  & .bcdReportTemplateList a.bcdSelected {
+    background-color: var(--bcd-select-color);
+    color: var(--bcd-text-on-select);
+    border: 1px dotted var(--bcd-corporate-color-alt);
+  }
+
+  & .bcdReportTemplatesItemsReadOnly .bcdTemplateItem {
+    color: var(--bcd-text-disabled-color) !important;
+  }
+
+  & .bcdTemplateButton {
+    padding: 0.375em 0.75em;
+    margin-right: 0.375em;
+    border-radius: 0.25rem;
+    display: inline-block;
+  }
+
+  & .bcdTemplateButton:hover {
+    text-decoration: none;
+    background-color: var(--bcd-select-color);
+    color: var(--bcd-text-color-inverse);
+    border-color: var(--bcd-corporate-color-alt) !important;
+  }
+
+  & .bcdReportTemplatesItems a {
+    & .bcdTemplateRemove {
+      display: none;
+    }
+
+    &:hover .bcdTemplateRemove {
+      display: block;
+    }
+  }
+
+  & .bcdReportTemplatesSaveArea {
+    border-bottom: 1px solid var(--bcd-border-color);
+    padding: 0.375em;
+
+    & input,
+    & textarea {
+      width: 100%;
+    }
+
+    & table {
+      border-collapse: separate;
+      border-spacing: 0.375em;
+      margin: 0.375em;
+      width: 100%;
+    }
+  }
+
+  & .bcdTemplateRemove {
+    font-weight: bold;
+    position: absolute;
+    right: 0.375em;
+    top: 0;
+  }
+
+  & span.bcdTemplateRemove::after {
+    content: "x";
+  }
+
+  & span.bcdTemplateIcon::after {
+    content: "\25BA";
+  }
+
+  & .bcdTemplateItem {
+    padding-right: 0.125em;
+  }
+}
+
+
+/* ============================================
+   Tooltips (Cube & Scorecard)
+   ============================================ */
+
+#bcdTooltipDiv .bcdScTooltip,
+.bcdScDndTooltip {
+  max-width: 25em;
+  table-layout: fixed;
+}
+
+#bcdTooltipDiv .bcdCubeTooltip,
+.bcdCubeDndTooltip {
+  max-width: 25em;
+  table-layout: fixed;
+}
+
+.bcdCubeHide {
+  background-color: var(--bcd-text-disabled-color);
+  z-index: var(--bcd-z-index-base);
+  opacity: 0.5;
+}
+
+
+/* ============================================
+   Inline Chart
+   ============================================ */
+
+.bcdInlineChart > thead > tr > th {
+  text-align: center;
+}
+
+.bcdInlineChart td {
+  text-align: left;
+
+  &.bcdChartCell {
+    padding: 0;
+    margin: 0;
+    height: 6em;
+    z-index: 1;
+    width: 100%;
+  }
+}
+
+.bcdInlineChart .bcdInlineHeader > div {
+  margin: 0 auto;
+}
+
+
+/* ============================================
+   Ranking
+   ============================================ */
+
+.bcdRanking {
+  padding: 1em;
+  border-radius: 0.25em;
+  border: 1px solid var(--bcd-border-color);
+}
+
+.bcdRanking select {
+  width: auto;
+}
+
+.bcdRanking input {
+  width: 5em;
+  text-align: right;
+}
+
+.bcdRanking .bcdSingleSelectNg {
+  display: inline-block;
+  width: auto;
+}
+
+.bcdRanking .bcdFlexRow {
+  margin: 0 0 0.3em 0;
+  padding: 0;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+}
+
+.bcdRanking .bcdFlexRow .bcdFlexCol .bcdButton {
+  margin: 0;
+  padding: 0.375rem 0.75rem;
+
+  & a::after {
+    content: "\f00d";
+  }
+}
+
+.bcdRanking .bcdFlexCol {
+  margin: 0 0.3em 0 0;
+  padding: 0;
+  flex: 0;
+}
+
+.bcdRanking .bcdRanks {
+  overflow-y: auto;
+  max-height: 13em;
+  margin: 0 0 0.3em 0;
+}
+
+.bcdRanking .colrow {
+  margin: 0 0.3em 0 0;
+  text-wrap: nowrap;
+
+  & label {
+    margin: 0 0.3em 0 0;
+    padding: 0;
+    text-transform: uppercase;
+    font-weight: normal;
+  }
+}

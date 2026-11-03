@@ -1,0 +1,235 @@
+/*
+  Copyright 2010-2026 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+/**
+ * Styles for BCD-UI-DE: the DE Grid (bcdui.componentDe.grid.Grid).
+ * Load it after css/allStyles.css. Override the variables below in :root, like those of css/bcd-variables.css.
+ */
+
+:root {
+  /* =======================================
+   * @group DE Grid
+   * Font, cells and hover of the DE Grid
+   * ======================================= */
+
+  /** Fixed font size of the DE Grid, its selection and its input fields. componentsDe: Grid */
+  --bcd-font-size-default: 11px;
+
+  /** Header cells; the row colors default to lighter variants of it. componentsDe: Grid */
+  --bcd-grid-color-cell: var(--bcd-border-color);
+
+  /** Even rows. componentsDe: Grid */
+  --bcd-grid-color-cell-even: light-dark(hsl(from var(--bcd-grid-color-cell) h s min(100, l + 8)),
+                                         hsl(from var(--bcd-grid-color-cell) h s max(0, l - 8)));
+
+  /** Odd rows. componentsDe: Grid */
+  --bcd-grid-color-cell-odd: light-dark(hsl(from var(--bcd-grid-color-cell) h s min(100, l + 15)),
+                                        hsl(from var(--bcd-grid-color-cell) h s max(0, l - 15)));
+
+  /** Selection rectangle while an action on the selection is running. componentsDe: Grid */
+  --bcd-grid-hover-color-body: var(--bcd-corporate-color);
+
+  /** Border of the row under the mouse and of the running selection. componentsDe: Grid */
+  --bcd-grid-hover-color-border: light-dark(hsl(from var(--bcd-cube-hover-color-body) h s max(0, l - 25)),
+                                            hsl(from var(--bcd-cube-hover-color-body) h s min(100, l + 25)));
+
+  /** --bcd-grid-hover-color-border defaults to a darker variant of it, via --bcd-cube-hover-color-body */
+  --bcd-cube-sections-color-head: var(--bcd-corporate-color);
+
+  /** --bcd-grid-hover-color-border defaults to a darker variant of it */
+  --bcd-cube-hover-color-body: var(--bcd-cube-sections-color-head);
+
+  /* =======================================
+   * @group DE Grid: text on colored backgrounds
+   * ======================================= */
+  --bcd-text-on-grid-hover: var(--bcd-text-color-inverse);
+  --bcd-text-on-grid-cell: var(--bcd-text-color-default);
+  --bcd-text-on-grid-cell-even: var(--bcd-text-color-default);
+  --bcd-text-on-grid-cell-odd: var(--bcd-text-color-default);
+}
+
+/* =======================================
+ * DE Grid
+ * ======================================= */
+
+.bcdGrid.bcdGridDE {
+  display: block;
+  position: relative;
+  font: var(--bcd-font-size-default) var(--bcd-font-family-default);
+  color: var(--bcd-text-color-default);
+  background-color: inherit;
+  user-select: none; /* .noselect */
+
+  & .bcdGridSelection {
+    z-index: 10;
+  }
+
+  & .bcdGridTable {
+    border-collapse: collapse;
+    border-spacing: 0px;
+    background-color: var(--bcd-border-color);
+    margin-bottom: 10px;
+
+    & .bcdGridHeader {
+      & .bcdSorted_ascending div:first-child:before {
+        content: "\25B2";
+      }
+
+      & .bcdSorted_descending div:first-child:before {
+        content: "\25BC";
+      }
+
+      & .bcdHover {
+        color: inherit !important;
+        background-color: inherit !important;
+        border: inherit !important;
+      }
+
+      & th {
+        background-color: var(--bcd-grid-color-cell);
+        color: var(--bcd-text-on-grid-cell);
+        padding: 5px 7px 5px 7px;
+        font-weight: bold;
+        vertical-align: middle;
+        text-align: center;
+        border: 1px solid var(--bcd-border-color);
+      }
+
+      & .bcdReadOnly {
+        color: var(--bcd-text-disabled-color);
+      }
+    }
+
+    & .bcdGridBody {
+      display: contents;
+
+      & th,
+      & td {
+        margin: 0px;
+        vertical-align: middle;
+        text-align: left;
+        white-space: nowrap;
+        overflow: hidden;
+        max-width: 400px;
+        border: 1px solid var(--bcd-border-color);
+        padding: 3px;
+
+        & div {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          width: 100%;
+          height: 100%;
+        }
+      }
+
+      & .bcdEven {
+        background-color: var(--bcd-grid-color-cell-even);
+        color: var(--bcd-text-on-grid-cell-even);
+      }
+
+      & .bcdOdd {
+        background-color: var(--bcd-grid-color-cell-odd);
+        color: var(--bcd-text-on-grid-cell-odd);
+      }
+
+      & .bcdSelected {
+        background-color: inherit;
+        color: inherit;
+        border: none;
+      }
+
+      & .bcdReadOnly {
+        color: var(--bcd-text-disabled-color);
+      }
+
+      & .bcdDeleted {
+        text-decoration: line-through;
+        color: var(--bcd-grid-action-color);
+      }
+
+      & .bcdInserted,
+      & .bcdModified {
+        text-decoration: underline;
+        color: var(--bcd-grid-action-color);
+      }
+    }
+  }
+}
+
+span.bcdInputFieldGrid {
+  margin: 0px;
+  padding: 0px;
+  vertical-align: top;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  border: none;
+  font: var(--bcd-font-size-default) var(--bcd-font-family-default);
+}
+
+.bcdGridSelection {
+  font: var(--bcd-font-size-default) var(--bcd-font-family-default);
+  position: absolute;
+  display: inline-block;
+  cursor: default;
+  border: 1px dashed var(--bcd-grid-action-color);
+  width: 0px;
+  height: 0px;
+  opacity: 0.25;
+  background-color: var(--bcd-select-color-light);
+  pointer-events: none;
+}
+
+.bcdDragging {
+  border-style: dotted;
+  cursor: crosshair;
+}
+
+.bcdWorking {
+  border-style: dashed;
+  border: 2px solid var(--bcd-grid-hover-color-border);
+  background-color: var(--bcd-grid-hover-color-body);
+  color: var(--bcd-text-on-grid-hover);
+  opacity: 0.5;
+}
+
+.bcdHover {
+  color: var(--bcd-text-on-flyover) !important;
+  background-color: var(--bcd-flyover-color) !important;
+  border: 1px solid var(--bcd-grid-hover-color-border) !important;
+}
+
+.bcdGrid tbody .bcdHover td,
+.bcdGrid tbody .bcdHover th {
+  color: var(--bcd-text-on-flyover) !important;
+  background-color: var(--bcd-flyover-color) !important;
+}
+
+/* ============================================
+   Grid and Scheduler
+   ============================================ */
+
+.popupActionButtons bcd-buttonng.defaultButton {
+  margin: 0 0 0 1em;
+}
+
+.popupActionButtons bcd-buttonng.defaultButton a {
+  padding: 0;
+}
+
+/* indicating a component is busy and not ready to receive a user input */
+.bcdIsBusy {
+  cursor: wait;
+}

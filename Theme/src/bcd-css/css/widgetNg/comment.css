@@ -1,0 +1,78 @@
+/*
+  Copyright 2010-2026 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/**
+ * WidgetNg comment
+ */
+
+/* ============================================
+   Comment Widget
+   ============================================ */
+
+.bcdComment .bcdFlexRow {
+  margin: 0 0 0.3em 0;
+  padding: 0;
+  align-items: center;
+}
+
+.bcdComment .bcdFlexCol {
+  margin: 0 0.3em 0 0;
+  padding: 0;
+  white-space: normal;
+
+  &:last-child {
+    margin: 0;
+  }
+
+  &.add {
+    flex: 0;
+  }
+}
+
+.bcdComment .bcdFlexRow:last-child {
+  margin: 0;
+}
+
+.bcdComment .body {
+  white-space: normal;
+}
+
+.bcdComment .commentContainer {
+  background-color: var(--bcd-surface-color);
+  padding: 1em;
+  border: 1px solid var(--bcd-border-color-dark);
+  border-radius: 1em;
+  margin-bottom: 0.3em;
+}
+
+.bcdComment .edit {
+  flex: 0 0 1em;
+}
+
+.bcdComment .edit,
+.bcdComment .user {
+  text-align: right;
+}
+
+.bcdComment .icon::before {
+  font-family: "Font Awesome 5 Free", sans-serif;
+  font-weight: 900;
+  padding-right: 0.3em;
+}
+
+.bcdComment .icon.ts::before { content: "\f017"; }
+.bcdComment .icon.user::before { content: "\f007"; }
+.bcdComment .icon.edit::before { content: "\f044"; cursor: pointer; }

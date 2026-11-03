@@ -1,0 +1,150 @@
+/*
+  Copyright 2010-2026 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/**
+ * WidgetNg chipsChooser
+ */
+
+/* ============================================
+   Chips Chooser
+   ============================================ */
+
+.bcdChipChooser {
+  position: relative;
+}
+
+.bcdChipChooser ul {
+  padding: 0;
+  max-height: 10em;
+  background-color: inherit;
+  border: none;
+}
+
+.bcdChipChooser .bcdLower {
+  height: inherit;
+}
+
+.bcdChipChooser .bcdLower .bcdLoading {
+  width: 1em;
+  height: 1em;
+}
+
+.bcdChipChooser .bcdLowerContainer {
+  position: absolute;
+  z-index: var(--bcd-z-index-autocomplete);
+  width: 100%;
+}
+
+.bcdChipChooser .bcdMiddle span {
+  position: relative;
+  cursor: pointer;
+
+  &::after {
+    font-family: 'Font Awesome 5 Free', sans-serif;
+    font-weight: bold;
+    color: var(--bcd-text-color-default);
+    margin-left: 0.3em;
+    position: absolute;
+    right: 1em;
+    padding-top: 0.5em;
+  }
+
+  & input {
+    padding-right: 2em;
+    display: inline-block;
+  }
+}
+
+.bcdChipChooser .bcdMiddle .bcdDown::after { content: "\f078"; }
+.bcdChipChooser .bcdMiddle .bcdUp::after { content: "\f077"; }
+
+.bcdChipChooser .bcdUpper li {
+  margin: 0.3em;
+  display: inline-block;
+}
+
+.bcdChipChooser .bcdUpper .bcdConnectableHover,
+.bcdChipChooser .bcdUpper .ui-selecting,
+.bcdChipChooser .bcdUpper .ui-selected {
+  background-color: inherit !important;
+}
+
+.bcdChipChooser .bcdUpper .bcdItem {
+  padding: 0.1em 0.4em;
+  border: 1px solid var(--bcd-border-color-dark);
+  display: inline-block;
+  background-color: var(--bcd-control-color);
+  color: var(--bcd-text-on-control);
+  border-radius: 1em;
+  cursor: default;
+}
+
+.bcdChipChooser .bcdUpper .bcdCloseItem::after {
+  cursor: pointer;
+  content: "\f00d";
+  font-style: normal;
+  font-family: 'Font Awesome 5 Free', sans-serif;
+  font-weight: bold;
+  color: var(--bcd-text-on-control);
+  margin-left: 0.3em;
+}
+
+.bcdChipChooser .bcdUpper .bcdConnectableHover .bcdItem {
+  background-color: var(--bcd-connectable-hover);
+  color: var(--bcd-text-on-connectable-hover);
+}
+
+.bcdChipChooser .bcdUpper .bcdConnectableHover .bcdCloseItem::after {
+  color: var(--bcd-text-on-connectable-hover);
+}
+
+.bcdChipChooser .bcdUpper .ui-selecting .bcdItem,
+.bcdChipChooser .bcdUpper .ui-selected .bcdItem {
+  background-color: var(--bcd-select-color);
+  color: var(--bcd-text-on-select);
+  border-color: var(--bcd-corporate-color-alt);
+}
+
+.bcdChipChooser .bcdUpper .ui-selecting .bcdCloseItem::after,
+.bcdChipChooser .bcdUpper .ui-selected .bcdCloseItem::after {
+  color: var(--bcd-text-on-select);
+}
+
+.bcdChipChooser .bcdUpper .bcdCloseItem:hover::after {
+  color: var(--bcd-text-color-highlight);
+}
+
+.bcdChipChooser .bcdUpper label {
+  font-size: 0.8em;
+  font-weight: normal;
+  padding: 0 0 0 0.3em;
+  margin: 0;
+}
+
+.bcdChipChooser.bcdSplit .bcdUpper {
+  display: flex;
+  border: 1px solid var(--bcd-border-color);
+}
+
+.bcdChipChooser.bcdSplit .bcdUpper .bcdLeft,
+.bcdChipChooser.bcdSplit .bcdUpper .bcdRight {
+  width: 50%;
+}
+
+.bcdChipChooser.bcdSplit .bcdUpper .bcdConnectable {
+  overflow-y: scroll;
+  overflow-x: inherit;
+}

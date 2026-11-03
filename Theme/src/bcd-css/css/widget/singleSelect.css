@@ -1,0 +1,91 @@
+/*
+  Copyright 2010-2026 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/**
+ * Widget singleSelect as radio items / switch
+ */
+
+/* ============================================
+   Single Select Panel (Radio Items)
+   ============================================ */
+
+.bcdRadioItem label,
+.bcdRadioItem input {
+  margin: 0;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.bcdRadioItem label {
+  padding: 0px 8px 0px 3px;
+}
+
+.bcdRadioItem input {
+  padding: 0;
+}
+
+.bcdSingleSelect.bcdSwitch .bcdRadioItem input::after {
+  display: none;
+}
+
+.bcdSingleSelect.bcdSwitch .bcdRadioItem input:focus,
+.bcdSingleSelect.bcdSwitch .bcdRadioItem input {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  -o-appearance: none;
+  outline: none;
+  content: none;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background-color: inherit;
+  width: 0;
+  height: 0;
+  box-shadow: none;
+}
+
+.bcdSingleSelect.bcdSwitch .bcdRadioItem {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: inline-block;
+  user-select: none;
+}
+
+.bcdSingleSelect.bcdSwitch .bcdRadioItem label {
+  padding: 0.3em 0.5em;
+  margin: 0;
+  cursor: pointer;
+  border: 1px solid var(--bcd-select-color);
+  border-radius: 0;
+}
+
+.bcdSingleSelect.bcdSwitch .bcdRadioItem input:checked ~ label {
+  background-color: var(--bcd-select-color) !important;
+  color: var(--bcd-text-color-inverse) !important;
+}
+
+.bcdSingleSelect.bcdSwitch .bcdRadioItem:first-child input ~ label {
+  border-right: none;
+  border-left: 1px solid var(--bcd-select-color);
+  border-radius: 0.5em 0 0 0.5em;
+}
+
+.bcdSingleSelect.bcdSwitch .bcdRadioItem:last-child input ~ label {
+  border-left: none;
+  border-right: 1px solid var(--bcd-select-color);
+  border-radius: 0 0.5em 0.5em 0;
+}

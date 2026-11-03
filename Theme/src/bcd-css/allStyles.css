@@ -1,0 +1,104 @@
+/*
+  Copyright 2010-2026 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/**
+ * BCD-CSS Theme - Main Entry Point
+ *
+ * A modern, SASS-free theme using CSS Custom Properties
+ * Drop-in replacement for the SASS-based bcd theme
+ *
+ * Usage:
+ *   <link rel="stylesheet" href="path/to/bcdui/theme/css/allStyles.css">
+ *
+ * Customization:
+ *   Override the CSS Custom Properties of css/bcd-variables.css in :root, after this file is loaded
+ *
+ *   Example:
+ *   <link rel="stylesheet" href="path/to/bcdui/theme/css/allStyles.css">
+ *   <style>
+ *     :root {
+ *       --bcd-corporate-color: #ff0000;
+ *       --bcd-sidebar-width: 20em;
+ *     }
+ *   </style>
+ */
+
+/* CSS Custom Properties - The theme settings, to be overridden by projects */
+@import url("css/bcd-variables.css");
+
+/* CSS Custom Properties - Derived from the settings for the theme's own mechanics, not to be overridden */
+@import url("css/variables-internal.css");
+
+/* Reset, form controls and flex layout (bcdFormControl, bcdFormGroup, bcdFlexRow, ...) */
+@import url("css/controls.css");
+
+/* FontAwesome 5 (icons — compiled into the bcd SASS theme, bundled here as 3rdParty CSS) */
+@import url("css/3rdParty/fontawesome/css/all.min.css");
+
+/* Font declarations */
+@import url("css/fonts.css");
+
+/* Base typography and text styles */
+@import url("css/typography.css");
+
+/* Utility classes and helper functions */
+@import url("css/utilities.css");
+
+/* Third-party widget styles adapted for BCD-UI (hamburger icon, noUiSlider, time slider) */
+@import url("css/3rdParty.css");
+
+/* Frame layout (wrapper, header, sidebars, content) */
+@import url("css/frame.css");
+
+/* Login page frame */
+@import url("css/frame-login.css");
+
+/* Shared base styles of widgets and components */
+@import url("css/base.css");
+
+/* Widgets (Client/src/js/widget), one file per widget */
+@import url("css/widget/contextMenu.css");
+@import url("css/widget/dimensionChooser.css");
+@import url("css/widget/effects.css");
+@import url("css/widget/inputField.css");
+@import url("css/widget/messages.css");
+@import url("css/widget/multiSelect.css");
+@import url("css/widget/pagingPanel.css");
+@import url("css/widget/periodChooser.css");
+@import url("css/widget/singleSelect.css");
+@import url("css/widget/tab.css");
+@import url("css/widget/table.css");
+@import url("css/widget/visualizeXml.css");
+
+/* WidgetsNg (Client/src/js/widgetNg), connectable first as base of the choosers */
+@import url("css/widgetNg/connectable.css");
+@import url("css/widgetNg/checkbox.css");
+@import url("css/widgetNg/chipsChooser.css");
+@import url("css/widgetNg/comment.css");
+@import url("css/widgetNg/multiCheck.css");
+@import url("css/widgetNg/sideBySideChooser.css");
+@import url("css/widgetNg/textArea.css");
+@import url("css/widgetNg/universalFilter.css");
+
+/* Components (Client/src/js/component), renderer first as base of cube, scorecard and tree */
+@import url("css/component/renderer.css");
+@import url("css/component/cube.css");
+@import url("css/component/docUpload.css");
+@import url("css/component/far.css");
+@import url("css/component/grid.css");
+@import url("css/component/scheduler.css");
+@import url("css/component/tree.css");
+

@@ -1,0 +1,261 @@
+/*
+  Copyright 2010-2026 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/**
+ * Component docUpload
+ */
+
+/* ============================================
+   Doc Uploader
+   ============================================ */
+
+.bcdDocUploader .bcdDropArea {
+  width: 24em;
+  padding: 1em;
+  text-align: center;
+  border: 2px solid var(--bcd-border-color);
+  border-radius: 0.5em;
+  color: var(--bcd-text-color-default);
+  margin: 0 0.3em 0.3em 0;
+  position: relative;
+  flex-wrap: wrap;
+}
+
+.bcdDocUploader .downloadAll {
+  text-transform: uppercase;
+  margin: 0 0 0.3em 0;
+  font-size: 0.8em;
+
+  & .bcdButton.disabled {
+    cursor: default;
+
+    & a {
+      text-decoration: none;
+    }
+  }
+
+  & a::before {
+    content: "\f1c6";
+    font-family: "Font Awesome 5 Free", sans-serif;
+    font-weight: 900;
+    margin-right: 0.3em;
+  }
+}
+
+.bcdDocUploader .bcdDropNow {
+  background-color: var(--bcd-text-color-default) !important;
+  color: var(--bcd-text-on-text-color-default) !important;
+}
+
+.bcdDocUploader .action::after {
+  font-family: "Font Awesome 5 Free", sans-serif;
+  font-weight: 900;
+  font-size: 0.8em;
+}
+
+.bcdDocUploader .action.download::after { content: "\f56d"; }
+.bcdDocUploader .action.view::after { content: "\f06e"; }
+.bcdDocUploader .action.delete::after { content: "\f2ed"; }
+.bcdDocUploader .action.info::after { content: "\f129"; }
+.bcdDocUploader .action.acknowledged::after { content: "\f044"; color: var(--bcd-text-color-strong); }
+.bcdDocUploader .action.acknowledged.required::after { content: "\f044"; color: var(--bcd-status-error-color); }
+.bcdDocUploader .action.acknowledged.active::after { content: "\f00c"; color: var(--bcd-status-success-color); }
+
+.bcdDocUploader .pointer_true { cursor: pointer; }
+.bcdDocUploader .def_true { background-color: var(--bcd-surface-color); }
+.bcdDocUploader .def_false { background-color: var(--bcd-surface-color); }
+.bcdDocUploader .def_false.req_false { background-color: var(--bcd-status-error-background-color); }
+.bcdDocUploader .def_true .fileType .icon::before { color: var(--bcd-status-error-color); }
+.bcdDocUploader .def_false .fileType .icon::before { color: var(--bcd-text-color-muted); }
+
+.bcdDocUploader .icon::before {
+  font-family: "Font Awesome 5 Free", sans-serif;
+  font-weight: 900;
+  width: 1.2em;
+  display: inline-block;
+}
+
+.bcdDocUploader .fileType .icon::before {
+  font-size: 1em;
+  padding-right: 0;
+}
+
+.bcdDocUploader .bcdFlexRow.info .icon {
+  margin: 0 0.3em 0 0;
+
+  &:last-child {
+    margin: 0;
+  }
+}
+
+.bcdDocUploader .info .icon::before {
+  font-size: 1em;
+  padding-right: 0.3em;
+}
+
+.bcdDocUploader .icon.def_true::before { content: "\f15b"; }
+.bcdDocUploader .icon.def_false::before { content: "\f574"; }
+.bcdDocUploader .icon.pdf::before { content: "\f1c1"; }
+.bcdDocUploader .icon.doc::before { content: "\f1c2"; }
+.bcdDocUploader .icon.docx::before { content: "\f1c2"; }
+.bcdDocUploader .icon.xls::before { content: "\f1c3"; }
+.bcdDocUploader .icon.xlsx::before { content: "\f1c3"; }
+.bcdDocUploader .icon.txt::before { content: "\f15c"; }
+.bcdDocUploader .icon.gif::before { content: "\f1c5"; }
+.bcdDocUploader .icon.png::before { content: "\f1c5"; }
+.bcdDocUploader .icon.jpeg::before { content: "\f1c5"; }
+.bcdDocUploader .icon.svg::before { content: "\f1c5"; }
+.bcdDocUploader .icon.ppt::before { content: "\f1c4"; }
+.bcdDocUploader .icon.csv::before { content: "\f6dd"; }
+.bcdDocUploader .icon.zip::before { content: "\f1c6"; }
+.bcdDocUploader .icon.ts::before { content: "\f017"; }
+.bcdDocUploader .icon.user::before { content: "\f007"; }
+.bcdDocUploader .icon.fileName::before { content: "\f15c"; }
+.bcdDocUploader .icon.fileSize::before { content: "\f013"; }
+
+.bcdDocUploader .actions {
+  position: absolute;
+  top: 0;
+  right: 0em;
+  color: var(--bcd-text-color-strong);
+
+  & a {
+    color: var(--bcd-text-color-strong);
+  }
+
+  & span {
+    margin: 0.25em 0.25em 0 0;
+    background-color: var(--bcd-surface-color-alt);
+    border: 1px solid var(--bcd-text-color-default);
+    border-radius: 1em;
+    width: 1.5em;
+    height: 1.5em;
+    box-shadow: 0.2em 0.2em 0.2em 0 #555;
+    display: inline-block;
+
+    &:hover {
+      cursor: pointer;
+      background-color: var(--bcd-text-color-default);
+      color: var(--bcd-text-on-text-color-default);
+    }
+  }
+}
+
+.bcdDocUploader .bcdDropArea .action {
+  position: relative;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.bcdDocUploader .info {
+  & .help {
+    background-color: var(--bcd-flyover-color);
+    color: var(--bcd-text-on-flyover);
+    border: none;
+    height: 0;
+    width: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    position: absolute;
+    z-index: var(--bcd-z-index-flyover);
+    font-size: 0.8em;
+    padding: 0;
+    margin: 0;
+    border-radius: 0.5em;
+    top: 1em;
+    right: 0;
+    text-align: left;
+  }
+
+  &:hover .help {
+    height: auto;
+    padding: 0.5em;
+    border: 1px solid var(--bcd-border-color);
+  }
+}
+
+.bcdDocUploader .bcdDropArea:hover .action {
+  opacity: 1;
+  visibility: visible;
+}
+
+.bcdDocUploader .catContainer {
+  border: 2px solid var(--bcd-border-color);
+  padding: 0.3em;
+  border-radius: 0.5em;
+  margin: 0 0 0.3em 0;
+
+  & h1 {
+    font-size: 1em;
+    color: var(--bcd-text-color-default);
+    padding: 0 0 0 0.3em;
+    margin: 0;
+  }
+}
+
+/* Info and comment rows below a document */
+.bcdDocUploader .bcdFlexRow.info,
+.bcdDocUploader .bcdFlexRow.comment {
+  font-size: 0.8em;
+}
+
+.bcdDocUploader .commentinput {
+  resize: none;
+  height: 2.5em;
+  margin: 0;
+  transition: height 0.5s ease;
+}
+
+.bcdDocUploader .commentinput.comment:hover,
+.bcdDocUploader .commentinput.comment:focus,
+.bcdDocUploader .commentinput.comment:active {
+  height: 7.1em;
+}
+
+.bcdDocUploader .bcdFlexRow {
+  margin: 0 0 0 0;
+  padding: 0;
+  width: 100%;
+  text-align: left;
+}
+
+.bcdDocUploader .bcdFlexRow.comment {
+  align-items: center;
+}
+
+.bcdDocUploader .bcdFlexRow.main {
+  pointer-events: none;
+  min-height: 5em;
+}
+
+.bcdDocUploader .bcdFlexCol {
+  margin: 0 0.3em 0 0;
+  padding: 0;
+
+  &:last-child {
+    margin: 0;
+  }
+
+  &.info {
+    word-break: break-all;
+  }
+}
+
+.bcdDocUploader .bcdFlexRow.main .bcdFlexCol {
+  white-space: normal;
+  word-break: break-all;
+}

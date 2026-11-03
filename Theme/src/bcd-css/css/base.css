@@ -1,0 +1,511 @@
+/*
+  Copyright 2010-2026 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/**
+ * Shared base styles: generic states, buttons, flyovers, jQuery UI, selection, alerter
+ */
+
+/* =======================================
+ * Responsive font size (already in utilities.css but repeated here)
+ * ======================================= */
+
+@media (max-width: 1366px) {
+  html>body {
+    font-size: 0.8rem;
+  }
+}
+
+/* =======================================
+ * General classes (most already in utilities.css)
+ * ======================================= */
+
+:invalid {
+  box-shadow: none;
+}
+
+:-moz-submit-invalid {
+  box-shadow: none;
+}
+
+:-moz-ui-invalid {
+  box-shadow: none;
+}
+
+*[disabled] {
+  color: var(--bcd-text-disabled-color) !important;
+}
+
+/* Note: .noselect, .select, .bcdItalic, .bcdClosed, .bcdHidden, .bcdDisabled,
+   .bcdInvalid, .bcdSelected already defined in utilities.css */
+
+/* =======================================
+ * Buttons
+ * ======================================= */
+
+.bcdButton {
+  display: inline-block;
+  font-weight: 600;
+  color: var(--bcd-text-color-strong);
+  text-align: center;
+  vertical-align: middle;
+  user-select: none;
+  border: 1px solid transparent;
+  padding: 0.4em 1.4em;
+  font-size: var(--bcd-font-size-base);
+  line-height: 1.5;
+  border-radius: 0.25rem;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  cursor: pointer;
+  background-color: var(--bcd-button-color);
+  border-color: var(--bcd-button-color);
+
+  &:hover {
+    color: var(--bcd-text-color-strong);
+    text-decoration: none;
+  }
+
+  &:focus {
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--bcd-button-color) 25%, transparent);
+  }
+
+  &:disabled {
+    opacity: 0.65;
+  }
+
+  &:not(:disabled):not(.disabled):active,
+  &:not(:disabled):not(.disabled).active {
+    background-color: var(--bcd-button-color-active);
+    border-color: var(--bcd-button-color-active);
+  }
+}
+
+/* Primary buttons have bright text and darken under the mouse; other .bcdButton get their look from their widget.
+   The color is set on the button itself, because an <a> without href inherits it (see controls.css) */
+.bcdButton.bcdPrimaryButton {
+  color: var(--bcd-text-on-button);
+}
+
+.bcdButton.bcdPrimaryButton:hover {
+  color: var(--bcd-text-on-button);
+  background-color: color-mix(in srgb, var(--bcd-button-color) 85%, black);
+  border-color: color-mix(in srgb, var(--bcd-button-color) 80%, black);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bcdButton {
+    transition: none;
+  }
+}
+
+.bcdButton a {
+  color: var(--bcd-text-on-button);
+}
+
+#bcdDropDownButton {
+  position: absolute;
+  z-index: var(--bcd-z-index-flyover);
+}
+
+#bcdDropDownButton ul {
+  padding: 0;
+  margin: 0 0 0 -1.4em;
+  list-style-type: none;
+
+  & li {
+    margin-top: 0.1em;
+  }
+}
+
+.bcdValidationMessages ul {
+  padding: 1em;
+  margin: 0;
+
+  & li {
+    list-style-type: none;
+  }
+}
+
+/* =======================================
+ * Flyovers
+ * ======================================= */
+
+#bcdAutoCompletionBox,
+#bcd_widget_suggestInput_dataList,
+#bcdChartToolTip,
+#bcdTooltipDiv {
+  position: absolute;
+  background-color: var(--bcd-surface-color);
+  color: var(--bcd-input-text-color);
+  padding: 0.3em 0.7em;
+  font-size: 1em;
+  font-weight: 400;
+  line-height: 1.5;
+  border: 1px solid var(--bcd-border-color);
+}
+
+#bcdWidgetBalloon {
+  background-color: var(--bcd-flyover-color);
+  color: var(--bcd-text-on-flyover);
+  border: 1px solid var(--bcd-border-color);
+  z-index: var(--bcd-z-index-balloon);
+  position: fixed;
+  padding: 0.5em;
+  opacity: 0.95;
+  box-shadow: var(--bcd-box-shadow-default);
+}
+
+#bcd_widget_suggestInput_dataList,
+#bcdAutoCompletionBox {
+  z-index: var(--bcd-z-index-autocomplete);
+  height: 10em;
+  overflow: auto;
+}
+
+#bcdChartToolTip,
+#bcdTooltipDiv {
+  z-index: var(--bcd-z-index-flyover);
+}
+
+.ui-widget-overlay {
+  z-index: calc(var(--bcd-z-index-flyover) - 2) !important;
+}
+
+.ui-dialog {
+  z-index: calc(var(--bcd-z-index-flyover) - 1) !important;
+}
+
+.ui-icon {
+  z-index: calc(var(--bcd-z-index-flyover) - 3) !important;
+}
+
+#bcd_widget_suggestInput_dataList {
+  overflow-y: auto;
+}
+
+#bcd_widget_suggestInput_dataList div {
+  white-space: nowrap;
+
+  & .bcdOptionIsHovered,
+  & .bcdOptionIsSelected {
+    background-color: var(--bcd-select-color);
+    color: var(--bcd-text-on-select);
+    border-color: var(--bcd-corporate-color-alt) !important;
+  }
+}
+
+
+/* ============================================
+   BlockUI
+   ============================================ */
+
+.blockUI.blockMsg.blockPage {
+  font-size: 1.25em;
+}
+
+
+/* ============================================
+   jQuery UI Widget
+   ============================================ */
+
+.ui-widget {
+  font-family: var(--bcd-font-family-default);
+}
+
+/* jQuery UI's own colors in light, the theme's in dark */
+.ui-widget-content {
+  background: light-dark(#ffffff, var(--bcd-surface-color));
+  color: light-dark(#333333, var(--bcd-text-color-default));
+}
+
+.ui-widget-overlay {
+  background: light-dark(#ccc, #000);
+  opacity: 0.75;
+}
+
+
+/* ============================================
+   jQuery UI Dialog (override)
+   ============================================ */
+
+.ui-dialog {
+  border: 1px solid var(--bcd-border-color);
+  box-shadow: var(--bcd-modal-dropshadow);
+  padding: 1em;
+
+  & .ui-widget-header {
+    border: 0;
+    border-bottom: 2px solid var(--bcd-border-color);
+    background: var(--bcd-surface-color);
+  }
+
+  & .ui-corner-all {
+    border-radius: 0;
+  }
+
+  & .ui-dialog-titlebar-close {
+    position: absolute;
+    right: 0.3em;
+    top: 50%;
+    width: 1.5em;
+    height: 1.5em;
+    margin: -0.75em 0 0 0;
+    padding: 1px;
+  }
+
+  & .ui-dialog-title {
+    float: left;
+    margin: 0.1em 0;
+    white-space: nowrap;
+    width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 1.2em;
+  }
+
+  & .ui-button {
+    border: 0;
+    background: none;
+  }
+}
+
+
+/* ============================================
+   Selection/Outline Coloring
+   ============================================ */
+
+select:focus option:checked {
+  background-color: var(--bcd-select-color);
+  color: var(--bcd-text-on-select);
+  background-image: linear-gradient(0deg, var(--bcd-select-color) 100%, var(--bcd-select-color) 100%);
+}
+
+::selection {
+  background-color: var(--bcd-select-color);
+  color: var(--bcd-text-on-select);
+}
+
+::-moz-selection {
+  background-color: var(--bcd-select-color);
+  color: var(--bcd-text-on-select);
+}
+
+
+/* ============================================
+   Home Card
+   ============================================ */
+
+.home-card a:hover {
+  text-decoration: none;
+}
+
+
+/* ============================================
+   Input Color
+   ============================================ */
+
+input[type='color'] {
+  width: 3em;
+  height: 2em;
+  padding: 0.1em 0.3em;
+  margin: 0;
+}
+
+
+/* ============================================
+   Alerter
+   ============================================ */
+
+#bcdAlerter {
+  position: fixed;
+  bottom: 1em;
+  z-index: 20000;
+  display: flex;
+  flex-direction: column;
+
+  & > div {
+    position: relative;
+    padding: 0.3em;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 0.3em;
+    margin-top: 0.5em;
+    width: auto;
+    max-width: 30em;
+    max-height: 50%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: 2px 3px 12px rgba(52, 58, 62, 0.3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: var(--bcd-text-color-strong);
+  }
+
+  &.left {
+    left: 1em;
+    align-items: flex-start;
+  }
+
+  &.right {
+    right: 1em;
+    align-items: flex-end;
+  }
+}
+
+#bcdAlerter .bcdSlideIn,
+#bcdAlerter .bcdSlideOut {
+  animation-duration: 1s;
+  animation-fill-mode: forwards;
+}
+
+#bcdAlerter .bcdSlideIn.right { animation-name: slideinright; }
+#bcdAlerter .bcdSlideOut.right { animation-name: slideoutright; }
+#bcdAlerter .bcdSlideIn.left { animation-name: slideinleft; }
+#bcdAlerter .bcdSlideOut.left { animation-name: slideoutleft; }
+
+#bcdAlerter i.fas {
+  font-family: "Font Awesome 5 Free", Sans-serif;
+  font-weight: 900;
+  font-style: normal;
+  font-size: 2em;
+  padding: 0.3em;
+}
+
+#bcdAlerter .bcdSuccess {
+  background: color-mix(in srgb, var(--bcd-alerter-success) 50%, transparent);
+  border-color: color-mix(in srgb, var(--bcd-alerter-success) 90%, transparent);
+}
+
+#bcdAlerter .bcdError {
+  background: color-mix(in srgb, var(--bcd-alerter-error) 50%, transparent);
+  border-color: color-mix(in srgb, var(--bcd-alerter-error) 90%, transparent);
+}
+
+#bcdAlerter .bcdWarn {
+  background: color-mix(in srgb, var(--bcd-alerter-warn) 50%, transparent);
+  border-color: color-mix(in srgb, var(--bcd-alerter-warn) 90%, transparent);
+}
+
+#bcdAlerter .bcdInfo {
+  background: color-mix(in srgb, var(--bcd-alerter-info) 50%, transparent);
+  border-color: color-mix(in srgb, var(--bcd-alerter-info) 90%, transparent);
+}
+
+#bcdAlerter .bcdSuccess i {
+  color: color-mix(in srgb, var(--bcd-alerter-success) 90%, transparent);
+}
+
+#bcdAlerter .bcdError i {
+  color: color-mix(in srgb, var(--bcd-alerter-error) 90%, transparent);
+}
+
+#bcdAlerter .bcdWarn i {
+  color: color-mix(in srgb, var(--bcd-alerter-warn) 90%, transparent);
+}
+
+#bcdAlerter .bcdInfo i {
+  color: color-mix(in srgb, var(--bcd-alerter-info) 90%, transparent);
+}
+
+@keyframes slideinright {
+  0% { translate: 33em 0; }
+  60% { translate: -1em 0; }
+  100% { translate: 0 0; }
+}
+
+@keyframes slideoutright {
+  100% { translate: 33em 0; }
+  60% { translate: -1em 0; }
+  0% { translate: 0 0; }
+}
+
+@keyframes slideinleft {
+  0% { translate: -33em 0; }
+  60% { translate: 1em 0; }
+  100% { translate: 0 0; }
+}
+
+@keyframes slideoutleft {
+  100% { translate: -33em 0; }
+  60% { translate: 1em 0; }
+  0% { translate: 0 0; }
+}
+
+
+/* ============================================
+   System Error
+   ============================================ */
+
+.bcdSysError {
+  font-size: 0.8rem;
+  min-width: 280px;
+  position: fixed;
+  top: 1em;
+  left: 35%;
+  z-index: 100000;
+  border: 2px solid var(--bcd-status-error-color);
+  padding: 1em;
+  text-align: left;
+  background-color: var(--bcd-surface-color);
+  width: 30%;
+  box-shadow: 2px 3px 11px rgba(52, 58, 62, 0.3);
+
+  & > div:first-child {
+    text-transform: uppercase;
+    font-size: 1em;
+    font-weight: bold;
+    position: relative;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--bcd-border-color-dark);
+    padding-bottom: 0.5em;
+    margin-bottom: 0.5em;
+  }
+
+  & textarea {
+    width: 100%;
+    height: 10em;
+    resize: none;
+    font-size: 0.8em;
+    font-family: 'Courier New', Courier, monospace;
+  }
+
+  & p {
+    padding: 0 0 1em 0;
+    margin: 0;
+    text-align: center;
+  }
+
+  & i {
+    &.bcdIconClose {
+      position: absolute;
+      top: 0;
+      right: 0;
+      cursor: pointer;
+
+      &::after {
+        content: "\f00d";
+      }
+    }
+
+    &::after {
+      font-family: "Font Awesome 5 Free", Sans-serif;
+      font-weight: 900;
+      font-style: normal;
+    }
+  }
+}

@@ -1,0 +1,81 @@
+/*
+  Copyright 2010-2026 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/**
+ * Widget dimensionChooser
+ */
+
+/* =======================================
+ * Dimension Chooser
+ * ======================================= */
+
+.bcdDimensionChooser table {
+  border-collapse: separate;
+
+  & tbody tr td {
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+}
+
+.bcdDimensionChooser div.bcdChooserCaption,
+.bcdDimensionChooser div.bcdChooserCaptionFixed {
+  display: none;
+}
+
+.bcdDimensionChooser .bcdAdd {
+  margin-right: 0.2em;
+}
+
+.bcdDimensionChooser .bcdRemove {
+  margin-left: 0.2em;
+}
+
+.bcdDimensionChooser .bcdButton {
+  /* Secondary button look */
+  display: inline-block;
+  font-weight: 400;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  user-select: none;
+  border: 1px solid transparent;
+  font-size: 1em;
+  line-height: 1.5;
+  border-radius: var(--bcd-border-radius-default);
+  color: var(--bcd-text-on-secondary-button);
+  background-color: var(--bcd-secondary-button-color);
+  border-color: var(--bcd-secondary-button-color);
+  padding: 0.187em 0.38em;
+}
+
+.bcdDimensionChooser .bcdButton {
+  & a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  &:not(:disabled):not(.disabled):active,
+  &:not(:disabled):not(.disabled).active {
+    background-color: var(--bcd-secondary-button-color-active);
+    border-color: var(--bcd-secondary-button-color-active);
+  }
+}
+
+.bcdDimensionChooser select {
+  overflow-y: auto;
+}

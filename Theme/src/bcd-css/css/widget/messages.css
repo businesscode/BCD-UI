@@ -1,0 +1,113 @@
+/*
+  Copyright 2010-2026 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/**
+ * Widget messages: html editor / viewer, message dialogs
+ */
+
+/* ============================================
+   HTML Editor/Viewer
+   ============================================ */
+
+.bcduiHtmlEditor .bcdButton {
+  margin: 0.5em 0.5em 0 0;
+}
+
+.bcdHtmlPreview a {
+  color: var(--bcd-text-color-muted);
+  text-decoration: none;
+
+  &:active,
+  &:focus,
+  &:visited {
+    color: var(--bcd-text-color-muted);
+    text-decoration: none;
+  }
+
+  &:hover {
+    color: var(--bcd-text-color-strong);
+  }
+
+  &::after {
+    content: "\f06e";
+    font-family: "Font Awesome 5 Free", sans-serif;
+    font-weight: 900;
+    padding-right: 0.5em;
+  }
+}
+
+.bcdCssReset {
+  all: revert;
+}
+
+.bcdHtmlViewerFooter {
+  padding-top: 1em;
+  border-top: 2px solid var(--bcd-border-color);
+  margin-top: 0.5em;
+
+  & .bcdButton.bcdDisabled {
+    background-color: #aaa;
+    border-color: #aaa;
+  }
+
+  & .bcdFlexCol:last-child {
+    flex: 0;
+  }
+
+  & .bcdCount {
+    padding: 0 1em;
+  }
+}
+
+.bcdHtmlPreview,
+.bcdHtmlViewer {
+  width: 640px;
+  height: 240px;
+  overflow-y: auto;
+}
+
+.bcdCkEditorContainer {
+  width: 640px;
+}
+
+
+/* ============================================
+   Messages
+   ============================================ */
+
+.bcdMessages.bcdCheckbox {
+  text-align: center;
+}
+
+
+/* ============================================
+   Dialog Title Bars
+   ============================================ */
+
+.bcdInformation.ui-dialog-titlebar {
+  background-color: var(--bcd-status-success-color);
+  color: var(--bcd-text-on-status-success);
+}
+
+.bcdWarning.ui-dialog-titlebar {
+  background-color: var(--bcd-status-warning-color);
+  color: var(--bcd-text-on-status-warning);
+}
+
+.bcdError.ui-dialog-titlebar {
+  background-color: var(--bcd-status-error-color);
+  color: var(--bcd-text-on-status-error);
+}

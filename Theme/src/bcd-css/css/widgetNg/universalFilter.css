@@ -1,0 +1,116 @@
+/*
+  Copyright 2010-2026 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/**
+ * WidgetNg universalFilter
+ */
+
+/* ============================================
+   Universal Filter
+   ============================================ */
+
+.bcd-unifilter-widget {
+  /* displays empty message */
+  & .bcd-unifilter-empty {
+    text-transform: uppercase;
+  }
+
+  & .bcd-unifilter-conj-container {
+    display: flex;
+    flex-direction: row;
+    margin: 5px 0;
+
+    & .bcd-unifilter-conj-header {
+      align-self: center;
+      text-transform: uppercase;
+      transform: rotate(270deg);
+      width: 22px;
+      text-align: right;
+      padding-right: 3px;
+    }
+
+    & .bcd-unifilter-conj-spacer {
+      align-self: stretch;
+      background-color: var(--bcd-border-color);
+    }
+  }
+
+  & .bcd-unifilter-operator-container {
+    /* dont display '-' for first item */
+    & .bcd-unifilter-multi-input-container .bcd-unifilter-multi-input-item:first-child .action-remove {
+      display: none;
+    }
+
+    /* display '+' for last item only */
+    & .bcd-unifilter-multi-input-container .bcd-unifilter-multi-input-item:not(:last-child) .action-add {
+      display: none;
+    }
+  }
+
+  & .bcd-unifilter-expression {
+    margin-left: 25px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+
+    & > span {
+      padding-right: 3px;
+    }
+
+    & .bcd-unifilter-expression-name-nomapping {
+      font-style: italic;
+      color: var(--bcd-text-disabled-color);
+    }
+
+    & .bcd-unifilter-expression-type-empty,
+    & .bcd-unifilter-expression-type-notempty {
+      text-transform: uppercase;
+    }
+  }
+
+  & .bcd-unifilter-creator-container {
+    margin-left: 25px;
+    padding: 5px;
+    border: 1px dashed var(--bcd-border-color);
+
+    & .bcd-unifilter-creator-container-closer:hover {
+      cursor: pointer;
+    }
+
+    & .bcd-unifilter-creator-container-closer:after {
+      content: "\f00d";
+      font-family: "Font Awesome 5 Free";
+      font-weight: 900;
+      font-size: 1.5em;
+      margin: 0 0 0 0.5em;
+      vertical-align: middle;
+    }
+  }
+}
+
+/* Closer of the creator container (also used by the FAR report filter) */
+.bcd-unifilter-creator-container-closer {
+  float: right;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--bcd-text-color-strong);
+  text-shadow: 0 1px 0 var(--bcd-surface-color);
+  opacity: 0.5;
+
+  &:hover {
+    opacity: 0.75;
+  }
+}

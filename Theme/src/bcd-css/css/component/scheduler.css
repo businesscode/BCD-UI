@@ -1,0 +1,72 @@
+/*
+  Copyright 2010-2026 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/**
+ * Scheduler (Enterprise Edition)
+ */
+
+.bcdScheduler {
+  display: table;
+
+  & .bcdUTC input {
+    margin-right: 0.3em;
+  }
+}
+
+.bcdSchedulerHistory {
+  & span.bcdStatusOk {
+    color: var(--bcd-status-success-color);
+    font-weight: bold;
+  }
+
+  & span.bcdStatusOk:after {
+    content: "\2713";
+    padding-left: 5px;
+  }
+
+  & span.bcdStatusBad {
+    color: var(--bcd-status-error-color);
+    font-weight: bold;
+  }
+
+  & span.bcdStatusBad:after {
+    content: "!";
+    padding-left: 5px;
+  }
+
+  & .bcdPeriodChooser .bcdHr {
+    display: inline;
+  }
+
+  & .bcdHistoryApply {
+    margin-top: 1em;
+  }
+}
+
+.bcdSchedulerJobs .openReport {
+  font-style: normal;
+  text-decoration: underline;
+  cursor: pointer;
+  color: var(--bcd-corporate-color);
+}
+
+.bcdTooltip.bcdSchedulerHistory {
+  max-width: 300px;
+  padding: 10px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  word-break: break-all;
+}

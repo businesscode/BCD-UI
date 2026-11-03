@@ -1,0 +1,347 @@
+/*
+  Copyright 2010-2026 BusinessCode GmbH, Germany
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+/**
+ * Component renderer: html tables (.bcdReport) incl. tree reports, used by cube, scorecard, tree
+ */
+
+/* =======================================
+ * Total class (used in reports/cubes)
+ * ======================================= */
+
+.total {
+  background-color: var(--bcd-report-total-color);
+  color: var(--bcd-report-total-text-color);
+  font-weight: bold;
+  border-color: var(--bcd-corporate-color-alt);
+}
+
+/* =======================================
+ * Reports (.bcdReport)
+ * Compact, striped table
+ * ======================================= */
+
+.bcdReport {
+  width: 100%;
+  margin-bottom: 1rem;
+  color: var(--bcd-text-color-strong);
+  border-collapse: collapse;
+  background-color: transparent;
+}
+
+.bcdReport th,
+.bcdReport td {
+  padding: 0.3rem;
+  vertical-align: top;
+  border-top: 1px solid var(--bcd-border-color);
+}
+
+.bcdReport thead th {
+  vertical-align: bottom;
+  border-bottom: 2px solid var(--bcd-border-color);
+}
+
+.bcdReport tbody + tbody {
+  border-top: 2px solid var(--bcd-border-color);
+}
+
+.bcdReport tbody tr:nth-of-type(odd) {
+  background-color: var(--bcd-stripe-tint);
+}
+
+.bcdReport td {
+  text-align: right;
+}
+
+.bcdReport th {
+  white-space: nowrap;
+}
+
+.bcdReport thead th {
+  text-align: right;
+}
+
+.bcdReport thead th.bcdDimension {
+  text-align: left;
+}
+
+.bcdReport thead .bcdTotal {
+  background-color: var(--bcd-report-total-color);
+  color: var(--bcd-report-total-text-color);
+  font-weight: bold;
+  border-color: var(--bcd-corporate-color-alt);
+}
+
+.bcdReport tbody .bcdTL1,
+.bcdReport tbody .bcdTL1 td,
+.bcdReport tbody .bcdTL2,
+.bcdReport tbody .bcdTL2 td,
+.bcdReport tbody .bcdTL3,
+.bcdReport tbody .bcdTL3 td,
+.bcdReport tbody .bcdTLGe4,
+.bcdReport tbody .bcdTLGe4 td,
+.bcdReport tbody .bcdTotal {
+  background-color: var(--bcd-report-total-color);
+  color: var(--bcd-report-total-text-color);
+  font-weight: bold;
+  border-color: var(--bcd-corporate-color-alt);
+}
+
+.bcdReport th.bcdVdm,
+.bcdReport th.bcdVmeas,
+.bcdReport th.bcdRowCumulate,
+.bcdReport th.bcdColCumulate,
+.bcdReport th.bcdRowColCumulate {
+  padding-left: 18px;
+  background-position: left center;
+  background-repeat: no-repeat;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.bcdReport th.bcdVdm,
+.bcdReport th.bcdVmeas {
+  background-image: url(../../images/cube/calc.gif);
+}
+
+.bcdReport th.bcdRowCumulate {
+  background-image: url(../../images/cube/cum_row.gif);
+}
+
+.bcdReport th.bcdColCumulate {
+  background-image: url(../../images/cube/cum_column.gif);
+}
+
+.bcdReport th.bcdRowColCumulate {
+  background-image: url(../../images/cube/cum_row_column.gif);
+}
+
+.bcdReport .bcdSortAsc:after {
+  content: "\25B2";
+  color: var(--bcd-border-color);
+  padding: 2px;
+}
+
+.bcdReport .bcdSortDesc:after {
+  content: "\25BC";
+  color: var(--bcd-border-color);
+  padding: 2px;
+}
+
+.bcdReport .bcdTrendUp,
+.bcdReport .bcdTrendDown {
+  font: 1em Monospace;
+  color: var(--bcd-text-color-inverse) !important;
+  text-align: center;
+}
+
+.bcdReport .bcdTrendUp:before {
+  background-color: var(--bcd-report-color-ok);
+  content: "\2191";
+}
+
+.bcdReport .bcdTrendDown:before {
+  background-color: var(--bcd-report-color-fail);
+  content: "\2193";
+}
+
+.bcdReport .bcdTrendUpBad:before {
+  background-color: var(--bcd-report-color-fail);
+  content: "\2191";
+}
+
+.bcdReport .bcdTrendDownGood:before {
+  background-color: var(--bcd-report-color-ok);
+  content: "\2193";
+}
+
+.bcdReport .bcdExpandCollapseButton {
+  cursor: pointer;
+  padding: 0 0.375em 0 0.3em;
+  /* Secondary button look */
+  display: inline-block;
+  font-weight: 400;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  user-select: none;
+  border: 1px solid transparent;
+  font-size: 1em;
+  line-height: 1.5;
+  border-radius: var(--bcd-border-radius-default);
+  color: var(--bcd-text-on-secondary-button);
+  background-color: var(--bcd-secondary-button-color);
+  border-color: var(--bcd-secondary-button-color);
+  margin-right: 0.3em;
+}
+
+.bcdReport .bcdExpandContainer {
+  display: flex;
+  align-items: center;
+}
+
+.bcdReport .bcdExpandOriginal {
+  width: 100%;
+}
+
+.bcdReport:not(.bcdTree) .bcdExpand:after {
+  content: "\002B";
+}
+
+.bcdReport:not(.bcdTree) .bcdCollapse:after {
+  content: "\2212";
+}
+
+/* =======================================
+ * Tree Reports
+ * ======================================= */
+
+.bcdReport.bcdTreeReportPi .bcdPlusSpan {
+  margin-right: 13px;
+}
+
+.bcdReport.bcdTreeReportPi .bcdExpandCollapseButton {
+  padding: 0 !important;
+  width: 14px !important;
+  display: inline-block;
+}
+
+.bcdReport.bcdTreeReportPi .bcdIndent1 { padding-left: 24px !important; }
+.bcdReport.bcdTreeReportPi .bcdIndent2 { padding-left: 43px !important; }
+.bcdReport.bcdTreeReportPi .bcdIndent3 { padding-left: 62px !important; }
+.bcdReport.bcdTreeReportPi .bcdIndent4 { padding-left: 81px !important; }
+.bcdReport.bcdTreeReportPi .bcdIndent5 { padding-left: 100px !important; }
+.bcdReport.bcdTreeReportPi .bcdIndent6 { padding-left: 119px !important; }
+.bcdReport.bcdTreeReportPi .bcdIndent7 { padding-left: 138px !important; }
+.bcdReport.bcdTreeReportPi .bcdIndent8 { padding-left: 157px !important; }
+.bcdReport.bcdTreeReportPi .bcdIndent9 { padding-left: 176px !important; }
+.bcdReport.bcdTreeReportPi .bcdIndent10 { padding-left: 195px !important; }
+.bcdReport.bcdTreeReportPi .bcdIndent11 { padding-left: 214px !important; }
+
+.bcdReport.bcdTreeReportPi .bcdExpandCollapseButton,
+.bcdReport.bcdTreeReport .bcdExpandCollapseButton {
+  padding: inherit;
+  background-color: inherit;
+  color: inherit;
+  line-height: inherit;
+  border: none;
+  margin: inherit;
+}
+
+.bcdReport.bcdTreeReportPi .bcdExpand:after,
+.bcdReport.bcdTreeReport .bcdExpand:after {
+  content: "";
+}
+
+.bcdReport.bcdTreeReportPi .bcdCollapse:after,
+.bcdReport.bcdTreeReport .bcdCollapse:after {
+  content: "";
+}
+
+.bcdReport.bcdTreeReportPi,
+.bcdReport.bcdTreeReport {
+  border-spacing: 0 6px;
+  border-collapse: separate;
+  border: none;
+  min-width: 600px;
+}
+
+.bcdReport.bcdTreeReportPi thead th,
+.bcdReport.bcdTreeReport thead th {
+  background-color: inherit;
+  color: inherit;
+}
+
+.bcdReport.bcdTreeReportPi tr,
+.bcdReport.bcdTreeReport tr {
+  height: 25px;
+  vertical-align: middle;
+}
+
+.bcdReport.bcdTreeReportPi .bcdCaption,
+.bcdReport.bcdTreeReport .bcdCaption {
+  text-align: left;
+}
+
+.bcdReport.bcdTreeReportPi .bcdExpandCollapseButton,
+.bcdReport.bcdTreeReport .bcdExpandCollapseButton {
+  width: 6px;
+  padding: 2px 0 2px 5px;
+}
+
+.bcdReport.bcdTreeReportPi .bcdButton,
+.bcdReport.bcdTreeReport .bcdButton {
+  /* Small button */
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  border-radius: 0.2rem;
+}
+
+.bcdReport.bcdTreeReportPi .bcdLeaf.bcdReportParentOdd td,
+.bcdReport.bcdTreeReportPi .bcdLeaf.bcdReportParentEven td,
+.bcdReport.bcdTreeReport .bcdLeaf.bcdReportParentOdd td,
+.bcdReport.bcdTreeReport .bcdLeaf.bcdReportParentEven td {
+  background-color: var(--bcd-treeview-color-cell-leaf);
+  color: var(--bcd-text-on-treeview-cell-leaf);
+  border-color: var(--bcd-treeview-color-cell-leaf);
+  border-top: 1px solid var(--bcd-treeview-color-cell-border);
+  border-bottom: 1px solid var(--bcd-treeview-color-cell-border);
+  border-right-style: none;
+  border-left-style: none;
+}
+
+.bcdReport.bcdTreeReportPi .bcdNoLeaf.bcdReportParentOdd td,
+.bcdReport.bcdTreeReportPi .bcdNoLeaf.bcdReportParentEven td,
+.bcdReport.bcdTreeReport .bcdNoLeaf.bcdReportParentOdd td,
+.bcdReport.bcdTreeReport .bcdNoLeaf.bcdReportParentEven td {
+  border-top: 1px solid var(--bcd-treeview-color-cell-border);
+  border-bottom: 1px solid var(--bcd-treeview-color-cell-border);
+  border-right-style: none;
+  border-left-style: none;
+}
+
+.bcdReport.bcdTreeReportPi .bcdLevel0.bcdNoLeaf td,
+.bcdReport.bcdTreeReport .bcdLevel0.bcdNoLeaf td {
+  background-color: var(--bcd-treeview-color-cell);
+  color: var(--bcd-text-on-treeview-cell);
+}
+
+.bcdReport.bcdTreeReportPi .bcdLevel1.bcdNoLeaf td,
+.bcdReport.bcdTreeReport .bcdLevel1.bcdNoLeaf td {
+  background-color: var(--bcd-treeview-color-cell-l1);
+  color: var(--bcd-text-on-treeview-cell-l1);
+}
+
+.bcdReport.bcdTreeReportPi .bcdLevel2.bcdNoLeaf td,
+.bcdReport.bcdTreeReport .bcdLevel2.bcdNoLeaf td {
+  background-color: var(--bcd-treeview-color-cell-l2);
+  color: var(--bcd-text-on-treeview-cell-l2);
+}
+
+.bcdReport.bcdTreeReportPi .bcdLevel3.bcdNoLeaf td,
+.bcdReport.bcdTreeReport .bcdLevel3.bcdNoLeaf td {
+  background-color: var(--bcd-treeview-color-cell-l3);
+  color: var(--bcd-text-on-treeview-cell-l3);
+}
+
+.bcdExpand .bcdButton a:after {
+  content: "\002B";
+}
+
+.bcdCollapse .bcdButton a:after {
+  content: "\2212";
+}
