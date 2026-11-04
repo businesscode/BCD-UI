@@ -20,7 +20,19 @@
  * Do not override them, change the setting they are derived from instead.
  */
 
+/* Used color scheme, for settings that are not colors and so cannot use light-dark(), like --bcd-header-logo-filter-dark.
+ * Registered as a color, light-dark() resolves to black or white following color-scheme of bcd-variables.css,
+ * also when it is fixed to light or dark. Rules test it with @container style(--bcd-scheme-probe: white) */
+@property --bcd-scheme-probe {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: black;
+}
+
 :root {
+  /** black in the light, white in the dark scheme, see @property above */
+  --bcd-scheme-probe: light-dark(black, white);
+
   /* =======================================
    * @group z-Index layers
    * The layers above --bcd-z-index-base, their relative order matters

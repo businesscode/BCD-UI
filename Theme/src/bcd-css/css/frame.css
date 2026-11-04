@@ -290,7 +290,13 @@
   width: 260px;
   max-width: 100%;
   height: auto;
-  filter: var(--bcd-header-logo-filter);
+}
+
+/* Dark scheme, see --bcd-scheme-probe in variables-internal.css */
+@container style(--bcd-scheme-probe: white) {
+  .bcd__header__logo img {
+    filter: var(--bcd-header-logo-filter-dark);
+  }
 }
 
 .bcd__header__navigation {

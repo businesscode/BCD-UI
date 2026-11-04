@@ -252,9 +252,9 @@
   /** Lines under the header and between the entries of the header submenus */
   --bcd-menu-border-color: var(--bcd-border-color);
 
-  /** CSS filter on the header logo. Not a color, so no light-dark(): the dark value is in the
-   *  @media (prefers-color-scheme: dark) block at the end of this file */
-  --bcd-header-logo-filter: none;
+  /** CSS filter on the header logo in the dark scheme, e.g. brightness(2) to lighten a dark logo on the dark header,
+   *  none to keep it as is. In the light scheme the logo has no filter */
+  --bcd-header-logo-filter-dark: brightness(2);
 
   /** Background of the content area between header, sidebars and footer. --bcd-login-background-color defaults to it */
   --bcd-content-background-color: light-dark(#f6f6f6, #121212);
@@ -458,14 +458,4 @@
   --bcd-text-on-status-success: var(--bcd-text-color-inverse);
   /** @background --bcd-status-warning-color */
   --bcd-text-on-status-warning: var(--bcd-text-color-default);
-}
-
-/* Dark values of variables that are not colors and cannot use light-dark().
- * The media query follows the operating system like color-scheme "light dark";
- * with a fixed color-scheme move these values into :root above or remove them */
-@media (prefers-color-scheme: dark) {
-  :root {
-    /** Lighten a dark logo on the dark header */
-    --bcd-header-logo-filter: brightness(2);
-  }
 }

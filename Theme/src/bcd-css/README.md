@@ -59,7 +59,37 @@ change both values:
 }
 ```
 
+Differences that are not colors, like an image or a filter, cannot use `light-dark()`. Put them into
+`@container style(--bcd-scheme-probe: white)`, which applies in the dark scheme:
+
+```css
+@container style(--bcd-scheme-probe: white) {
+  .myChart { opacity: 0.9; }
+}
+```
+
+It follows `color-scheme`, also when it is fixed to `light` or `dark`. `@media (prefers-color-scheme: dark)` and
+`<picture>` with a media query only follow the operating system and get out of step with a fixed `color-scheme`.
+
 Some parts bring their own styles and may not fully follow the dark scheme, for example the DE Grid or charts.
+
+### Logo
+
+The logo is the `<img>` in `.bcd__header__logo` of your page. In the dark scheme the theme lightens it with
+`--bcd-header-logo-filter-dark` (default `brightness(2)`), so a dark logo stays readable on the dark header.
+Set it to `none` if your logo already works on dark, or to another filter.
+
+If you have a separate logo for dark backgrounds, turn the filter off and swap the image in your project css:
+
+```css
+:root {
+  --bcd-header-logo-filter-dark: none;   /* or in your copy of bcd-variables.css */
+}
+
+@container style(--bcd-scheme-probe: white) {
+  .bcd__header__logo img { content: url("../images/logo-dark.svg"); }   /* relative to your css file */
+}
+```
 
 ## Own styles
 
