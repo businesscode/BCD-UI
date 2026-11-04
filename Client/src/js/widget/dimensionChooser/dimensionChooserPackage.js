@@ -15,7 +15,7 @@
 */
 "use strict";
 /**
- * A namespace for the BCD-UI dimensionChooser widget. For creation @see {@link bcdui.widgetNg.createDimensionChooser}
+ * A namespace for the BCD-UI dimensionChooser widget. For creation @see {@link bcdui.widget.createDimensionChooser}
  * @namespace bcdui.widget.dimensionChooser
  */
 bcdui.widget.dimensionChooser = Object.assign(bcdui.widget.dimensionChooser,
