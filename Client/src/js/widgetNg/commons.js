@@ -123,7 +123,7 @@ bcdui.widgetNg.commons.balloon._init = function(){
     const validationTooltip = function(doc, args) {
       const root = doc.selectSingleNode("/*");
       if (!root || root.nodeName !== "BalloonData")
-        return;
+        return "<div></div>";
 
       const translate = (v) => {
         if (!v)
