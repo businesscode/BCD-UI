@@ -42,7 +42,7 @@
       <script type="text/javascript" src="{$contentPath}/../../src/js/widget/visualizeXml/visualizeXml.js"> </script>
     </xsl:if>
     <input type="hidden"/>
-/re    <!-- light-dark(): first value without or with a light color-scheme, second with a dark one.
+    <!-- light-dark(): first value without or with a light color-scheme, second with a dark one.
          The theme puts the view on the surface color of bcd-variables.css -->
     <STYLE>
       .visXml_c  {cursor:pointer}

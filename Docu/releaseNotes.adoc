@@ -21,6 +21,7 @@ ___
 .Server:
 * BindingSet: Added `bnd:BindingDefaults` for inheriting BindingItem attributes defaults based on their id
 * New feature for trusted machine clients to access the server with one-request-sessions, see package de.businesscode.bcdui.subjectsettings.services
+* Added new theme bcd-css in pure css, no bootstrap or sass dependencies
 +
 [source,xml]
 ----
@@ -42,6 +43,8 @@ ___
   ````
   If that is not done, an error like `/bcdui/sef/xslt/xslt_transform.sef.json XError: xsl:stylesheet lacks @version` may show up
   because the document is tried to be loaded from the wrong place and could not be parsed
+* ModelWrapper now always create new models, event if the first step in the chain is a JavaScript function, that is enforced now.
+  Use an ModelUpdater, if you want to modify the underlying model
 ---.
 
 ___

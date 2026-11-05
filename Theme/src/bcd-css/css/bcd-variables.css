@@ -77,7 +77,7 @@
   /** Text of minor importance: labels of the slider scales.
    *  components: DocUpload (icon of optional documents), Grid (HTML editor link).
    *  --bcd-login-link-color defaults to it. */
-  --bcd-text-color-muted: light-dark(#999999, #8a8a8a);
+  --bcd-text-color-muted: light-dark(#707070, #8a8a8a);
 
   /** Text that has to catch the eye.
    *  widgets: PeriodChooser ("today" in the calendar); widgetsNg: ChipsChooser (close icon under the mouse) */

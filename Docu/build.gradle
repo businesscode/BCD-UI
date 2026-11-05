@@ -118,6 +118,10 @@ task bcduiJavadoc(type: Javadoc) {
   options.addStringOption('Xmaxwarns', '1')
   options.addStringOption('stylesheetfile', 'gradle/static/javadoc/stylesheet.css')
   options.noTimestamp = true
+  // Newer JDKs come with German and other translations, otherwise the OS locale would decide
+  // -locale only sets the lang attribute, the generated texts follow the locale of the javadoc JVM
+  options.locale      = 'en_US'
+  options.jFlags('-Duser.language=en', '-Duser.country=US')
 }
 
 

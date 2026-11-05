@@ -148,7 +148,14 @@
   height: auto;
 }
 
-.bcd__login-window section {
+/* Dark scheme, like the header logo in frame.css, see --bcd-scheme-probe in variables-internal.css */
+@container style(--bcd-scheme-probe: white) {
+  .bcd__login-window__header img {
+    filter: var(--bcd-header-logo-filter-dark);
+  }
+}
+
+bcd__login-window section {
   border: none;
 }
 
