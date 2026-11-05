@@ -332,41 +332,8 @@
 
 /* =======================================
  * Sidebar Styling
+ * Font sizes, labels and headlines are in "Sidebar Font Sizes" below
  * ======================================= */
-
-.bcd__sidebar-right,
-.bcd__sidebar-left {
-  font-size: var(--bcd-sidebar-font-size);
-}
-
-.bcd__sidebar-right .bcd__form-container,
-.bcd__sidebar-left .bcd__form-container {
-  font-size: var(--bcd-sidebar-font-size);
-}
-
-.bcd__sidebar-right .bcd__form-container .bcdButton,
-.bcd__sidebar-right .bcd__form-container .bcdClearButton,
-.bcd__sidebar-right .bcd__form-container input,
-.bcd__sidebar-right .bcd__form-container select,
-.bcd__sidebar-left .bcd__form-container .bcdButton,
-.bcd__sidebar-left .bcd__form-container .bcdClearButton,
-.bcd__sidebar-left .bcd__form-container input,
-.bcd__sidebar-left .bcd__form-container select {
-  font-size: var(--bcd-sidebar-font-size);
-}
-
-.bcd__sidebar-right label,
-.bcd__sidebar-left label {
-  margin-bottom: 0;
-  color: var(--bcd-sidebar-header-color);
-}
-
-.bcd__sidebar-right h1,
-.bcd__sidebar-right h2,
-.bcd__sidebar-left h1,
-.bcd__sidebar-left h2 {
-  border-bottom-color: var(--bcd-sidebar-header-border-color);
-}
 
 .bcd__sidebar-right__inner .bcdFormGroup,
 .bcd__sidebar-left__inner .bcdFormGroup {

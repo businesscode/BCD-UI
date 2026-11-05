@@ -32,9 +32,13 @@
 }
 
 .bcdTree {
+  /* The icons are <i> elements, which are italic by default; like FontAwesome's .fas */
   & .bcdExpand {
     font-family: "Font Awesome 5 Free", sans-serif;
     font-weight: 900;
+    font-style: normal;
+    display: inline-block;
+    line-height: 1;
     padding-right: 0.3em;
     cursor: pointer;
 
@@ -46,6 +50,9 @@
   & .bcdCollapse {
     font-family: "Font Awesome 5 Free", sans-serif;
     font-weight: 900;
+    font-style: normal;
+    display: inline-block;
+    line-height: 1;
     padding-right: 0.3em;
     cursor: pointer;
 
