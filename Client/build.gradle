@@ -68,7 +68,9 @@ def clientNodeModulesDir  = "$clientRoot/build/node_modules"
 task bcduiClient3rdPartyNpm( type: NpmTask ) {
 
   // Not everybody importing this script, needs this
-  onlyIf { file("$clientRoot/gradle/script/package.json").exists() && ! file(clientNodeModulesDir).exists()}
+  // npm writes node_modules/.package-lock.json only after a successful install, while the folder itself is created below before installing,
+  // so checking the folder would skip the install forever after a failed or interrupted one
+  onlyIf { file("$clientRoot/gradle/script/package.json").exists() && ! file("$clientNodeModulesDir/.package-lock.json").exists()}
 
   doFirst {
     // Create a package.json for npm in buildDir based on out template
