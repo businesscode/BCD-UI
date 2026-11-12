@@ -18,6 +18,7 @@ package de.businesscode.bcdui.binding;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -129,6 +130,22 @@ public interface BindingSet extends Cloneable, Serializable {
    * @return names of all items defined in the bindingSet
    */
   Collection<String> getBindingItemNames();
+
+  /**
+   * Like getBindingItemNames(), but optionally also the names of the items imported via a Relation
+   * @param includeRelationImports if true, the result also contains the Relations' ImportItems
+   * @return names of all items defined in the bindingSet and, if requested, imported via its Relations
+   * @throws BindingNotFoundException if a Relation's source BindingSet cannot be found
+   */
+  default Collection<String> getBindingItemNames(boolean includeRelationImports) throws BindingNotFoundException {
+    if( !includeRelationImports || getRelations() == null ) return getBindingItemNames();
+    Set<String> names = new LinkedHashSet<>(getBindingItemNames());
+    for( Relation rel : getRelations() ) {
+      List<String> imports = rel.getAllImportItemNames();
+      if( imports != null ) names.addAll(imports);
+    }
+    return names;
+  }
 
   /**
    *
