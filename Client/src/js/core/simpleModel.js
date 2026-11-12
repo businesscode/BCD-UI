@@ -341,6 +341,9 @@ bcdui.core.SimpleModel = class extends bcdui.core.AbstractUpdatableModel
           method: this.urlProvider.method || "GET",
           mimeType: this.mimeType,
           contentType: this.mimeType,
+          // Like xmlLoader, so that the server logs the request with this page's hash
+          headers: { "X-BCD.pageHash"    : (bcdui.frame.pageHash||""),
+                     "X-BCD.requestHash" : (bcdui.frame.pageHash||"")+"."+Math.round(Math.random()*1000) },
           url : this.urlProvider.method != "GET" ? url :  bcdui.util.encodeURI(loadUrl),
           data: this.urlProvider.method != "GET" ? data : null,
           xhr: xhrFactory,
