@@ -3070,53 +3070,60 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
             dataKey = key;
           }
 
+          const switchPage = function() {
+            // do we have the page already in memory, so use that data by cloning the pageBuffer         
+            if (typeof this.validationResultPageBuffer[newKey] != "undefined") {
+              this.gridModel.validationResult.dataDoc = bcdui.core.browserCompatibility.cloneDocument(this.validationResultPageBuffer[newKey]);
+            }
+            else
+              bcdui.core.removeXPath(this.gridModel.validationResult.getData(), "/*/*/wrs:Data", false);
+
+            // do we have the page already in memory, so use that data by cloning the pageBuffer         
+            if (typeof this.pageBuffer[newKey] != "undefined") {
+              this.gridModel.dataDoc = bcdui.core.browserCompatibility.cloneDocument(this.pageBuffer[newKey]);
+              // set dataKey to currently cloned data and signal readiness
+              dataKey = newKey;
+              holder.setSource(bcdui.wkModels.guiStatus); 
+            }
+            // otherwise we load it
+            else { 
+              this.serverSidedRefresh = true;
+
+              this.wrsHeader = this.gridModel.query("/*/wrs:Header/wrs:Columns").cloneNode(true);
+
+              this._blindGrid()
+              this.gridModel.urlProvider.requestModel.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
+                this.gridModel.urlProvider.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
+                  this.gridModel.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
+
+                    // take over old wrs header to avoid pagination attribute issues
+                    const existingElement = this.gridModel.query("/*/wrs:Header/wrs:Columns");
+                    existingElement.parentNode.replaceChild(this.wrsHeader, existingElement);
+
+                    // signal readiness
+                    this._unBlindGrid()
+                    holder.setSource(bcdui.wkModels.guiStatus);  
+                  }.bind(this)});
+                  this.gridModel.execute(true);
+                }.bind(this)});
+                this.gridModel.urlProvider.execute(true);
+              }.bind(this)});
+              this.gridModel.urlProvider.requestModel.execute(true);
+            }
+          }
+
           // switching to ALL pages mode with changes will prompt you to save data first           
           if (newStart == -1 && this.gridModel.query("/*/wrs:Data/wrs:*[local-name() != 'R']") != null) {
-            if (! confirm(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_Grid_expLeave"})))
-             return;
-            else
+            this.gridConfirm(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_Grid_expLeave"}))
+            .then(confirmed => {
+              if (!confirmed)
+                return;
               this._resetPageBuffer();
-          }
-
-          // do we have the page already in memory, so use that data by cloning the pageBuffer         
-          if (typeof this.validationResultPageBuffer[newKey] != "undefined") {
-            this.gridModel.validationResult.dataDoc = bcdui.core.browserCompatibility.cloneDocument(this.validationResultPageBuffer[newKey]);
+              switchPage.call(this);
+            });
           }
           else
-            bcdui.core.removeXPath(this.gridModel.validationResult.getData(), "/*/*/wrs:Data", false);
-
-          // do we have the page already in memory, so use that data by cloning the pageBuffer         
-          if (typeof this.pageBuffer[newKey] != "undefined") {
-            this.gridModel.dataDoc = bcdui.core.browserCompatibility.cloneDocument(this.pageBuffer[newKey]);
-            // set dataKey to currently cloned data and signal readiness
-            dataKey = newKey;
-            holder.setSource(bcdui.wkModels.guiStatus); 
-          }
-          // otherwise we load it
-          else { 
-            this.serverSidedRefresh = true;
-
-            this.wrsHeader = this.gridModel.query("/*/wrs:Header/wrs:Columns").cloneNode(true);
-
-            this._blindGrid()
-            this.gridModel.urlProvider.requestModel.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
-              this.gridModel.urlProvider.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
-                this.gridModel.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
-
-                  // take over old wrs header to avoid pagination attribute issues
-                  const existingElement = this.gridModel.query("/*/wrs:Header/wrs:Columns");
-                  existingElement.parentNode.replaceChild(this.wrsHeader, existingElement);
-
-                  // signal readiness
-                  this._unBlindGrid()
-                  holder.setSource(bcdui.wkModels.guiStatus);  
-                }.bind(this)});
-                this.gridModel.execute(true);
-              }.bind(this)});
-              this.gridModel.urlProvider.execute(true);
-            }.bind(this)});
-            this.gridModel.urlProvider.requestModel.execute(true);
-          }
+            switchPage.call(this);
         }
         else
           holder.setSource(bcdui.wkModels.guiStatus);
@@ -3623,6 +3630,14 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
     return window;
   }
+  
+  gridAlert(msg) {
+    return Promise.resolve(alert(msg));
+  }
+
+  gridConfirm(msg) {
+    return Promise.resolve(confirm(msg));
+  }
 
   /**
    * @private
@@ -3728,8 +3743,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
 
     var doSave = function() {
       if ((this.gridModel.validationResult && this.gridModel.validationResult.queryNodes("/*/wrs:Wrs/wrs:Data/wrs:*").length > 0) || jQuery("#" + this.targetHtml + " .bcdInvalid").length > 0) {
-        alert(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_Grid_SaveError"}));
-        this.jumpToError();
+        this.gridAlert(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_Grid_SaveError"}))
+        .then(() => {
+          this.jumpToError();
+        });
         return;
       }
       this._blindGrid();
@@ -3750,65 +3767,74 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
    */
   actionReset(reloadOnly) {
 
-    if (this.gridModel.query("/*/wrs:Data/wrs:*[local-name() != 'R']") != null) {
-      if (! confirm(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_Grid_expLeave"})))
-       return;
-    }
+    const doReset = function() {
 
-    // in serverSidedPagination, we use this reset action to reload data and filter, so only remove filters optionally
-    if (!reloadOnly) {
-      this.statusModel.remove("/*/guiStatus:ClientSettings/guiStatus:ColumnFilters[@id='"+this.gridModel.id+"']");
-      this.statusModel.remove("/*/guiStatus:ClientSettings/guiStatus:ColumnSorting[@id='" + this.gridModel.id + "']");
-      this.sortColumn = null;
-      this.sortDirection = null;
-      Array.from(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns[@manualSort]")).forEach(function(e) { e.removeAttribute("manualSort"); });
-      this.statusModel.fire();
-    }
-    else {
-      var cFilters = this.statusModel.query("/*/guiStatus:ClientSettings/guiStatus:ColumnFilters[@id='"+this.gridModel.id+"']");
-      if (cFilters != null)
-        cFilters.setAttribute("keep", "true");
-      var cSort = this.statusModel.query("/*/guiStatus:ClientSettings/guiStatus:ColumnSorting[@id='"+this.gridModel.id+"']");
-      if (cSort != null)
-        cSort.setAttribute("keep", "true");
-    }
+      // in serverSidedPagination, we use this reset action to reload data and filter, so only remove filters optionally
+      if (!reloadOnly) {
+        this.statusModel.remove("/*/guiStatus:ClientSettings/guiStatus:ColumnFilters[@id='"+this.gridModel.id+"']");
+        this.statusModel.remove("/*/guiStatus:ClientSettings/guiStatus:ColumnSorting[@id='" + this.gridModel.id + "']");
+        this.sortColumn = null;
+        this.sortDirection = null;
+        Array.from(this.getEnhancedConfiguration().queryNodes("/*/grid:Columns[@manualSort]")).forEach(function(e) { e.removeAttribute("manualSort"); });
+        this.statusModel.fire();
+      }
+      else {
+        var cFilters = this.statusModel.query("/*/guiStatus:ClientSettings/guiStatus:ColumnFilters[@id='"+this.gridModel.id+"']");
+        if (cFilters != null)
+          cFilters.setAttribute("keep", "true");
+        var cSort = this.statusModel.query("/*/guiStatus:ClientSettings/guiStatus:ColumnSorting[@id='"+this.gridModel.id+"']");
+        if (cSort != null)
+          cSort.setAttribute("keep", "true");
+      }
 
-    // blind, set (without trigger) page 1
-    this._blindGrid();
-    bcdui.core.createElementWithPrototype(this.pager.getData(),"/*/xp:Paginate/xp:PageNumber").text =  "1";
+      // blind, set (without trigger) page 1
+      this._blindGrid();
+      bcdui.core.createElementWithPrototype(this.pager.getData(),"/*/xp:Paginate/xp:PageNumber").text =  "1";
 
-    // in case of serverSidedPagination we need to refresh the request deeply to update the pagination
-    if (this.serverSidedPagination) {
+      // in case of serverSidedPagination we need to refresh the request deeply to update the pagination
+      if (this.serverSidedPagination) {
 
-      this._resetPageBuffer();
+        this._resetPageBuffer();
 
-      this.gridModel.urlProvider.requestModel.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
-        this.gridModel.urlProvider.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
-          this.gridModel.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
-            this.totalRowCountDp.urlProvider.requestModel.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
-              this.totalRowCountDp.urlProvider.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
-                this.totalRowCountDp.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
-                  this.paginationRenderer.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
-                    this._unBlindGrid();
+        this.gridModel.urlProvider.requestModel.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
+          this.gridModel.urlProvider.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
+            this.gridModel.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
+              this.totalRowCountDp.urlProvider.requestModel.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
+                this.totalRowCountDp.urlProvider.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
+                  this.totalRowCountDp.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
+                    this.paginationRenderer.onReady({onlyOnce: true, onlyFuture: true, onSuccess: function() {
+                      this._unBlindGrid();
+                    }.bind(this)});
+                    this.paginationRenderer.execute();
                   }.bind(this)});
-                  this.paginationRenderer.execute();
+                  this.totalRowCountDp.execute(true);
                 }.bind(this)});
-                this.totalRowCountDp.execute(true);
+                this.totalRowCountDp.urlProvider.execute(true);
               }.bind(this)});
-              this.totalRowCountDp.urlProvider.execute(true);
+              this.totalRowCountDp.urlProvider.requestModel.execute(true);
             }.bind(this)});
-            this.totalRowCountDp.urlProvider.requestModel.execute(true);
+            this.gridModel.execute(true);
           }.bind(this)});
-          this.gridModel.execute(true);
+          this.gridModel.urlProvider.execute(true);
         }.bind(this)});
-        this.gridModel.urlProvider.execute(true);
-      }.bind(this)});
-      this.gridModel.urlProvider.requestModel.execute(true);
+        this.gridModel.urlProvider.requestModel.execute(true);
+      }
+      else {
+        this.gridModel.execute(true);
+        this.gridModel.onceReady(this._unBlindGrid);
+      }
     }
-    else {
-      this.gridModel.execute(true);
-      this.gridModel.onceReady(this._unBlindGrid);
+
+    if (this.gridModel.query("/*/wrs:Data/wrs:*[local-name() != 'R']") != null) {
+      this.gridConfirm(bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_Grid_expLeave"}))
+      .then(confirmed => {
+        if (!confirmed)
+          return;
+        doReset.call(this);
+      });
     }
+    else
+      doReset.call(this);
   }
 
   /**
