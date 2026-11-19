@@ -17,6 +17,7 @@ ___
 * Switched to JavaScript GenericHtmlBuilder per default
 * Added WrsJ2 format, can be created via bcdui.wrs.wrs2Js() and usein in DataProvider.tblXX functions and is used in GenericHtmlBuilder callbacks
 * New function bcdui.wrs.wrsUtil.filterToXPath() understands f:Filter expressions for use on client side, including output of bcdui.wrs.wrsUtil.parseFilterExpression()
+* Grid, support editor options model changes during runtime, offer gridAlert and gridConfirm override functions for project specific not default alert/confirm handling   
 
 .Server:
 * BindingSet: Added `bnd:BindingDefaults` for inheriting BindingItem attributes defaults based on their id
