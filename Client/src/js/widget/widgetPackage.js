@@ -1579,6 +1579,44 @@ jQuery.extend(bcdui.widget,
         , offset: args.offset
       };
 
+      const onLeave = function() {
+        if(!isVisible)
+          return;
+        isVisible = false;
+        bcdui._migPjs._$(config.htmlElement).hide();
+        config.event = null;
+      }
+      const onEnter = function(e, fromFocus) {
+        // We do not want get into conflict with the context menu or grid input
+        if( jQuery("#bcdContextMenuDiv").is(":visible") || jQuery(".bcdGridEditor").length > 0) {
+          isVisible = false;
+          return;
+        }
+        // don't show tooltip if a table header filter tooltip is currently displayed (unless we show another table header filter)
+        if (! jQuery(e.target).parent().hasClass("bcdFilterContainer") && jQuery("#bcdTooltipDiv").is(":visible") && jQuery(".bcdFilterTooltip").length > 0) {
+          isVisible = false;
+          return;
+        }
+
+        config.event = e;
+        var renderer = bcdui.factory.objectRegistry.getObject(args.tooltipRendererId);
+        if (args.tableMode)
+          bcdui.widget._setIdents(e, renderer);
+        else if ( args.identsWithin ) {
+          bcdui.wkModels.bcdRowIdent.setData( bcdui.widget._findAttribute( e.target, "bcdRowIdent", bcdui._migPjs._$(args.identsWithin).get(0) ) || "" );
+          bcdui.wkModels.bcdColIdent.setData( bcdui.widget._findAttribute( e.target, "bcdColIdent", bcdui._migPjs._$(args.identsWithin).get(0) ) || "" );
+        }
+        isVisible = true;
+
+        // prevent focus based events from repositioning tt
+        if (fromFocus)
+          config.event = null;
+
+        reDisplay();
+      }
+
+      bcdui._migPjs._$(config.baseElement).on("focusin", function(e) { onEnter(e, true); });
+      bcdui._migPjs._$(config.baseElement).on("focusout", function() { onLeave(); });
       bcdui._migPjs._$(config.baseElement).on("mousedown", function() {
         config.htmlElement.style.display = "none";
         config.event = null;
@@ -1593,36 +1631,8 @@ jQuery.extend(bcdui.widget,
         new bcdui.widget.MouseTracker({
             baseElement: config.baseElement
           , delay: args.delay
-          , onEnter: function(e) {
-              // We do not want get into conflict with the context menu or grid input
-              if( jQuery("#bcdContextMenuDiv").is(":visible") || jQuery(".bcdGridEditor").length > 0) {
-                isVisible = false;
-                return;
-              }
-              // don't show tooltip if a table header filter tooltip is currently displayed (unless we show another table header filter)
-              if (! jQuery(e.target).parent().hasClass("bcdFilterContainer") && jQuery("#bcdTooltipDiv").is(":visible") && jQuery(".bcdFilterTooltip").length > 0) {
-                isVisible = false;
-                return;
-              }
-
-              config.event = e;
-              var renderer = bcdui.factory.objectRegistry.getObject(args.tooltipRendererId);
-              if (args.tableMode)
-                bcdui.widget._setIdents(e, renderer);
-              else if ( args.identsWithin ) {
-                bcdui.wkModels.bcdRowIdent.setData( bcdui.widget._findAttribute( e.target, "bcdRowIdent", bcdui._migPjs._$(args.identsWithin).get(0) ) || "" );
-                bcdui.wkModels.bcdColIdent.setData( bcdui.widget._findAttribute( e.target, "bcdColIdent", bcdui._migPjs._$(args.identsWithin).get(0) ) || "" );
-              }
-              isVisible = true;
-              reDisplay();
-            }
-          , onLeave: function() {
-              if(!isVisible)
-                return;
-              isVisible = false;
-              bcdui._migPjs._$(config.htmlElement).hide();
-              config.event = null;
-            }
+          , onEnter: function(e) { onEnter(e); }
+          , onLeave: function() { onLeave(); }
           , onMove: function(e) {
               // In praxis the test for isVisible is not enough, probably a timing issue
               if(!isVisible || jQuery("#bcdContextMenuDiv").is(":visible") )
