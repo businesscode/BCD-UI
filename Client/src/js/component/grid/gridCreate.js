@@ -1757,33 +1757,43 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           , columnFiltersCustomFilter: this.columnFiltersCustomFilter
           , valueCaptionProvider: function(inputModel, colIdx) {
              return new Promise(function(resolve, reject) {
+
+               const col = inputModel.read(`/*/wrs:Header/wrs:Columns/wrs:C[@pos=${colIdx}]/@id`, "");
+               const activeFilterValues = Array.from(self.statusModel.queryNodes(targetModelXPath + "/f:Or[@id='"+col+"']/f:Expression[@bRef='"+col+"']/@value")).map(function(e) { return e.text; });
                const separator = self.optionsModelInfo[self.wrsHeaderIdByPos[colIdx]] && self.optionsModelInfo[self.wrsHeaderIdByPos[colIdx]].separator || "";
-               if (self.serverSidedPagination) {
-                 // if data is cached, we need to update the isFiltered attribute only
-                 if (self.colValuesCache && self.colValuesCache["" + colIdx]) {
 
-                   const notFiltered = Array.from(inputModel.queryNodes("/*/wrs:Data/wrs:*/wrs:C[number(" + colIdx + ")]")).reduce(function(a, e) {
-                     return a.concat(separator ? e.text.split(separator) : [e.text]);
-                   }, []);
-
-                   var colName0 = inputModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+colIdx+"']/@id", "");
-                   self.colValuesCache["" + colIdx].forEach(function(e) {
-                     e.isFiltered = notFiltered.indexOf(e.value) == -1;
-                   });
-                   resolve(self.colValuesCache["" + colIdx]);
-                 }
-                 else {
-                   self.colValuesCache = self.colValuesCache || {};
-                   var colName = inputModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@pos='"+colIdx+"']/@id", "");
+               // if data is cached, we need to update the isFiltered attribute only
+               if (col && self.colValuesCache && self.colValuesCache[col]) {
+                 self.colValuesCache[col].forEach(function(e) {
+                  e.isFiltered = activeFilterValues.indexOf(e.value) == -1 && activeFilterValues.length > 0;
+                 });
+                 resolve(self.colValuesCache[col]);
+               }
+               else {
+                 self.colValuesCache = self.colValuesCache || {};
+                 if (! self.serverSidedPagination) {
+                    let colValues = Array.from(inputModel.queryNodes("/*/wrs:Data/wrs:*/wrs:C[number(" + colIdx + ")]")).reduce(function(a, e) {
+                      return a.concat(separator ? e.text.split(separator) : [e.text]);
+                    }, []);
+                    colValues = colValues.filter(function(e, idx){return colValues.indexOf(e) == idx}).map(function(e) {
+                      return {
+                        value: e
+                      , caption: self.columnFiltersGetCaptionForColumnValue ? self.columnFiltersGetCaptionForColumnValue(colIdx, e) : e
+                      , isFiltered: activeFilterValues.indexOf(e) == -1 && activeFilterValues.length > 0
+                      };
+                    });
+                    self.colValuesCache[col] = colValues;
+                    resolve(colValues);
+                  }
+                  else {
                    var reqMw = new bcdui.core.ModelWrapper({
                      inputModel: self.config,
-                     parameters: { statusModel: self.statusModel, binding: self.binding, bRefs: colName, gridModelId: self.gridModel.id},
+                     parameters: { statusModel: self.statusModel, binding: self.binding, bRefs: col, gridModelId: self.gridModel.id},
                      chain: bcdui.contextPath+"/bcdui/js/component/grid/requestFilter.xslt"
                    });
                    var model = new bcdui.core.SimpleModel({url: new bcdui.core.RequestDocumentDataProvider({requestModel: reqMw })});
                    self._blindGrid();
                    model.onceReady(function() {
-                    
                      let colValues = Array.from(model.queryNodes("/*/wrs:Data/wrs:R/wrs:C[1]")).reduce(function(a, e) {
                         return a.concat(separator ? e.text.split(separator) : [e.text]);
                      }, []);
@@ -1791,42 +1801,16 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                        return {
                          value: e
                        , caption: self.columnFiltersGetCaptionForColumnValue ? self.columnFiltersGetCaptionForColumnValue(colIdx, e) : e
-                       , isFiltered: self.statusModel.query(targetModelXPath + "/f:Or[@id='"+colName+"']") != null && self.statusModel.query(targetModelXPath + "/f:Or[@id='"+colName+"']/f:Expression[@bRef='"+colName+"' and @value='{{=it[0]}}']", [e]) == null
+                       , isFiltered: activeFilterValues.indexOf(e) == -1 && activeFilterValues.length > 0
                        };
                      });
                      // we don't need to add the wrs:I/wrs:M here since filtering does require a save changes before filtering.
-                     self.colValuesCache["" + colIdx] = colValues;
+                     self.colValuesCache[col] = colValues
                      self._unBlindGrid();
                      resolve(colValues);
                    });
                    model.execute();
                  }
-               }
-               else {
-                 let filteredValues = Array.from(inputModel.queryNodes("/*/wrs:Data/wrs:*[@filtered]/wrs:C[number(" + colIdx + ")]")).reduce(function(a, e) {
-                   return a.concat(separator ? e.text.split(separator) : [e.text]);
-                 }, []);
-
-                 // when we have separated values in a column, we need to limit the filteredValues entries to the ones which are still visible in other rows
-                 // so if you hide a row which includes A,B,C because you select the single value filter B, you don't want rows which include A or C or both. 
-                 if (separator) {
-                   const notFiltered = Array.from(inputModel.queryNodes("/*/wrs:Data/wrs:*[not(@filtered)]/wrs:C[number(" + colIdx + ")]")).reduce(function(a, e) {
-                     return a.concat(separator ? e.text.split(separator) : [e.text]);
-                   }, []);
-                   filteredValues = filteredValues.filter(function(e) { return notFiltered.indexOf(e) == -1; });
-                 }
-
-                 let values = Array.from(inputModel.queryNodes("/*/wrs:Data/wrs:*/wrs:C[number(" + colIdx + ")]")).reduce(function(a, e) {
-                   return a.concat(separator ? e.text.split(separator) : [e.text]);
-                 }, []);
-                 values = values.filter(function(e, idx){return values.indexOf(e) == idx}).map(function(e) {
-                   return {
-                     value: e
-                   , caption: self.columnFiltersGetCaptionForColumnValue ? self.columnFiltersGetCaptionForColumnValue(colIdx, e) : e
-                   , isFiltered: filteredValues.indexOf(e) != -1
-                   };
-                 });
-                 resolve(values);
                }
              });
             }
