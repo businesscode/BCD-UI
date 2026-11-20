@@ -2387,7 +2387,15 @@ jQuery.extend(bcdui.widget,
 
         var rootXPath         = targetModelXPath + "/f:Or[@id='" + id + "']";
         var selectedCondition = statusModel.read(rootXPath + "/@condition", "contains");
-        var selectedInput     = " value='" + statusModel.read(rootXPath + "/@value", "") + "'";
+        const v = statusModel.read(rootXPath + "/@value", "");
+        var selectedInput     = " value='" + v + "'";
+        var selectedInputBetweenFrom = "";
+        var selectedInputBetweenTo = "";
+        if (v.indexOf(bcdui.core.magicChar.nonWord) != -1) {
+          const values = v.split(bcdui.core.magicChar.nonWord);
+          selectedInputBetweenFrom = " value='" + values[0] + "'";
+          selectedInputBetweenTo = " value='" + values[1] + "'";
+        }
 
         // i18n key translate
         if (caption.indexOf(bcdui.i18n.TAG) == 0)
@@ -2525,6 +2533,16 @@ jQuery.extend(bcdui.widget,
             var isNumberValue = value.replace(/^[+-]?\d*\.\d+$|^[+-]?\d+(\.\d*)?$/g, "") == "";
             return (isNumberCell && isNumberValue) ? (parseFloat(cellValue) <= parseFloat(value)) : (cellValue <= value);
           };
+          bcdui.widget._bcdFilter.isbetween = function(cellValue, value)   {
+            const values = value.split(bcdui.core.magicChar.nonWord);
+            const from = values[0] || "";
+            const to = values[1] || "";
+            const a = bcdui.widget._bcdFilter.isbiggerorequal(cellValue, from);
+            const b = bcdui.widget._bcdFilter.issmallerorequal(cellValue, to);
+            if (from && !to) return a;
+            if (!from && to) return b;
+            return a && b;
+          }
 
           // build dialog template
           jQuery(".bcdFilterDialog").remove();
@@ -2541,6 +2559,7 @@ jQuery.extend(bcdui.widget,
           , ["bcd_widget_filter_isSmaller" , "issmaller"]
           , ["bcd_widget_filter_isBiggerOrEqual"  , "isbiggerorequal"]
           , ["bcd_widget_filter_isSmallerOrEqual" , "issmallerorequal"]
+          , ["bcd_widget_filter_isBetween" , "isbetween"]
             // is empty / is not empty might not be intuitive since you need to check the <empty> checkbox additionally, so for now, disable them from the drop down list
   //        , ["bcd_widget_filter_isEmpty"   , "isempty"]
   //        , ["bcd_widget_filter_isNotEmpty", "isnotempty"]
@@ -2559,11 +2578,20 @@ jQuery.extend(bcdui.widget,
             options += "<option value='" + e[1] + "'" + selectedStatus + " bcdTranslate='" + e[0] + "'>" + e[0] + "</option>";
           });
 
+          const singleVisible = selectedCondition == "isbetween" ? "style='display:none'" : "";
+          const betweenVisible = selectedCondition == "isbetween" ? "" : "style='display:none'";
+
           // prepare html template
           jQuery("body").append("<div class='bcdFilterDialog' title='"+ title +"'>" +
             "<div class='bcdFilterSelection'>" +
               "<select class='bcdFilterSelect bcdFormControl form-control'>" + options + "</select>" +
-              "<input class='bcdFilterInput bcdFormControl form-control'" + selectedInput + " placeholder='" + bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_value"}) + "'></input>" +
+              "<div class='single' " + singleVisible + ">" +
+                "<div><input class='bcdFilterInput bcdFormControl form-control'" + selectedInput + " placeholder='" + bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_value"}) + "'></input></div>" +
+              "</div>" +
+              "<div class='between' " + betweenVisible + ">" +
+                "<div><input class='from bcdFilterInput bcdFormControl form-control'" + selectedInputBetweenFrom + " placeholder='" + bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_value"}) + " [1]'></input></div>" +
+                "<div><input class='to bcdFilterInput bcdFormControl form-control'" + selectedInputBetweenTo + " placeholder='" + bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_value"}) + " [2]'></input></div>" +
+              "</div>" +
               "<div class='bcdFilterActions'>" +
                 "<div><input type='checkbox'></input><span class='bcdShowAll' bcdTranslate='bcd_widget_filter_showAll'></span></div>" +
                 "<p>&nbsp;</p>" +
@@ -2642,6 +2670,15 @@ jQuery.extend(bcdui.widget,
             var condition = jQuery(this).val();
             var lastProvider = jQuery(".bcdFilterDialog").data("lastProvider");
             var newProvider = customProviders[condition] ? customProviders[condition] : valueCaptionProvider ? valueCaptionProvider : defaultProvider ;
+            
+            if (condition == "isbetween") {
+              jQuery(".bcdFilterDialog .single").hide();
+              jQuery(".bcdFilterDialog .between").show();
+            }
+            else {
+              jQuery(".bcdFilterDialog .single").show();
+              jQuery(".bcdFilterDialog .between").hide();
+            }
 
             // old and new providers are not identical, so regenerate option values
             if (lastProvider != newProvider) {
@@ -2733,6 +2770,13 @@ jQuery.extend(bcdui.widget,
     _filterOptions: function(targetHtml, inputModel) {
       var inputValue = jQuery(targetHtml).find(".bcdFilterInput").val() || "";
       var condition = jQuery(targetHtml).find(".bcdFilterSelect").val() || "contains";
+
+      if (condition == "isbetween") {
+        const from = jQuery(targetHtml).find(".bcdFilterInput.from").val() || "";
+        const to = jQuery(targetHtml).find(".bcdFilterInput.to").val() || "";
+        inputValue = from + bcdui.core.magicChar.nonWord + to;
+      }
+
       jQuery.makeArray(inputModel.queryNodes("/*/Item")).forEach(function(e) {
         e.removeAttribute("filtered");
         if (! bcdui.widget._bcdFilter[condition](e.getAttribute("caption") || e.text, inputValue))
@@ -2829,6 +2873,11 @@ jQuery.extend(bcdui.widget,
       var config = jQuery(element).closest(".bcdFilterDialog").data("config");
       var inputValue = jQuery(element).closest(".bcdFilterDialog").find(".bcdFilterInput").val() || "";
       var condition = jQuery(element).closest(".bcdFilterDialog").find(".bcdFilterSelect").val() || "contains";
+      if (condition == "isbetween") {
+        const from = jQuery(element).closest(".bcdFilterDialog").find(".bcdFilterInput.from").val() || "";
+        const to = jQuery(element).closest(".bcdFilterDialog").find(".bcdFilterInput.to").val() || "";
+        inputValue = from + bcdui.core.magicChar.nonWord + to;
+      }
       config.statusModel.remove(config.rootXPath);
       config.statusModel.write(config.rootXPath + "/@value", inputValue);
       config.statusModel.write(config.rootXPath + "/@condition", condition);
