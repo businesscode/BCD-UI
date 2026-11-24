@@ -58,6 +58,7 @@
 
   &::placeholder {
     color: var(--bcd-input-placeholder-color);
+    font-style: italic;
     opacity: 1;
   }
 

@@ -151,8 +151,8 @@
   /** Background of disabled and read-only input fields. widgets: PeriodChooser */
   --bcd-input-disabled-background-color: light-dark(#e9ecef, #2f3236);
 
-  /** Placeholder text of input fields. widgets: PeriodChooser */
-  --bcd-input-placeholder-color: light-dark(#6c757d, #8a929a);
+  /** Placeholder text of input fields, as light as the pseudo placeholders to be clearly distinguishable from a value. widgets: Input, PeriodChooser */
+  --bcd-input-placeholder-color: var(--bcd-placeholder-color);
 
   /* =======================================
    * @group Border

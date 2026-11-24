@@ -245,8 +245,10 @@ textarea {
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
+/* Light and italic, so a placeholder is not mistaken for an entered value */
 .bcdFormControl::placeholder {
   color: var(--bcd-input-placeholder-color);
+  font-style: italic;
   opacity: 1;
 }
 
