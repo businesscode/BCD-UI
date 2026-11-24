@@ -492,16 +492,25 @@ bcdui.component.cube.configuratorDND = Object.assign(bcdui.component.cube.config
           m.setAttribute("caption", caption || (typeof captionMap[idRef] != "undefined" ? captionMap[idRef].caption : ""));
         });
 
-        // add description to config (tooltip takes it from there)
+        // captions taken over from the cube configuration may be i18n keys, the ones from captionMap are already translated by getBindingInfo
+        Array.from(dimensionParent.selectNodes("dm:LevelRef[@caption]")).concat(Array.from(measureParent.selectNodes("dm:MeasureRef[@caption]"))).forEach(function(n) {
+          const caption = n.getAttribute("caption");
+          if (bcdui.i18n.isI18nKey(caption))
+            n.setAttribute("caption", bcdui.util.escapeHtml(bcdui.i18n.syncTranslateFormatMessage({msgid: caption.substring(1)}) || caption.substring(1)));
+        });
+
+        // add description to config (tooltip takes it from there), cube configuration wins over binding
         Array.from(configModel.queryNodes("/*/dm:Dimensions/dm:LevelRef")).forEach(function(d) {
           const bRef = d.getAttribute("bRef") || "";
-          const description = d.getAttribute("description") || "";
-          d.setAttribute("description", description || (typeof captionMap[bRef] != "undefined" ? captionMap[bRef].description : ""));
+          const info = captionMap[bRef] || {};
+          d.setAttribute("description", d.getAttribute("description") || info.description || "");
         });
         Array.from(configModel.queryNodes("/*/dm:Measures/dm:Measure")).forEach(function(m) {
-          const id = m.getAttribute("id") || "";
-          const description = m.getAttribute("description") || "";
-          m.setAttribute("description", description || (typeof captionMap[id] != "undefined" ? captionMap[id].description : ""));
+          // a measure with exactly one idRef is about that bRef (same rule as for the binding info request above), otherwise use its id
+          const idRefs = Array.from(m.selectNodes(".//*[@idRef]"));
+          const ref = idRefs.length == 1 ? idRefs[0].getAttribute("idRef") : (m.getAttribute("id") || "");
+          const info = captionMap[ref] || {};
+          m.setAttribute("description", m.getAttribute("description") || info.description || "");
         });
 
         // avoid taking over description into layout

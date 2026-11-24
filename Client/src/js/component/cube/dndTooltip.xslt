@@ -18,8 +18,8 @@
       <table class="bcdTooltip bcdCubeDndTooltip">
         <xsl:variable name="node" select="$cubeConfig/*/dm:Dimensions/dm:LevelRef[@bRef=$bcdRowIdent]|$cubeConfig/*/dm:Measures/dm:Measure[@id=$bcdRowIdent]"/>
         <tbody>
-          <xsl:if test="$node">
-            <tr><th><xsl:value-of select="$node/@caption"/></th></tr>
+          <!-- Only the description, the caption is already visible in the list. Empty output hides the tooltip -->
+          <xsl:if test="normalize-space($node/@description)!=''">
             <tr><td class="bcdLeft"><xsl:value-of select="$node/@description" disable-output-escaping="yes"/></td></tr>
           </xsl:if>
         </tbody>
