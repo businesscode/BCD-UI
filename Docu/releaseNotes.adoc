@@ -50,6 +50,7 @@ ___
   Use an ModelUpdater, if you want to modify the underlying model
 * ChartEchart: the project-wide defaults `bcdui.component.chart.ChartEchart.OPTIONS` and a chart's `options` are now deep-merged, the chart's options win.
   Before, a nested option of the chart like `legend: {...}` replaced the one of `OPTIONS` completely, now its properties are merged into it
+* ChartEchart: Per default charts now produce less empty space left and right
 ---.
 
 ___
