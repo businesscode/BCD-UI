@@ -19,6 +19,7 @@ ___
 * New function bcdui.wrs.wrsUtil.filterToXPath() understands f:Filter expressions for use on client side, including output of bcdui.wrs.wrsUtil.parseFilterExpression()
 * Grid, support editor options model changes during runtime, offer gridAlert and gridConfirm override functions for project specific not default alert/confirm handling
 * Tooltip, fixed showing old validation tt content when switching field either by mouse or tab      
+* New bcdui.component.chart.createChartFromWrs for auto-charts
 
 .Server:
 * BindingSet: Added `bnd:BindingDefaults` for inheriting BindingItem attributes defaults based on their id

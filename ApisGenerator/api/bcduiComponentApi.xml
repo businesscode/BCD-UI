@@ -175,6 +175,41 @@
         </Param>
       </Api>
 
+      <Api name="chartFromWrs" extends="hasInputModel hasTargetHtml">
+        <Doc>
+          Creates an ECharts chart from a Wrs, the chart type and series are derived from the Wrs, see configurationFromWrs.xslt for the supported layouts.
+          The Wrs needs dimId and valueId in its header, as any WrsRequest response has, like a cube or a grouped AutoModel.
+          The target html element needs a width and height set via inline style or CSS, as ECharts does not draw into an element without size.
+        </Doc>
+        <Impl>
+          <Jsp allowsChildren="true">
+            <AllowedChildren>
+              <Child name="b:inputModel" doc="The Wrs to show, like a cube or an AutoModel." />
+            </AllowedChildren>
+          </Jsp>
+        </Impl>
+        <Examples>
+          <Example type="jsp">
+            &lt;component:chartFromWrs inputModel="myCube" isAutoRefresh="true"/>
+          </Example>
+          <Example type="js">
+            bcdui.component.createChartFromWrs({ inputModel: cube, targetHtml: "#myChart", isAutoRefresh: true });
+          </Example>
+        </Examples>
+        <Param name="id" type="string">
+          <Doc>Id of the chart renderer.</Doc>
+        </Param>
+        <Param name="isAutoRefresh" type="boolean" default="false">
+          <Doc>
+            If true, the chart is re-derived and redrawn each time the inputModel becomes ready again,
+            like after a client-side cube action such as sorting or an AutoModel reload due to isAutoRefresh.
+          </Doc>
+        </Param>
+        <Param name="options" type="object">
+          <Doc>ECharts options, merged into the derived ones, like legend or grid. In JSP and XAPI given as JSON string.</Doc>
+        </Param>
+      </Api>
+
       <Api name="cubeModel" extends="transformationChain dataProvider config statusModel">
         <Doc>
           Creates a cube model, provides data with calculations and col dimensions applied.
@@ -860,6 +895,7 @@
     <BcdObjects>
       <BcdObject name="chart" implements="chart" implementationPackage="bcdui.component.chart." tagFolder="component" isBlockContainer="true"/>
       <BcdObject name="chartLegend" implements="chartLegend" implementationPackage="bcdui.component.chart." tagFolder="component" isBlockContainer="true"/>
+      <BcdObject name="chartFromWrs" implements="chartFromWrs" implementationPackage="bcdui.component." tagFolder="component" isBlockContainer="true"/>
       <BcdObject name="cubeModel" implements="cubeModel" implementationPackage="bcdui.component." tagFolder="component"/>
       <BcdObject name="cube" implements="cube" implementationPackage="bcdui.component." tagFolder="component" isBlockContainer="true"/>
       <BcdObject name="cubeConfigurator" implements="cubeConfigurator" implementationPackage="bcdui.component." tagFolder="component" isBlockContainer="true"/>

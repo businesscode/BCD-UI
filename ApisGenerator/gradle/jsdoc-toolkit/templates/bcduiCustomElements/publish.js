@@ -67,6 +67,14 @@ function customElementsComponent( taffyData, path )
     fs.writeFileSync( path+"/chart/customElements.js", result, 'utf8');
   }
 
+  // ECharts chart derived from a Wrs, appended to the file of bcd-chart
+  // Custom element names must be lower case, in HTML it can still be written as <bcd-chartFromWrs>
+  var functions = taffyData( { kind: "function", longname: "bcdui.component.chart.createChartFromWrs", undocumented: { "!is": true } } ).get();
+  if( functions.length === 1 ) {
+    var result = printCustomTag( "bcd-chartfromwrs", functions[0].memberof+"."+"ChartFromWrsTag", functions[0].params, "bcdui.component.chart.createChartFromWrs", "../../modules/component/eChart.js" );
+    fs.appendFileSync( path+"/chart/customElements.js", result, 'utf8');
+  }
+
   clazzes = taffyData( { kind: "class", longname: "bcdui.component.cube.Cube", undocumented: { "!is": true } } ).get();
   if( clazzes.length === 1 ) {
     var result = "import \"../../modules/core.js\"" + newLine; 
