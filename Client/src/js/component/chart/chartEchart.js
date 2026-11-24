@@ -44,7 +44,10 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
     args = Object.assign({parameters: {paramModel: args.config}}, args);
     super(args);
     this.config = args.config;
-    this.userOptions = Object.assign(true, {}, bcdui.component.chart.ChartEchart.OPTIONS, args.options);
+    // Project-wide defaults from ChartEchart.OPTIONS, deeply merged with this chart's options, which win
+    // jQuery deep extend copies plain objects and arrays into the new target, so neither the global defaults nor the caller's object are changed
+    // Anything else like functions or DataProviders is kept as reference
+    this.userOptions = jQuery.extend(true, {}, bcdui.component.chart.ChartEchart.OPTIONS || {}, args.options || {});
   }
 
   /**
@@ -642,33 +645,6 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
       }
     }
 
-    // Merge a `source` object to a `target` recursively
-    const merge = (target, source) => {
-      // Iterate through `source` properties and if an `Object` set property to merge of `target` and `source` properties
-      for (let key of Object.keys(source)) {
-        if (target[key] !== undefined && source[key] !== undefined && target[key] != null && source[key] != null &&
-            (    (   source[key] instanceof String && ! (target[key] instanceof String))
-              || (! (source[key] instanceof String) &&   target[key] instanceof String)
-              || (   source[key] instanceof Array  && ! (target[key] instanceof Array))
-              || (! (source[key] instanceof Array)  &&   target[key] instanceof Array)
-            ))
-            throw new Error("Merging invalid types: " + key);
-
-        // do not merge possible dataproviders (contextMenu)
-        if (source[key] instanceof Object && source[key].dataDoc)
-          continue;
-
-        // add new source entries (or overwrite null / empty string in target if source is given)
-        if (!target[key]) target[key] = source[key];
-
-        if (source[key] instanceof Object && !(source[key] instanceof Function)) Object.assign(source[key], merge(target[key], source[key]));
-      }
-
-      // Join `target` and modified `source`
-      Object.assign(target || {}, source);
-      return target;
-    };
-
     // echarts support multiple xAxis, so convert it an array now
     if (opts.xAxis) {
       var xAxis = opts.xAxis;
@@ -707,11 +683,11 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
     if (eChartOptions != null) {
       try { eOptions = JSON.parse(eChartOptions.firstChild.wholeText.replace(/\s/g, "")) } catch (e) {/* if parsing fails, don't takeover options */}
       if (eOptions != null) {
-        opts = merge(opts, eOptions);
+        jQuery.extend(true, opts, eOptions);
       }
     }
-    // via js param
-    opts = merge(opts, this.userOptions);
+    // via js param, jQuery deep extend copies into opts and leaves userOptions unchanged for the next render
+    jQuery.extend(true, opts, this.userOptions);
 
     // link contextMenu
     var customOnContextMenu = opts.on && opts.on.detailsmenu && opts.on.detailsmenu.chain && opts.on.detailsmenu.callback ? Object.assign({}, opts.on.detailsmenu) : null;
