@@ -210,6 +210,9 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
         }
       }
     }
+    // A series may refer to the 2nd axis without chart:YAxis2 being defined, we tolerate this
+    if( opts.yAxis.length === 1 && this.config.query("/*/chart:Series/chart:Series[@yAxis1Or2='2']") !== null )
+      opts.yAxis.push({ axisLabel: { formatter: getNumFormatter(2, "") }, nameGap: 20, bcdUnit: "" });
 
     // This explicitly sets one color per series
     let seriesColorList = Array.prototype.slice.call( this.config.queryNodes("/*/chart:SeriesColors/chart:Color") ).map((n)=>n.text);
@@ -688,6 +691,14 @@ bcdui.component.chart.ChartEchart = class extends bcdui.core.Renderer {
     }
     // via js param, jQuery deep extend copies into opts and leaves userOptions unchanged for the next render
     jQuery.extend(true, opts, this.userOptions);
+
+    // ECharts default grid margins are 10% left and right, we use small margins with containLabel, which keeps the axis labels inside the grid
+    // But containLabel does not cover axis names, which stick out half of their width above the axis or nameGap plus font size beside it
+    // So we give a bit more room if a y-axis has a name. Explicit grid settings of the chart, the page or ChartEchart.OPTIONS win
+    const hasYAxisName = [].concat(opts.yAxis || []).some(a => a && a.name);
+    const margin = hasYAxisName ? 20 : 10;
+    if (!Array.isArray(opts.grid))
+      opts.grid = Object.assign({ left: margin, right: margin, containLabel: true }, opts.grid);
 
     // link contextMenu
     var customOnContextMenu = opts.on && opts.on.detailsmenu && opts.on.detailsmenu.chain && opts.on.detailsmenu.callback ? Object.assign({}, opts.on.detailsmenu) : null;
