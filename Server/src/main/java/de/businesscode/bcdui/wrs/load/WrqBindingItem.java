@@ -286,7 +286,13 @@ public class WrqBindingItem implements WrsBindingItem
     columnQuoting = bi.isColumnQuoting();
     isEscapeXml = bi.isEscapeXML();
     setColumnExpression( bi.getColumnExpression() );
-    
+
+    // add custom attributes, as for explicitly requested columns
+    Map<String, String> customAtts = bi.getCustomAttributesMap();
+    for (String attrName : customAtts.keySet()){
+      attributesServer.put(StandardNamespaceContext.CUST_PREFIX + ":" + attrName, customAtts.get(attrName));
+    }
+
     if( bi instanceof BindingItemFromRel ) {
       tableAliasPostFix = ((BindingItemFromRel) bi).getTableAlias("");
     }
