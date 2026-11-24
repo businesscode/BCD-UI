@@ -28,6 +28,7 @@ import java.sql.Types;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.time.Instant;
@@ -43,6 +44,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.businesscode.bcdui.binding.BindingSet;
+import de.businesscode.bcdui.binding.Bindings;
+import de.businesscode.bcdui.binding.StandardBindingSet;
 import de.businesscode.util.StandardNamespaceContext;
 import de.businesscode.util.Utils;
 import de.businesscode.util.jdbc.DatabaseCompatibility;
@@ -250,9 +253,12 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
     //
 //    writeWrsHeaderMetaData();
 
+    // Same attribute lists as for the BindingItems
+    List<String> allowedAttr = getGenerator().isMetaDataRequest() ? Bindings.getBndMetaWrsAttributes() : Bindings.getBndWrsAttributes();
     for( Entry<String, String> reqBs: getGenerator().getRequestedBindingSetNames() ) {
       getWriter().writeStartElement("BindingSet");
       if( !reqBs.getValue().isBlank() ) getWriter().writeAttribute("alias", reqBs.getValue());
+      writeBindingSetAttributes(reqBs.getKey(), allowedAttr);
       getWriter().writeCharacters(reqBs.getKey());
       getWriter().writeEndElement(); // BindingSet
     }
@@ -268,6 +274,21 @@ public class WrsDataWriter extends AbstractDataWriter implements IDataWriter {
     }
     //
     getWriter().writeEndElement(); // Header
+  }
+
+  /**
+   * Writes the attributes of a requested BindingSet, filtered like the attributes of the BindingItems
+   * by bcdui/bnd/wrsAttributes resp. bcdui/bnd/wrsMetaAttribute, see {@link StandardBindingSet#getClientAttributes}
+   * @param bindingSetName as requested, may also be a BindingGroup, which has no such attributes
+   * @param allowedAttr from bcdui/bnd/wrsAttributes or, for metadata requests, from bcdui/bnd/wrsMetaAttribute
+   */
+  protected void writeBindingSetAttributes(String bindingSetName, List<String> allowedAttr) throws Exception {
+    Bindings bindings = Bindings.getInstance();
+    if( !bindings.hasBindingSet(bindingSetName) )
+      return;
+    StandardBindingSet bs = bindings.get(bindingSetName, null);
+    for( Entry<String, String> attr: bs.getClientAttributes(allowedAttr).entrySet() )
+      getWriter().writeAttribute(attr.getKey(), attr.getValue());
   }
 
   protected void writeWrsRequest() throws Exception {

@@ -82,4 +82,12 @@ public interface ISqlGenerator {
    */
   boolean isEmpty();
 
+  /**
+   * @return true if the request only asks for metadata (rowStart > rowEnd), which then decides
+   *   whether bcdui/bnd/wrsMetaAttribute or bcdui/bnd/wrsAttributes is used for the attributes written to the Wrs header
+   */
+  default boolean isMetaDataRequest() {
+    return false;
+  }
+
 }

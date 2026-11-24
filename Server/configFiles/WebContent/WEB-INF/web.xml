@@ -488,7 +488,7 @@
     <env-entry-value>en</env-entry-value>
   </env-entry>
 
-  <!-- wrs header attribute configuration -->  
+  <!-- wrs:Wrs/wrs:Header attribute configuration for BindingSets and BindingItem. These attributes are made available to the client -->
   <env-entry>
     <description>binding wrs attributes which are available on client side in wrs header</description>
     <env-entry-name>bcdui/bnd/wrsAttributes</env-entry-name>

@@ -482,5 +482,33 @@ public class StandardBindingSet implements BindingSet {
     return attributes;
   }
 
+  /**
+   * BindingSet attributes which are never delivered to the client, even if listed in bcdui/bnd/wrsAttributes resp. bcdui/bnd/wrsMetaAttribute.
+   * id is delivered separately anyway, the others are internal (physical table, database source)
+   */
+  public static final Set<String> serverOnlyAttributes = Set.of("id", "table", "dbSourceName", "allowSelectAllColumns");
+
+  /**
+   * @param name attribute name
+   * @param allowedAttr from bcdui/bnd/wrsAttributes or, for metadata requests, from bcdui/bnd/wrsMetaAttribute
+   * @return true if an attribute of this name may be delivered to the client: listed in allowedAttr, not in {@link #serverOnlyAttributes} and no namespace declaration
+   */
+  public static boolean isClientAttribute(String name, List<String> allowedAttr) {
+    return allowedAttr.contains(name) && !serverOnlyAttributes.contains(name) && !name.equals("xmlns") && !name.startsWith("xmlns:");
+  }
+
+  /**
+   * @param allowedAttr from bcdui/bnd/wrsAttributes or, for metadata requests, from bcdui/bnd/wrsMetaAttribute
+   * @return the attributes of this BindingSet to be delivered to the client, see {@link #isClientAttribute}, without empty ones, in the order of allowedAttr
+   */
+  public Map<String,String> getClientAttributes(List<String> allowedAttr) {
+    Map<String,String> clientAttributes = new LinkedHashMap<>();
+    for( String name: allowedAttr ) {
+      String value = attributes.get(name);
+      if( value != null && !value.isEmpty() && isClientAttribute(name, allowedAttr) )
+        clientAttributes.put(name, value);
+    }
+    return clientAttributes;
+  }
 
 }

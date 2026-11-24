@@ -124,6 +124,18 @@
                   Alias of the BindingSet used in this query.
                 </xs:documentation></xs:annotation>
               </xs:attribute>
+              <xs:attribute name="caption" type="xs:string">
+                <xs:annotation><xs:documentation>
+                  Caption of the BindingSet, if listed in bcdui/bnd/wrsAttributes resp. bcdui/bnd/wrsMetaAttribute for metadata requests.
+                </xs:documentation></xs:annotation>
+              </xs:attribute>
+              <xs:attribute name="description" type="xs:string">
+                <xs:annotation><xs:documentation>
+                  Description of the BindingSet, if listed in bcdui/bnd/wrsAttributes resp. bcdui/bnd/wrsMetaAttribute for metadata requests.
+                </xs:documentation></xs:annotation>
+              </xs:attribute>
+              <!-- Any other attributes of the BindingSet listed in bcdui/bnd/wrsAttributes resp. bcdui/bnd/wrsMetaAttribute -->
+              <xs:anyAttribute namespace="##local" processContents="skip"/>
             </xs:extension>
           </xs:simpleContent>
         </xs:complexType>

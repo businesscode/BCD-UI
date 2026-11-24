@@ -196,6 +196,10 @@ public class Wrq2Sql implements ISqlGenerator
   @Override
   public int getClientProvidedMaxRows() { return clientProvidedMaxRows; };
   @Override
+  public boolean isMetaDataRequest() {
+    return wrqQueryBuilder != null && wrqQueryBuilder.isMetaDataRequest();
+  }
+  @Override
   public boolean isEmpty() {
     return (getSelectStatement() == null);
   }

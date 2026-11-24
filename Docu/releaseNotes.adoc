@@ -37,9 +37,13 @@ ___
 * BindingSet: Custom elements set on `bnd:BindingSet/bnd:C` can be delivered to the client at `wrs:Header/wrs:Columns/wrs:C`
     - If listed in web.xml bcdui/bnd/wrsAttributes for each request
     - If listed in web.xml bcdui/bnd/wrsMetaAttribute only for metadata request, i.e. @rowStart > @rowEnd
+* BindingSet: New attribute `caption`, `caption` and `description` of a BindingSet are delivered at `wrs:Header/wrs:BindingSet`,
+  controlled by `bcdui/bnd/wrsAttributes` and `bcdui/bnd/wrsMetaAttribute` in web.xml like the attributes of the BindingItems
 
 .Incompatibilities:
 * In web.xml, add new env entries `bcdui/bnd/wrsAttributes` and `bcdui/bnd/wrsMetaAttribute`, see `Server/configFiles/WebContent/WEB-INF/web.xml` for backward compatible defaults
+* `bcdui/bnd/wrsAttributes` and `bcdui/bnd/wrsMetaAttribute` in web.xml now also control which attributes of the BindingSet are delivered at `wrs:Header/wrs:BindingSet`,
+  except `id` (always the element's text), `table`, `dbSourceName` and `allowSelectAllColumns`
 * If you xsl:import, the document() paths in these need to be relative to the including XSLT, was relative to the included. So you will have to overwrite this, like this then importing htmlBuilder.xslt
   ````xml
     <xsl:variable name="sqlTypesDoc" select="document('../../../../bcdui/xslt/renderer/sqlTypes.xml')"/>

@@ -104,6 +104,12 @@
           </xs:element>
         </xs:sequence>
         <xs:attribute name="id" type="xs:ID" use="required" />
+        <xs:attribute name="caption" type="xs:string">
+          <xs:annotation><xs:documentation>
+            Caption of the BindingSet for display. Like description, it is written to wrs:Header/wrs:BindingSet,
+            if listed in bcdui/bnd/wrsAttributes resp. bcdui/bnd/wrsMetaAttribute (web.xml), as it is done for the attributes of the BindingItems.
+          </xs:documentation></xs:annotation>
+        </xs:attribute>
         <xs:attribute name="description" type="xs:string" />
         <xs:attribute name="dbSourceName" type="xs:string" />
         <xs:attribute name="table" type="xs:NCName" use="optional">
