@@ -617,14 +617,14 @@ bcdui.util =
   /**
    * returns an object map holding information for a binding's items (id, description and type)
    * @param {string}    bindingSetId The id of the binding set
-   * @param {string|Array<string>}    bRefs    requested binding items. Can be a comma-separated value list or an array
+   * @param {string|Array<string>}    bRefs    requested binding items. Can be a space separated list or an array
    * @param {function}  callback The function which is called after a successful call of the BindingInfo servlet and returns the collected data
   */
   getBindingInfo: (bindingSetId, bRefs, callback) => {
 
     let captionMap = {};
     const success = callback || function(){};
-    const bindingItems = typeof bRefs == "string" ? bindingItems : Array.isArray(bRefs) ? bRefs.join(" ") : "";
+    const bindingItems = typeof bRefs == "string" ? bRefs : Array.isArray(bRefs) ? bRefs.join(" ") : "";
 
     if (!bindingSetId) {
       success(captionMap);
@@ -644,7 +644,7 @@ bcdui.util =
           let description = c.getAttribute("description") || "";
           if (bcdui.i18n.isI18nKey(description)) {
             description = bcdui.i18n.syncTranslateFormatMessage({msgid: description.substring(1)}) || description;
-            descriptioNode.text = bcdui.util.escapeHtml(description);
+            c.setAttribute("description", bcdui.util.escapeHtml(description));
           }
           captionMap[c.getAttribute("id")] = {caption: c.getAttribute("caption"), description: description, typeName: c.getAttribute("typeName") || ""};
         });

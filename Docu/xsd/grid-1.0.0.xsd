@@ -142,7 +142,7 @@
         <xs:annotation><xs:documentation>With of the column. Not to be confused with display-size, which is the width of the data.</xs:documentation></xs:annotation>
       </xs:attribute>
       <xs:attribute name="isHidden" type="xs:boolean">
-        <xs:annotation><xs:documentation>If true, data is not displayed. Use case is a generated id.</xs:documentation></xs:annotation>
+        <xs:annotation><xs:documentation>Hidden columns must be at the end of the list. If true, data is not displayed. Use case is a generated id.</xs:documentation></xs:annotation>
       </xs:attribute>
       <xs:attribute name="isCheckbox" type="xs:string">
         <xs:annotation><xs:documentation>Render column as a checkbox. By default 1 and 0 are used for checked/unchecked values. If you specify a string with a pipe (|), you can change the values for checked/unchecked, e.g. "Y|N"</xs:documentation></xs:annotation>
