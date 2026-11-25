@@ -1920,13 +1920,15 @@ bcdui.wrs.jsUtil = Object.assign(bcdui.wrs.jsUtil,
    *   A) If abs(scale)&lt; 10 the number of decimal digits. If positive padded with trailing 0.
    *   B) If abs(scale)> 10 then rounded to the nearest multiple of scale, negative here is only allowed for scale = 10 pow n.
    *   C) Samples (in US format) for 14990.404: scale 2 -> 14,990.40, scale -2 -> 14,990.4, scale 1000 -> 15,000, scale -1000 -> 15.
-   * @param {string} locale      - 'en' (default) or 'de'
-   * @param {string} unit        - optional unit string. If '%', the value is multiplied by 100 and '%' is appended. Everything else (including ' %') is just appened
+   * @param {string} [unit]      - optional unit string. If '%', the value is multiplied by 100 and '%' is appended. Everything else (including ' %') is just appened
+   * @param {string} [locale]    - 'en' or 'de', also 'enDecimalFormat' or 'deDecimalFormat'.
+   *   If omitted, derived from the i18n key bcd_DecimalFormat like in numberFormatting.xslt, default 'en'
    * @returns {string}
    */
-  format: function(value, scale, locale = 'en', unit = '') 
+  formatNumber: function(value, scale, unit = '', locale)
   {
     if (value === null || value === undefined || value === '') return '';
+    locale = locale ? (locale.startsWith('de') ? 'de' : 'en') : bcdui.wrs.jsUtil._getNumberLocale();
     const num = parseFloat(value);
     if (!isFinite(num)) return "";
 
@@ -1961,6 +1963,19 @@ bcdui.wrs.jsUtil = Object.assign(bcdui.wrs.jsUtil,
     if (s < -10)                    return intFormat(Math.round(num / s) * -1);
     if (s > 0)                      return decFormat(num, s, s);   // mandatory decimals
     /* s < 0, s >= -10 */           return decFormat(num, 0, -s);  // optional decimals
+  },
+
+  /**
+   * Locale for formatNumber derived from the i18n key bcd_DecimalFormat, 'deDecimalFormat' gives 'de', everything else 'en'
+   * Cached once i18n is ready, it only changes with bcdui.i18n.switchLanguage(), which reloads the page
+   * @private
+   */
+  _getNumberLocale: function()
+  {
+    if (bcdui.wrs.jsUtil._numberLocale) return bcdui.wrs.jsUtil._numberLocale;
+    if (!bcdui.i18n.isReady()) return 'en'; // not cached, i18n may become ready later
+    const decimalFormat = bcdui.i18n.getValue("bcd_DecimalFormat", "enDecimalFormat");
+    return bcdui.wrs.jsUtil._numberLocale = decimalFormat.startsWith('de') ? 'de' : 'en';
   }
 
 });

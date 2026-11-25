@@ -412,7 +412,7 @@ bcdui.wrs.GenericHtmlBuilder = class {
     const unit = wrsA.unit || colDef.unit;
     const td   = document.createElement('td');
     // Browsers are making sure that <script> tags are not executed but its content is displayed, so no injection issue here
-    td.innerHTML = isNumeric ? bcdui.wrs.jsUtil.format(value, scale, 'en', unit) : value; // TODO not always en
+    td.innerHTML = isNumeric ? bcdui.wrs.jsUtil.formatNumber(value, scale, unit) : value;
     if(value === null || value === '') td.className += " bcdNoNumber";
     if(colDef.isDimTotal) td.className += " bcdTotal";
     tr.appendChild(td);
