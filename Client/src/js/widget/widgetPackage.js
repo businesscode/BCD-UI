@@ -2536,6 +2536,9 @@ jQuery.extend(bcdui.widget,
           <div class='bcdFlexRow form-row'>
             <div class='bcdFlexAuto col-sm-auto'><span class='bcdCount'></span><span bcdTranslate='bcd_widget_filter_itemsSelected'></span></div>
           </div>
+          <div style='display:none' class='bcdFlexRow form-row bcdLimitReached'>
+            <div class='bcdFlexAuto col-sm-auto'><span bcdTranslate='bcd_widget_filter_limitReached'></span></div>
+          </div>
           <div class='bcdFlexRow form-row'>
             <div class='bcdFlexAuto col-sm-auto'><bcd-buttonng bcdActionId='apply'  caption='${bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_apply"})}'  onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>
             <div class='bcdFlexAuto col-sm-auto'><bcd-buttonng bcdActionId='remove' caption='${bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_remove"})}' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>
@@ -2560,8 +2563,12 @@ jQuery.extend(bcdui.widget,
         
         provider(inputModel, index).then(function(o) {
           
+          if (o.limitReached)
+            jQuery(".bcdFilterDialog .bcdLimitReached").show();
+          else
+            jQuery(".bcdFilterDialog .bcdLimitReached").hide();
+
           const values = o.values;
-          const limitReached = o.limitReached;
 
           // generate optons model for the current provider
           var multiSelectDataModel = bcdui.widget._buildFilterOptionsModel(statusModel, rootXPath, id, inputModel, index, values, useRefs);
@@ -2896,6 +2903,8 @@ jQuery.extend(bcdui.widget,
         bcdui.widget._setFilterStatus(this, true);
       if (action == "clear")
         bcdui.widget._setFilterStatus(this, false);
+      if (action == "reset")
+        bcdui.widget._setFilterStatus(this, false, true);
       if (action == "apply")
         bcdui.widget._applyFilter(this);
       if (action == "remove")

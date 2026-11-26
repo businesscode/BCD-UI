@@ -277,6 +277,7 @@
       <R id="R274"><C>bcd_widget_filter_isBiggerOrEqual</C><C>Is Bigger Or Equal</C><C>en</C></R>
       <R id="R275"><C>bcd_widget_filter_isSmallerOrEqual</C><C>Is Smaller Or Equal</C><C>en</C></R>
       <R id="R276"><C>bcd_widget_filter_isBetween</C><C>Is Between</C><C>en</C></R>
+      <R id="R277"><C>bcd_widget_filter_limitReached</C><C>Too many distinct values, only showing subset</C><C>en</C></R>
 
       <!-- QuickEdit -->
       <R id="R300"><C>bcd_widget_quickEdit_action_restorerecord</C><C>Restore Record</C><C>en</C></R>
