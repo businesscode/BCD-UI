@@ -1851,7 +1851,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
               }
 
               // build array of columns which got a filter
-              var colsWithFilter = Array.from(this.statusModel.queryNodes(targetModelXPath + "/f:*[f:Expression or local-name()='And']/@id")).map(function(e) {
+              var colsWithFilter = Array.from(this.statusModel.queryNodes(targetModelXPath + "/f:*[f:Expression or local-name()='And' or @specialTS='true']/@id")).map(function(e) {
                 return this.wrsHeaderMeta[e.text].pos;
               }.bind(this));
 
@@ -1915,7 +1915,10 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                       let match = false;
                       (separator ? value.split(separator) : [value]).forEach(function(v) {
                         const vv = tsCols.indexOf(bRef) != -1 ? v.replace(" ", "T") : v;
-                        match |= (this.statusModel.query(targetModelXPath + "/f:Or[@id='"+bRef+"']/f:Expression[@value='{{=it[0]}}']",[vv]) != null);
+                        const tsSpecial = tsCols.indexOf(bRef) != -1 && this.statusModel.query(targetModelXPath + "/f:Or[@specialTS='true']") != null;
+                        match |= tsSpecial
+                        ? (this.statusModel.query(targetModelXPath + "/f:Or[@id='"+bRef+"']//f:Expression[@op='>=' and @value='{{=it[0]}}']",[vv]) != null)
+                        : (this.statusModel.query(targetModelXPath + "/f:Or[@id='"+bRef+"']/f:Expression[@value='{{=it[0]}}']",[vv]) != null);
                       }.bind(this));
                       if (! match) {
                         e.setAttribute("filtered", "true");
