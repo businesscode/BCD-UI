@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import java.util.Set;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamException;
@@ -42,6 +44,7 @@ import de.businesscode.bcdui.binding.BindingItem;
 import de.businesscode.bcdui.binding.BindingSet;
 import de.businesscode.bcdui.binding.BindingSet.SECURITY_OPS;
 import de.businesscode.bcdui.binding.Bindings;
+import de.businesscode.bcdui.binding.exc.BindingNotFoundException;
 import de.businesscode.bcdui.binding.subjectFilter.Connective;
 import de.businesscode.bcdui.binding.write.SubjectFilterOnWriteCallback;
 import de.businesscode.bcdui.binding.write.WrsModificationCallback;
@@ -103,6 +106,10 @@ public class XMLToDataBase implements XMLEventConsumer {
   private String lastRowElementName;
 
   private List<WriteProcessingCallback> writeProcessingCallbacks = new ArrayList<WriteProcessingCallback>();
+  // Also part of writeProcessingCallbacks, kept for its enforced BindingItems, null if the BindingSet has no SubjectFilters
+  private SubjectFilterOnWriteCallback subjectFilterCallback = null;
+  // Enforced columns kept in wrs:M only for the WHERE clause, set per Wrs header in processEndHeader
+  private final Set<String> whereOnlyColumnNames = new HashSet<>();
 
   public XMLToDataBase(Bindings bindingsPr, IRequestOptions options, int maxBatchSizePr, Logger loggerPr, ISaveEventListener listenerPr, boolean isDebugModePr) {
     this.listener = listenerPr;
@@ -151,7 +158,13 @@ public class XMLToDataBase implements XMLEventConsumer {
           Attribute attributeByName = evt.getAttributeByName(id);
           if (attributeByName != null) {
             String name = attributeByName.getValue();
-            columns.add(bindingSet.get(name));
+            // When saving, wrs:C/@id is taken as the bRef. Ids made unique by the server for a repeated bRef, like bRef_2, are no bRefs
+            try {
+              columns.add(bindingSet.get(name));
+            } catch (BindingNotFoundException e) {
+              logger.warn("Wrs to be saved for BindingSet '{}' has wrs:C/@id '{}', which is not a BindingItem. For saving, wrs:C/@id needs to be the bRef", bindingSet.getName(), name);
+              throw e;
+            }
           }
 
           if (evt.getAttributeByName(columnTypeName) != null) {
@@ -265,12 +278,14 @@ public class XMLToDataBase implements XMLEventConsumer {
    */
   private void processEndHeader() throws Exception {
     this.writeProcessingCallbacks.clear();
+    this.subjectFilterCallback = null;
 
     // We derive the standard writing filter from SubjectSettings
     if( bindingSet.getSubjectFilters() != null) {
       Connective con = bindingSet.getSubjectFilters().getConnective();
       if( con.getElements().size() > 0 ) {
-        WriteProcessingCallback cb = new SubjectFilterOnWriteCallback(con);
+        SubjectFilterOnWriteCallback cb = new SubjectFilterOnWriteCallback(con);
+        this.subjectFilterCallback = cb;
         this.writeProcessingCallbacks.add(cb);
         cb.setValueBean(columnValueBean);
         cb.setBindingSet(bindingSet);
@@ -296,6 +311,17 @@ public class XMLToDataBase implements XMLEventConsumer {
 
     } else {
       logger.debug("NO write processing callbacks found");
+    }
+
+    // Enforced columns of SubjectFilters with WrsModificationCallback ignore="update" are kept unchanged in wrs:M,
+    // only for the WHERE clause, for example an owner column set only on insert, see processEndRow
+    whereOnlyColumnNames.clear();
+    if( subjectFilterCallback != null ) {
+      Set<String> enforcedBRefs = subjectFilterCallback.getEnforcedBiIds();
+      for( WriteProcessingCallback cb : this.writeProcessingCallbacks ) {
+        if( cb instanceof WrsModificationCallback )
+          ((WrsModificationCallback) cb).getIgnoreUpdateBRefs().stream().filter(enforcedBRefs::contains).forEach(whereOnlyColumnNames::add);
+      }
     }
 
     // refresh / build bRefMap
@@ -361,12 +387,18 @@ public class XMLToDataBase implements XMLEventConsumer {
     } // next callback
 
     // after all callbacks did their job, run over all columns again and filter out skipped columns
+    // Where-only columns are not skipped, they are kept unchanged instead (new value = original value), as they need to stay in the WHERE clause
     temp_columns.clear();
     temp_columnValues.clear();
     temp_updateValues.clear();
     for (int i = 0; i < this.columns.size(); i++ ) {
       boolean doSkip = (WriteProcessingCallback.ROW_TYPE.valueOf(rowElementName) == ROW_TYPE.M) && skippedBRefs.contains(this.columns.get(i).getId());
-      if (!doSkip) {
+      if (doSkip && whereOnlyColumnNames.contains(this.columns.get(i).getId())) {
+        temp_columns.add(this.columns.get(i));
+        temp_columnValues.add(this.columnValues.get(i));
+        temp_updateValues.add(this.columnValues.get(i));
+      }
+      else if (!doSkip) {
         temp_columns.add(this.columns.get(i));
         temp_columnValues.add(this.columnValues.get(i));
         temp_updateValues.add(this.updateValues.get(i));
@@ -423,7 +455,7 @@ public class XMLToDataBase implements XMLEventConsumer {
       }
       Connection con = usedConnection != null ? usedConnection : getDefaultManagedConnection();
 
-      databaseWriter = new DatabaseWriter(bindingSet, con, columns.toArray(new BindingItem[columns.size()]), columnTypes.toArray(new Integer[columnTypes.size()]), keyColumnNames, maxBatchSize);
+      databaseWriter = new DatabaseWriter(bindingSet, con, columns.toArray(new BindingItem[columns.size()]), columnTypes.toArray(new Integer[columnTypes.size()]), keyColumnNames, whereOnlyColumnNames, maxBatchSize);
       if (listener != null) {
         listener.actionPerformed(new SaveEvent(con, SaveEventState.StartSaving));
       }
@@ -431,7 +463,7 @@ public class XMLToDataBase implements XMLEventConsumer {
     else if(!this.writeProcessingCallbacks.isEmpty()) {
       // columns and columnTypes might have changed in the callback (e.g. wrs:I versus wrs:M), so we need to set the new ones
       // even if this is set per row, within databaseWrite, sql insert and modify generation will be only done once per type
-      databaseWriter.updateColumnsAndTypes(columns.toArray(new BindingItem[columns.size()]), columnTypes.toArray(new Integer[columnTypes.size()]), keyColumnNames);
+      databaseWriter.updateColumnsAndTypes(columns.toArray(new BindingItem[columns.size()]), columnTypes.toArray(new Integer[columnTypes.size()]), keyColumnNames, whereOnlyColumnNames);
     }
 
     if (rowElementNameParam.equals("I")) {

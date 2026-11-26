@@ -39,6 +39,8 @@ ___
     - If listed in web.xml bcdui/bnd/wrsMetaAttribute only for metadata request, i.e. @rowStart > @rowEnd
 * BindingSet: New attribute `caption`, `caption` and `description` of a BindingSet are delivered at `wrs:Header/wrs:BindingSet`,
   controlled by `bcdui/bnd/wrsAttributes` and `bcdui/bnd/wrsMetaAttribute` in web.xml like the attributes of the BindingItems
+* Security fix, SubjectFilters on write: for update and delete, values limited by SubjectFilters are enforced in the WHERE clause,
+  even if not part of the key or `ignore="update"` is set on them. Can be overwritten with a custom write callback on the BindingSet
 
 .Incompatibilities:
 * In web.xml, add new env entries `bcdui/bnd/wrsAttributes` and `bcdui/bnd/wrsMetaAttribute`, see `Server/configFiles/WebContent/WEB-INF/web.xml` for backward compatible defaults

@@ -64,6 +64,7 @@ public class DatabaseWriter {
   private ArrayList<InputStreamReader> inputStreamReaders = null;
   private ArrayList<ByteArrayInputStream> byteArrayInputStreams = null;
   private boolean[] isKeyColumn = null;
+  private boolean[] isWhereOnlyColumn = null;
   private int maxBatchSize = 0;
   private Logger log = LogManager.getLogger(getClass().getCanonicalName());
 
@@ -88,31 +89,33 @@ public class DatabaseWriter {
    * @param columnsPr
    * @param columnTypesPr
    * @param keyColumnNames
+   * @param whereOnlyColumnNames Key columns which are only part of the WHERE clause of an update, never of its SET part, like enforced columns of SubjectFilters with WrsModificationCallback ignore="update".
+   *                             Their new value equals their original value, they may not even be updatable
    * @param maxBatchSizePr
    * @throws SQLException
    * @throws IllegalArgumentException if keyColumnNames does not contain all keys from bindingSetPr
    */
-  public DatabaseWriter(BindingSet bindingSetPr, Connection defaultConnectionPr, BindingItem[] columnsPr, Integer[] columnTypesPr, Collection<String> keyColumnNames, int maxBatchSizePr) throws SQLException {
+  public DatabaseWriter(BindingSet bindingSetPr, Connection defaultConnectionPr, BindingItem[] columnsPr, Integer[] columnTypesPr, Collection<String> keyColumnNames, Collection<String> whereOnlyColumnNames, int maxBatchSizePr) throws SQLException {
     this.inputStreamReaders = new ArrayList<>();
     this.byteArrayInputStreams = new ArrayList<>();
     this.bindingSet = bindingSetPr;
     this.defaultConnection = defaultConnectionPr;
-    this.columns = columnsPr;
-    this.columnTypes = columnTypesPr;
-    this.isKeyColumn = new boolean[columnsPr.length];
     this.maxBatchSize = maxBatchSizePr;
-    for (int i = 0; i < columnsPr.length; ++i) {
-      isKeyColumn[i] = keyColumnNames.contains(columnsPr[i].getId());
-    }
+    updateColumnsAndTypes(columnsPr, columnTypesPr, keyColumnNames, whereOnlyColumnNames);
     ensureAllKeysAvailable(bindingSetPr, keyColumnNames);
   }
 
-  public void updateColumnsAndTypes(BindingItem[] columnsPr, Integer[] columnTypesPr, Collection<String> keyColumnNames) {
+  /**
+   * @param whereOnlyColumnNames see {@link #DatabaseWriter(BindingSet, Connection, BindingItem[], Integer[], Collection, Collection, int)}
+   */
+  public void updateColumnsAndTypes(BindingItem[] columnsPr, Integer[] columnTypesPr, Collection<String> keyColumnNames, Collection<String> whereOnlyColumnNames) {
     this.columns = columnsPr;
     this.columnTypes = columnTypesPr;
     this.isKeyColumn = new boolean[columnsPr.length];
+    this.isWhereOnlyColumn = new boolean[columnsPr.length];
     for (int i = 0; i < columnsPr.length; ++i) {
       isKeyColumn[i] = keyColumnNames.contains(columnsPr[i].getId());
+      isWhereOnlyColumn[i] = isKeyColumn[i] && whereOnlyColumnNames.contains(columnsPr[i].getId());
     }
   }
 
@@ -145,7 +148,7 @@ public class DatabaseWriter {
     builder.append(bindingSet.getTableReference());
     builder.append(" SET ");
     for (int c = 0; c < columns.length; c++) {
-      if (exceptKeyCols && isKeyColumn[c])
+      if ((exceptKeyCols && isKeyColumn[c]) || isWhereOnlyColumn[c])
         continue;
 
       BindingItem column = columns[c];
@@ -307,9 +310,10 @@ public class DatabaseWriter {
    * @param offset
    * @param onlyKeys
    * @param exceptKeyCols - if the values of key columns mustn't be set
+   * @param isUpdateSet - true for the SET part of an update, where-only columns are not set there
    * @throws Exception
    */
-  private void setValues(PreparedStatement stm, String[] values, int offset, boolean onlyKeys, boolean exceptKeyCols) throws Exception {
+  private void setValues(PreparedStatement stm, String[] values, int offset, boolean onlyKeys, boolean exceptKeyCols, boolean isUpdateSet) throws Exception {
     int paramNo = offset;
     int i = 0;
     try {
@@ -318,6 +322,9 @@ public class DatabaseWriter {
         if (!onlyKeys && exceptKeyCols && isKeyColumn[i]) {
           continue;
         }
+
+        if (isUpdateSet && isWhereOnlyColumn[i])
+          continue;
 
         if (onlyKeys && !isKeyColumn[i])
           continue;
@@ -611,15 +618,13 @@ public class DatabaseWriter {
 
       currentStatement.clearParameters();
       // set new values
-      setValues(currentStatement, updateValues, 0, false, exceptKeyCols);
+      setValues(currentStatement, updateValues, 0, false, exceptKeyCols, true);
 
-      int offset = originalColumnValues.length;
-      if (exceptKeyCols) {// because we have ignored key columns
-        offset = 0;
-        for (int col = 0; col < originalColumnValues.length; col++) {
-          if (!isKeyColumn[col])
-            offset++;
-        }
+      // number of parameters in the SET part, key columns may have been ignored there, where-only columns are always
+      int offset = 0;
+      for (int col = 0; col < originalColumnValues.length; col++) {
+        if (!(exceptKeyCols && isKeyColumn[col]) && !isWhereOnlyColumn[col])
+          offset++;
       }
       // set values in where part
       setValuesWherePart(currentStatement, originalColumnValues, offset, true, exceptKeyCols);
@@ -659,7 +664,7 @@ public class DatabaseWriter {
       }
 
       insertStatement.clearParameters();
-      setValues(insertStatement, columnValues, 0, false, false);
+      setValues(insertStatement, columnValues, 0, false, false, false);
 
       if (maxBatchSize <= 1) {
         int rowsAffected = insertStatement.executeUpdate();

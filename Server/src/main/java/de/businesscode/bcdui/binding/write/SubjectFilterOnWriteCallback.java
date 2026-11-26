@@ -17,6 +17,7 @@ package de.businesscode.bcdui.binding.write;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -91,13 +92,16 @@ public class SubjectFilterOnWriteCallback extends WriteProcessingCallback {
           BindingItem bi = bindingSet.get(eBi.biId);
           columns.add(bi);
           columnTypes.add(bi.getJDBCDataType());
-          if( bi.isKey() )
-            keyColumnNames.add(eBi.biId);
         }
         // If the BindingSet doesn't have it, we have a wrong setup. Enforced BindingItems need to be there
         else
           throw new SecurityException("Invalid setup for BindingSet " + bindingSet.getName() + " missing enforced " + eBi);
       }
+
+      // Enforced BindingItems are always part of the WHERE clause of update and delete (like keys),
+      // otherwise a row with a not allowed value could be modified or deleted via its real key
+      if( ! keyColumnNames.contains(eBi.biId) )
+        keyColumnNames.add(eBi.biId);
 
       // Get permissions
       eBi.permissions = SecurityHelper.getPermissions(subject, eBi.permissionType);
@@ -106,16 +110,40 @@ public class SubjectFilterOnWriteCallback extends WriteProcessingCallback {
 
 
   /**
-   * Each row must have an allowed value for each enforcedBis set
+   * Each row must have an allowed value for each enforcedBis set.
+   * For a modified row this is also true for the original values, as they form the WHERE clause of the update,
+   * so that a row with a not allowed value can neither be modified nor taken over.
+   * For deleted rows, cValues form the WHERE clause.
    */
   @Override
   public void endDataRow(ROW_TYPE rowType, List<String> cValues, List<String> oValues) throws Exception {
 
     // Make sure we have room for all added values
-    while( columns.size() > cValues.size() ) {
+    while( columns.size() > cValues.size() )
       cValues.add(null);
+    while( columns.size() > oValues.size() )
       oValues.add(null);
-    }
+
+    if( rowType == ROW_TYPE.M )
+      assureAllowedValues(oValues);
+    assureAllowedValues(cValues);
+  }
+
+  /**
+   * @return The ids of the enforced BindingItems
+   */
+  public Set<String> getEnforcedBiIds() {
+    Set<String> ids = new HashSet<>();
+    enforcedBis.forEach(eBi -> ids.add(eBi.biId));
+    return ids;
+  }
+
+  /**
+   * Makes sure the values of the enforcedBis are allowed, an empty value is set to the only allowed value
+   * @param values Values of one row, either the new or the original ones
+   * @throws SecurityException if a value is not allowed
+   */
+  protected void assureAllowedValues(List<String> values) {
 
     boolean foundMatch = false;
     boolean foundMissMatch = false;
@@ -123,13 +151,13 @@ public class SubjectFilterOnWriteCallback extends WriteProcessingCallback {
     // Make sure each value of enforcedBis is allowed
     for( EnforcedBi eBi: enforcedBis ) {
 
-      String value = cValues.get(eBi.getIdx());
+      String value = values.get(eBi.getIdx());
 
       // We have no value, set it
       SubjectFilterType st = SubjectSettings.getInstance().getSubjectFilterTypeByName(eBi.permissionName);
       if ((value == null || value.isEmpty()) && (st != null && ! st.isIsNullAllowsAccess())) {
         if( eBi.permissions.size() == 1 && ! eBi.permissions.contains("*") ) {
-          cValues.set(eBi.getIdx(), eBi.permissions.iterator().next() );
+          values.set(eBi.getIdx(), eBi.permissions.iterator().next() );
           foundMatch = true; // we have a match, because we just set a value to an allowed value
         }
         else
