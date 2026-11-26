@@ -2520,29 +2520,33 @@ jQuery.extend(bcdui.widget,
         // prepare html template
         jQuery("body").append(`
         <div style="display:none" class='bcdFilterDialog' title='${title}'>
-          <div class='bcdFilterSelection bcdFlexRow form-row'>
-            <select class='bcdFilterSelect bcdFormControl form-control'>${options}</select>
+          <div class='bcdFilterSelection bcdFlexRow flex-row'>
+            <div class="bcdFlexAuto flex-col col-sm-auto"><select class='bcdFilterSelect bcdFormControl form-control'>${options}</select></div>
           </div>
-          <div class='bcdFilterSelection bcdFlexRow form-row'>
-            <div class="single bcdFlexAuto col-sm-auto" ${standardVisible}><input ${widgetType} class='value bcdFilterInput bcdFormControl form-control' ${selectedInput} placeholder='${bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_value"})}'></input></div>
-            <div class="between bcdFlexAuto col-sm-auto" ${betweenVisible}><input ${widgetType} class='from bcdFilterInput bcdFormControl form-control' ${selectedInputBetweenFrom} placeholder='${bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_value"})} [1]'></input></div>
-            <div class="between bcdFlexAuto col-sm-auto" ${betweenVisible}><input ${widgetType} class='to bcdFilterInput bcdFormControl form-control' ${selectedInputBetweenTo} placeholder='${bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_value"})} [2]'></input></div>
+          <div class='single bcdFilterSelection bcdFlexRow flex-row' ${standardVisible}>
+            <div class="single bcdFlexAuto flex-col col-sm-auto" ${standardVisible}><input ${widgetType} class='value bcdFilterInput bcdFormControl form-control' ${selectedInput} placeholder='${bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_value"})}'></input></div>
           </div>
-          <div class='bcdFilterActions bcdFlexRow form-row'>
-            <div class='bcdFlexAuto col-sm-auto'><bcd-buttonng bcdActionId='selectAll' caption='${bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_selectAll"})}' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>
-            <div class='bcdFlexAuto col-sm-auto'><bcd-buttonng bcdActionId='clear' caption='${bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_clear"})}' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>
+          <div class='between bcdFilterSelection bcdFlexRow flex-row' ${betweenVisible}>
+            <div class="between bcdFlexAuto flex-col col-sm-auto" ${betweenVisible}><input ${widgetType} class='from bcdFilterInput bcdFormControl form-control' ${selectedInputBetweenFrom} placeholder='${bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_value"})} [1]'></input></div>
+            <div class="between bcdFlexAuto flex-col col-sm-auto" ${betweenVisible}><input ${widgetType} class='to bcdFilterInput bcdFormControl form-control' ${selectedInputBetweenTo} placeholder='${bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_value"})} [2]'></input></div>
           </div>
-          <div class='bcdFilterMultiSelect bcdFlexRow form-row'></div>
-          <div class='bcdFlexRow form-row'>
-            <div class='bcdFlexAuto col-sm-auto'><span class='bcdCount'></span><span bcdTranslate='bcd_widget_filter_itemsSelected'></span></div>
+          <div class='singleFilterSelection flex-col'>
+            <div class='bcdFilterActions bcdFlexRow flex-row'>
+              <div class='bcdFlexAuto flex-col col-sm-auto flex-0'><bcd-buttonng bcdActionId='selectAll' caption='${bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_selectAll"})}' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>
+              <div class='bcdFlexAuto flex-col col-sm-auto flex-0'><bcd-buttonng bcdActionId='clear' caption='${bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_clear"})}' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>
+            </div>
+            <div class='bcdFilterMultiSelect bcdFlexRow flex-row'></div>
+            <div class='bcdFlexRow flex-row'>
+              <div class='bcdFlexAuto flex-col col-sm-auto'><span class='bcdCount'></span></div>
+            </div>
+            <div style='display:none' class='bcdFlexRow flex-row bcdLimitReached'>
+              <div class='bcdFlexAuto flex-col col-sm-auto flex-0'><span bcdTranslate='bcd_widget_filter_limitReached'></span></div>
+            </div>
           </div>
-          <div style='display:none' class='bcdFlexRow form-row bcdLimitReached'>
-            <div class='bcdFlexAuto col-sm-auto'><span bcdTranslate='bcd_widget_filter_limitReached'></span></div>
-          </div>
-          <div class='bcdFlexRow form-row'>
-            <div class='bcdFlexAuto col-sm-auto'><bcd-buttonng bcdActionId='apply'  caption='${bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_apply"})}'  onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>
-            <div class='bcdFlexAuto col-sm-auto'><bcd-buttonng bcdActionId='remove' caption='${bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_remove"})}' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>
-            <div class='bcdFlexAuto col-sm-auto'><bcd-buttonng bcdActionId='cancel' caption='${bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_cancel"})}' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>
+          <div class='bcdFlexRow flex-row'>
+            <div class='bcdFlexAuto flex-col col-sm-auto flex-0'><bcd-buttonng bcdActionId='apply'  caption='${bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_apply"})}'  onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>
+            <div class='bcdFlexAuto flex-col col-sm-auto flex-0'><bcd-buttonng bcdActionId='remove' caption='${bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_remove"})}' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>
+            <div class='bcdFlexAuto flex-col col-sm-auto flex-0'><bcd-buttonng bcdActionId='cancel' caption='${bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_cancel"})}' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>
           </div>
         </div>`);
         bcdui.i18n.syncTranslateHTMLElement({elementOrId: jQuery(".bcdFilterDialog").get(0)});
@@ -2875,7 +2879,7 @@ jQuery.extend(bcdui.widget,
     _updateCount: function() {
       const checkboxes = jQuery(".bcdFilterDialog").find(".bcdFilterMultiSelect input[type='checkbox']").length;
       const checkedCheckBoxes = jQuery(".bcdFilterMultiSelect input[type='checkbox']:checked").length;
-      jQuery(".bcdFilterDialog").find(".bcdCount").text(checkedCheckBoxes + "/" + checkboxes);
+      jQuery(".bcdFilterDialog").find(".bcdCount").text(`${checkedCheckBoxes}/${checkboxes} ${bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_itemsSelected" })}`);
     },
     
     /**
