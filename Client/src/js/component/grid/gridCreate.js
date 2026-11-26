@@ -1740,7 +1740,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         // set filter class/title according to condition
         jQuery("#" + this.htTargetHtmlId +" .ht_clone_top").find(".bcdFilterButton").each(function(i, e) {
           var id = jQuery(e).attr("colId");
-          if (self.statusModel.query(targetModelXPath + "/f:*[@id='"+id+"']/f:Expression") != null)
+          if (self.statusModel.query(targetModelXPath + "/f:*[@id='"+id+"']//f:Expression") != null)
             jQuery(e).addClass("active");
         });
 

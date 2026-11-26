@@ -2319,7 +2319,7 @@ jQuery.extend(bcdui.widget,
 
           if (colId != "") {
             jQuery(e).html("<div class='bcdFilterContainer'><div class='bcdFilterOriginal'>" + jQuery(e).html() + "</div><div bcdColIdent='" + colId + "' class='bcdFilterButton' colId='"+colId+"'></div></div>");
-            if (statusModel.query(targetModelXPath + "/f:*[@id='" + colId + "']/f:Expression") != null)
+            if (statusModel.query(targetModelXPath + "/f:*[@id='" + colId + "']//f:Expression") != null)
               jQuery(e).find(".bcdFilterButton").addClass("active");
           }
         });
@@ -2374,6 +2374,12 @@ jQuery.extend(bcdui.widget,
                 }
                 values = [op];
               }
+            }
+            else if (statusModel.query(targetModelXPath + "/f:Or[@specialTS='true' and @id='" + args.bcdColIdent + "']") != null) {
+              values = jQuery.makeArray(statusModel.queryNodes(targetModelXPath + "/f:Or[@id='" + args.bcdColIdent + "']//f:Expression[@op='>=']")).map(function(e){ return e.getAttribute("value").replace("T", " "); });
+              if (values.length > 20)
+                values.splice(20, values.length, '...');
+              useSingleModeCaption = true;
             }
             else {
               // render up to 20 values in the flyover
@@ -2470,19 +2476,19 @@ jQuery.extend(bcdui.widget,
         // prepare options dropdown
         var options = "";
         var opt = [
-          ["bcd_widget_filter_isEqual"   , "isequal"]
-        , ["bcd_widget_filter_isNotEqual", "isnotequal"]
-        , ["bcd_widget_filter_contains"  , "contains"]
-        , ["bcd_widget_filter_startsWith", "startswith"]
-        , ["bcd_widget_filter_endsWith"  , "endswith"]
-        , ["bcd_widget_filter_isBigger"  , "isbigger"]
-        , ["bcd_widget_filter_isSmaller" , "issmaller"]
-        , ["bcd_widget_filter_isBiggerOrEqual"  , "isbiggerorequal"]
-        , ["bcd_widget_filter_isSmallerOrEqual" , "issmallerorequal"]
-        , ["bcd_widget_filter_isBetween" , "isbetween"]
+          ["bcd_widget_filter_isEqual"   , "isequal", false]
+        , ["bcd_widget_filter_isNotEqual", "isnotequal", false]
+        , ["bcd_widget_filter_contains"  , "contains", false]
+        , ["bcd_widget_filter_startsWith", "startswith", false]
+        , ["bcd_widget_filter_endsWith"  , "endswith", false]
+        , ["bcd_widget_filter_isBigger"  , "isbigger", true]
+        , ["bcd_widget_filter_isSmaller" , "issmaller", true]
+        , ["bcd_widget_filter_isBiggerOrEqual"  , "isbiggerorequal", false]
+        , ["bcd_widget_filter_isSmallerOrEqual" , "issmallerorequal", false]
+        , ["bcd_widget_filter_isBetween" , "isbetween", true]
           // is empty / is not empty might not be intuitive since you need to check the <empty> checkbox additionally, so for now, disable them from the drop down list
-//        , ["bcd_widget_filter_isEmpty"   , "isempty"]
-//        , ["bcd_widget_filter_isNotEmpty", "isnotempty"]
+//        , ["bcd_widget_filter_isEmpty"   , "isempty", true]
+//        , ["bcd_widget_filter_isNotEmpty", "isnotempty", true]
         ];
 
         // add custom filter functions
@@ -2496,7 +2502,10 @@ jQuery.extend(bcdui.widget,
         const standardVisible = condition == "isbetween" ? "style='display:none'" : "";
         const betweenVisible  = condition == "isbetween" ? "" : "style='display:none'";
        // add custom operator options
-        opt.forEach(function(e){ options += `<option value='${e[1]}' ${e[1] == condition ? "selected" : ""} bcdTranslate='${e[0]}'>${e[0]}</option>`; });
+        opt.forEach(function(e){
+          if (typeName != "TIMESTAMP" || (typeName == "TIMESTAMP" && e[2])) 
+            options += `<option value='${e[1]}' ${e[1] == condition ? "selected" : ""} bcdTranslate='${e[0]}'>${e[0]}</option>`;
+        });
 
         let widgetType = "type='text'";
         if ("|BIGINT|BIT|INTEGER|SMALLINT|TINYINT|".indexOf("|" + typeName + "|") != -1)
@@ -2645,12 +2654,15 @@ jQuery.extend(bcdui.widget,
       const useRefs = inputModel.query("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + colId + "']/wrs:References/wrs:Wrs/wrs:Data/wrs:R") != null;
       return new Promise(function(resolve, reject) {
 
+        const tsSpecial = typeName == "TIMESTAMP" && config.statusModel.query(config.rootXPath + "[local-name()='Or' and @specialTS='true']") != null;
         let rowsFilteredBy = {};
         Array.from(config.statusModel.queryNodes(config.targetModelXPath + "/f:Or[@id]/@id"))
         .map(function(e) { return e.text; })
         .forEach(function(curColumn) {
           const curColIdx = inputModel.read("/*/wrs:Header/wrs:Columns/wrs:C[@id='" + curColumn + "']/@pos", "");
-          const curFilteredValues = Array.from(config.statusModel.queryNodes(config.targetModelXPath + "/f:Or[@id='"+curColumn+"']/f:Expression[@op='=' and @bRef='" + curColumn + "']/@value")).map(function(e) { return e.text; });
+          const curFilteredValues = tsSpecial
+          ? Array.from(config.statusModel.queryNodes(config.targetModelXPath + "/f:Or[@id='"+curColumn+"']//f:Expression[@op='>=' and @bRef='" + curColumn + "']/@value")).map(function(e) { return e.text; })
+          : Array.from(config.statusModel.queryNodes(config.targetModelXPath + "/f:Or[@id='"+curColumn+"']/f:Expression[@op='=' and @bRef='" + curColumn + "']/@value")).map(function(e) { return e.text; });
           jQuery.makeArray(inputModel.queryNodes("/*/wrs:Data/wrs:*/wrs:C[position()='" + curColIdx + "']")).map(function(e) {
             const rowId = e.parentNode.getAttribute("id");
             if ((curFilteredValues.indexOf(e.text) == -1)) {
@@ -2739,7 +2751,7 @@ jQuery.extend(bcdui.widget,
           return {value: q[0], caption: q[1], isFiltered: q[2] == "true"}
         }); // make value/caption object
 
-        resolve({values: values, limitReached: false});
+        resolve({values: values, limitReached: values.length >= 900});
       });
     },
     
@@ -2784,9 +2796,12 @@ jQuery.extend(bcdui.widget,
       var modelData = "<Data>";
       var i = 1;
       const enableAll = statusModel.query(rootXPath + "[local-name()='Or']") == null;
+      const tsSpecial = typeName == "TIMESTAMP" && statusModel.query(rootXPath + "[local-name()='Or' and @specialTS='true']") != null;
       values.forEach(function(e) {
-        const isSelected = statusModel.query(rootXPath + "[local-name()='Or']/f:Expression[@op='=' and @bRef='" + id + "' and @value='{{=it[0]}}']", [e.value]) != null || enableAll;
-        const enabled = isSelected ? "enabled='true'" : "";
+        let isSelected = tsSpecial
+        ? statusModel.query(rootXPath + "[local-name()='Or']//f:Expression[@op='>=' and @bRef='" + id + "' and @value='{{=it[0]}}']", [e.value]) != null
+        : statusModel.query(rootXPath + "[local-name()='Or']/f:Expression[@op='=' and @bRef='" + id + "' and @value='{{=it[0]}}']", [e.value]) != null;
+        const enabled = isSelected  || enableAll ? "enabled='true'" : "";
         let isFiltered = e.isFiltered ? "isFiltered='true'" : "";
         modelData += `<Item caption='${bcdui.util.escapeHtml(e.caption)}' ${enabled} ${isFiltered} id='R${i++}'>${bcdui.util.escapeHtml(e.value)}</Item>`;
       });
@@ -2924,6 +2939,17 @@ jQuery.extend(bcdui.widget,
       config.statusModel.write(xPath + "/@value", inputValue);
       config.statusModel.write(xPath + "/@condition", condition);
       const isTimestamp = config.inputModel.read(`/*/wrs:Header/wrs:Columns/wrs:C[@id='${config.id}']/@type-name`, "") == "TIMESTAMP";
+      
+      const addOneSecond = function(dateTimeStr) {
+        const date = new Date(dateTimeStr);
+        date.setSeconds(date.getSeconds() + 1);
+        return date.getFullYear() + "-" +
+          String(date.getMonth() + 1).padStart(2, "0") + "-" +
+          String(date.getDate()).padStart(2, "0") + "T" +
+          String(date.getHours()).padStart(2, "0") + ":" +
+          String(date.getMinutes()).padStart(2, "0") + ":" +
+          String(date.getSeconds()).padStart(2, "0");
+      };
 
       if (! writeGeneralFilter) {
         const visibleRows = Array.from(jQuery(".bcdFilterMultiSelect input")).map(function(e){ return jQuery(e).val(); });
@@ -2932,19 +2958,25 @@ jQuery.extend(bcdui.widget,
         });
         jQuery.makeArray(config.multiSelectDataModel.queryNodes("/*/Item[@enabled='true']")).forEach(function(e, i) {
           var caption = e.getAttribute("caption") || "";
-          if (caption != "")
-            config.statusModel.write(config.rootXPath + "/f:Expression[@i='" + i + "' and @bRef='" + config.id +"' and @op='=' and @caption='{{=it[0]}}']/@value", [caption], e.text);
+          if (isTimestamp) {
+            const from = e.text;
+            const to = addOneSecond(e.text);
+            config.statusModel.write(xPath + `[@specialTS='true']/f:And[@id='${i}']/f:Expression[@bRef='${config.id}' and @op='>=']/@value`, from);
+            config.statusModel.write(xPath + `[@specialTS='true']/f:And[@id='${i}']/f:Expression[@bRef='${config.id}' and @op='<']/@value`, to);
+          }
+          else if (caption != "")
+            config.statusModel.write(xPath + "/f:Expression[@i='" + i + "' and @bRef='" + config.id +"' and @op='=' and @caption='{{=it[0]}}']/@value", [caption], e.text);
           else
-            config.statusModel.write(config.rootXPath + "/f:Expression[@i='" + i + "' and @bRef='" + config.id +"' and @op='=']/@value", e.text);
+            config.statusModel.write(xPath + "/f:Expression[@i='" + i + "' and @bRef='" + config.id +"' and @op='=']/@value", e.text);
         });
       }
       else if (inputValue) {
         if (condition == "isbetween") {
           const values = inputValue.split(bcdui.core.magicChar.nonWord);
           if (values[0])
-            config.statusModel.write(config.rootXPath + `/f:Expression[@ic='true' and @bRef='${config.id}' and @op='>=']/@value`, isTimestamp ? (values[0].replace(" ", "T") + ":00").substring(0, 19) : values[0]);
+            config.statusModel.write(xPath + `/f:Expression[@ic='true' and @bRef='${config.id}' and @op='>=']/@value`, isTimestamp ? (values[0].replace(" ", "T") + ":00").substring(0, 19) : values[0]);
           if (values[1])
-            config.statusModel.write(config.rootXPath + `/f:Expression[@ic='true' and @bRef='${config.id}' and @op='<=']/@value`, isTimestamp ? (values[1].replace(" ", "T") + ":00").substring(0, 19) : values[1]);
+            config.statusModel.write(xPath + `/f:Expression[@ic='true' and @bRef='${config.id}' and @op='<=']/@value`, isTimestamp ? (values[1].replace(" ", "T") + ":59").substring(0, 19) : values[1]);
         }
         else {
           let op = "";
@@ -4121,10 +4153,12 @@ jQuery.extend(bcdui.widget,
          const f = filterChildren[i];
          const name = f.localName || f.baseName;
          const isOr = name === "Or";
+         
+         const tsSpecial = f.getAttribute("specialTS") == "true";
 
          const condition = isOr ? "isequal" : (f.getAttribute("condition") || "contains");
          const values = isOr
-           ? f.selectNodes("./f:Expression[@op='=']")
+           ? tsSpecial ? f.selectNodes(".//f:Expression[@op='>=']") : f.selectNodes("./f:Expression[@op='=']")
            : [f];
 
          for (let j = 0; j < values.length; j++) {
