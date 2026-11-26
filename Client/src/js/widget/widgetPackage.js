@@ -2476,16 +2476,16 @@ jQuery.extend(bcdui.widget,
         // prepare options dropdown
         var options = "";
         var opt = [
-          ["bcd_widget_filter_isEqual"   , "isequal", false]
-        , ["bcd_widget_filter_isNotEqual", "isnotequal", false]
-        , ["bcd_widget_filter_contains"  , "contains", false]
-        , ["bcd_widget_filter_startsWith", "startswith", false]
-        , ["bcd_widget_filter_endsWith"  , "endswith", false]
-        , ["bcd_widget_filter_isBigger"  , "isbigger", true]
-        , ["bcd_widget_filter_isSmaller" , "issmaller", true]
-        , ["bcd_widget_filter_isBiggerOrEqual"  , "isbiggerorequal", false]
-        , ["bcd_widget_filter_isSmallerOrEqual" , "issmallerorequal", false]
-        , ["bcd_widget_filter_isBetween" , "isbetween", true]
+          ["bcd_widget_filter_isEqual"   , "isequal", "|TIMESTAMP|"]
+        , ["bcd_widget_filter_isNotEqual", "isnotequal", "|TIMESTAMP|"]
+        , ["bcd_widget_filter_contains"  , "contains", "|TIMESTAMP|DECIMAL|DOUBLE|FLOAT|REAL|NUMERIC|"]
+        , ["bcd_widget_filter_startsWith", "startswith", "|TIMESTAMP|DECIMAL|DOUBLE|FLOAT|REAL|NUMERIC|"]
+        , ["bcd_widget_filter_endsWith"  , "endswith", "|TIMESTAMP|DECIMAL|DOUBLE|FLOAT|REAL|NUMERIC|"]
+        , ["bcd_widget_filter_isBigger"  , "isbigger", ""]
+        , ["bcd_widget_filter_isSmaller" , "issmaller", ""]
+        , ["bcd_widget_filter_isBiggerOrEqual"  , "isbiggerorequal", "|TIMESTAMP|"]
+        , ["bcd_widget_filter_isSmallerOrEqual" , "issmallerorequal", "|TIMESTAMP|"]
+        , ["bcd_widget_filter_isBetween" , "isbetween", ""]
           // is empty / is not empty might not be intuitive since you need to check the <empty> checkbox additionally, so for now, disable them from the drop down list
 //        , ["bcd_widget_filter_isEmpty"   , "isempty", true]
 //        , ["bcd_widget_filter_isNotEmpty", "isnotempty", true]
@@ -2503,7 +2503,7 @@ jQuery.extend(bcdui.widget,
         const betweenVisible  = condition == "isbetween" ? "" : "style='display:none'";
        // add custom operator options
         opt.forEach(function(e){
-          if (typeName != "TIMESTAMP" || (typeName == "TIMESTAMP" && e[2])) 
+          if (! e[2] || e[2].indexOf("|" + typeName + "|") == -1) 
             options += `<option value='${e[1]}' ${e[1] == condition ? "selected" : ""} bcdTranslate='${e[0]}'>${e[0]}</option>`;
         });
 
@@ -2712,10 +2712,12 @@ jQuery.extend(bcdui.widget,
                 caption = Math.round(value / scaleInt) * -1;
               }
               else {
-                // in case of < 0, remove trailing zeros (by using parseFloat again)
+                // remove trailing zeros (by using parseFloat again)
                 var mul = (unit == "%") ? 100.0 : 1.0;
-                caption = scaleInt < 0 ? parseFloat((mul * parseFloat(value)).toFixed(Math.abs(scaleInt))) : (mul * parseFloat(value)).toFixed(Math.abs(scaleInt));
+                caption = parseFloat((mul * parseFloat(value)).toFixed(Math.abs(scaleInt)));
               }
+              caption = caption.toLocaleString(undefined, { useGrouping: false });
+
               if (unit != "")
                 caption += " " + unit;
             }
@@ -2751,7 +2753,7 @@ jQuery.extend(bcdui.widget,
           return {value: q[0], caption: q[1], isFiltered: q[2] == "true"}
         }); // make value/caption object
 
-        resolve({values: values, limitReached: values.length >= 900});
+        resolve({values: values.splice(0, 900), limitReached: values.length >= 900});
       });
     },
     
