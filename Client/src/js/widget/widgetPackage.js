@@ -2592,7 +2592,7 @@ jQuery.extend(bcdui.widget,
             , closeText: "\u2716"
             , position: { my: 'left top', at: 'left top', of: event }
             , close: function(){ bcdui.widget._cancelFilter(inputModel.id, id);}
-            , create: function() { jQuery("body").css({ overflow: 'hidden' }); jQuery(".bcdFilterDialog .bcdFilterInput").focus();}
+            , create: function() { jQuery("body").css({ overflow: 'hidden' }); setTimeout(function() {jQuery(".bcdFilterDialog input.bcdFilterInput:visible").focus(); }); }
             , beforeClose: function() {jQuery("body").css({ overflow: 'inherit'});}
           });
 
@@ -2600,8 +2600,10 @@ jQuery.extend(bcdui.widget,
           jQuery(".bcdFilterMultiSelect").on("mouseenter", "div", function() {jQuery(this).addClass("highlight"); });
           jQuery(".bcdFilterMultiSelect").on("mouseleave", "div", function() {jQuery(this).removeClass("highlight"); });
 
-          // trigger input click when clicking the span
+          // trigger input click when clicking the span (mousedown listeners allow direct click without loosing on from filter value input blur)
           jQuery(".bcdFilterMultiSelect").on("click", "span", function() { jQuery(this).prev("input").trigger("click"); });
+          jQuery(".bcdFilterMultiSelect").on("mousedown", "span", function(event) { event.preventDefault(); });
+          jQuery(".bcdFilterMultiSelect").on("mousedown", "input", function(event) { event.preventDefault(); });
 
           // listener on checkbox change, mark selected items as enabled/disabled
           jQuery(".bcdFilterMultiSelect").on("change", "input", function() {
@@ -2640,17 +2642,17 @@ jQuery.extend(bcdui.widget,
                 multiSelectDataModel = bcdui.widget._buildFilterOptionsModel(statusModel, rootXPath, id, inputModel, index, values, useRefs);
                 var config = jQuery(".bcdFilterDialog").data("config");
                 config.multiSelectDataModel = multiSelectDataModel; 
-                bcdui.widget._updateColumnFilter(multiSelectDataModel);
+                bcdui.widget._updateColumnFilter(multiSelectDataModel, true);
               });
             }
             // old and new providers are identical, so simply go on
             else {
-              bcdui.widget._updateColumnFilter(multiSelectDataModel);
+              bcdui.widget._updateColumnFilter(multiSelectDataModel, true);
             }
           });
           // listeners on input key change, triggers filtering, some widgets (date selector) should also trigger on "change"
-          jQuery(".bcdFilterInput").on("keyup", function(){ bcdui.widget._updateColumnFilter(multiSelectDataModel); });
-          jQuery(".bcdFilterInput").on("change", function(){ bcdui.widget._updateColumnFilter(multiSelectDataModel); });
+          jQuery(".bcdFilterInput").on("keyup", function(){ bcdui.widget._updateColumnFilter(multiSelectDataModel, true); });
+          jQuery(".bcdFilterInput").on("change", function(){ bcdui.widget._updateColumnFilter(multiSelectDataModel, true); });
         });
       });
     },
@@ -2769,9 +2771,9 @@ jQuery.extend(bcdui.widget,
       });
     },
     
-    _updateColumnFilter: function(multiSelectDataModel) {
+    _updateColumnFilter: function(multiSelectDataModel, enableBoxes) {
       bcdui.widget._filterOptions(".bcdFilterDialog", multiSelectDataModel);
-      bcdui.widget._renderFilterOptions(".bcdFilterDialog", multiSelectDataModel);
+      bcdui.widget._renderFilterOptions(".bcdFilterDialog", multiSelectDataModel, enableBoxes);
     },
 
     /**
@@ -2859,11 +2861,13 @@ jQuery.extend(bcdui.widget,
      * renderer which shows only filtered values and creates checkbox list for them and updates the count printout
      * @private
      */
-    _renderFilterOptions: function(targetHtml, multiSelectDataModel) {
+    _renderFilterOptions: function(targetHtml, multiSelectDataModel, enableBoxes) {
 
       jQuery(targetHtml).find(".bcdFilterMultiSelect form").remove();
       var multiSelect = "<form>";
       jQuery.makeArray(multiSelectDataModel.queryNodes("/*/Item")).forEach(function(e) {
+        if (enableBoxes)
+          e.setAttribute("enabled", "true");
         const isEnabled = e.getAttribute("enabled") === "true";
         const isFiltered = e.getAttribute("isFiltered") === "true";
         const isFilteredByKey = e.getAttribute("filteredByKey") === "true";
@@ -2904,19 +2908,21 @@ jQuery.extend(bcdui.widget,
      * @private
      */
     _filterClickAction: function() {
-      const action = jQuery(this).closest("*[bcdActionId]").attr("bcdActionId") || "";
-      if (action == "selectAll")
-        bcdui.widget._setFilterStatus(this, true);
-      if (action == "clear")
-        bcdui.widget._setFilterStatus(this, false);
-      if (action == "reset")
-        bcdui.widget._setFilterStatus(this, false, true);
-      if (action == "apply")
-        bcdui.widget._applyFilter(this);
-      if (action == "remove")
-        bcdui.widget._removeFilter(this);
-      if (action == "cancel")
-        bcdui.widget._cancelFilter(this);
+      setTimeout(function() {
+        const action = jQuery(this).closest("*[bcdActionId]").attr("bcdActionId") || "";
+        if (action == "selectAll")
+          bcdui.widget._setFilterStatus(this, true);
+        if (action == "clear")
+          bcdui.widget._setFilterStatus(this, false);
+        if (action == "reset")
+          bcdui.widget._setFilterStatus(this, false, true);
+        if (action == "apply")
+          bcdui.widget._applyFilter(this);
+        if (action == "remove")
+          bcdui.widget._removeFilter(this);
+        if (action == "cancel")
+          bcdui.widget._cancelFilter(this);
+      }.bind(this));
     },
 
     /**

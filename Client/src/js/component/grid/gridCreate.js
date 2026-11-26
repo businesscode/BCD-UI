@@ -1833,7 +1833,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                     , isFiltered: false
                     }
                    });
-                   self.colValuesCache[col] = {values: colValues, limitReached: model.queryNodes("/*/wrs:Data/wrs:R").length == self.rowLimit};
+                   self.colValuesCache[col] = {values: colValues, limitReached: colValues.length == self.rowLimit};
                    self._unBlindGrid()
                    resolve(self.colValuesCache[col]);
                  });

@@ -1134,14 +1134,14 @@ $h6-font-size:                $bcd-font-size-base !default;
   flex-direction: column;
   flex-wrap: nowrap;
   select, input { width: 100%; }
-  input[type='checkbox'] { width: auto; }
+  input[type='checkbox'] { width: auto; cursor: pointer; }
 
   .flex-row { display: flex; flex-direction: row; flex-wrap: nowrap; margin: 0 0 .3em 0; padding: 0; &:last-child { margin: 0; } flex: 1; justify-content: right; }
   .flex-col { display: flex; flex-direction: column; flex-wrap: nowrap; margin: 0 .3em 0 0; padding: 0; &:last-child { margin: 0; } flex: 1; }
   .flex-0 { flex: 0; }
 
   .singleFilterSelection {
-    background-color: #f7fafe;
+    background-color: #f8f8f8;
     margin: 0 0 .3em 0;
     padding: .3em;
     border: 1px solid $border-color;
