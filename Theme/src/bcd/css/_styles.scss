@@ -1141,6 +1141,7 @@ $h6-font-size:                $bcd-font-size-base !default;
   .flex-0 { flex: 0; }
 
   .singleFilterSelection {
+    background-color: #fefefe;
     margin: 0 0 .3em 0;
     padding: .3em;
     border: 1px solid $border-color;
@@ -1158,14 +1159,17 @@ $h6-font-size:                $bcd-font-size-base !default;
       border-right-style: none;
       input, span {
         vertical-align: middle;
-        display: inline-block;
         margin: 0 .3em 0 .3em;
       }
+      div { display: flex; }
+      span { flex: 1; }
       .highlight {
         @include bcdSelected();
         cursor: pointer;
       }
     }
+    .bcdLimitReached { color: #aa0000; }
+    .info span { margin: 0 .3em 0 0; text-align: right; white-space: nowrap; }
   }
   .bcdButton a { white-space: nowrap; }
 }

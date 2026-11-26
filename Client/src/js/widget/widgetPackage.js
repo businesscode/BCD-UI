@@ -2511,7 +2511,7 @@ jQuery.extend(bcdui.widget,
         if ("|BIGINT|BIT|INTEGER|SMALLINT|TINYINT|".indexOf("|" + typeName + "|") != -1)
           widgetType = "type='number' step='1'"; 
         if ("|DECIMAL|DOUBLE|FLOAT|REAL|NUMERIC|".indexOf("|" + typeName + "|") != -1)
-          widgetType = "type='number'";
+          widgetType = "type='number' step='any'";
         if ("|DATE|".indexOf("|" + typeName + "|") != -1)
           widgetType = "type='date'";
         if ("|TIMESTAMP|".indexOf("|" + typeName + "|") != -1)
@@ -2536,10 +2536,10 @@ jQuery.extend(bcdui.widget,
               <div class='bcdFlexAuto flex-col col-sm-auto flex-0'><bcd-buttonng bcdActionId='clear' caption='${bcdui.i18n.syncTranslateFormatMessage({msgid: "bcd_widget_filter_clear"})}' onClickAction='bcdui.widget._filterClickAction'></bcd-buttonng></div>
             </div>
             <div class='bcdFilterMultiSelect bcdFlexRow flex-row'></div>
-            <div class='bcdFlexRow flex-row'>
+            <div class='bcdFlexRow flex-row info'>
               <div class='bcdFlexAuto flex-col col-sm-auto'><span class='bcdCount'></span></div>
             </div>
-            <div style='display:none' class='bcdFlexRow flex-row bcdLimitReached'>
+            <div style='display:none' class='bcdFlexRow flex-row bcdLimitReached info'>
               <div class='bcdFlexAuto flex-col col-sm-auto flex-0'><span bcdTranslate='bcd_widget_filter_limitReached'></span></div>
             </div>
           </div>
@@ -2763,8 +2763,9 @@ jQuery.extend(bcdui.widget,
           const q = e.split(bcdui.core.magicChar.separator);
           return {value: q[0], caption: q[1], isFiltered: q[2] == "true"}
         }); // make value/caption object
-
-        resolve({values: values.splice(0, 900), limitReached: values.length >= 900});
+        
+        const limitReached = values.length >= 900;
+        resolve({values: values.splice(0, 900), limitReached: limitReached});
       });
     },
     
@@ -2831,18 +2832,19 @@ jQuery.extend(bcdui.widget,
      * @private
      */
     _filterOptions: function(targetHtml, inputModel) {
-      let inputValue = jQuery(targetHtml).find(".bcdFilterInput").val() || "";
-      if (jQuery(targetHtml).find(".bcdFilterInput").get(0).type == "datetime-local")
-        inputValue = inputValue.replace("T", " ");
       const condition = jQuery(targetHtml).find(".bcdFilterSelect").val() || "contains";
+
+      let inputValue = jQuery(targetHtml).find(".bcdFilterInput").val() || "";
+      if (inputValue && jQuery(targetHtml).find(".bcdFilterInput").get(0).type == "datetime-local") inputValue = inputValue.replace("T", " ");
+      if (inputValue && jQuery(targetHtml).find(".bcdFilterInput").get(0).step == "any") inputValue = parseFloat(inputValue).toLocaleString(undefined, { useGrouping: false });
 
       if (condition == "isbetween") {
         let from = jQuery(targetHtml).find(".bcdFilterInput.from").val() || "";
         let to = jQuery(targetHtml).find(".bcdFilterInput.to").val() || "";
-        if (jQuery(targetHtml).find(".bcdFilterInput.from").get(0).type == "datetime-local")
-          from = from.replace("T", " ");
-        if (jQuery(targetHtml).find(".bcdFilterInput.to").get(0).type == "datetime-local")
-          to = to.replace("T", " ");
+        if (from && jQuery(targetHtml).find(".bcdFilterInput.from").get(0).type == "datetime-local") from = from.replace("T", " ");
+        if (to && jQuery(targetHtml).find(".bcdFilterInput.to").get(0).type == "datetime-local") to = to.replace("T", " ");
+        if (from && jQuery(targetHtml).find(".bcdFilterInput.from").get(0).step == "any") from = parseFloat(from).toLocaleString(undefined, { useGrouping: false });
+        if (to && jQuery(targetHtml).find(".bcdFilterInput.to").get(0).step == "any") to = parseFloat(to).toLocaleString(undefined, { useGrouping: false });
         inputValue = from + bcdui.core.magicChar.nonWord + to;
       }
 
