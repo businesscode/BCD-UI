@@ -18,7 +18,8 @@ ___
 * Added WrsJ2 format, can be created via bcdui.wrs.wrs2Js() and usein in DataProvider.tblXX functions and is used in GenericHtmlBuilder callbacks
 * New function bcdui.wrs.wrsUtil.filterToXPath() understands f:Filter expressions for use on client side, including output of bcdui.wrs.wrsUtil.parseFilterExpression()
 * Grid, support editor options model changes during runtime, offer gridAlert and gridConfirm override functions for project specific not default alert/confirm handling
-* Tooltip, fixed showing old validation tt content when switching field either by mouse or tab      
+* Tooltip, fixed showing old validation tt content when switching field either by mouse or tab
+* New bcdui.component.chart.createChartFromWrs for auto-charts
 * ColumnFilter widget, supporting general filters, not only single values, reworked layout (review css), data type specific input only  
 
 .Server:
@@ -37,9 +38,15 @@ ___
 * BindingSet: Custom elements set on `bnd:BindingSet/bnd:C` can be delivered to the client at `wrs:Header/wrs:Columns/wrs:C`
     - If listed in web.xml bcdui/bnd/wrsAttributes for each request
     - If listed in web.xml bcdui/bnd/wrsMetaAttribute only for metadata request, i.e. @rowStart > @rowEnd
+* BindingSet: New attribute `caption`, `caption` and `description` of a BindingSet are delivered at `wrs:Header/wrs:BindingSet`,
+  controlled by `bcdui/bnd/wrsAttributes` and `bcdui/bnd/wrsMetaAttribute` in web.xml like the attributes of the BindingItems
+* Security fix, SubjectFilters on write: for update and delete, values limited by SubjectFilters are enforced in the WHERE clause,
+  even if not part of the key or `ignore="update"` is set on them. Can be overwritten with a custom write callback on the BindingSet
 
 .Incompatibilities:
 * In web.xml, add new env entries `bcdui/bnd/wrsAttributes` and `bcdui/bnd/wrsMetaAttribute`, see `Server/configFiles/WebContent/WEB-INF/web.xml` for backward compatible defaults
+* `bcdui/bnd/wrsAttributes` and `bcdui/bnd/wrsMetaAttribute` in web.xml now also control which attributes of the BindingSet are delivered at `wrs:Header/wrs:BindingSet`,
+  except `id` (always the element's text), `table`, `dbSourceName` and `allowSelectAllColumns`
 * If you xsl:import, the document() paths in these need to be relative to the including XSLT, was relative to the included. So you will have to overwrite this, like this then importing htmlBuilder.xslt
   ````xml
     <xsl:variable name="sqlTypesDoc" select="document('../../../../bcdui/xslt/renderer/sqlTypes.xml')"/>
@@ -48,6 +55,9 @@ ___
   because the document is tried to be loaded from the wrong place and could not be parsed
 * ModelWrapper now always create new models, event if the first step in the chain is a JavaScript function, that is enforced now.
   Use an ModelUpdater, if you want to modify the underlying model
+* ChartEchart: the project-wide defaults `bcdui.component.chart.ChartEchart.OPTIONS` and a chart's `options` are now deep-merged, the chart's options win.
+  Before, a nested option of the chart like `legend: {...}` replaced the one of `OPTIONS` completely, now its properties are merged into it
+* ChartEchart: Per default charts now produce less empty space left and right
 * custom columnfilter valueCaptionProvider providers need to resolve with an object (before it resolved with values): {values, limitReached} where values is as before, limitReached is a boolean indicating if not all single values are available (default limit 900).
 ---.
 
