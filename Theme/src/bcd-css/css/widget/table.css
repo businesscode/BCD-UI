@@ -65,7 +65,6 @@
     border-radius: 0.25rem;
     .bcdButton {
       font-size: .8em;
-      padding: .2em .6em; 
     }
     form {
       height: 10em;
@@ -78,8 +77,8 @@
         vertical-align: middle;
         margin: 0 .3em 0 .3em;
       }
-      div { display: flex; }
-      span { flex: 1; }
+      div { display: flex; margin: .15em 0;}
+      span { flex: 1; text-align: left; }
       .highlight {
         background-color: var(--bcd-select-color);
         color: var(--bcd-text-color-inverse);

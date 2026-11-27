@@ -1147,7 +1147,6 @@ $h6-font-size:                $bcd-font-size-base !default;
     border-radius: 0.25rem;
     .bcdButton {
       font-size: .8em;
-      padding: .2em .6em; 
     }
     form {
       height: 10em;
@@ -1160,8 +1159,8 @@ $h6-font-size:                $bcd-font-size-base !default;
         vertical-align: middle;
         margin: 0 .3em 0 .3em;
       }
-      div { display: flex; }
-      span { flex: 1; }
+      div { display: flex; margin: .15em 0;}
+      span { flex: 1; text-align: left; }
       .highlight {
         @include bcdSelected();
         cursor: pointer;
@@ -1170,7 +1169,7 @@ $h6-font-size:                $bcd-font-size-base !default;
     .bcdLimitReached { color: #aa0000; }
     .info span { margin: 0 .3em 0 0; text-align: right; white-space: nowrap; }
   }
-  .bcdButton a { white-space: nowrap; }
+  .bcdButton a { white-space: nowrap; margin: 0; }
 }
 .bcdFilterTooltip {
   p { font-weight: bold; padding: 0; margin: 0; }
@@ -1178,9 +1177,7 @@ $h6-font-size:                $bcd-font-size-base !default;
   li { padding: .3em 0 0 .7em; }
 }
 
-
 /* export columns */
-
 .bcdExportColumnsDialog {
   @include no_shadow();
   border: none;
