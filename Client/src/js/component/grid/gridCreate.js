@@ -1740,7 +1740,7 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
         // set filter class/title according to condition
         jQuery("#" + this.htTargetHtmlId +" .ht_clone_top").find(".bcdFilterButton").each(function(i, e) {
           var id = jQuery(e).attr("colId");
-          if (self.statusModel.query(targetModelXPath + "/f:Or[@id='"+id+"']/f:Expression") != null)
+          if (self.statusModel.query(targetModelXPath + "/f:*[@id='"+id+"']//f:Expression") != null)
             jQuery(e).addClass("active");
         });
 
@@ -1757,72 +1757,101 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
           , columnFiltersCustomFilter: this.columnFiltersCustomFilter
           , valueCaptionProvider: function(inputModel, colIdx) {
              return new Promise(function(resolve, reject) {
-
                const col = inputModel.read(`/*/wrs:Header/wrs:Columns/wrs:C[@pos=${colIdx}]/@id`, "");
-               const activeFilterValues = Array.from(self.statusModel.queryNodes(targetModelXPath + "/f:Or[@id='"+col+"']/f:Expression[@bRef='"+col+"']/@value")).map(function(e) { return e.text; });
-               const separator = self.optionsModelInfo[self.wrsHeaderIdByPos[colIdx]] && self.optionsModelInfo[self.wrsHeaderIdByPos[colIdx]].separator || "";
-
+               const tsCols = Array.from(inputModel.queryNodes(`/*/wrs:Header/wrs:Columns/wrs:C[ @type-name='TIMESTAMP']/@id`)).map(function(e) { return e.text; })
+               let reloadData = true;
                // if data is cached, we need to update the isFiltered attribute only
                if (col && self.colValuesCache && self.colValuesCache[col]) {
-                 self.colValuesCache[col].forEach(function(e) {
-                  e.isFiltered = activeFilterValues.indexOf(e.value) == -1 && activeFilterValues.length > 0;
+                 reloadData = false;
+                 let curCacheValuesPerCol = {};
+                 let curFilters = [];
+                 Array.from(self.statusModel.queryNodes(targetModelXPath + "/f:*[local-name()='Or' or local-name()='And' and @id]")).forEach(function(e) {
+                   const curColId = e.getAttribute("id") || "";
+                   if (curColId != col) {
+                     curCacheValuesPerCol[curColId] = [e.getAttribute("value") || ""];
+                     if (e.localName == "Or")
+                       curCacheValuesPerCol[curColId] = Array.from(e.children).map(function(c) { return c.getAttribute("value") || ""; }).sort();
+                     curFilters.push(curColId);
+                    }
                  });
-                 resolve(self.colValuesCache[col]);
-               }
-               else {
-                 self.colValuesCache = self.colValuesCache || {};
-                 if (! self.serverSidedPagination) {
-                    let colValues = Array.from(inputModel.queryNodes("/*/wrs:Data/wrs:*/wrs:C[number(" + colIdx + ")]")).reduce(function(a, e) {
-                      return a.concat(separator ? e.text.split(separator) : [e.text]);
-                    }, []);
-                    colValues = colValues.filter(function(e, idx){return colValues.indexOf(e) == idx}).map(function(e) {
-                      return {
-                        value: e
-                      , caption: self.columnFiltersGetCaptionForColumnValue ? self.columnFiltersGetCaptionForColumnValue(colIdx, e) : e
-                      , isFiltered: activeFilterValues.indexOf(e) == -1 && activeFilterValues.length > 0
-                      };
-                    });
-                    self.colValuesCache[col] = colValues;
-                    resolve(colValues);
-                  }
-                  else {
-                   var reqMw = new bcdui.core.ModelWrapper({
-                     inputModel: self.config,
-                     parameters: { statusModel: self.statusModel, binding: self.binding, bRefs: col, gridModelId: self.gridModel.id},
-                     chain: bcdui.contextPath+"/bcdui/js/component/grid/requestFilter.xslt"
-                   });
-                   var model = new bcdui.core.SimpleModel({url: new bcdui.core.RequestDocumentDataProvider({requestModel: reqMw })});
-                   self._blindGrid();
-                   model.onceReady(function() {
-                     let colValues = Array.from(model.queryNodes("/*/wrs:Data/wrs:R/wrs:C[1]")).reduce(function(a, e) {
-                        return a.concat(separator ? e.text.split(separator) : [e.text]);
-                     }, []);
-                     colValues = colValues.filter(function(e, idx){return colValues.indexOf(e) == idx}).map(function(e) {
-                       return {
-                         value: e
-                       , caption: self.columnFiltersGetCaptionForColumnValue ? self.columnFiltersGetCaptionForColumnValue(colIdx, e) : e
-                       , isFiltered: activeFilterValues.indexOf(e) == -1 && activeFilterValues.length > 0
-                       };
-                     });
-                     // we don't need to add the wrs:I/wrs:M here since filtering does require a save changes before filtering.
-                     self.colValuesCache[col] = colValues
-                     self._unBlindGrid();
-                     resolve(colValues);
-                   });
-                   model.execute();
+                 curFilters = curFilters.filter(function(e, idx){return curFilters.indexOf(e) == idx})
+                 curFilters = curFilters.sort();
+  
+                 let allOldFiltersFound = self.cacheLoadedWithFilter[col].length === curFilters.length && self.cacheLoadedWithFilter[col].every((v, i) => v === curFilters[i]);
+                 self.cacheLoadedWithFilter[col].forEach(function(e) {
+                   const a = self.cacheValuesPerCol[e];
+                   const b = curCacheValuesPerCol[e] || [];
+                   allOldFiltersFound &= a.length === b.length && a.every((v, i) => v === b[i])
+                 });
+                 if (! allOldFiltersFound)
+                   reloadData = true;
+                 if (!reloadData) {
+                   resolve(self.colValuesCache[col]);
                  }
+               }
+               if (reloadData) {
+                 self.colValuesCache = self.colValuesCache || {};
+                 const reqMw = new bcdui.core.ModelWrapper({
+                   inputModel: self.config,
+                   parameters: { statusModel: self.statusModel, binding: self.binding, bRefs: col, gridModelId: self.gridModel.id, rowLimit: 900},
+                   chain: [
+                     bcdui.contextPath+"/bcdui/js/component/grid/requestFilter.xslt"
+                   , function(doc) {
+                       self.cacheLoadedWithFilter = self.cacheLoadedWithFilter || {};
+                       self.cacheValuesPerCol = self.cacheValuesPerCol || {};
+                       self.cacheLoadedWithFilter[col] = self.cacheLoadedWithFilter[col] || []; 
+                       Array.from(self.statusModel.queryNodes(targetModelXPath + "/f:*[local-name()='Or' or local-name()='And' and @id]")).forEach(function(e) {
+                         const curColId = e.getAttribute("id") || "";
+                         if (curColId != col) {
+                           self.cacheValuesPerCol[curColId] = [e.getAttribute("value") || ""];
+                           if (e.localName == "Or")
+                             self.cacheValuesPerCol[curColId] = Array.from(e.children).map(function(c) { return c.getAttribute("value") || ""; }).sort();
+                           self.cacheLoadedWithFilter[col].push(curColId);
+                           doc.selectSingleNode("//f:Filter").appendChild(e.cloneNode(true));
+                         }
+                       });
+                       self.cacheLoadedWithFilter[col] = self.cacheLoadedWithFilter[col].filter(function(e, idx){return self.cacheLoadedWithFilter[col].indexOf(e) == idx});
+                       self.cacheLoadedWithFilter[col] = self.cacheLoadedWithFilter[col].sort();
+                       if (self.filterElement) {
+                         doc.selectSingleNode("//f:Filter").appendChild(doc.importNode(self.filterElement.selectSingleNode("f:*"), true))
+                         return doc;
+                       }
+                     }
+                   ]
+                 });
+                 const model = new bcdui.core.SimpleModel({url: new bcdui.core.RequestDocumentDataProvider({requestModel: reqMw })});
+                 self._blindGrid();
+                 model.onceReady(function() {
+                   let colValues = Array.from(model.queryNodes("/*/wrs:Data/wrs:R/wrs:C[1]")).reduce(function(a, e) { return a.concat([e.text]); }, []);
+                   colValues = colValues
+                   .filter(function(e, idx){return colValues.indexOf(e) == idx})
+                   .map(function(e) {
+                     const value = tsCols.indexOf(col) != -1 ? e.replace(" ", "T") : e;
+                     return {
+                      value: value
+                    , caption: self.columnFiltersGetCaptionForColumnValue ? self.columnFiltersGetCaptionForColumnValue(colIdx, e) : e
+                    , isFiltered: false
+                    }
+                   });
+                   self.colValuesCache[col] = {values: colValues, limitReached: colValues.length == self.rowLimit};
+                   self._unBlindGrid()
+                   resolve(self.colValuesCache[col]);
+                 });
+                 model.execute();
                }
              });
             }
           , callback: function() {
-            
-             if (this.serverSidedPagination) {
-               self.actionReset(true);
-               return;
-             }
+
+              const tsCols = Array.from(this.gridModel.queryNodes(`/*/wrs:Header/wrs:Columns/wrs:C[ @type-name='TIMESTAMP']/@id`)).map(function(e) { return e.text; })
+
+              if (this.serverSidedPagination) {
+                self.actionReset(true);
+                return;
+              }
 
               // build array of columns which got a filter
-              var colsWithFilter = Array.from(this.statusModel.queryNodes(targetModelXPath + "/f:Or[f:Expression]/@id")).map(function(e) {
+              var colsWithFilter = Array.from(this.statusModel.queryNodes(targetModelXPath + "/f:*[f:Expression or local-name()='And' or @specialTS='true']/@id")).map(function(e) {
                 return this.wrsHeaderMeta[e.text].pos;
               }.bind(this));
 
@@ -1837,6 +1866,18 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                 colsWithFilterFunctions[bRef]= (operations.length > 0 && operations[0].gridFilterRowFunction) ? {funct: operations[0].gridFilterRowFunction, filter: this.statusModel.query(targetModelXPath + "/f:Or[@id='"+bRef+"']")} : null;
               }.bind(this));
 
+              var colsWithGeneralFilters = {};
+              if (!this.serverSidedPagination) {
+                Array.from(this.statusModel.queryNodes(targetModelXPath + "/f:And[@condition]/@id")).forEach(function(e) {
+                  const bRef = e.text;
+                  const condition = this.statusModel.read(targetModelXPath + "/f:And[@id='"+bRef+"']/@condition", "");
+                  const filterValue = this.statusModel.read(targetModelXPath + "/f:And[@id='"+bRef+"']/@value", "");
+                  if (bcdui.widget._bcdFilter[condition]) {
+                    colsWithGeneralFilters[bRef] = { filterValue: filterValue, funct: bcdui.widget._bcdFilter[condition] }
+                  }
+                }.bind(this));
+              }
+
               // mark filtered cells
               Array.from(this.gridModel.queryNodes("/*/wrs:Data/wrs:*")).forEach(function(e) {
                 var factor = (e.localName||e.baseName) === "M" ? 2 : 1;
@@ -1846,12 +1887,25 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                   if (colsWithFilter.indexOf("" + (i+1)) != -1) {
                     var bRef = this.wrsHeaderIdByPos["" + (i + 1)] || "";
                     var value = (wrsC[i * factor].text);
-
-                    // now decide if we call the normal filter lookup or a custom function
-                    // custom function gets the grid wrs header meta data, the current row and the belonging filterNodes and has to return true if row should be filtered
+                    var general = colsWithGeneralFilters[bRef];
                     var custom = colsWithFilterFunctions[bRef];
+
+                    // now decide if we call the normal filter lookup or a custom function (or a general filter)
+                    // custom function gets the grid wrs header meta data, the current row and the belonging filterNodes and has to return true if row should be filtered
                     if (custom && custom.funct) {
                       if (custom.funct(this.wrsHeaderMeta, e, custom.filter)) {
+                        e.setAttribute("filtered", "true");
+                        break;
+                      }
+                    }
+                    else if (general && general.funct) {
+                      const separator = self.optionsModelInfo[bRef] && self.optionsModelInfo[bRef].separator || "";
+                      let match = false;
+                      (separator ? value.split(separator) : [value]).forEach(function(v) {
+                          const filterValue = tsCols.indexOf(bRef) != -1 ? general.filterValue.replace("T", " ") : general.filterValue;
+                          match |= general.funct(v, general.filterValue);
+                      }.bind(this));
+                      if (! match) {
                         e.setAttribute("filtered", "true");
                         break;
                       }
@@ -1859,11 +1913,17 @@ bcdui.component.grid.Grid = class extends bcdui.core.Renderer
                     else {
                       const separator = self.optionsModelInfo[bRef] && self.optionsModelInfo[bRef].separator || "";
                       let match = false;
-                      (separator ? value.split(separator) : [value]).forEach(function(v) { 
-                        match |= (this.statusModel.query(targetModelXPath + "/f:Or[@id='"+bRef+"']/f:Expression[@value='{{=it[0]}}']",[v]) != null);
+                      (separator ? value.split(separator) : [value]).forEach(function(v) {
+                        const vv = tsCols.indexOf(bRef) != -1 ? v.replace(" ", "T") : v;
+                        const tsSpecial = tsCols.indexOf(bRef) != -1 && this.statusModel.query(targetModelXPath + "/f:Or[@specialTS='true']") != null;
+                        match |= tsSpecial
+                        ? (this.statusModel.query(targetModelXPath + "/f:Or[@id='"+bRef+"']//f:Expression[@op='>=' and @value='{{=it[0]}}']",[vv]) != null)
+                        : (this.statusModel.query(targetModelXPath + "/f:Or[@id='"+bRef+"']/f:Expression[@value='{{=it[0]}}']",[vv]) != null);
                       }.bind(this));
-                      if (! match)
+                      if (! match) {
                         e.setAttribute("filtered", "true");
+                        break;
+                      }
                     }
                   }
                 }

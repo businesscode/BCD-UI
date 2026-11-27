@@ -929,37 +929,82 @@ div.bcdUserMessages {
   }
 }
 
-
 /* column filter */
-
-.bcdFilterContainer { display: flex; align-items: center;}
-.bcdFilterContainer > bcd-inputfield { width: 100%; }
-.bcdFilterOriginal { width: 100%;}
+.bcdFilterContainer {
+  display: flex;
+  align-items: center;
+}
 .bcdFilterButton {
-  background: inherit;
-  border-radius: 2px;
-  border: 1px solid $border-color;
-  color: $border-color;
-  font-size: 9px;
-  padding: 2px;
-  height: 10px;
-  margin-left: 5px;
-  line-height: normal;
+  display: inline-block;
+  border: none;
+  padding: 0;
+  margin: 0;
+  &:hover { cursor: pointer; }
+  &.active { border: none; &:before { color: #aa0000; }}
+  &:before {
+    content: "\f0b0";
+    border: 1px solid $border-color;
+    border-radius: .3em;
+    font-size: .5em;
+    vertical-align: middle;
+    padding: .3em;
+    margin: 0 0 0 .3em;
+    font-family: "Font Awesome 5 Free", Sans-serif;
+    font-weight: 600;
+    font-style: normal;
+    color: $text-color-dark;
+  }
 }
-.bcdFilterButton.active {
-  border: 1px solid $select-color;
-  color: $select-color;
-  background-color: inherit;
-}
-.bcdFilterButton:hover {
-  border: 1px solid $border-color-dark;
-  color: $border-color-dark;
-  cursor: pointer;
-}
-.bcdFilterButton:before { content: "\25BC"; }
-
-.bcdExportColumnsDialog,
 .bcdFilterDialog {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  select, input { width: 100%; }
+  input[type='checkbox'] { width: auto; cursor: pointer; }
+
+  .flex-row { display: flex; flex-direction: row; flex-wrap: nowrap; margin: 0 0 .3em 0; padding: 0; &:last-child { margin: 0; } flex: 1; justify-content: right; }
+  .flex-col { display: flex; flex-direction: column; flex-wrap: nowrap; margin: 0 .3em 0 0; padding: 0; &:last-child { margin: 0; } flex: 1; }
+  .flex-0 { flex: 0; }
+
+  .singleFilterSelection {
+    margin: 0 0 .3em 0;
+    padding: .3em;
+    border: 1px solid $border-color;
+    border-radius: 0.25rem;
+    .bcdButton {
+      font-size: .8em;
+    }
+    form {
+      height: 10em;
+      width: 100%;
+      overflow: auto;
+      border: 1px solid $border-color;
+      border-left-style: none;
+      border-right-style: none;
+      input, span {
+        vertical-align: middle;
+        margin: 0 .3em 0 .3em;
+      }
+      div { display: flex; margin: .15em 0; }
+      span { flex: 1; text-align: left; }
+      .highlight {
+        @include con_color( $select-color );
+        cursor: pointer;
+      }
+    }
+    .bcdLimitReached { color: #aa0000; }
+    .info span { margin: 0 .3em 0 0; text-align: right; white-space: nowrap; }
+  }
+  .bcdButton a { white-space: nowrap; margin: 0; }
+}
+.bcdFilterTooltip {
+  p { font-weight: bold; padding: 0; margin: 0; }
+  ul { list-style-type: none; padding: 0; margin: 0;}
+  li { padding: .3em 0 0 .7em; }
+}
+
+/* export columns */
+.bcdExportColumnsDialog {
   @include no_shadow();
   border: none;
   min-width: 250px; 
@@ -978,45 +1023,6 @@ div.bcdUserMessages {
     margin-bottom: 10px;
   }
 }
-
-.bcdFilterSelection {
-  
-  .bcdFilterActions {
-    position: relative;
-    margin-bottom: 3px;
-    input { width: auto; margin: 0px 3px 0px 0px; }
-    > div { position: absolute; right: 0px; top: 0px;}
-    > div:first-child { left: 0px; right: inherit; }
-  }
-
-  .bcdButton a {
-    color: inherit;
-    background-color: inherit;
-    margin: 0px 0px 3px 5px;
-    padding: 0px;
-  }
-}
-
-.bcdFilterMultiSelect {
-  height: 200px;
-  overflow: auto;
-  text-align: left;
-  border: 1px solid #CCC;
-  padding: 3px;
-  div {margin: 3px 0px 3px 0px;}
-  input {
-    width: auto;
-    margin: 0px;
-    padding: 0px;
-    margin-right: 3px;
-  }
-  .highlight {
-    background-color: #d3f4bf !important; color: #000 !important;
-  }
-}
-
-.bcdFilterTooltip p { font-weight: bold; }
-.bcdFilterTooltip li { padding: 3px; }
 
 
 /* ******************************************************************* */

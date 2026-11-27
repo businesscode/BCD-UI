@@ -33,6 +33,7 @@
   <xsl:param name="binding"/>
   <xsl:param name="bRefs" />
   <xsl:param name="gridModelId"/>
+  <xsl:param name="rowLimit" select="900"/>
 
   <xsl:variable name="bRefsStr">
     <xsl:call-template name="tokenize">
@@ -48,6 +49,9 @@
 
     <wrq:WrsRequest>
       <wrq:Select>
+        <xsl:if test="$rowLimit">
+          <xsl:attribute name="rowEnd"><xsl:value-of select="$rowLimit"/></xsl:attribute>
+        </xsl:if>
         <wrq:Columns>
           <xsl:for-each select="$bRefTokens/wrs:Wrs/wrs:Data/wrs:R[wrs:C[.!='']]">
             <wrq:C bRef="{./wrs:C}" />
