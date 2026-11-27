@@ -52,14 +52,15 @@ bcdui.util.clipboard =
      * @returns {Promise<string>} - resolving with clipboard data
      */
     paste: function() {
-      bcdui.log.isTraceEnabled() && bcdui.log.trace("Pasted from clipboard: " + data);
       return new Promise(function(resolve, reject) {
-        var data;
         if (navigator && navigator.clipboard && navigator.clipboard.readText)
           resolve(navigator.clipboard.readText());
         else
-          data = bcdui.util.clipboard._buffer;
-        resolve(data)
+          resolve(bcdui.util.clipboard._buffer);
+      }).then(function(data) {
+        // Log once the data is known, it was logged before being read (ReferenceError with trace enabled)
+        bcdui.log.isTraceEnabled() && bcdui.log.trace("Pasted from clipboard: " + data);
+        return data;
       });
     },
 
