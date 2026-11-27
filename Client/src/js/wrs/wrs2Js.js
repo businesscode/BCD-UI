@@ -207,12 +207,18 @@ bcdui.wrs.wrs2Js = function(wrsDoc)
 
   const { NS_WRS, attrs, wrsChildren, wrsChild, textAndAttrs } = createHelpers();
 
+  /**
+   * Convert a Wrs XML into a WrsJs, return an empty WrsJs for all other input
+   * @param wrsElem
+   * @returns {{wrs: *}|{wrs: {}, header: {columns: {wrsC: []}}, data: *[]}}
+   */
   const convertWrs = wrsElem =>
   {
-    if( wrsElem.localName === "Empty" ) return { wrs: {}, header: { columns: { wrsC:[] } }, data: [] };
-    
-    if (wrsElem.namespaceURI !== NS_WRS || wrsElem.localName !== "Wrs")
-      throw Error("bcdui.wrs.wrs2Js: input is not a wrs:Wrs document but " + wrsElem.nodeName);
+    // We expect a Wrs, in all other cases we return an empty Wrs.
+    if (wrsElem.namespaceURI !== NS_WRS || wrsElem.localName !== "Wrs") {
+      bcdui.log.debug("bcdui.wrs.wrs2Js: input is not a wrs:Wrs document but: " + wrsElem.nodeName);
+      return { wrs: {}, header: { columns: { wrsC:[] } }, data: [] };
+    }
 
     const result = { wrs: attrs(wrsElem) };
 
@@ -262,7 +268,7 @@ bcdui.wrs.wrs2Js = function(wrsDoc)
     if (new Set(colIds).size !== colIds.length) {
       const counts = colIds.reduce((c, id) => c.set(id, (c.get(id) || 0) + 1), new Map());
       const dups = [...counts].filter(([, n]) => n > 1).map(([id, n]) => id + " (" + n + "x)");
-      const bs = result.header.bindingSet.map(b=>b.bcdText).join(", ");
+      const bs = result.header.bindingSet?.map(b=>b.bcdText).join(", ") ?? "(no BindingSet)";
       bcdui.log.warn("bcdui.wrs.wrs2Js: duplicate column ids, only the last one of each is kept in wrsC: " + dups.join(", ") + " on " + bs );
     }
 
