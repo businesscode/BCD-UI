@@ -2369,7 +2369,7 @@ jQuery.extend(bcdui.widget,
                       v0 = v0.replace("T", " ");
                       v1 = v1.replace("T", " ");
                     }
-                    op = `${(v0||"")} >= ${caption} <= ${(v1||"")}`;
+                    op = `${(v0||"")} <= ${caption} <= ${(v1||"")}`;
                   }
                 }
                 values = [op];
