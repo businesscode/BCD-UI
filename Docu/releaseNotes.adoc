@@ -19,6 +19,7 @@ ___
 * New function bcdui.wrs.wrsUtil.filterToXPath() understands f:Filter expressions for use on client side, including output of bcdui.wrs.wrsUtil.parseFilterExpression()
 * Grid, support editor options model changes during runtime, offer gridAlert and gridConfirm override functions for project specific not default alert/confirm handling
 * Tooltip, fixed showing old validation tt content when switching field either by mouse or tab      
+* ColumnFilter widget, supporting general filters, not only single values, reworked layout (review css), data type specific input only  
 
 .Server:
 * BindingSet: Added `bnd:BindingDefaults` for inheriting BindingItem attributes defaults based on their id
@@ -47,6 +48,7 @@ ___
   because the document is tried to be loaded from the wrong place and could not be parsed
 * ModelWrapper now always create new models, event if the first step in the chain is a JavaScript function, that is enforced now.
   Use an ModelUpdater, if you want to modify the underlying model
+* custom columnfilter valueCaptionProvider providers need to resolve with an object (before it resolved with values): {values, limitReached} where values is as before, limitReached is a boolean indicating if not all single values are available (default limit 900).
 ---.
 
 ___
